@@ -211,7 +211,12 @@ tr:hover td{background:#FAFAFF}
         <div class="brand-logo">Sub<span>lyfe</span></div>
         <div class="brand-tagline">Sub. Life. Simplified.</div>
       </div>
+      <div id="mode-switcher" style="display:none;margin:0 .75rem .5rem;background:#F5F4FF;border-radius:10px;padding:3px;display:flex">
+        <button id="mode-btn-solo" onclick="switchMode('solo')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:#6B3FA0;color:white;transition:all .15s">🏠 Gestion</button>
+        <button id="mode-btn-concierge" onclick="switchMode('concierge')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:transparent;color:#8A8A99;transition:all .15s">🏢 Conciergerie</button>
+      </div>
       <div class="sidebar-sep"></div>
+      <div id="nav-solo">
       <div class="nav-section-label">Mon Business</div>
       <button class="nav-item active" onclick="goTo('cockpit',this)"><span class="nav-emoji">📊</span>Le Cockpit</button>
       <button class="nav-item" onclick="goTo('parc',this)"><span class="nav-emoji">🏠</span>Le Parc <span class="nav-badge" id="parc-badge">0</span></button>
@@ -219,14 +224,23 @@ tr:hover td{background:#FAFAFF}
       <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji">🤖</span>IA Pricing <span class="nav-badge-new">NEW</span></button>
       <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji">🎯</span>Événements <span class="nav-badge-new" id="events-badge" style="display:none">0</span></button>
       <button class="nav-item" onclick="goTo('squad',this)"><span class="nav-emoji">👥</span>La Squad</button>
-      <div class="nav-section-label mod-concierge" style="display:none">Conciergerie</div>
-      <button class="nav-item mod-concierge" onclick="goTo('proprietaires',this)" style="display:none"><span class="nav-emoji">👤</span>Propriétaires</button>
-      <button class="nav-item mod-concierge" onclick="goTo('rapports',this)" style="display:none"><span class="nav-emoji">📊</span>Rapports mensuels</button>
       <div class="nav-section-label">Intégrations</div>
       <button class="nav-item" onclick="goTo('smoobu',this)"><span class="nav-emoji">🔗</span>Smoobu <span class="smoobu-badge" id="smoobu-nav-badge" style="display:none">✓</span></button>
       <div class="nav-section-label">Réseau Sublyfer</div>
       <button class="nav-item" onclick="goTo('clean',this)"><span class="nav-emoji">🧹</span>Sublyfer Clean</button>
       <button class="nav-item" onclick="goTo('annuaire',this)"><span class="nav-emoji">🟡</span>L'Annuaire</button>
+      </div>
+      <div id="nav-concierge" style="display:none">
+      <div class="nav-section-label">Conciergerie</div>
+      <button class="nav-item" onclick="goTo('cockpit-c',this)"><span class="nav-emoji">📊</span>Dashboard</button>
+      <button class="nav-item" onclick="goTo('proprietaires',this)"><span class="nav-emoji">👤</span>Propriétaires</button>
+      <button class="nav-item" onclick="goTo('parc-c',this)"><span class="nav-emoji">🏠</span>Parc géré</button>
+      <button class="nav-item" onclick="goTo('rapports',this)"><span class="nav-emoji">📊</span>Rapports mensuels</button>
+      <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji">🤖</span>IA Pricing</button>
+      <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji">🎯</span>Événements</button>
+      <div class="nav-section-label">Intégrations</div>
+      <button class="nav-item" onclick="goTo('smoobu',this)"><span class="nav-emoji">🔗</span>Smoobu</button>
+      </div>
       <div class="nav-section-label">Compte</div>
       <button class="nav-item" onclick="goTo('tarifs',this)"><span class="nav-emoji">💳</span>Tarifs &amp; Abonnement</button>
       <button class="nav-item" onclick="goTo('settings',this)"><span class="nav-emoji">⚙️</span>Paramètres</button>
@@ -320,6 +334,26 @@ tr:hover td{background:#FAFAFF}
           <button class="btn btn-purple" onclick="openAddModal()">+ Ajouter un appartement</button>
         </div>
         <div id="events-container"></div>
+      </div>
+
+      <!-- COCKPIT CONCIERGERIE -->
+      <div class="page" id="page-cockpit-c">
+        <div class="page-header">
+          <div><div class="page-title">Dashboard Conciergerie 🏢</div><div class="page-sub" id="cockpit-c-date"></div></div>
+          <div class="actions">
+            <button class="btn btn-purple" onclick="openAddProprioModal()">+ Propriétaire</button>
+            <button class="btn btn-ai" onclick="goTo('rapports',document.querySelector('[onclick*=rapports]'))">📊 Rapports</button>
+          </div>
+        </div>
+        <div id="cockpit-c-content"></div>
+      </div>
+
+      <!-- PARC CONCIERGERIE -->
+      <div class="page" id="page-parc-c">
+        <div class="page-header">
+          <div><div class="page-title">Parc géré 🏠</div><div class="page-sub" id="parc-c-sub"></div></div>
+        </div>
+        <div id="parc-c-content"></div>
       </div>
 
       <!-- PROPRIETAIRES -->
@@ -700,8 +734,9 @@ async function loadApp(){
     if(apparts.length)loadEvents(false);
     renderTarifs();
     checkPaymentReturn();
+    await loadProprietaires();
     applyModules();
-    if(userModules.includes('concierge')){await loadProprietaires();renderProprietaires();initRapportMois();renderRapports();}
+    if(userModules.includes('concierge')){renderProprietaires();initRapportMois();renderRapports();renderCockpitConcierge();renderParcConcierge();}
     checkOnboarding();
   }catch(e){document.getElementById('loading').style.display='none';document.getElementById('auth-screen').style.display='flex';}
 }
@@ -1112,6 +1147,8 @@ function goTo(page,btn){
   document.getElementById('page-'+page).classList.add('active');
   if(btn)btn.classList.add('active');
   if(page==='events'&&apparts.length&&!Object.keys(eventsCache).length)loadEvents(false);
+  if(page==='cockpit-c')renderCockpitConcierge();
+  if(page==='parc-c')renderParcConcierge();
   if(page==='proprietaires')renderProprietaires();
   if(page==='rapports'){initRapportMois();renderRapports();}
 }
@@ -1250,6 +1287,7 @@ async function doForgotPassword(){
 
 // MODULES
 let userModules=['solo'];
+let currentMode='solo';
 let proprietaires=[];
 let rapportsData=[];
 let editProprioId=null;
@@ -1266,16 +1304,176 @@ function getModules(){
 
 function applyModules(){
   userModules=getModules();
-  // Show/hide concierge nav items
-  document.querySelectorAll('.mod-concierge').forEach(el=>{
-    el.style.display=userModules.includes('concierge')?'':'none';
-    if(el.classList.contains('nav-item'))el.style.display=userModules.includes('concierge')?'flex':'none';
-  });
+  // Show switcher only if both modules active
+  const switcher=document.getElementById('mode-switcher');
+  const hasBoth=userModules.includes('solo')&&userModules.includes('concierge');
+  if(switcher)switcher.style.display=hasBoth?'flex':'none';
+  // If only concierge, auto switch
+  if(userModules.includes('concierge')&&!userModules.includes('solo'))switchMode('concierge');
+  else if(!userModules.includes('concierge')&&userModules.includes('solo'))switchMode('solo');
   // Update settings toggles
   const tSolo=document.getElementById('toggle-mod-solo');
   const tConc=document.getElementById('toggle-mod-concierge');
   if(tSolo){tSolo.className='toggle '+(userModules.includes('solo')?'on':'off');}
   if(tConc){tConc.className='toggle '+(userModules.includes('concierge')?'on':'off');}
+}
+
+function switchMode(mode){
+  currentMode=mode;
+  const navSolo=document.getElementById('nav-solo');
+  const navConc=document.getElementById('nav-concierge');
+  const btnSolo=document.getElementById('mode-btn-solo');
+  const btnConc=document.getElementById('mode-btn-concierge');
+  if(mode==='solo'){
+    if(navSolo)navSolo.style.display='block';
+    if(navConc)navConc.style.display='none';
+    if(btnSolo){btnSolo.style.background='#6B3FA0';btnSolo.style.color='white';}
+    if(btnConc){btnConc.style.background='transparent';btnConc.style.color='#8A8A99';}
+    goTo('cockpit',document.querySelector('#nav-solo .nav-item'));
+  } else {
+    if(navSolo)navSolo.style.display='none';
+    if(navConc)navConc.style.display='block';
+    if(btnConc){btnConc.style.background='#6B3FA0';btnConc.style.color='white';}
+    if(btnSolo){btnSolo.style.background='transparent';btnSolo.style.color='#8A8A99';}
+    goTo('cockpit-c',document.querySelector('#nav-concierge .nav-item'));
+    renderCockpitConcierge();
+    renderParcConcierge();
+  }
+}
+
+function renderCockpitConcierge(){
+  const el=document.getElementById('cockpit-c-content');if(!el)return;
+  document.getElementById('cockpit-c-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const totalAppts=apparts.filter(a=>a.proprietaire_id).length;
+  const mois=new Date().toISOString().slice(0,7);
+  const monthRes=reservations.filter(r=>r.date_from&&r.date_from.startsWith(mois));
+  const totalRev=monthRes.reduce((s,r)=>s+(r.price_total||0),0);
+  const totalComm=proprietaires.reduce((s,p)=>{
+    const pAppts=apparts.filter(a=>a.proprietaire_id===p.id);
+    const pRes=monthRes.filter(r=>pAppts.some(a=>a.id===r.appartement_id));
+    return s+Math.round(pRes.reduce((s2,r)=>s2+(r.price_total||0),0)*(p.commission||20)/100);
+  },0);
+  const hotEvents=Object.values(eventsCache).flat().filter(e=>e.hot).length;
+
+  let h='';
+
+  // KPIs
+  h+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:1.25rem">
+    <div class="kpi"><div class="kpi-label">Propriétaires</div><div class="kpi-value" style="color:#6B3FA0">${proprietaires.length}</div><div class="kpi-delta" style="color:#6B3FA0">clients actifs</div></div>
+    <div class="kpi"><div class="kpi-label">Apparts gérés</div><div class="kpi-value">${totalAppts}</div><div class="kpi-delta" style="color:#059669">en gestion</div></div>
+    <div class="kpi"><div class="kpi-label">Revenus mois</div><div class="kpi-value">${totalRev}€</div><div class="kpi-delta" style="color:#059669">brut total</div></div>
+    <div class="kpi"><div class="kpi-label">Mes commissions</div><div class="kpi-value" style="color:#BA7517">${totalComm}€</div><div class="kpi-delta" style="color:#BA7517">ce mois</div></div>
+    ${hotEvents>0?`<div class="kpi" style="border-color:#FCD34D;background:#FFFBEB"><div class="kpi-label">Événements</div><div class="kpi-value" style="color:#BA7517">${hotEvents}</div><div class="kpi-delta" style="color:#BA7517">\ud83d\udd25 boost dispo</div></div>`:''}
+  </div>`;
+
+  // Alertes conciergerie
+  h+=`<div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Actions prioritaires</div>`;
+  let alerts=[];
+  proprietaires.forEach(p=>{
+    const pAppts=apparts.filter(a=>a.proprietaire_id===p.id);
+    if(!pAppts.length)alerts.push({type:'warning',text:`${p.name} — aucun appartement assigné`,action:'Assigner',onclick:`openAssignApparts('${p.id}')`});
+    pAppts.forEach(a=>{
+      if(!a.booked)alerts.push({type:'urgent',text:`${a.name} (${p.name}) — libre ce soir`,action:'Voir le parc',onclick:"goTo('parc-c')"});
+    });
+    const pRes=monthRes.filter(r=>pAppts.some(a=>a.id===r.appartement_id));
+    if(pAppts.length>0&&pRes.length===0)alerts.push({type:'warning',text:`${p.name} — 0 réservations ce mois`,action:'Analyser',onclick:"goTo('rapports')"});
+  });
+  if(!alerts.length)alerts.push({type:'success',text:'Tout est en ordre ! Aucune action urgente.',action:''});
+
+  alerts.slice(0,5).forEach(a=>{
+    const col=a.type==='urgent'?'#993C1D':a.type==='warning'?'#854F0B':'#0F6E56';
+    const bg=a.type==='urgent'?'#FAECE7':a.type==='warning'?'#FAEEDA':'#E1F5EE';
+    const brd=a.type==='urgent'?'#D85A30':a.type==='warning'?'#BA7517':'#1D9E75';
+    h+=`<div style="display:flex;align-items:center;gap:10px;padding:.75rem 1rem;border-radius:10px;border:0.5px solid #EEEEF5;border-left:3px solid ${brd};background:white;margin-bottom:6px">
+      <div style="flex:1;font-size:13px;color:${col};font-weight:500">${a.text}</div>
+      ${a.action?`<button onclick="${a.onclick}" class="btn btn-sm" style="background:${bg};border-color:${brd};color:${col}">${a.action}</button>`:''}
+    </div>`;
+  });
+
+  // Liste propriétaires avec mini-rapports
+  h+=`<div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem;margin-top:1.25rem">Vos propriétaires</div>`;
+  if(!proprietaires.length){
+    h+=`<div style="text-align:center;padding:2rem;background:white;border-radius:12px;border:0.5px solid #EEEEF5">
+      <div style="font-size:32px;margin-bottom:8px">👤</div>
+      <div style="font-weight:500;margin-bottom:8px">Aucun propriétaire</div>
+      <button class="btn btn-purple btn-sm" onclick="openAddProprioModal()">+ Ajouter un propriétaire</button>
+    </div>`;
+  } else {
+    h+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px">`;
+    proprietaires.forEach(p=>{
+      const pAppts=apparts.filter(a=>a.proprietaire_id===p.id);
+      const pRes=monthRes.filter(r=>pAppts.some(a=>a.id===r.appartement_id));
+      const rev=pRes.reduce((s,r)=>s+(r.price_total||0),0);
+      const comm=Math.round(rev*(p.commission||20)/100);
+      const net=rev-comm;
+      const freeApts=pAppts.filter(a=>!a.booked).length;
+      h+=`<div style="background:white;border-radius:12px;border:0.5px solid #EEEEF5;padding:1rem;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${freeApts>0?'#D85A30':'#1D9E75'}"></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#6B3FA0,#FF6B6B);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:white;flex-shrink:0">${(p.name||'?').charAt(0).toUpperCase()}</div>
+          <div>
+            <div style="font-size:14px;font-weight:700">${p.name}</div>
+            <div style="font-size:11px;color:#8A8A99">${pAppts.length} appart${pAppts.length>1?'s':''} · ${p.commission||20}% comm.</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px">
+          <div style="background:#F5F4FF;border-radius:8px;padding:6px;text-align:center">
+            <div style="font-size:16px;font-weight:700">${rev}€</div>
+            <div style="font-size:10px;color:#8A8A99">Brut</div>
+          </div>
+          <div style="background:#FAEEDA;border-radius:8px;padding:6px;text-align:center">
+            <div style="font-size:16px;font-weight:700;color:#BA7517">${comm}€</div>
+            <div style="font-size:10px;color:#8A8A99">Comm.</div>
+          </div>
+          <div style="background:#E1F5EE;border-radius:8px;padding:6px;text-align:center">
+            <div style="font-size:16px;font-weight:700;color:#059669">${net}€</div>
+            <div style="font-size:10px;color:#8A8A99">Net</div>
+          </div>
+        </div>
+        ${freeApts>0?`<div style="font-size:11px;padding:4px 8px;border-radius:6px;background:#FAECE7;color:#993C1D">${freeApts} appart${freeApts>1?'s':''} libre${freeApts>1?'s':''} ce soir</div>`:`<div style="font-size:11px;padding:4px 8px;border-radius:6px;background:#E1F5EE;color:#059669">Tout loué \u2713</div>`}
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+
+  el.innerHTML=h;
+}
+
+function renderParcConcierge(){
+  const el=document.getElementById('parc-c-content');if(!el)return;
+  const managed=apparts.filter(a=>a.proprietaire_id);
+  document.getElementById('parc-c-sub').textContent=managed.length+' appartement'+(managed.length>1?'s':'')+' en gestion';
+
+  if(!managed.length){
+    el.innerHTML=`<div style="text-align:center;padding:3rem;background:white;border-radius:14px;border:0.5px solid #EEEEF5">
+      <div style="font-size:40px;margin-bottom:1rem">🏠</div>
+      <div style="font-weight:600;font-size:16px;margin-bottom:6px">Aucun appartement en gestion</div>
+      <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">Ajoutez des propriétaires puis assignez-leur des appartements</div>
+      <button class="btn btn-purple" onclick="goTo('proprietaires',document.querySelector('[onclick*=proprietaires]'))">👤 Gérer les propriétaires</button>
+    </div>`;
+    return;
+  }
+
+  let h=`<div class="card"><div class="table-wrap"><table>
+    <thead><tr><th>Appartement</th><th>Propriétaire</th><th>Ville</th><th>Prix/nuit</th><th>Commission</th><th>Statut</th><th>Net proprio</th></tr></thead><tbody>`;
+
+  managed.forEach(a=>{
+    const p=proprietaires.find(x=>x.id===a.proprietaire_id);
+    const commPct=p?.commission||20;
+    const netPrice=Math.round((a.price||0)*(100-commPct)/100);
+    h+=`<tr>
+      <td><div class="apt-name"><div class="apt-emoji">${a.emoji||'\ud83c\udfe0'}</div><div><div>${a.name}</div><div style="font-size:11px;color:#8A8A99">${a.zone||''}</div></div></div></td>
+      <td style="font-weight:600;color:#6B3FA0">${p?.name||'—'}</td>
+      <td style="font-size:12px;color:#8A8A99">${a.city||'—'}</td>
+      <td class="price-main">${a.price||0}€</td>
+      <td><span class="tag tag-warn">${commPct}%</span></td>
+      <td><span class="tag ${a.booked?'tag-ok':'tag-bad'}">${a.booked?'Loué':'Libre'}</span></td>
+      <td style="font-weight:600;color:#059669">${netPrice}€</td>
+    </tr>`;
+  });
+
+  h+=`</tbody></table></div></div>`;
+  el.innerHTML=h;
 }
 
 async function toggleModule(mod){
