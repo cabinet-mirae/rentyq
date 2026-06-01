@@ -206,6 +206,7 @@ tr:hover td{background:#FAFAFF}
       <button class="nav-item" onclick="goTo('clean',this)"><span class="nav-emoji">🧹</span>Sublyfer Clean</button>
       <button class="nav-item" onclick="goTo('annuaire',this)"><span class="nav-emoji">🟡</span>L'Annuaire</button>
       <div class="nav-section-label">Compte</div>
+      <button class="nav-item" onclick="goTo('tarifs',this)"><span class="nav-emoji">💳</span>Tarifs &amp; Abonnement</button>
       <button class="nav-item" onclick="goTo('settings',this)"><span class="nav-emoji">⚙️</span>Paramètres</button>
       <div class="sidebar-footer">
         <div class="user-row">
@@ -380,6 +381,19 @@ tr:hover td{background:#FAFAFF}
         </div>
       </div>
 
+      <!-- TARIFS -->
+      <div class="page" id="page-tarifs">
+        <div class="page-header"><div><div class="page-title">Tarifs &amp; Abonnement 💳</div><div class="page-sub" id="tarifs-sub">14 jours d'essai gratuit — sans carte bancaire</div></div></div>
+        <div id="tarifs-content"></div>
+        <div id="tarifs-success" style="display:none">
+          <div class="card" style="text-align:center;padding:3rem;border-color:#5DCAA5;background:#ECFDF5">
+            <div style="font-size:48px;margin-bottom:1rem">🎉</div>
+            <div style="font-size:20px;font-weight:700;margin-bottom:8px;color:#059669">Paiement réussi !</div>
+            <div style="font-size:13px;color:#8A8A99;margin-bottom:1.5rem">Votre abonnement est actif. Bienvenue dans Sublyfe Pro !</div>
+            <button class="btn btn-purple" onclick="goTo('cockpit',document.querySelectorAll('.nav-item')[0])">Aller au Cockpit →</button>
+          </div>
+        </div>
+      </div>
       <!-- SETTINGS -->
       <div class="page" id="page-settings">
         <div class="page-header"><div><div class="page-title">Paramètres ⚙️</div></div></div>
@@ -447,6 +461,7 @@ const SB_URL='https://gtffekgqglpxjjligffi.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0ZmZla2dxZ2xweGpqbGlnZmZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyNjUxODMsImV4cCI6MjA5NTg0MTE4M30.8SHvalTRdUD4dXjcKP8s13yXhtg3NDrjQCBXDlu-jyE';
 const SMOOBU_FN='/.netlify/functions/smoobu';
 const EVENTS_FN='/.netlify/functions/events';
+const STRIPE_FN='/.netlify/functions/stripe';
 let currentUser=null,currentProfile=null,apparts=[],reservations=[],editId=null,smoobuKey=null,eventsCache={};
 
 const sbFetch=(path,opts={})=>fetch(`${SB_URL}/rest/v1/${path}`,{headers:{'apikey':SB_KEY,'Authorization':`Bearer ${currentUser?.access_token||SB_KEY}`,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})},method:opts.method||'GET',body:opts.body});
@@ -525,6 +540,8 @@ async function loadApp(){
     document.getElementById('set-plan').textContent='Plan '+(currentProfile.plan||'Starter');
     if(smoobuKey)updateSmoobuUI(true);
     if(apparts.length)loadEvents(false);
+    renderTarifs();
+    checkPaymentReturn();
   }catch(e){document.getElementById('loading').style.display='none';document.getElementById('auth-screen').style.display='flex';}
 }
 
@@ -1004,6 +1021,76 @@ async function askAI(id){
   }catch(e){document.getElementById('ai-bubble-'+id).innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head">⚠️</div><div class="ai-bubble-text">Indisponible.</div></div>`;}
 }
 
+
+// STRIPE & TARIFS
+function renderTarifs(){
+  const content=document.getElementById('tarifs-content');if(!content)return;
+  const plan=currentProfile?.plan||'Starter';
+  const isStarter=plan==='Starter';const isPro=plan==='Pro';
+  content.innerHTML=`
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-bottom:1.5rem">
+    <div style="background:white;border-radius:14px;border:0.5px solid #EEEEF5;padding:1.5rem">
+      <div style="font-size:12px;font-weight:600;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Starter</div>
+      <div style="font-size:36px;font-weight:700;margin-bottom:4px">29€<span style="font-size:14px;font-weight:400;color:#8A8A99">/mois</span></div>
+      <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">14 jours offerts</div>
+      <div style="font-size:13px;line-height:2;margin-bottom:1.25rem;color:#3A3A50">
+        ✓ Jusqu'à 5 appartements<br>✓ PriceBot IA<br>✓ Intégration Smoobu<br>✓ Événements Ticketmaster<br>✗ Mode conciergerie
+      </div>
+      <button onclick="startCheckout('starter')" class="btn btn-purple" style="width:100%;justify-content:center;padding:10px" ${isStarter?'disabled':''}>${isStarter?'Plan actuel':"Commencer l'essai gratuit"}</button>
+    </div>
+    <div style="background:white;border-radius:14px;border:2px solid #6B3FA0;padding:1.5rem;position:relative">
+      <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#6B3FA0;color:white;font-size:11px;font-weight:600;padding:3px 12px;border-radius:100px">Recommandé</div>
+      <div style="font-size:12px;font-weight:600;color:#6B3FA0;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Pro</div>
+      <div style="font-size:36px;font-weight:700;margin-bottom:4px">79€<span style="font-size:14px;font-weight:400;color:#8A8A99">/mois</span></div>
+      <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">14 jours offerts</div>
+      <div style="font-size:13px;line-height:2;margin-bottom:1.25rem;color:#3A3A50">
+        ✓ Appartements illimités<br>✓ PriceBot IA avancé<br>✓ Intégration Smoobu<br>✓ Événements Ticketmaster<br>✓ Mode conciergerie multi-clients
+      </div>
+      <button onclick="startCheckout('pro')" class="btn btn-purple" style="width:100%;justify-content:center;padding:10px" ${isPro?'disabled':''}>${isPro?'Plan actuel':"Commencer l'essai gratuit"}</button>
+    </div>
+    <div style="background:white;border-radius:14px;border:0.5px solid #EEEEF5;padding:1.5rem">
+      <div style="font-size:12px;font-weight:600;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Enterprise</div>
+      <div style="font-size:36px;font-weight:700;margin-bottom:4px">Sur devis</div>
+      <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">Pour les grandes conciergeries</div>
+      <div style="font-size:13px;line-height:2;margin-bottom:1.25rem;color:#3A3A50">
+        ✓ Multi-comptes<br>✓ API dédiée<br>✓ Support prioritaire<br>✓ Onboarding personnalisé<br>✓ Dashboard custom
+      </div>
+      <button onclick="window.location.href='mailto:contact@sublyfe.fr'" class="btn" style="width:100%;justify-content:center;padding:10px">Nous contacter</button>
+    </div>
+  </div>
+  <div style="background:#F5F4FF;border-radius:12px;padding:1rem;font-size:13px;color:#6B3FA0;text-align:center">
+    🔒 Paiement sécurisé par Stripe · Annulation à tout moment · Aucun engagement
+  </div>`;
+}
+
+async function startCheckout(plan){
+  const btn=event.target;btn.disabled=true;btn.textContent='Chargement...';
+  try{
+    const res=await fetch(STRIPE_FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'createCheckout',plan,email:currentProfile?.email||''})});
+    const data=await res.json();
+    if(data.url){window.location.href=data.url;}
+    else{showToast('Erreur : '+(data.error||'Réessayez'));btn.disabled=false;btn.textContent="Commencer l'essai gratuit";}
+  }catch(e){showToast('Erreur de connexion');btn.disabled=false;btn.textContent="Commencer l'essai gratuit";}
+}
+
+function checkPaymentReturn(){
+  const params=new URLSearchParams(window.location.search);
+  if(params.get('payment')==='success'){
+    const plan=params.get('plan')||'starter';
+    if(currentProfile)currentProfile.plan=plan.charAt(0).toUpperCase()+plan.slice(1);
+    renderSidebar();
+    goTo('tarifs',document.querySelector('[onclick*=tarifs]'));
+    document.getElementById('tarifs-success').style.display='block';
+    document.getElementById('tarifs-content').style.display='none';
+    showToast('🎉 Abonnement activé !');
+    window.history.replaceState({},'',window.location.pathname);
+  }
+  if(params.get('payment')==='cancelled'){
+    showToast('Paiement annulé — vous pouvez réessayer quand vous voulez.');
+    window.history.replaceState({},'',window.location.pathname);
+  }
+}
+
 // Init
 (async function(){
   document.getElementById('loading').style.display='none';
@@ -1026,4 +1113,3 @@ async function askAI(id){
 </script>
 </body>
 </html>
-
