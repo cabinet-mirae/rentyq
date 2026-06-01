@@ -227,24 +227,7 @@ tr:hover td{background:#FAFAFF}
             <button class="btn btn-ai" onclick="goTo('pricing',document.querySelectorAll('.nav-item')[3])">🤖 PriceBot</button>
           </div>
         </div>
-        <div class="kpi-grid" id="cockpit-kpis"></div>
-        <div class="grid-2">
-          <div class="card">
-            <div class="card-head"><div class="card-title">Le Parc — vue rapide</div></div>
-            <div class="table-wrap"><table id="cockpit-table"></table></div>
-            <div id="cockpit-empty" style="text-align:center;padding:2rem;color:#8A8A99;display:none">
-              <div style="font-size:32px;margin-bottom:8px">🏠</div>
-              <div style="font-weight:600;margin-bottom:4px">Aucun appartement</div>
-              <button class="btn btn-purple btn-sm" onclick="openAddModal()" style="margin-top:0.5rem">+ Ajouter</button>
-            </div>
-          </div>
-          <div>
-            <div class="card" id="cockpit-events-card">
-              <div class="card-head"><div class="card-title">🎯 Événements chauds</div><button class="btn btn-sm" onclick="goTo('events',document.querySelectorAll('.nav-item')[4])">Voir tout</button></div>
-              <div id="cockpit-events"></div>
-            </div>
-          </div>
-        </div>
+        <div id="cockpit-dash"></div>
       </div>
 
       <!-- LE PARC -->
@@ -562,41 +545,181 @@ function renderAll(){
   if(smoobuKey){document.getElementById('btn-sync').style.display='inline-flex';}
 }
 
-function renderKPIs(){
-  const booked=apparts.filter(a=>a.booked);const rev=booked.reduce((s,a)=>s+(a.price||0),0);
-  const total=apparts.length||1;const ai=apparts.filter(a=>a.auto_pricing).length;
+let cockpitTodos=[];
+function initTodos(apts){
+  cockpitTodos=[];
+  apts.forEach(a=>{
+    const fl=floor(a);const city=a.city||extractCity(a.zone,null)||'';
+    const cityEvs=eventsCache[city]||[];const hotEvs=cityEvs.filter(e=>e.hot);
+    if(!a.booked)cockpitTodos.push({id:'libre-'+a.id,text:`Trouver une réservation — ${a.name} libre ce soir`,done:false,urgency:'urgent'});
+    if(hotEvs.length>0&&a.price<(a.ai_rec||0))cockpitTodos.push({id:'ev-'+a.id,text:`Appliquer boost ${hotEvs[0].name.slice(0,30)}… — ${a.name}`,done:false,urgency:'today'});
+    if((a.price||0)<fl)cockpitTodos.push({id:'floor-'+a.id,text:`Corriger prix sous plancher — ${a.name} (${a.price}€ < ${fl}€)`,done:false,urgency:'urgent'});
+    const monthRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(new Date().toISOString().slice(0,7)));
+    const occ=a.booked?Math.round(monthRes.length/30*100)||65:Math.round(monthRes.length/30*100)||20;
+    if(occ<50)cockpitTodos.push({id:'occ-'+a.id,text:`Améliorer taux occupation ${a.name} — ${occ}% ce mois (objectif 65%)`,done:false,urgency:'soon'});
+  });
+  if(!cockpitTodos.length&&apts.length===0)cockpitTodos.push({id:'empty',text:'Ajoutez votre premier appartement pour commencer',done:false,urgency:'today'});
+}
+
+function genAlerts(apts){
+  const alerts=[];
+  apts.forEach(a=>{
+    const fl=floor(a);const city=a.city||extractCity(a.zone,null)||'';
+    const cityEvs=eventsCache[city]||[];const hotEvs=cityEvs.filter(e=>e.hot);
+    if(!a.booked)alerts.push({type:'urgent',icon:'ti-moon',title:`${a.name} — libre ce soir`,desc:`Prix ${a.price||0}€ vs concurrent ${a.comp||0}€. Baissez pour remplir ou activez PriceBot.`,action:'Ajuster'});
+    if(hotEvs.length>0)alerts.push({type:'warning',icon:'ti-sparkles',title:`Événement détecté — ${a.name} (${city})`,desc:`${hotEvs[0].name} · PriceBot suggère ${a.ai_rec||Math.round((a.price||0)*1.08)}€ (+${(a.ai_rec||Math.round((a.price||0)*1.08))-(a.price||0)}€).`,action:'Appliquer'});
+    if((a.price||0)<fl)alerts.push({type:'urgent',icon:'ti-alert-triangle',title:`Prix sous plancher — ${a.name}`,desc:`${a.price||0}€/nuit < plancher ${fl}€. Perte sur chaque nuit vendue.`,action:'Corriger'});
+  });
+  return alerts.slice(0,5);
+}
+
+function renderCockpit(){
+  const dash=document.getElementById('cockpit-dash');if(!dash)return;
+  const apts=apparts;
+  const booked=apts.filter(a=>a.booked);
+  const free=apts.filter(a=>!a.booked);
   const month=new Date().toISOString().slice(0,7);
   const monthRes=reservations.filter(r=>r.date_from&&r.date_from.startsWith(month));
   const monthRev=monthRes.reduce((s,r)=>s+(r.price_total||0),0);
   const hotCount=Object.values(eventsCache).flat().filter(e=>e.hot).length;
-  document.getElementById('cockpit-kpis').innerHTML=`
-    <div class="kpi"><div class="kpi-label">Revenus ce soir</div><div class="kpi-value">${rev}€</div><div class="kpi-delta" style="color:#10B981">${booked.length}/${apparts.length} loués</div></div>
-    <div class="kpi"><div class="kpi-label">Revenus ce mois</div><div class="kpi-value">${monthRev}€</div><div class="kpi-delta" style="color:#059669">${monthRes.length} résa${monthRes.length>1?'s':''}</div></div>
-    <div class="kpi"><div class="kpi-label">Occupation</div><div class="kpi-value">${Math.round(booked.length/total*100)}%</div><div class="kpi-delta" style="color:#8A8A99">ce soir</div></div>
-    <div class="kpi kpi-ai"><div class="kpi-label">PriceBot</div><div class="kpi-value">${ai}/${apparts.length}</div><div class="kpi-delta" style="color:#6B3FA0">🤖 auto</div></div>
-    ${hotCount>0?`<div class="kpi" style="border-color:#FCD34D;background:linear-gradient(135deg,#FFFBEB,white)"><div class="kpi-label">Événements chauds</div><div class="kpi-value" style="color:#D97706">${hotCount}</div><div class="kpi-delta" style="color:#D97706">🔥 boost possible</div></div>`:''}`;
-}
+  const total=apts.length||1;
+  initTodos(apts);
+  const alerts=genAlerts(apts);
 
-function renderCockpitTable(){
-  const e=document.getElementById('cockpit-empty');const t=document.getElementById('cockpit-table');
-  if(!apparts.length){e.style.display='block';t.innerHTML='';return}e.style.display='none';
-  t.innerHTML=`<thead><tr><th>Appartement</th><th>Ville</th><th>Prix/nuit</th><th>Statut</th><th>Reco IA</th></tr></thead><tbody>`+
-  apparts.slice(0,5).map(a=>`<tr><td><div class="apt-name"><div class="apt-emoji">${a.emoji||'🏠'}</div>${a.name}</div></td><td style="font-size:12px;color:#8A8A99">${a.city||extractCity(a.zone,null)||'—'}</td><td class="price-main">${a.price||0}€</td><td><span class="tag ${a.booked?'tag-ok':'tag-warn'}">${a.booked?'Loué':'Libre'}</span></td><td><span class="tag tag-ai">${a.ai_rec||Math.round((a.price||0)*1.08)}€</span></td></tr>`).join('')+`</tbody>`;
-}
+  let h='';
 
-function renderCockpitEvents(){
-  const allHot=Object.values(eventsCache).flat().filter(e=>e.hot).slice(0,4);
-  const container=document.getElementById('cockpit-events');
-  if(!allHot.length){container.innerHTML='<div style="color:#8A8A99;font-size:13px;text-align:center;padding:1rem">Aucun événement chaud détecté</div>';return;}
-  container.innerHTML=allHot.map(e=>`
-    <div class="event-card hot">
-      <div class="ev-row">
-        <div class="ev-emoji">${e.emoji}</div>
-        <div class="ev-info"><div class="ev-name">${e.name}</div><div class="ev-meta">${e.date_label} · ${e.city}</div></div>
-        <div><div class="ev-boost">+${e.boost}%</div><div class="ev-boost-lbl">boost</div></div>
+  // KPIs
+  h+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:1.25rem">
+    <div class="kpi"><div class="kpi-label">Ce soir</div><div class="kpi-value" style="color:${free.length>0?'#D85A30':'#1D9E75'}">${booked.length}/${apts.length}</div><div class="kpi-delta" style="color:${free.length>0?'#D85A30':'#1D9E75'}">${free.length>0?free.length+' libre'+(free.length>1?'s':''):'Tout loué ✓'}</div></div>
+    <div class="kpi"><div class="kpi-label">Revenus mois</div><div class="kpi-value">${monthRev}€</div><div class="kpi-delta" style="color:#059669">${monthRes.length} résa${monthRes.length>1?'s':''}</div></div>
+    <div class="kpi"><div class="kpi-label">Occupation</div><div class="kpi-value" style="color:${Math.round(booked.length/total*100)<50?'#D85A30':'#1D9E75'}">${Math.round(booked.length/total*100)}%</div><div class="kpi-delta" style="color:#8A8A99">objectif 65%</div></div>
+    ${hotCount>0?`<div class="kpi" style="border-color:#FCD34D;background:#FFFBEB"><div class="kpi-label">Événements</div><div class="kpi-value" style="color:#BA7517">${hotCount}</div><div class="kpi-delta" style="color:#BA7517">🔥 boost dispo</div></div>`:''}
+  </div>`;
+
+  // To-do prioritaire
+  if(cockpitTodos.length){
+    h+=`<div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Actions prioritaires</div>
+    <div style="background:white;border-radius:12px;border:0.5px solid #EEEEF5;padding:.5rem;margin-bottom:1rem">`;
+    cockpitTodos.slice(0,5).forEach(t=>{
+      const col=t.urgency==='urgent'?'#993C1D':t.urgency==='today'?'#854F0B':'#534AB7';
+      const bg=t.urgency==='urgent'?'#FAECE7':t.urgency==='today'?'#FAEEDA':'#EEEDFE';
+      const lbl=t.urgency==='urgent'?'Urgent':t.urgency==='today'?"Aujourd'hui":'Bientôt';
+      h+=`<div style="display:flex;align-items:center;gap:10px;padding:.6rem .5rem;border-bottom:0.5px solid #EEEEF5" id="todo-${t.id}">
+        <div onclick="toggleCockpitTodo('${t.id}')" style="width:18px;height:18px;border-radius:5px;border:0.5px solid #D1D1D8;flex-shrink:0;cursor:pointer;background:${t.done?'#1D9E75':'white'};display:flex;align-items:center;justify-content:center">
+          ${t.done?'<i class="ti ti-check" style="font-size:11px;color:white" aria-hidden="true"></i>':''}
+        </div>
+        <div style="flex:1;font-size:13px;${t.done?'text-decoration:line-through;color:#8A8A99':''}">${t.text}</div>
+        <span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:100px;background:${bg};color:${col};flex-shrink:0">${lbl}</span>
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+
+  // Alertes
+  if(alerts.length){
+    h+=`<div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Alertes intelligentes</div>`;
+    alerts.forEach(a=>{
+      const col=a.type==='urgent'?'#993C1D':a.type==='warning'?'#854F0B':'#534AB7';
+      const bg=a.type==='urgent'?'#FAECE7':a.type==='warning'?'#FAEEDA':'#EEEDFE';
+      const brd=a.type==='urgent'?'#D85A30':a.type==='warning'?'#BA7517':'#534AB7';
+      h+=`<div style="display:flex;align-items:flex-start;gap:10px;padding:.75rem 1rem;border-radius:10px;border:0.5px solid #EEEEF5;border-left:3px solid ${brd};background:white;margin-bottom:7px">
+        <div style="width:30px;height:30px;border-radius:8px;background:${bg};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <i class="ti ${a.icon}" style="font-size:15px;color:${col}" aria-hidden="true"></i>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:500;margin-bottom:2px">${a.title}</div>
+          <div style="font-size:12px;color:#8A8A99;line-height:1.4">${a.desc}</div>
+        </div>
+        <button onclick="goTo('pricing',document.querySelectorAll('.nav-item')[3])" style="flex-shrink:0;padding:5px 10px;border-radius:8px;font-size:11px;font-weight:500;border:0.5px solid ${brd};background:${bg};color:${col};cursor:pointer;font-family:inherit">${a.action} →</button>
+      </div>`;
+    });
+  }
+
+  // Etat apparts
+  h+=`<div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem;margin-top:1rem">État de chaque appartement</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-bottom:1.25rem">`;
+  if(!apts.length){
+    h+=`<div style="text-align:center;padding:2rem;color:#8A8A99;grid-column:1/-1;background:white;border-radius:12px;border:0.5px solid #EEEEF5">
+      <div style="font-size:32px;margin-bottom:8px">🏠</div>
+      <div style="font-weight:500;margin-bottom:8px">Aucun appartement</div>
+      <button class="btn btn-purple btn-sm" onclick="openAddModal()">+ Ajouter</button>
+    </div>`;
+  }
+  apts.forEach(a=>{
+    const fl=floor(a);const safe=a.price>=fl;
+    const city=a.city||extractCity(a.zone,null)||'';
+    const cityEvs=eventsCache[city]||[];const hotEvs=cityEvs.filter(e=>e.hot);
+    const brdColor=!a.booked?'#F0997B':hotEvs.length?'#AFA9EC':'#5DCAA5';
+    const statusBg=!a.booked?'#FAECE7':hotEvs.length?'#EEEDFE':'#E1F5EE';
+    const statusCol=!a.booked?'#993C1D':hotEvs.length?'#3C3489':'#0F6E56';
+    const statusLbl=a.booked?'Loué':'Libre';
+    const occMonth=Math.round(reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(new Date().toISOString().slice(0,7))).length/30*100)||0;
+    h+=`<div style="background:white;border-radius:12px;border:0.5px solid ${brdColor};padding:1rem;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${brdColor}"></div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div>
+          <div style="font-size:13px;font-weight:500">${a.emoji||'🏠'} ${a.name}</div>
+          <div style="font-size:11px;color:#8A8A99">${city}</div>
+        </div>
+        <span style="font-size:10px;font-weight:500;padding:2px 8px;border-radius:100px;background:${statusBg};color:${statusCol}">${statusLbl}</span>
       </div>
-    </div>`).join('');
+      <div style="font-size:20px;font-weight:500;margin-bottom:4px">${a.price||0}€<span style="font-size:12px;font-weight:400;color:#8A8A99">/nuit</span></div>
+      <div style="font-size:11px;color:#8A8A99;display:flex;gap:8px;margin-bottom:8px">
+        <span style="color:${safe?'#1D9E75':'#D85A30'}">plancher ${fl}€</span>
+        <span>reco ${a.ai_rec||Math.round((a.price||0)*1.08)}€</span>
+      </div>
+      ${hotEvs.length>0?`<div style="font-size:11px;padding:4px 8px;border-radius:6px;background:#FAEEDA;color:#854F0B">🔥 ${hotEvs[0].name.slice(0,28)}…</div>`:''}
+      ${!safe?`<div style="font-size:11px;padding:4px 8px;border-radius:6px;background:#FAECE7;color:#993C1D">⚠ Prix sous plancher</div>`:''}
+    </div>`;
+  });
+  h+=`</div>`;
+
+  // Taux occupation
+  if(apts.length){
+    h+=`<div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Taux d'occupation ce mois</div>
+    <div style="background:white;border-radius:12px;border:0.5px solid #EEEEF5;padding:1rem;margin-bottom:1.25rem">`;
+    apts.forEach(a=>{
+      const monthRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(new Date().toISOString().slice(0,7)));
+      const pct=Math.min(Math.round((monthRes.length/8)*100),100)||0;
+      const col=pct>=65?'#1D9E75':pct>=50?'#BA7517':'#D85A30';
+      h+=`<div style="display:flex;align-items:center;gap:10px;padding:.5rem 0;border-bottom:0.5px solid #EEEEF5">
+        <div style="font-size:13px;font-weight:500;width:140px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.name}</div>
+        <div style="flex:1;height:6px;background:#F0F0F0;border-radius:100px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${col};border-radius:100px"></div></div>
+        <div style="font-size:12px;font-weight:500;width:36px;text-align:right;color:${col}">${pct}%</div>
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+
+  // PriceBot brief
+  const hotAlerts=genAlerts(apts).filter(a=>a.type==='urgent');
+  if(hotAlerts.length){
+    h+=`<div style="background:#F5F0FF;border:0.5px solid #C4B5FD;border-radius:12px;padding:1rem">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem;font-size:13px;font-weight:500;color:#6B3FA0">
+        <div style="width:7px;height:7px;border-radius:50%;background:#6B3FA0;animation:pulse 1.5s infinite"></div>
+        PriceBot — actions immédiates
+      </div>
+      <div style="font-size:13px;color:#3A3A50;line-height:1.65">`;
+    hotAlerts.slice(0,3).forEach((a,i)=>{
+      h+=`<div style="display:flex;gap:8px;margin-bottom:6px;align-items:flex-start">
+        <span style="font-size:11px;font-weight:500;background:white;border:0.5px solid #C4B5FD;border-radius:100px;padding:1px 7px;flex-shrink:0;margin-top:2px;color:#6B3FA0">${i+1}</span>
+        <span>${a.desc}</span>
+      </div>`;
+    });
+    h+=`</div></div>`;
+  }
+
+  dash.innerHTML=h;
 }
+
+function toggleCockpitTodo(id){
+  cockpitTodos=cockpitTodos.map(t=>t.id===id?{...t,done:!t.done}:t);
+  renderCockpit();
+}
+
+function renderKPIs(){renderCockpit();}
+function renderCockpitTable(){renderCockpit();}
+function renderCockpitEvents(){renderCockpit();}
 
 function renderParcTable(){
   const e=document.getElementById('parc-empty');const t=document.getElementById('parc-table');
@@ -903,3 +1026,4 @@ async function askAI(id){
 </script>
 </body>
 </html>
+
