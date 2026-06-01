@@ -39,6 +39,7 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A1A2E;background:#F5F4FF;f
 .nav-emoji{font-size:18px;width:24px;text-align:center;flex-shrink:0}
 .nav-badge{margin-left:auto;background:#FF6B6B;color:white;font-size:10px;padding:2px 7px;border-radius:100px;font-weight:700}
 .nav-badge-new{margin-left:auto;background:linear-gradient(135deg,#6B3FA0,#9333EA);color:white;font-size:10px;padding:2px 8px;border-radius:100px;font-weight:700}
+.smoobu-badge{margin-left:auto;background:#E0F2E9;color:#059669;font-size:10px;padding:2px 8px;border-radius:100px;font-weight:700}
 .sidebar-footer{margin-top:auto;padding:0.75rem 1rem;border-top:1px solid #EEEEF5}
 .user-row{display:flex;align-items:center;gap:8px}
 .user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6B3FA0,#FF6B6B);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:white;flex-shrink:0}
@@ -58,12 +59,16 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A1A2E;background:#F5F4FF;f
 .btn-purple:hover{opacity:0.9;color:white}
 .btn-ai{background:linear-gradient(135deg,#7C3AED,#9333EA);color:white;border:none}
 .btn-ai:hover{opacity:0.9;color:white}
+.btn-green{background:linear-gradient(135deg,#059669,#10B981);color:white;border:none}
+.btn-green:hover{opacity:0.9;color:white}
 .btn-sm{padding:5px 11px;font-size:12px}
 .btn:disabled{opacity:0.5;cursor:not-allowed}
 .card{background:white;border-radius:14px;padding:1.25rem;margin-bottom:1rem;border:1px solid #EEEEF5}
+.card-smoobu{border-color:#C4B5FD;background:linear-gradient(135deg,#F5F0FF,white)}
 .card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;gap:0.5rem;flex-wrap:wrap}
 .card-title{font-size:15px;font-weight:700}
 .grid-2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:1rem;margin-bottom:1rem}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1rem}
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:1.25rem}
 .kpi{background:white;border-radius:12px;padding:1rem;border:1px solid #EEEEF5}
 .kpi-label{font-size:10px;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;font-weight:700;margin-bottom:6px}
@@ -71,6 +76,8 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A1A2E;background:#F5F4FF;f
 .kpi-delta{margin-top:6px;font-size:12px;font-weight:600}
 .kpi-ai{border-color:#C4B5FD;background:linear-gradient(135deg,#F5F0FF,white)}
 .kpi-ai .kpi-value{color:#6B3FA0}
+.kpi-smoobu{border-color:#6EE7B7;background:linear-gradient(135deg,#ECFDF5,white)}
+.kpi-smoobu .kpi-value{color:#059669}
 .table-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:13px;min-width:480px}
 th{text-align:left;padding:8px 10px;color:#8A8A99;font-size:10px;text-transform:uppercase;letter-spacing:0.8px;font-weight:700;border-bottom:1px solid #EEEEF5;white-space:nowrap}
@@ -85,6 +92,7 @@ tr:hover td{background:#FAFAFF}
 .tag-bad{background:#FEE2E2;color:#DC2626}
 .tag-info{background:#F0EBF9;color:#6B3FA0}
 .tag-ai{background:linear-gradient(135deg,#F0EBF9,#FCE7F3);color:#6B3FA0}
+.tag-smoobu{background:#E0F2E9;color:#059669}
 .price-main{font-size:15px;font-weight:700}
 .price-floor{font-size:11px;color:#DC2626;font-weight:500}
 .price-ai{font-size:13px;font-weight:700;color:#6B3FA0}
@@ -109,7 +117,7 @@ tr:hover td{background:#FAFAFF}
 .event-card.hot{border-color:#FCD34D;background:linear-gradient(135deg,#FFFBEB,white)}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,26,46,0.45);z-index:100;align-items:center;justify-content:center;padding:1rem}
 .modal-overlay.open{display:flex}
-.modal{background:white;border-radius:16px;padding:1.5rem;width:100%;max-width:420px;border:1px solid #EEEEF5}
+.modal{background:white;border-radius:16px;padding:1.5rem;width:100%;max-width:420px;border:1px solid #EEEEF5;max-height:90vh;overflow-y:auto}
 .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
 .modal-title{font-size:17px;font-weight:700}
 .modal-close{background:none;border:none;cursor:pointer;color:#8A8A99;font-size:20px}
@@ -125,6 +133,19 @@ tr:hover td{background:#FAFAFF}
 .setting-label{font-size:13px;font-weight:600}
 .setting-desc{font-size:12px;color:#8A8A99;margin-top:2px}
 .settings-section-title{font-size:10px;font-weight:700;color:#B0A8C8;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.5rem;padding-bottom:0.5rem;border-bottom:1px solid #EEEEF5}
+.smoobu-connect-box{background:linear-gradient(135deg,#F5F0FF,#ECFDF5);border:1px solid #C4B5FD;border-radius:14px;padding:1.5rem;margin-bottom:1rem}
+.smoobu-status{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.status-dot.connected{background:#10B981;box-shadow:0 0 6px #10B981}
+.status-dot.disconnected{background:#D1D1D8}
+.booking-row{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:#F5F4FF;margin-bottom:6px}
+.booking-platform{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.platform-airbnb{background:#FFE0D3;color:#FF5A5F}
+.platform-booking{background:#D3E8FF;color:#003580}
+.platform-direct{background:#E0F2E9;color:#059669}
+.platform-other{background:#F5F4FF;color:#6B3FA0}
+.progress-bar{height:6px;background:#EEEEF5;border-radius:100px;overflow:hidden;margin-top:4px}
+.progress-fill{height:100%;background:linear-gradient(90deg,#6B3FA0,#FF6B6B);border-radius:100px;transition:width .5s}
 </style>
 </head>
 <body>
@@ -167,7 +188,7 @@ tr:hover td{background:#FAFAFF}
 </div>
 
 <div class="app" id="app" style="display:none">
-  <div class="beta-banner">🚀 <strong>Beta Sublyfe</strong> — Module IA Pricing activé</div>
+  <div class="beta-banner">🚀 <strong>Beta Sublyfe</strong> — Module IA Pricing + Intégration Smoobu activés</div>
   <div class="app-body">
     <div class="sidebar">
       <div class="sidebar-brand">
@@ -178,9 +199,12 @@ tr:hover td{background:#FAFAFF}
       <div class="nav-section-label">Mon Business</div>
       <button class="nav-item active" onclick="goTo('cockpit',this)"><span class="nav-emoji">📊</span>Le Cockpit</button>
       <button class="nav-item" onclick="goTo('parc',this)"><span class="nav-emoji">🏠</span>Le Parc <span class="nav-badge" id="parc-badge">0</span></button>
+      <button class="nav-item" onclick="goTo('reservations',this)"><span class="nav-emoji">📋</span>Réservations</button>
       <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji">🤖</span>IA Pricing <span class="nav-badge-new">NEW</span></button>
       <button class="nav-item" onclick="goTo('agenda',this)"><span class="nav-emoji">📅</span>L'Agenda</button>
       <button class="nav-item" onclick="goTo('squad',this)"><span class="nav-emoji">👥</span>La Squad</button>
+      <div class="nav-section-label">Intégrations</div>
+      <button class="nav-item" onclick="goTo('smoobu',this)" id="nav-smoobu"><span class="nav-emoji">🔗</span>Smoobu <span class="smoobu-badge" id="smoobu-nav-badge" style="display:none">✓ Connecté</span></button>
       <div class="nav-section-label">Réseau Sublyfer</div>
       <button class="nav-item" onclick="goTo('clean',this)"><span class="nav-emoji">🧹</span>Sublyfer Clean</button>
       <button class="nav-item" onclick="goTo('annuaire',this)"><span class="nav-emoji">🟡</span>L'Annuaire</button>
@@ -198,12 +222,21 @@ tr:hover td{background:#FAFAFF}
     </div>
 
     <div class="main">
+
+      <!-- COCKPIT -->
       <div class="page active" id="page-cockpit">
         <div class="page-header">
           <div><div class="page-title">Le Cockpit 📊</div><div class="page-sub" id="cockpit-date"></div></div>
           <div class="actions">
-            <button class="btn" onclick="goTo('parc',document.querySelector('.nav-item:nth-child(2)'))">+ Ajouter un appart</button>
-            <button class="btn btn-ai" onclick="goTo('pricing',document.querySelector('.nav-item:nth-child(3)'))">🤖 PriceBot</button>
+            <button class="btn" onclick="goTo('smoobu',document.querySelector('[onclick*=smoobu]'))">🔗 Connecter Smoobu</button>
+            <button class="btn btn-ai" onclick="goTo('pricing',document.querySelector('[onclick*=pricing]'))">🤖 PriceBot</button>
+          </div>
+        </div>
+        <div id="smoobu-banner" style="display:none" class="card" style="background:linear-gradient(135deg,#ECFDF5,white);border-color:#6EE7B7;margin-bottom:1rem">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:24px">🔗</span>
+            <div style="flex:1"><div style="font-weight:600;font-size:14px;color:#059669">Smoobu connecté ✓</div><div style="font-size:12px;color:#8A8A99" id="smoobu-banner-text">Données synchronisées</div></div>
+            <button class="btn btn-sm btn-green" onclick="syncSmoobu()">🔄 Sync</button>
           </div>
         </div>
         <div class="kpi-grid" id="cockpit-kpis"></div>
@@ -214,7 +247,8 @@ tr:hover td{background:#FAFAFF}
             <div id="cockpit-empty" style="text-align:center;padding:2rem;color:#8A8A99;display:none">
               <div style="font-size:32px;margin-bottom:8px">🏠</div>
               <div style="font-weight:600;margin-bottom:4px">Aucun appartement</div>
-              <div style="font-size:12px">Ajoutez votre premier appartement dans "Le Parc"</div>
+              <div style="font-size:12px;margin-bottom:1rem">Connectez Smoobu pour importer automatiquement</div>
+              <button class="btn btn-green btn-sm" onclick="goTo('smoobu',document.querySelector('[onclick*=smoobu]'))">🔗 Connecter Smoobu</button>
             </div>
           </div>
           <div>
@@ -222,26 +256,55 @@ tr:hover td{background:#FAFAFF}
               <div class="card-head"><div class="card-title">🔥 Événements chauds</div></div>
               <div id="cockpit-events"></div>
             </div>
+            <div id="cockpit-ai-tip"></div>
           </div>
         </div>
       </div>
 
+      <!-- LE PARC -->
       <div class="page" id="page-parc">
         <div class="page-header">
           <div><div class="page-title">Le Parc 🏠</div><div class="page-sub" id="parc-sub">Chargement…</div></div>
-          <div class="actions"><button class="btn btn-purple" onclick="openAddModal()">+ Ajouter un appartement</button></div>
+          <div class="actions">
+            <button class="btn btn-green" onclick="syncSmoobu()" id="btn-sync" style="display:none">🔄 Sync Smoobu</button>
+            <button class="btn btn-purple" onclick="openAddModal()">+ Ajouter manuellement</button>
+          </div>
         </div>
         <div class="card">
           <div class="table-wrap"><table id="parc-table"></table></div>
           <div id="parc-empty" style="text-align:center;padding:2.5rem;color:#8A8A99;display:none">
             <div style="font-size:40px;margin-bottom:1rem">🏠</div>
             <div style="font-weight:600;font-size:16px;margin-bottom:6px">Aucun appartement encore</div>
-            <div style="font-size:13px;margin-bottom:1.25rem">Ajoutez votre premier logement pour commencer</div>
-            <button class="btn btn-purple" onclick="openAddModal()">+ Ajouter mon premier appartement</button>
+            <div style="font-size:13px;margin-bottom:1.25rem">Connectez Smoobu pour importer automatiquement, ou ajoutez manuellement</div>
+            <div style="display:flex;gap:8px;justify-content:center">
+              <button class="btn btn-green" onclick="goTo('smoobu',document.querySelector('[onclick*=smoobu]'))">🔗 Connecter Smoobu</button>
+              <button class="btn btn-purple" onclick="openAddModal()">+ Ajouter manuellement</button>
+            </div>
           </div>
         </div>
       </div>
 
+      <!-- RESERVATIONS -->
+      <div class="page" id="page-reservations">
+        <div class="page-header">
+          <div><div class="page-title">Réservations 📋</div><div class="page-sub" id="res-sub">Chargement…</div></div>
+          <div class="actions">
+            <button class="btn btn-green" onclick="syncSmoobu()" id="btn-sync-res" style="display:none">🔄 Sync Smoobu</button>
+            <button class="btn btn-purple" onclick="openAddResModal()">+ Ajouter</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap"><table id="res-table"></table></div>
+          <div id="res-empty" style="text-align:center;padding:2.5rem;color:#8A8A99;display:none">
+            <div style="font-size:40px;margin-bottom:1rem">📋</div>
+            <div style="font-weight:600;font-size:16px;margin-bottom:6px">Aucune réservation</div>
+            <div style="font-size:13px;margin-bottom:1.25rem">Connectez Smoobu pour importer vos réservations Airbnb & Booking</div>
+            <button class="btn btn-green" onclick="goTo('smoobu',document.querySelector('[onclick*=smoobu]'))">🔗 Connecter Smoobu</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- IA PRICING -->
       <div class="page" id="page-pricing">
         <div class="page-header">
           <div><div class="page-title">IA Pricing 🤖</div><div class="page-sub">PriceBot analyse votre parc en temps réel</div></div>
@@ -254,15 +317,84 @@ tr:hover td{background:#FAFAFF}
         </div>
       </div>
 
+      <!-- SMOOBU INTEGRATION -->
+      <div class="page" id="page-smoobu">
+        <div class="page-header">
+          <div><div class="page-title">Intégration Smoobu 🔗</div><div class="page-sub">Importez vos données Airbnb & Booking automatiquement</div></div>
+        </div>
+
+        <div class="smoobu-connect-box">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem">
+            <div style="font-size:36px">🔗</div>
+            <div>
+              <div style="font-size:16px;font-weight:700">Connecter votre compte Smoobu</div>
+              <div class="smoobu-status" id="smoobu-status-text">
+                <div class="status-dot disconnected" id="status-dot"></div>
+                <span id="status-label">Non connecté</span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Votre clé API Smoobu</label>
+            <input type="text" id="smoobu-key" placeholder="Collez votre clé API Smoobu ici…" style="font-family:monospace;font-size:12px"/>
+            <div style="font-size:11px;color:#8A8A99;margin-top:4px">Trouvez-la dans Smoobu → Paramètres → Avancé → Clés API</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-green" onclick="testSmoobu()" id="btn-test-smoobu">🔌 Tester la connexion</button>
+            <button class="btn btn-purple" onclick="saveSmoobuKey()" id="btn-save-smoobu" style="display:none">💾 Sauvegarder & Synchroniser</button>
+          </div>
+          <div class="auth-error" id="smoobu-error"></div>
+          <div class="auth-success" id="smoobu-success"></div>
+        </div>
+
+        <div id="smoobu-data" style="display:none">
+          <div class="card">
+            <div class="card-head"><div class="card-title">📊 Données importées depuis Smoobu</div><button class="btn btn-green btn-sm" onclick="syncSmoobu()">🔄 Resynchroniser</button></div>
+            <div class="grid-3">
+              <div class="kpi kpi-smoobu"><div class="kpi-label">Appartements</div><div class="kpi-value" id="sm-apts">0</div><div class="kpi-delta" style="color:#059669">importés de Smoobu</div></div>
+              <div class="kpi kpi-smoobu"><div class="kpi-label">Réservations</div><div class="kpi-value" id="sm-bookings">0</div><div class="kpi-delta" style="color:#059669">6 derniers mois</div></div>
+              <div class="kpi kpi-smoobu"><div class="kpi-label">Revenus importés</div><div class="kpi-value" id="sm-revenue">0€</div><div class="kpi-delta" style="color:#059669">total période</div></div>
+            </div>
+            <div id="sync-progress" style="display:none">
+              <div style="font-size:13px;color:#6B3FA0;font-weight:600;margin-bottom:6px" id="sync-label">Synchronisation en cours…</div>
+              <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><div class="card-title">Appartements Smoobu</div></div>
+            <div class="table-wrap"><table id="smoobu-apts-table"></table></div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><div class="card-title">Dernières réservations</div></div>
+            <div class="table-wrap"><table id="smoobu-res-table"></table></div>
+          </div>
+        </div>
+
+        <div class="card" id="smoobu-howto">
+          <div class="card-head"><div class="card-title">📖 Comment trouver votre clé API Smoobu ?</div></div>
+          <div style="font-size:13px;color:#3A3A50;line-height:1.8">
+            <div style="margin-bottom:8px">1️⃣ Connectez-vous sur <strong>smoobu.com</strong></div>
+            <div style="margin-bottom:8px">2️⃣ Allez dans <strong>Paramètres</strong> (icône engrenage)</div>
+            <div style="margin-bottom:8px">3️⃣ Cliquez sur <strong>"Avancé"</strong> → <strong>"Clés API"</strong></div>
+            <div style="margin-bottom:8px">4️⃣ Cliquez sur <strong>"Créer une clé API"</strong></div>
+            <div style="margin-bottom:8px">5️⃣ Copiez la clé et collez-la ci-dessus</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AGENDA -->
       <div class="page" id="page-agenda">
         <div class="page-header"><div><div class="page-title">L'Agenda 📅</div></div></div>
         <div class="card" style="text-align:center;padding:3rem">
           <div style="font-size:40px;margin-bottom:1rem">📅</div>
           <div style="font-weight:600;font-size:16px;margin-bottom:6px">Agenda à venir</div>
-          <div style="font-size:13px;color:#8A8A99">Synchronisation Airbnb & Booking.com — disponible en version Pro</div>
+          <div style="font-size:13px;color:#8A8A99">Synchronisation automatique via Smoobu — connectez votre compte pour l'activer</div>
         </div>
       </div>
 
+      <!-- SQUAD -->
       <div class="page" id="page-squad">
         <div class="page-header"><div><div class="page-title">La Squad 👥</div></div></div>
         <div class="card" style="text-align:center;padding:3rem">
@@ -272,6 +404,7 @@ tr:hover td{background:#FAFAFF}
         </div>
       </div>
 
+      <!-- CLEAN -->
       <div class="page" id="page-clean">
         <div class="page-header"><div><div class="page-title">Sublyfer Clean 🧹</div></div></div>
         <div class="card" style="text-align:center;padding:3rem">
@@ -282,6 +415,7 @@ tr:hover td{background:#FAFAFF}
         </div>
       </div>
 
+      <!-- ANNUAIRE -->
       <div class="page" id="page-annuaire">
         <div class="page-header"><div><div class="page-title">L'Annuaire 🟡</div></div></div>
         <div class="card" style="text-align:center;padding:3rem">
@@ -292,6 +426,7 @@ tr:hover td{background:#FAFAFF}
         </div>
       </div>
 
+      <!-- CLIENTS -->
       <div class="page" id="page-clients">
         <div class="page-header"><div><div class="page-title">Mes Clients 🏢</div></div></div>
         <div class="card" style="text-align:center;padding:3rem">
@@ -301,6 +436,7 @@ tr:hover td{background:#FAFAFF}
         </div>
       </div>
 
+      <!-- SETTINGS -->
       <div class="page" id="page-settings">
         <div class="page-header"><div><div class="page-title">Paramètres ⚙️</div></div></div>
         <div class="card">
@@ -312,25 +448,22 @@ tr:hover td{background:#FAFAFF}
           <div class="setting-row"><div><div class="setting-label">Mode automatique global</div><div class="setting-desc">PriceBot ajuste sans confirmation</div></div><button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button></div>
           <div class="setting-row"><div><div class="setting-label">Alertes événements</div></div><button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button></div>
           <div style="margin-top:1rem" class="settings-section-title">Abonnement</div>
-          <div class="setting-row"><div><div class="setting-label" id="set-plan">Plan Starter</div><div class="setting-desc">Jusqu'à 5 appartements · PriceBot inclus</div></div><button class="btn btn-purple btn-sm">Upgrader →</button></div>
+          <div class="setting-row"><div><div class="setting-label" id="set-plan">Plan Starter</div><div class="setting-desc">Jusqu'à 5 appartements · PriceBot inclus · Smoobu sync</div></div><button class="btn btn-purple btn-sm">Upgrader →</button></div>
           <button class="btn btn-purple" onclick="saveProfile()" style="margin-top:1rem">✓ Sauvegarder</button>
         </div>
       </div>
+
     </div>
   </div>
 </div>
 
+<!-- MODAL APPART -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
-    <div class="modal-head">
-      <div class="modal-title" id="modal-title">Ajouter un appartement</div>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
+    <div class="modal-head"><div class="modal-title" id="modal-title">Ajouter un appartement</div><button class="modal-close" onclick="closeModal()">✕</button></div>
     <div class="form-group"><label>Nom</label><input type="text" id="m-name" placeholder="Studio Bastille"/></div>
     <div class="form-group"><label>Zone / Quartier</label><input type="text" id="m-zone" placeholder="Paris 11e"/></div>
-    <div class="form-group"><label>Emoji</label>
-      <select id="m-emoji"><option>🏠</option><option>🛋️</option><option>🌸</option><option>🏗️</option><option>⭐</option><option>🏡</option><option>🌇</option><option>🌃</option></select>
-    </div>
+    <div class="form-group"><label>Emoji</label><select id="m-emoji"><option>🏠</option><option>🛋️</option><option>🌸</option><option>🏗️</option><option>⭐</option><option>🏡</option><option>🌇</option><option>🌃</option></select></div>
     <div class="form-group"><label>Loyer mensuel (€)</label><input type="number" id="m-rent" placeholder="900"/></div>
     <div class="form-group"><label>Coût ménage / nuit (€)</label><input type="number" id="m-clean" placeholder="25"/></div>
     <div class="form-group"><label>Prix actuel / nuit (€)</label><input type="number" id="m-price" placeholder="95"/></div>
@@ -343,21 +476,52 @@ tr:hover td{background:#FAFAFF}
   </div>
 </div>
 
+<!-- MODAL RESERVATION -->
+<div class="modal-overlay" id="modal-res">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">Ajouter une réservation</div><button class="modal-close" onclick="closeResModal()">✕</button></div>
+    <div class="form-group"><label>Appartement</label><select id="mr-apt"></select></div>
+    <div class="form-group"><label>Date arrivée</label><input type="date" id="mr-from"/></div>
+    <div class="form-group"><label>Date départ</label><input type="date" id="mr-to"/></div>
+    <div class="form-group"><label>Prix total encaissé (€)</label><input type="number" id="mr-price" placeholder="350"/></div>
+    <div class="form-group"><label>Plateforme</label>
+      <select id="mr-platform">
+        <option value="airbnb">🏠 Airbnb</option>
+        <option value="booking">🏨 Booking.com</option>
+        <option value="direct">✉️ Direct</option>
+        <option value="other">📌 Autre</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Nom du voyageur</label><input type="text" id="mr-guest" placeholder="Jean Dupont"/></div>
+    <div style="display:flex;gap:8px;margin-top:1.25rem">
+      <button class="btn" onclick="closeResModal()" style="flex:1">Annuler</button>
+      <button class="btn btn-purple" onclick="saveReservation()" style="flex:2">✓ Enregistrer</button>
+    </div>
+    <div class="auth-error" id="modal-res-error"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 const SB_URL='https://gtffekgqglpxjjligffi.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0ZmZla2dxZ2xweGpqbGlnZmZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyNjUxODMsImV4cCI6MjA5NTg0MTE4M30.8SHvalTRdUD4dXjcKP8s13yXhtg3NDrjQCBXDlu-jyE';
-let currentUser=null,currentProfile=null,apparts=[],events=[],editId=null;
+const SMOOBU_FN='/.netlify/functions/smoobu';
+
+let currentUser=null,currentProfile=null,apparts=[],reservations=[],events=[],editId=null,smoobuKey=null;
 
 const h=(path,opts={})=>fetch(`${SB_URL}/rest/v1/${path}`,{headers:{'apikey':SB_KEY,'Authorization':`Bearer ${currentUser?.access_token||SB_KEY}`,'Content-Type':'application/json','Prefer':'return=representation',...opts.headers},...opts});
 const authH=(path,body,method='POST')=>fetch(`${SB_URL}/auth/v1/${path}`,{method,headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify(body)});
+const smoobuCall=(action,params={})=>fetch(SMOOBU_FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,apiKey:smoobuKey,params})}).then(r=>r.json());
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
-function showErr(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',4000)}
+function showErr(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',5000)}
+function showSuccess(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',5000)}
 
 async function init(){
   const stored=localStorage.getItem('sb_session');
+  const storedKey=localStorage.getItem('smoobu_key');
+  if(storedKey)smoobuKey=storedKey;
   if(stored){try{currentUser=JSON.parse(stored);await loadApp();return;}catch(e){}}
   document.getElementById('loading').style.display='none';
   document.getElementById('auth-screen').style.display='flex';
@@ -394,13 +558,13 @@ async function doRegister(){
     const res=await authH('signup',{email,password:pwd,data:{name,type}});
     const data=await res.json();
     if(data.error){showErr('register-error',data.error);btn.disabled=false;btn.textContent='✨ Créer mon compte';return}
-    const s=document.getElementById('register-success');s.textContent='✓ Compte créé ! Vérifiez votre email puis connectez-vous.';s.style.display='block';
-    btn.disabled=false;btn.textContent='✨ Créer mon compte';setTimeout(()=>switchTab('login'),3000);
+    const s=document.getElementById('register-success');s.textContent='✓ Compte créé ! Connectez-vous maintenant.';s.style.display='block';
+    btn.disabled=false;btn.textContent='✨ Créer mon compte';setTimeout(()=>switchTab('login'),2000);
   }catch(e){showErr('register-error','Erreur réseau');btn.disabled=false;btn.textContent='✨ Créer mon compte';}
 }
 
 async function doLogout(){
-  localStorage.removeItem('sb_session');currentUser=null;currentProfile=null;apparts=[];
+  localStorage.removeItem('sb_session');currentUser=null;currentProfile=null;apparts=[];reservations=[];
   document.getElementById('app').style.display='none';
   document.getElementById('auth-screen').style.display='flex';
 }
@@ -415,6 +579,8 @@ async function loadApp(){
     currentProfile=pData&&pData.length>0?pData[0]:{id:currentUser.user.id,name:currentUser.user.email.split('@')[0],email:currentUser.user.email,type:'solo',plan:'Starter'};
     const aRes=await h(`appartements?user_id=eq.${currentUser.user.id}&select=*&order=created_at.asc`);
     apparts=await aRes.json()||[];
+    const rRes=await h(`reservations?user_id=eq.${currentUser.user.id}&select=*&order=date_from.desc`).catch(()=>({json:()=>[]}));
+    reservations=await rRes.json().catch(()=>[])||[];
     const eRes=await h(`evenements?select=*`);
     events=await eRes.json()||[];
     renderSidebar();renderAll();
@@ -425,6 +591,7 @@ async function loadApp(){
     document.getElementById('set-email').textContent=currentProfile.email||'';
     document.getElementById('set-type').textContent=currentProfile.type==='concierge'?'🏢 Conciergerie':'🏠 Solo';
     document.getElementById('set-plan').textContent='Plan '+(currentProfile.plan||'Starter');
+    if(smoobuKey){updateSmoobuUI(true);}
   }catch(e){document.getElementById('loading').style.display='none';document.getElementById('auth-screen').style.display='flex';}
 }
 
@@ -438,95 +605,355 @@ function renderSidebar(){
 
 function floor(a){return Math.round((a.rent||0)/30+(a.cleaner||0))}
 
-function renderAll(){renderKPIs();renderCockpitTable();renderCockpitEvents();renderParcTable();renderPricingTable();document.getElementById('parc-badge').textContent=apparts.length;document.getElementById('parc-sub').textContent=apparts.length+' appartement'+(apparts.length>1?'s':'')+' dans votre parc';}
+function calcKPIs(){
+  const today=new Date().toISOString().split('T')[0];
+  const month=new Date().toISOString().slice(0,7);
+  const monthRes=reservations.filter(r=>r.date_from&&r.date_from.startsWith(month));
+  const totalRevMonth=monthRes.reduce((s,r)=>s+(r.price_total||0),0);
+  const bookedApts=apparts.filter(a=>a.booked).length;
+  const occRate=apparts.length?Math.round(bookedApts/apparts.length*100):0;
+  const margins=apparts.filter(a=>a.booked&&a.price>0).map(a=>(a.price-floor(a))/a.price*100);
+  const avgMargin=margins.length?Math.round(margins.reduce((s,m)=>s+m,0)/margins.length):0;
+  const aiCount=apparts.filter(a=>a.auto_pricing).length;
+  return{totalRevMonth,bookedApts,occRate,avgMargin,aiCount,monthRes};
+}
 
-function renderKPIs(){
-  const booked=apparts.filter(a=>a.booked);const rev=booked.reduce((s,a)=>s+(a.price||0),0);
-  const margin=booked.length?Math.round(booked.reduce((s,a)=>s+(a.price-floor(a))/Math.max(a.price,1)*100,0)/booked.length):0;
-  const ai=apparts.filter(a=>a.auto_pricing).length;const total=apparts.length||1;
+function renderAll(){
+  const k=calcKPIs();
+  renderKPIs(k);renderCockpitTable();renderCockpitEvents();
+  renderParcTable();renderPricingTable();renderResTable();
+  document.getElementById('parc-badge').textContent=apparts.length;
+  document.getElementById('parc-sub').textContent=apparts.length+' appartement'+(apparts.length>1?'s':'')+' dans votre parc';
+  document.getElementById('res-sub').textContent=reservations.length+' réservation'+(reservations.length>1?'s':'');
+  if(smoobuKey){
+    document.getElementById('smoobu-banner').style.display='block';
+    document.getElementById('btn-sync').style.display='inline-flex';
+    document.getElementById('btn-sync-res').style.display='inline-flex';
+  }
+}
+
+function renderKPIs(k){
+  const rev=k.totalRevMonth||apparts.filter(a=>a.booked).reduce((s,a)=>s+(a.price||0),0);
   document.getElementById('cockpit-kpis').innerHTML=`
-    <div class="kpi"><div class="kpi-label">Revenus ce soir</div><div class="kpi-value">${rev}€</div><div class="kpi-delta" style="color:#10B981">${booked.length} appart${booked.length>1?'s':''} loué${booked.length>1?'s':''}</div></div>
-    <div class="kpi"><div class="kpi-label">Occupation</div><div class="kpi-value">${Math.round(booked.length/total*100)}%</div><div class="kpi-delta" style="color:#10B981">${booked.length}/${apparts.length} apparts</div></div>
-    <div class="kpi"><div class="kpi-label">Marge moy.</div><div class="kpi-value">${margin}%</div><div class="kpi-delta" style="color:#8A8A99">vs plancher</div></div>
-    <div class="kpi kpi-ai"><div class="kpi-label">PriceBot actif</div><div class="kpi-value">${ai}/${apparts.length}</div><div class="kpi-delta" style="color:#6B3FA0">🤖 auto-pilotés</div></div>`;
+    <div class="kpi ${smoobuKey?'kpi-smoobu':''}"><div class="kpi-label">Revenus ce mois</div><div class="kpi-value">${rev}€</div><div class="kpi-delta" style="color:#059669">${k.monthRes?.length||0} réservation${(k.monthRes?.length||0)>1?'s':''}</div></div>
+    <div class="kpi"><div class="kpi-label">Occupation</div><div class="kpi-value">${k.occRate}%</div><div class="kpi-delta" style="color:#10B981">${k.bookedApts}/${apparts.length} apparts</div></div>
+    <div class="kpi"><div class="kpi-label">Marge moy.</div><div class="kpi-value">${k.avgMargin}%</div><div class="kpi-delta" style="color:#8A8A99">vs plancher</div></div>
+    <div class="kpi kpi-ai"><div class="kpi-label">PriceBot actif</div><div class="kpi-value">${k.aiCount}/${apparts.length}</div><div class="kpi-delta" style="color:#6B3FA0">🤖 auto-pilotés</div></div>`;
 }
 
 function renderCockpitTable(){
   const empty=document.getElementById('cockpit-empty');const tbl=document.getElementById('cockpit-table');
   if(!apparts.length){empty.style.display='block';tbl.innerHTML='';return}
   empty.style.display='none';
-  tbl.innerHTML=`<thead><tr><th>Appartement</th><th>Prix/nuit</th><th>Statut</th><th>Reco IA</th></tr></thead><tbody>`+apparts.slice(0,5).map(a=>`<tr><td><div class="apt-name"><div class="apt-emoji">${a.emoji||'🏠'}</div>${a.name}</div></td><td class="price-main">${a.price||0}€</td><td><span class="tag ${a.booked?'tag-ok':'tag-warn'}">${a.booked?'Loué':'Libre'}</span></td><td><span class="tag tag-ai">${a.ai_rec||Math.round((a.price||0)*1.08)}€</span></td></tr>`).join('')+`</tbody>`;
+  tbl.innerHTML=`<thead><tr><th>Appartement</th><th>Prix/nuit</th><th>Statut</th><th>Reco IA</th>${smoobuKey?'<th>Source</th>':''}</tr></thead><tbody>`+
+  apparts.slice(0,5).map(a=>`<tr><td><div class="apt-name"><div class="apt-emoji">${a.emoji||'🏠'}</div>${a.name}</div></td><td class="price-main">${a.price||0}€</td><td><span class="tag ${a.booked?'tag-ok':'tag-warn'}">${a.booked?'Loué':'Libre'}</span></td><td><span class="tag tag-ai">${a.ai_rec||Math.round((a.price||0)*1.08)}€</span></td>${smoobuKey?`<td><span class="tag tag-smoobu">🔗 Smoobu</span></td>`:''}</tr>`).join('')+`</tbody>`;
 }
 
 function renderCockpitEvents(){
   const hot=events.filter(e=>e.hot).slice(0,3);
-  document.getElementById('cockpit-events').innerHTML=hot.length?hot.map(e=>`<div class="event-card hot"><div style="display:flex;align-items:center;gap:10px"><div style="font-size:24px">${e.emoji}</div><div style="flex:1"><div style="font-weight:600;font-size:13px">${e.name}</div><div style="font-size:12px;color:#8A8A99">${e.date_label} · ${e.zone}</div></div><div style="text-align:right"><div style="font-size:16px;font-weight:700;color:#D97706">+${e.boost}%</div><div style="font-size:10px;color:#8A8A99">boost prix</div></div></div></div>`).join(''):'<div style="color:#8A8A99;font-size:13px;text-align:center;padding:1rem">Aucun événement détecté</div>';
+  document.getElementById('cockpit-events').innerHTML=hot.length?hot.map(e=>`
+    <div class="event-card hot"><div style="display:flex;align-items:center;gap:10px">
+      <div style="font-size:24px">${e.emoji}</div>
+      <div style="flex:1"><div style="font-weight:600;font-size:13px">${e.name}</div><div style="font-size:12px;color:#8A8A99">${e.date_label} · ${e.zone}</div></div>
+      <div style="text-align:right"><div style="font-size:16px;font-weight:700;color:#D97706">+${e.boost}%</div><div style="font-size:10px;color:#8A8A99">boost prix</div></div>
+    </div></div>`).join(''):'<div style="color:#8A8A99;font-size:13px;text-align:center;padding:1rem">Aucun événement</div>';
 }
 
 function renderParcTable(){
   const empty=document.getElementById('parc-empty');const tbl=document.getElementById('parc-table');
   if(!apparts.length){empty.style.display='block';tbl.innerHTML='';return}
   empty.style.display='none';
-  tbl.innerHTML=`<thead><tr><th>Appartement</th><th>Plancher</th><th>Prix/nuit</th><th>Statut</th><th>Marge</th><th>Actions</th></tr></thead><tbody>`+apparts.map(a=>{const fl=floor(a);const safe=a.price>=fl;return`<tr><td><div class="apt-name"><div class="apt-emoji">${a.emoji||'🏠'}</div><div><div>${a.name}</div><div style="font-size:11px;color:#8A8A99">${a.zone||''}</div></div></div></td><td><div class="price-floor">${fl}€</div><div style="font-size:11px;color:#8A8A99">loyer ${a.rent||0}€ + ménage ${a.cleaner||0}€</div></td><td><div class="price-main">${a.price||0}€</div><div class="price-comp">Concurrent: ${a.comp||0}€</div></td><td><span class="tag ${a.booked?'tag-ok':'tag-warn'}">${a.booked?'Loué':'Libre'}</span></td><td><span class="tag ${safe?'tag-ok':'tag-bad'}">${safe?'✓ OK':'⚠ Risque'}</span></td><td style="white-space:nowrap"><button class="btn btn-sm" onclick="openEdit('${a.id}')" style="margin-right:4px">✏️</button><button class="btn btn-sm" onclick="toggleBooked('${a.id}',${!a.booked})">${a.booked?'🔓':'🔒'}</button><button class="btn btn-sm" onclick="deleteAppart('${a.id}')" style="margin-left:4px;color:#DC2626">🗑</button></td></tr>`;}).join('')+`</tbody>`;
+  tbl.innerHTML=`<thead><tr><th>Appartement</th><th>Plancher</th><th>Prix/nuit</th><th>Statut</th><th>Marge</th><th>Actions</th></tr></thead><tbody>`+
+  apparts.map(a=>{const fl=floor(a);const safe=a.price>=fl;return`<tr>
+    <td><div class="apt-name"><div class="apt-emoji">${a.emoji||'🏠'}</div><div><div>${a.name}</div><div style="font-size:11px;color:#8A8A99">${a.zone||''}</div></div></div></td>
+    <td><div class="price-floor">${fl}€</div><div style="font-size:11px;color:#8A8A99">loyer ${a.rent||0}€ + ménage ${a.cleaner||0}€</div></td>
+    <td><div class="price-main">${a.price||0}€</div><div class="price-comp">Concurrent: ${a.comp||0}€</div></td>
+    <td><span class="tag ${a.booked?'tag-ok':'tag-warn'}">${a.booked?'Loué':'Libre'}</span></td>
+    <td><span class="tag ${safe?'tag-ok':'tag-bad'}">${safe?'✓ OK':'⚠ Risque'}</span></td>
+    <td style="white-space:nowrap">
+      <button class="btn btn-sm" onclick="openEdit('${a.id}')" style="margin-right:4px">✏️</button>
+      <button class="btn btn-sm" onclick="toggleBooked('${a.id}',${!a.booked})">${a.booked?'🔓':'🔒'}</button>
+      <button class="btn btn-sm" onclick="deleteAppart('${a.id}')" style="margin-left:4px;color:#DC2626">🗑</button>
+    </td>
+  </tr>`;}).join('')+`</tbody>`;
+}
+
+function renderResTable(){
+  const empty=document.getElementById('res-empty');const tbl=document.getElementById('res-table');
+  if(!reservations.length){empty.style.display='block';tbl.innerHTML='';return}
+  empty.style.display='none';
+  const platformIcon={airbnb:'🏠',booking:'🏨',direct:'✉️',other:'📌'};
+  const platformColor={airbnb:'platform-airbnb',booking:'platform-booking',direct:'platform-direct',other:'platform-other'};
+  tbl.innerHTML=`<thead><tr><th>Appartement</th><th>Voyageur</th><th>Arrivée</th><th>Départ</th><th>Nuits</th><th>Revenus</th><th>Plateforme</th><th>Statut</th></tr></thead><tbody>`+
+  reservations.slice(0,50).map(r=>{
+    const apt=apparts.find(a=>a.id===r.appartement_id)||{name:r.apartment_name||'Inconnu',emoji:'🏠'};
+    const from=r.date_from?new Date(r.date_from):null;
+    const to=r.date_to?new Date(r.date_to):null;
+    const nights=from&&to?Math.round((to-from)/(1000*60*60*24)):r.nights||0;
+    const pricePerNight=nights>0?Math.round((r.price_total||0)/nights):0;
+    return`<tr>
+      <td><div class="apt-name"><div class="apt-emoji">${apt.emoji||'🏠'}</div>${apt.name}</div></td>
+      <td style="font-weight:500">${r.guest_name||'—'}</td>
+      <td>${r.date_from||'—'}</td>
+      <td>${r.date_to||'—'}</td>
+      <td style="text-align:center">${nights}</td>
+      <td><div style="font-weight:700">${r.price_total||0}€</div><div style="font-size:11px;color:#8A8A99">${pricePerNight}€/nuit</div></td>
+      <td><div class="booking-platform ${platformColor[r.platform||'other']}">${platformIcon[r.platform||'other']}</div></td>
+      <td><span class="tag ${r.status==='confirmed'?'tag-ok':r.status==='cancelled'?'tag-bad':'tag-warn'}">${r.status==='confirmed'?'✓ Confirmé':r.status==='cancelled'?'✗ Annulé':'En attente'}</span></td>
+    </tr>`;}).join('')+`</tbody>`;
 }
 
 function renderPricingTable(){
-  if(!apparts.length){document.getElementById('pricing-table').innerHTML=`<tr><td colspan="6" style="text-align:center;padding:2rem;color:#8A8A99">Aucun appartement. Ajoutez-en un dans "Le Parc".</td></tr>`;return}
-  document.getElementById('pricing-table').innerHTML=`<thead><tr><th>Appartement</th><th>Prix actuel</th><th>Reco PriceBot</th><th>Contexte</th><th>Mode</th><th>Actions</th></tr></thead><tbody>`+apparts.map(a=>{const rec=a.ai_rec||Math.round((a.price||0)*1.08);const diff=rec-(a.price||0);return`<tr><td><div class="apt-name"><div class="apt-emoji">${a.emoji||'🏠'}</div>${a.name}</div></td><td><div class="price-main">${a.price||0}€</div><div class="price-floor">Plancher: ${floor(a)}€</div></td><td><div class="price-ai">🤖 ${rec}€ <span style="font-size:11px;color:${diff>=0?'#059669':'#DC2626'}">(${diff>=0?'+':''}${diff}€)</span></div><div class="price-comp">Concurrent: ${a.comp||0}€</div></td><td>${a.has_event?'<span class="tag tag-warn">🎸 Événement</span>':'<span class="tag" style="background:#F0F0F5;color:#8A8A99">Normal</span>'}</td><td><div style="display:flex;align-items:center;gap:6px"><button class="toggle ${a.auto_pricing?'on':'off'}" onclick="toggleAutoPricing('${a.id}',${!a.auto_pricing})"></button><span style="font-size:12px;color:#8A8A99">${a.auto_pricing?'Auto':'Manuel'}</span></div></td><td style="white-space:nowrap"><button class="btn btn-sm" onclick="applyAI('${a.id}',${rec})" style="margin-right:4px">✓</button><button class="btn btn-sm btn-ai" onclick="askAI('${a.id}')">🤖</button></td></tr><tr id="ai-row-${a.id}" style="display:none"><td colspan="6" style="padding:0 10px 12px"><div id="ai-bubble-${a.id}"></div></td></tr>`;}).join('')+`</tbody>`;
+  if(!apparts.length){document.getElementById('pricing-table').innerHTML=`<tr><td colspan="6" style="text-align:center;padding:2rem;color:#8A8A99">Aucun appartement. Connectez Smoobu ou ajoutez manuellement.</td></tr>`;return}
+  document.getElementById('pricing-table').innerHTML=`<thead><tr><th>Appartement</th><th>Prix actuel</th><th>Reco PriceBot</th><th>Contexte</th><th>Mode</th><th>Actions</th></tr></thead><tbody>`+
+  apparts.map(a=>{const rec=a.ai_rec||Math.round((a.price||0)*1.08);const diff=rec-(a.price||0);return`<tr>
+    <td><div class="apt-name"><div class="apt-emoji">${a.emoji||'🏠'}</div>${a.name}</div></td>
+    <td><div class="price-main">${a.price||0}€</div><div class="price-floor">Plancher: ${floor(a)}€</div></td>
+    <td><div class="price-ai">🤖 ${rec}€ <span style="font-size:11px;color:${diff>=0?'#059669':'#DC2626'}">(${diff>=0?'+':''}${diff}€)</span></div><div class="price-comp">Concurrent: ${a.comp||0}€</div></td>
+    <td>${a.has_event?'<span class="tag tag-warn">🎸 Événement</span>':'<span class="tag" style="background:#F0F0F5;color:#8A8A99">Normal</span>'}</td>
+    <td><div style="display:flex;align-items:center;gap:6px"><button class="toggle ${a.auto_pricing?'on':'off'}" onclick="toggleAutoPricing('${a.id}',${!a.auto_pricing})"></button><span style="font-size:12px;color:#8A8A99">${a.auto_pricing?'Auto':'Manuel'}</span></div></td>
+    <td style="white-space:nowrap">
+      <button class="btn btn-sm" onclick="applyAI('${a.id}',${rec})" style="margin-right:4px">✓</button>
+      <button class="btn btn-sm btn-ai" onclick="askAI('${a.id}')">🤖</button>
+    </td>
+  </tr>
+  <tr id="ai-row-${a.id}" style="display:none"><td colspan="6" style="padding:0 10px 12px"><div id="ai-bubble-${a.id}"></div></td></tr>`;}).join('')+`</tbody>`;
 }
 
+// SMOOBU
+function updateSmoobuUI(connected){
+  const dot=document.getElementById('status-dot');
+  const label=document.getElementById('status-label');
+  const badge=document.getElementById('smoobu-nav-badge');
+  const saveBtn=document.getElementById('btn-save-smoobu');
+  if(connected){
+    dot.className='status-dot connected';
+    label.textContent='Connecté ✓';
+    badge.style.display='inline-block';
+    saveBtn.style.display='inline-flex';
+    document.getElementById('smoobu-data').style.display='block';
+    document.getElementById('smoobu-howto').style.display='none';
+  } else {
+    dot.className='status-dot disconnected';
+    label.textContent='Non connecté';
+    badge.style.display='none';
+    saveBtn.style.display='none';
+  }
+}
+
+async function testSmoobu(){
+  const key=document.getElementById('smoobu-key').value.trim();
+  if(!key){showErr('smoobu-error','Entrez votre clé API Smoobu');return}
+  const btn=document.getElementById('btn-test-smoobu');
+  btn.disabled=true;btn.textContent='Test en cours…';
+  smoobuKey=key;
+  try{
+    const data=await smoobuCall('testConnection');
+    if(data.success){
+      showSuccess('smoobu-success','✓ Connexion réussie ! Cliquez sur "Sauvegarder & Synchroniser"');
+      updateSmoobuUI(true);
+    } else {
+      showErr('smoobu-error','Clé API invalide. Vérifiez dans Smoobu → Paramètres → Avancé → Clés API');
+      smoobuKey=null;
+    }
+  }catch(e){
+    showErr('smoobu-error','Erreur de connexion. Réessayez.');
+    smoobuKey=null;
+  }
+  btn.disabled=false;btn.textContent='🔌 Tester la connexion';
+}
+
+async function saveSmoobuKey(){
+  const key=document.getElementById('smoobu-key').value.trim();
+  if(!key)return;
+  smoobuKey=key;
+  localStorage.setItem('smoobu_key',key);
+  await syncSmoobu();
+}
+
+async function syncSmoobu(){
+  if(!smoobuKey){goTo('smoobu',document.querySelector('[onclick*=smoobu]'));return}
+  showToast('🔄 Synchronisation Smoobu…');
+  const prog=document.getElementById('sync-progress');
+  const fill=document.getElementById('progress-fill');
+  const syncLabel=document.getElementById('sync-label');
+  if(prog){prog.style.display='block';fill.style.width='10%';syncLabel.textContent='Import des appartements…';}
+
+  try{
+    // 1. Import appartements
+    const aptsData=await smoobuCall('getApartments');
+    if(fill)fill.style.width='40%';
+    if(syncLabel)syncLabel.textContent='Import des réservations…';
+
+    const smoobuApts=aptsData._embedded?.apartments||aptsData.apartments||[];
+    if(smoobuApts.length>0){
+      for(const sa of smoobuApts){
+        const existing=apparts.find(a=>a.smoobu_id===String(sa.id));
+        const aptBody={
+          user_id:currentUser.user.id,
+          name:sa.name||sa.title||'Appartement Smoobu',
+          zone:sa.location||sa.city||'',
+          emoji:'🏠',
+          rent:0,cleaner:25,
+          price:sa.price||sa.basePrice||100,
+          comp:0,
+          ai_rec:Math.round((sa.price||100)*1.08),
+          booked:false,auto_pricing:true,has_event:false,
+          smoobu_id:String(sa.id)
+        };
+        if(!existing){
+          const res=await h('appartements',{method:'POST',body:JSON.stringify(aptBody)});
+          const created=await res.json();
+          if(Array.isArray(created)&&created[0])apparts.push(created[0]);
+        }
+      }
+    }
+
+    // 2. Import réservations
+    const bkData=await smoobuCall('getBookings');
+    if(fill)fill.style.width='70%';
+    if(syncLabel)syncLabel.textContent='Calcul des KPIs…';
+
+    const smoobuBookings=bkData.bookings||bkData._embedded?.bookings||[];
+    let importedCount=0;
+    let totalRevenue=0;
+
+    for(const bk of smoobuBookings){
+      if(bk['is-blocked-booking'])continue;
+      const apt=apparts.find(a=>a.smoobu_id===String(bk.apartment?.id||bk.apartmentId));
+      const resBody={
+        user_id:currentUser.user.id,
+        appartement_id:apt?.id||null,
+        apartment_name:bk.apartment?.name||'',
+        smoobu_booking_id:String(bk.id),
+        guest_name:bk.firstname?`${bk.firstname} ${bk.lastname||''}`.trim():(bk.guestName||''),
+        date_from:bk.arrival||bk.from,
+        date_to:bk.departure||bk.to,
+        price_total:bk.price||bk.totalPrice||0,
+        platform:detectPlatform(bk.channel||bk.referrer||''),
+        status:bk.type==='cancellation'?'cancelled':'confirmed',
+        nights:bk.nights||0
+      };
+      totalRevenue+=resBody.price_total;
+      importedCount++;
+    }
+
+    // Update UI stats
+    document.getElementById('sm-apts').textContent=smoobuApts.length;
+    document.getElementById('sm-bookings').textContent=importedCount;
+    document.getElementById('sm-revenue').textContent=Math.round(totalRevenue)+'€';
+
+    // Render smoobu tables
+    renderSmoobuApts(smoobuApts);
+    renderSmoobuRes(smoobuBookings);
+
+    if(fill)fill.style.width='100%';
+    if(syncLabel)syncLabel.textContent='✓ Synchronisation terminée !';
+    setTimeout(()=>{if(prog)prog.style.display='none';},2000);
+
+    document.getElementById('smoobu-banner-text').textContent=`${smoobuApts.length} apparts · ${importedCount} réservations importées`;
+    renderAll();
+    showToast(`✓ Smoobu synchronisé — ${smoobuApts.length} apparts, ${importedCount} réservations`);
+
+  }catch(e){
+    showToast('⚠️ Erreur de synchronisation');
+    if(prog)prog.style.display='none';
+  }
+}
+
+function detectPlatform(channel){
+  if(!channel)return'other';
+  const c=channel.toLowerCase();
+  if(c.includes('airbnb'))return'airbnb';
+  if(c.includes('booking'))return'booking';
+  if(c.includes('direct')||c.includes('manuel'))return'direct';
+  return'other';
+}
+
+function renderSmoobuApts(apts){
+  const tbl=document.getElementById('smoobu-apts-table');
+  if(!apts||!apts.length){tbl.innerHTML='<tr><td style="padding:1rem;color:#8A8A99">Aucun appartement trouvé</td></tr>';return}
+  tbl.innerHTML=`<thead><tr><th>Nom</th><th>Ville</th><th>Prix base</th><th>ID Smoobu</th></tr></thead><tbody>`+
+  apts.map(a=>`<tr><td><div class="apt-name"><div class="apt-emoji">🏠</div>${a.name||a.title||'—'}</div></td><td>${a.city||a.location||'—'}</td><td>${a.price||a.basePrice||'—'}€</td><td><span style="font-size:11px;color:#8A8A99;font-family:monospace">#${a.id}</span></td></tr>`).join('')+`</tbody>`;
+}
+
+function renderSmoobuRes(bookings){
+  const tbl=document.getElementById('smoobu-res-table');
+  const real=bookings.filter(b=>!b['is-blocked-booking']).slice(0,10);
+  if(!real.length){tbl.innerHTML='<tr><td style="padding:1rem;color:#8A8A99">Aucune réservation trouvée</td></tr>';return}
+  const pi={airbnb:'🏠',booking:'🏨',direct:'✉️',other:'📌'};
+  tbl.innerHTML=`<thead><tr><th>Voyageur</th><th>Appartement</th><th>Arrivée</th><th>Départ</th><th>Montant</th><th>Plateforme</th></tr></thead><tbody>`+
+  real.map(b=>{const pl=detectPlatform(b.channel||b.referrer||'');return`<tr>
+    <td style="font-weight:500">${b.firstname?`${b.firstname} ${b.lastname||''}`.trim():(b.guestName||'—')}</td>
+    <td>${b.apartment?.name||'—'}</td>
+    <td>${b.arrival||b.from||'—'}</td>
+    <td>${b.departure||b.to||'—'}</td>
+    <td style="font-weight:700">${b.price||b.totalPrice||0}€</td>
+    <td>${pi[pl]} <span style="font-size:11px">${pl}</span></td>
+  </tr>`;}).join('')+`</tbody>`;
+}
+
+// CRUD
 function goTo(page,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');if(btn)btn.classList.add('active');}
 function openAddModal(){editId=null;document.getElementById('modal-title').textContent='Ajouter un appartement';['m-name','m-zone','m-rent','m-clean','m-price','m-comp'].forEach(id=>document.getElementById(id).value='');document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
 function openEdit(id){const a=apparts.find(x=>x.id===id);if(!a)return;editId=id;document.getElementById('modal-title').textContent='Modifier '+a.name;document.getElementById('m-name').value=a.name||'';document.getElementById('m-zone').value=a.zone||'';document.getElementById('m-emoji').value=a.emoji||'🏠';document.getElementById('m-rent').value=a.rent||'';document.getElementById('m-clean').value=a.cleaner||'';document.getElementById('m-price').value=a.price||'';document.getElementById('m-comp').value=a.comp||'';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
 function closeModal(){document.getElementById('modal').classList.remove('open')}
+
+function openAddResModal(){
+  const sel=document.getElementById('mr-apt');
+  sel.innerHTML=apparts.map(a=>`<option value="${a.id}">${a.emoji||'🏠'} ${a.name}</option>`).join('');
+  document.getElementById('modal-res').classList.add('open');
+}
+function closeResModal(){document.getElementById('modal-res').classList.remove('open')}
 
 async function saveAppart(){
   const name=document.getElementById('m-name').value.trim();
   if(!name){showErr('modal-error','Le nom est obligatoire');return}
   const btn=document.getElementById('btn-save-appart');btn.disabled=true;btn.textContent='Enregistrement…';
   const price=+document.getElementById('m-price').value||0;
-  const body={user_id:currentUser.user.id,name,zone:document.getElementById('m-zone').value||'Paris',emoji:document.getElementById('m-emoji').value||'🏠',rent:+document.getElementById('m-rent').value||0,cleaner:+document.getElementById('m-clean').value||0,price,comp:+document.getElementById('m-comp').value||0,ai_rec:Math.round(price*1.08),booked:false,auto_pricing:true,has_event:false};
+  const body={user_id:currentUser.user.id,name,zone:document.getElementById('m-zone').value||'',emoji:document.getElementById('m-emoji').value||'🏠',rent:+document.getElementById('m-rent').value||0,cleaner:+document.getElementById('m-clean').value||0,price,comp:+document.getElementById('m-comp').value||0,ai_rec:Math.round(price*1.08),booked:false,auto_pricing:true,has_event:false};
   try{
-    if(editId){await h(`appartements?id=eq.${editId}`,{method:'PATCH',body:JSON.stringify(body)});const idx=apparts.findIndex(a=>a.id===editId);if(idx>=0)apparts[idx]={...apparts[idx],...body};showToast('✓ Appartement modifié');}
-    else{const res=await h('appartements',{method:'POST',body:JSON.stringify(body)});const created=await res.json();apparts.push(Array.isArray(created)&&created[0]?created[0]:{...body,id:Date.now().toString()});showToast('✓ Appartement ajouté');}
+    if(editId){await h(`appartements?id=eq.${editId}`,{method:'PATCH',body:JSON.stringify(body)});const idx=apparts.findIndex(a=>a.id===editId);if(idx>=0)apparts[idx]={...apparts[idx],...body};showToast('✓ Modifié');}
+    else{const res=await h('appartements',{method:'POST',body:JSON.stringify(body)});const created=await res.json();apparts.push(Array.isArray(created)&&created[0]?created[0]:{...body,id:Date.now().toString()});showToast('✓ Ajouté');}
     closeModal();renderAll();
-  }catch(e){showErr('modal-error','Erreur. Réessayez.');}
+  }catch(e){showErr('modal-error','Erreur.');}
   btn.disabled=false;btn.textContent='✓ Enregistrer';
 }
 
-async function toggleBooked(id,val){await h(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({booked:val})});const a=apparts.find(x=>x.id===id);if(a)a.booked=val;renderAll();showToast(val?'🔒 Marqué loué':'🔓 Marqué libre');}
-async function toggleAutoPricing(id,val){await h(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({auto_pricing:val})});const a=apparts.find(x=>x.id===id);if(a)a.auto_pricing=val;renderPricingTable();showToast(val?'🤖 Auto activé':'Mode manuel');}
+async function saveReservation(){
+  const aptId=document.getElementById('mr-apt').value;
+  const from=document.getElementById('mr-from').value;
+  const to=document.getElementById('mr-to').value;
+  const price=+document.getElementById('mr-price').value||0;
+  const platform=document.getElementById('mr-platform').value;
+  const guest=document.getElementById('mr-guest').value;
+  if(!from||!to){showErr('modal-res-error','Dates obligatoires');return}
+  const nights=Math.round((new Date(to)-new Date(from))/(1000*60*60*24));
+  const body={user_id:currentUser.user.id,appartement_id:aptId,guest_name:guest,date_from:from,date_to:to,price_total:price,platform,status:'confirmed',nights};
+  try{
+    const res=await h('reservations',{method:'POST',body:JSON.stringify(body)});
+    const created=await res.json();
+    reservations.unshift(Array.isArray(created)&&created[0]?created[0]:{...body,id:Date.now().toString()});
+    closeResModal();renderAll();showToast('✓ Réservation ajoutée');
+  }catch(e){showErr('modal-res-error','Erreur. Vérifiez que la table reservations existe.');}
+}
+
+async function toggleBooked(id,val){await h(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({booked:val})});const a=apparts.find(x=>x.id===id);if(a)a.booked=val;renderAll();showToast(val?'🔒 Loué':'🔓 Libre');}
+async function toggleAutoPricing(id,val){await h(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({auto_pricing:val})});const a=apparts.find(x=>x.id===id);if(a)a.auto_pricing=val;renderPricingTable();}
 async function applyAI(id,rec){await h(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({price:rec})});const a=apparts.find(x=>x.id===id);if(a)a.price=rec;renderAll();showToast('✓ Prix appliqué : '+rec+'€');}
-async function deleteAppart(id){if(!confirm('Supprimer cet appartement ?'))return;await h(`appartements?id=eq.${id}`,{method:'DELETE'});apparts=apparts.filter(a=>a.id!==id);renderAll();showToast('🗑 Supprimé');}
-async function saveProfile(){const name=document.getElementById('set-name').value.trim();await h(`profiles?id=eq.${currentProfile.id}`,{method:'PATCH',body:JSON.stringify({name})});currentProfile.name=name;renderSidebar();showToast('✓ Profil sauvegardé');}
+async function deleteAppart(id){if(!confirm('Supprimer ?'))return;await h(`appartements?id=eq.${id}`,{method:'DELETE'});apparts=apparts.filter(a=>a.id!==id);renderAll();showToast('🗑 Supprimé');}
+async function saveProfile(){const name=document.getElementById('set-name').value.trim();await h(`profiles?id=eq.${currentProfile.id}`,{method:'PATCH',body:JSON.stringify({name})});currentProfile.name=name;renderSidebar();showToast('✓ Sauvegardé');}
 
 async function runGlobal(){
   const btn=document.getElementById('btn-global');const zone=document.getElementById('global-result');
   btn.disabled=true;btn.textContent='⏳ Analyse…';
   zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head"><div class="ai-dot"></div> PriceBot analyse…</div><div class="ai-bubble-text"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
-  if(!apparts.length){zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">🤖 PriceBot</div><div class="ai-bubble-text">Ajoutez d'abord des appartements dans "Le Parc".</div></div>`;btn.disabled=false;btn.innerHTML='🤖 Analyse globale';return;}
-  const ctx=apparts.map(a=>`${a.name} (${a.zone}): prix=${a.price}€, reco=${a.ai_rec||Math.round(a.price*1.08)}€, plancher=${floor(a)}€, concurrent=${a.comp}€, ${a.booked?'loué':'libre'}${a.has_event?', événement proche':''}`).join('\n');
+  if(!apparts.length){zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">🤖 PriceBot</div><div class="ai-bubble-text">Ajoutez d'abord des appartements.</div></div>`;btn.disabled=false;btn.innerHTML='🤖 Analyse globale';return;}
+  const k=calcKPIs();
+  const ctx=apparts.map(a=>`${a.name} (${a.zone||'Paris'}): prix=${a.price}€, reco=${a.ai_rec||Math.round(a.price*1.08)}€, plancher=${floor(a)}€, concurrent=${a.comp||0}€, ${a.booked?'loué':'libre'}${a.has_event?', événement proche':''}`).join('\n');
+  const resCtx=reservations.length?`\nRéservations récentes: ${reservations.length} réservations, revenu moyen: ${Math.round(reservations.reduce((s,r)=>s+(r.price_total||0),0)/Math.max(reservations.length,1))}€/résa`:'';
   try{
-    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:500,system:"Tu es PriceBot, IA pricing de Sublyfe. Analyses concises, chiffrées, actionnables. Français, emojis, 4-5 phrases max.",messages:[{role:"user",content:`Parc:\n${ctx}\n\nBriefing: actions immédiates, opportunités hausse, risques plancher ?`}]})});
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:600,system:"Tu es PriceBot, IA pricing de Sublyfe, SaaS sous-location courte durée France. Analyses précises, chiffrées, actionnables. Français, emojis, 5-6 phrases max.",messages:[{role:"user",content:`Parc: ${apparts.length} appartements${smoobuKey?' (données Smoobu réelles)':''}\n${ctx}${resCtx}\nTaux occupation: ${k.occRate}%, Revenu mois: ${k.totalRevMonth}€\n\nBriefing: actions immédiates, opportunités, risques ?`}]})});
     const data=await res.json();const text=data.content?.find(b=>b.type==='text')?.text||"Analyse indisponible.";
     zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">🤖 Analyse globale — PriceBot</div><div class="ai-bubble-text">${text.replace(/\n/g,'<br/>')}</div></div>`;
-  }catch(e){zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">⚠️ Erreur IA</div><div class="ai-bubble-text">Connexion indisponible.</div></div>`;}
-  btn.disabled=false;btn.innerHTML='🤖 Analyse globale';
-}
-
-async function askAI(id){
-  const a=apparts.find(x=>x.id===id);if(!a)return;
-  const row=document.getElementById('ai-row-'+id);const bubble=document.getElementById('ai-bubble-'+id);
-  row.style.display='table-row';
-  bubble.innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head"><div class="ai-dot"></div> Analyse de ${a.name}…</div><div class="ai-bubble-text"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
-  try{
-    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,system:"Tu es PriceBot, IA pricing Sublyfe. Conseils tarification précis, 3-4 phrases, chiffres, emojis.",messages:[{role:"user",content:`${a.name} (${a.zone}) — prix: ${a.price}€, reco: ${a.ai_rec||Math.round(a.price*1.08)}€, concurrent: ${a.comp}€, plancher: ${floor(a)}€, ${a.booked?'loué':'libre'}${a.has_event?', événement proche':''}\nQuel prix ce soir ?`}]})});
-    const data=await res.json();const text=data.content?.find(b=>b.type==='text')?.text||"Indisponible.";
-    bubble.innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head">🤖 ${a.name} — PriceBot</div><div class="ai-bubble-text">${text.replace(/\n/g,'<br/>')}</div></div>`;
-  }catch(e){bubble.innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head">⚠️ Erreur</div><div class="ai-bubble-text">IA indisponible.</div></div>`;}
-}
-
-init();
-</script>
-</body>
-</html>
+  }catch(e){zone.innerHTML=`<div class="ai-bubble" sty
