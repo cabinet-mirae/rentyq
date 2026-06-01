@@ -183,11 +183,17 @@ tr:hover td{background:#FAFAFF}
     <div id="register-form" style="display:none">
       <div class="form-group"><label>Nom complet</label><input type="text" id="r-name" placeholder="Marie Martin"/></div>
       <div class="form-group"><label>Email</label><input type="email" id="r-email" placeholder="vous@exemple.fr"/></div>
-      <div class="form-group"><label>Profil</label>
-        <select id="r-type">
-          <option value="solo">🏠 Gestionnaire solo</option>
-          <option value="concierge">🏢 Conciergerie</option>
-        </select>
+      <div class="form-group"><label>Activez vos modules</label>
+        <div style="display:grid;gap:8px;margin-top:4px">
+          <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #E8E8EE;border-radius:10px;cursor:pointer;font-size:13px;font-weight:400;text-transform:none;letter-spacing:0">
+            <input type="checkbox" id="r-mod-solo" checked style="width:18px;height:18px;accent-color:#6B3FA0"/>
+            <div><div style="font-weight:600">🏠 Gestion sous-location</div><div style="font-size:11px;color:#8A8A99">Gérer mes propres appartements</div></div>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #E8E8EE;border-radius:10px;cursor:pointer;font-size:13px;font-weight:400;text-transform:none;letter-spacing:0">
+            <input type="checkbox" id="r-mod-concierge" style="width:18px;height:18px;accent-color:#6B3FA0"/>
+            <div><div style="font-weight:600">🏢 Conciergerie</div><div style="font-size:11px;color:#8A8A99">Gérer les biens de mes clients</div></div>
+          </label>
+        </div>
       </div>
       <div class="form-group"><label>Mot de passe</label><input type="password" id="r-pwd" placeholder="min. 6 caractères"/></div>
       <button class="btn-full" id="btn-register" onclick="doRegister()">✨ Créer mon compte</button>
@@ -213,6 +219,9 @@ tr:hover td{background:#FAFAFF}
       <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji">🤖</span>IA Pricing <span class="nav-badge-new">NEW</span></button>
       <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji">🎯</span>Événements <span class="nav-badge-new" id="events-badge" style="display:none">0</span></button>
       <button class="nav-item" onclick="goTo('squad',this)"><span class="nav-emoji">👥</span>La Squad</button>
+      <div class="nav-section-label mod-concierge" style="display:none">Conciergerie</div>
+      <button class="nav-item mod-concierge" onclick="goTo('proprietaires',this)" style="display:none"><span class="nav-emoji">👤</span>Propriétaires</button>
+      <button class="nav-item mod-concierge" onclick="goTo('rapports',this)" style="display:none"><span class="nav-emoji">📊</span>Rapports mensuels</button>
       <div class="nav-section-label">Intégrations</div>
       <button class="nav-item" onclick="goTo('smoobu',this)"><span class="nav-emoji">🔗</span>Smoobu <span class="smoobu-badge" id="smoobu-nav-badge" style="display:none">✓</span></button>
       <div class="nav-section-label">Réseau Sublyfer</div>
@@ -311,6 +320,39 @@ tr:hover td{background:#FAFAFF}
           <button class="btn btn-purple" onclick="openAddModal()">+ Ajouter un appartement</button>
         </div>
         <div id="events-container"></div>
+      </div>
+
+      <!-- PROPRIETAIRES -->
+      <div class="page" id="page-proprietaires">
+        <div class="page-header">
+          <div><div class="page-title">Propriétaires 👤</div><div class="page-sub" id="proprios-sub">Gérez les portefeuilles de vos clients</div></div>
+          <div class="actions"><button class="btn btn-purple" onclick="openAddProprioModal()">+ Ajouter un propriétaire</button></div>
+        </div>
+        <div class="kpi-grid" id="proprios-kpis"></div>
+        <div id="proprios-list"></div>
+        <div id="proprios-empty" style="text-align:center;padding:3rem;display:none">
+          <div style="font-size:48px;margin-bottom:1rem">👤</div>
+          <div style="font-weight:600;font-size:16px;margin-bottom:6px">Aucun propriétaire</div>
+          <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">Ajoutez vos premiers clients propriétaires</div>
+          <button class="btn btn-purple" onclick="openAddProprioModal()">+ Ajouter un propriétaire</button>
+        </div>
+      </div>
+
+      <!-- RAPPORTS -->
+      <div class="page" id="page-rapports">
+        <div class="page-header">
+          <div><div class="page-title">Rapports mensuels 📊</div><div class="page-sub">Générez les rapports pour vos propriétaires</div></div>
+          <div class="actions">
+            <select id="rapport-mois" style="padding:8px 12px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit" onchange="renderRapports()"></select>
+            <button class="btn btn-purple" onclick="genererRapports()">📊 Générer les rapports</button>
+          </div>
+        </div>
+        <div id="rapports-list"></div>
+        <div id="rapports-empty" style="text-align:center;padding:3rem;display:none">
+          <div style="font-size:48px;margin-bottom:1rem">📊</div>
+          <div style="font-weight:600;font-size:16px;margin-bottom:6px">Aucun rapport</div>
+          <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">Ajoutez des propriétaires et des réservations puis générez les rapports</div>
+        </div>
       </div>
 
       <!-- SQUAD -->
@@ -414,6 +456,9 @@ tr:hover td{background:#FAFAFF}
           <div class="settings-section-title">Mon compte</div>
           <div class="setting-row"><div><div class="setting-label">Nom</div></div><input type="text" id="set-name" style="width:180px;padding:6px 10px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit"/></div>
           <div class="setting-row"><div><div class="setting-label">Email</div></div><span id="set-email" style="font-size:13px;color:#8A8A99"></span></div>
+          <div style="margin-top:1rem" class="settings-section-title">Modules actifs</div>
+          <div class="setting-row"><div><div class="setting-label">🏠 Gestion sous-location</div><div class="setting-desc">Gérer vos propres appartements</div></div><button class="toggle" id="toggle-mod-solo" onclick="toggleModule('solo')"></button></div>
+          <div class="setting-row"><div><div class="setting-label">🏢 Conciergerie</div><div class="setting-desc">Gérer les biens de vos clients</div></div><button class="toggle" id="toggle-mod-concierge" onclick="toggleModule('concierge')"></button></div>
           <div style="margin-top:1rem" class="settings-section-title">IA Pricing</div>
           <div class="setting-row"><div><div class="setting-label">Mode automatique</div><div class="setting-desc">PriceBot ajuste sans confirmation</div></div><button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button></div>
           <div class="setting-row"><div><div class="setting-label">Alertes événements</div><div class="setting-desc">Notifier lors d'un événement détecté</div></div><button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button></div>
@@ -545,6 +590,24 @@ tr:hover td{background:#FAFAFF}
     </div>
   </div>
 </div>
+<!-- MODAL PROPRIETAIRE -->
+<div class="modal-overlay" id="modal-proprio">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title" id="modal-proprio-title">Ajouter un propriétaire</div><button class="modal-close" onclick="closeProprioModal()">✕</button></div>
+    <div class="form-group"><label>Nom complet ★</label><input type="text" id="mp-name" placeholder="Jean Dupont"/></div>
+    <div class="form-group"><label>Email</label><input type="email" id="mp-email" placeholder="jean@exemple.fr"/></div>
+    <div class="form-group"><label>Téléphone</label><input type="text" id="mp-phone" placeholder="06 12 34 56 78"/></div>
+    <div class="form-group"><label>Commission (%)</label><input type="number" id="mp-commission" placeholder="20" value="20"/></div>
+    <div class="form-group"><label>IBAN (pour les versements)</label><input type="text" id="mp-iban" placeholder="FR76 1234…"/></div>
+    <div class="form-group"><label>Notes</label><input type="text" id="mp-notes" placeholder="Contrat signé le…"/></div>
+    <div style="display:flex;gap:8px;margin-top:1.25rem">
+      <button class="btn" onclick="closeProprioModal()" style="flex:1">Annuler</button>
+      <button class="btn btn-purple" onclick="saveProprietaire()" id="btn-save-proprio" style="flex:2">✓ Enregistrer</button>
+    </div>
+    <div class="auth-error" id="modal-proprio-error"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -592,12 +655,16 @@ async function doLogin(){
 }
 
 async function doRegister(){
-  const name=document.getElementById('r-name').value.trim();const email=document.getElementById('r-email').value.trim();const pwd=document.getElementById('r-pwd').value;const type=document.getElementById('r-type').value;
+  const name=document.getElementById('r-name').value.trim();const email=document.getElementById('r-email').value.trim();const pwd=document.getElementById('r-pwd').value;
+  const hasSolo=document.getElementById('r-mod-solo').checked;
+  const hasConcierge=document.getElementById('r-mod-concierge').checked;
+  const modules=[];if(hasSolo)modules.push('solo');if(hasConcierge)modules.push('concierge');
+  const type=hasConcierge?'concierge':'solo';
   if(!name||!email||!pwd){showErr('register-error','Remplissez tous les champs');return}
   if(pwd.length<6){showErr('register-error','6 caractères minimum');return}
   const btn=document.getElementById('btn-register');btn.disabled=true;btn.textContent='Création…';
   try{
-    const res=await authFetch('signup',{email,password:pwd,data:{name,type}});
+    const res=await authFetch('signup',{email,password:pwd,data:{name,type,modules:modules.join(',')}});
     const data=await res.json();
     if(data.error){showErr('register-error',data.error);btn.disabled=false;btn.textContent='✨ Créer mon compte';return}
     showOk('register-success','✓ Compte créé ! Connectez-vous.');
@@ -633,6 +700,8 @@ async function loadApp(){
     if(apparts.length)loadEvents(false);
     renderTarifs();
     checkPaymentReturn();
+    applyModules();
+    if(userModules.includes('concierge')){await loadProprietaires();renderProprietaires();initRapportMois();renderRapports();}
     checkOnboarding();
   }catch(e){document.getElementById('loading').style.display='none';document.getElementById('auth-screen').style.display='flex';}
 }
@@ -1043,6 +1112,8 @@ function goTo(page,btn){
   document.getElementById('page-'+page).classList.add('active');
   if(btn)btn.classList.add('active');
   if(page==='events'&&apparts.length&&!Object.keys(eventsCache).length)loadEvents(false);
+  if(page==='proprietaires')renderProprietaires();
+  if(page==='rapports'){initRapportMois();renderRapports();}
 }
 
 function openAddModal(){editId=null;['m-name','m-city','m-zone','m-rent','m-clean','m-price','m-comp'].forEach(id=>document.getElementById(id).value='');document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
@@ -1174,6 +1245,336 @@ async function doForgotPassword(){
     else{showErr('forgot-error','Email introuvable');}
   }catch(e){showErr('forgot-error','Erreur réseau');}
   btn.disabled=false;btn.textContent='📧 Envoyer le lien';
+}
+
+
+// MODULES
+let userModules=['solo'];
+let proprietaires=[];
+let rapportsData=[];
+let editProprioId=null;
+
+function getModules(){
+  const mods=currentProfile?.modules||currentProfile?.type||'solo';
+  if(typeof mods==='string'){
+    if(mods.includes(','))return mods.split(',');
+    return [mods];
+  }
+  if(Array.isArray(mods))return mods;
+  return['solo'];
+}
+
+function applyModules(){
+  userModules=getModules();
+  // Show/hide concierge nav items
+  document.querySelectorAll('.mod-concierge').forEach(el=>{
+    el.style.display=userModules.includes('concierge')?'':'none';
+    if(el.classList.contains('nav-item'))el.style.display=userModules.includes('concierge')?'flex':'none';
+  });
+  // Update settings toggles
+  const tSolo=document.getElementById('toggle-mod-solo');
+  const tConc=document.getElementById('toggle-mod-concierge');
+  if(tSolo){tSolo.className='toggle '+(userModules.includes('solo')?'on':'off');}
+  if(tConc){tConc.className='toggle '+(userModules.includes('concierge')?'on':'off');}
+}
+
+async function toggleModule(mod){
+  if(userModules.includes(mod)){
+    userModules=userModules.filter(m=>m!==mod);
+    if(userModules.length===0)userModules=['solo'];
+  } else {
+    userModules.push(mod);
+  }
+  const type=userModules.includes('concierge')?'concierge':'solo';
+  currentProfile.modules=userModules.join(',');
+  currentProfile.type=type;
+  await sbFetch(`profiles?id=eq.${currentProfile.id}`,{method:'PATCH',body:JSON.stringify({type,modules:'{'+userModules.join(',')+'}'})});
+  applyModules();
+  renderSidebar();
+  showToast('✓ Module '+(userModules.includes(mod)?'activé':'désactivé'));
+}
+
+// PROPRIETAIRES
+async function loadProprietaires(){
+  try{
+    const res=await sbFetch(`proprietaires?user_id=eq.${currentUser.user.id}&select=*&order=created_at.asc`);
+    proprietaires=await res.json()||[];
+  }catch(e){proprietaires=[];}
+}
+
+function renderProprietaires(){
+  const list=document.getElementById('proprios-list');
+  const empty=document.getElementById('proprios-empty');
+  const kpis=document.getElementById('proprios-kpis');
+  if(!list)return;
+  if(!proprietaires.length){empty.style.display='block';list.innerHTML='';kpis.innerHTML='';return;}
+  empty.style.display='none';
+
+  const totalAppts=proprietaires.reduce((s,p)=>s+apparts.filter(a=>a.proprietaire_id===p.id).length,0);
+  const avgComm=proprietaires.length?Math.round(proprietaires.reduce((s,p)=>s+(p.commission||20),0)/proprietaires.length):0;
+
+  kpis.innerHTML=`
+    <div class="kpi"><div class="kpi-label">Propriétaires</div><div class="kpi-value">${proprietaires.length}</div><div class="kpi-delta" style="color:#6B3FA0">clients actifs</div></div>
+    <div class="kpi"><div class="kpi-label">Apparts gérés</div><div class="kpi-value">${totalAppts}</div><div class="kpi-delta" style="color:#059669">en gestion</div></div>
+    <div class="kpi"><div class="kpi-label">Commission moy.</div><div class="kpi-value">${avgComm}%</div><div class="kpi-delta" style="color:#8A8A99">sur revenus bruts</div></div>`;
+
+  list.innerHTML=proprietaires.map(p=>{
+    const pApparts=apparts.filter(a=>a.proprietaire_id===p.id);
+    const pRes=reservations.filter(r=>pApparts.some(a=>a.id===r.appartement_id));
+    const rev=pRes.reduce((s,r)=>s+(r.price_total||0),0);
+    const comm=Math.round(rev*(p.commission||20)/100);
+    const net=rev-comm;
+    return`<div class="card" style="margin-bottom:.75rem">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#6B3FA0,#FF6B6B);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:white;flex-shrink:0">${(p.name||'?').charAt(0).toUpperCase()}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:15px;font-weight:700">${p.name}</div>
+          <div style="font-size:12px;color:#8A8A99;margin-top:2px">${p.email||'—'} ${p.phone?' · '+p.phone:''}</div>
+          <div style="display:flex;gap:12px;margin-top:8px;font-size:12px;color:#8A8A99;flex-wrap:wrap">
+            <span>🏠 <strong style="color:#1A1A2E">${pApparts.length}</strong> appart${pApparts.length>1?'s':''}</span>
+            <span>💰 <strong style="color:#1A1A2E">${rev}€</strong> revenus</span>
+            <span>📊 <strong style="color:#6B3FA0">${p.commission||20}%</strong> commission</span>
+            <span>💸 <strong style="color:#059669">${net}€</strong> net proprio</span>
+          </div>
+          ${pApparts.length?`<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">${pApparts.map(a=>`<span class="tag tag-info">${a.emoji||'🏠'} ${a.name}</span>`).join('')}</div>`:'<div style="margin-top:8px;font-size:12px;color:#BA7517">⚠ Aucun appartement assigné</div>'}
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button class="btn btn-sm" onclick="openEditProprio('${p.id}')">✏️</button>
+          <button class="btn btn-sm" onclick="openAssignApparts('${p.id}')">🏠+</button>
+          <button class="btn btn-sm" onclick="deleteProprio('${p.id}')" style="color:#DC2626">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('proprios-sub').textContent=proprietaires.length+' propriétaire'+(proprietaires.length>1?'s':'');
+}
+
+function openAddProprioModal(){
+  editProprioId=null;
+  document.getElementById('modal-proprio-title').textContent='Ajouter un propriétaire';
+  ['mp-name','mp-email','mp-phone','mp-iban','mp-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('mp-commission').value='20';
+  document.getElementById('modal-proprio-error').style.display='none';
+  document.getElementById('modal-proprio').classList.add('open');
+}
+
+function openEditProprio(id){
+  const p=proprietaires.find(x=>x.id===id);if(!p)return;
+  editProprioId=id;
+  document.getElementById('modal-proprio-title').textContent='Modifier '+p.name;
+  document.getElementById('mp-name').value=p.name||'';
+  document.getElementById('mp-email').value=p.email||'';
+  document.getElementById('mp-phone').value=p.phone||'';
+  document.getElementById('mp-commission').value=p.commission||20;
+  document.getElementById('mp-iban').value=p.iban||'';
+  document.getElementById('mp-notes').value=p.notes||'';
+  document.getElementById('modal-proprio-error').style.display='none';
+  document.getElementById('modal-proprio').classList.add('open');
+}
+
+function closeProprioModal(){document.getElementById('modal-proprio').classList.remove('open')}
+
+async function saveProprietaire(){
+  const name=document.getElementById('mp-name').value.trim();
+  if(!name){showErr('modal-proprio-error','Nom obligatoire');return}
+  const btn=document.getElementById('btn-save-proprio');btn.disabled=true;btn.textContent='…';
+  const body={
+    user_id:currentUser.user.id,
+    name,
+    email:document.getElementById('mp-email').value.trim(),
+    phone:document.getElementById('mp-phone').value.trim(),
+    commission:+document.getElementById('mp-commission').value||20,
+    iban:document.getElementById('mp-iban').value.trim(),
+    notes:document.getElementById('mp-notes').value.trim()
+  };
+  try{
+    if(editProprioId){
+      await sbFetch(`proprietaires?id=eq.${editProprioId}`,{method:'PATCH',body:JSON.stringify(body)});
+      const i=proprietaires.findIndex(p=>p.id===editProprioId);
+      if(i>=0)proprietaires[i]={...proprietaires[i],...body};
+      showToast('✓ Propriétaire modifié');
+    } else {
+      const res=await sbFetch('proprietaires',{method:'POST',body:JSON.stringify(body)});
+      const c=await res.json();
+      proprietaires.push(Array.isArray(c)&&c[0]?c[0]:{...body,id:Date.now().toString()});
+      showToast('✓ Propriétaire ajouté');
+    }
+    closeProprioModal();renderProprietaires();
+  }catch(e){showErr('modal-proprio-error','Erreur');}
+  btn.disabled=false;btn.textContent='✓ Enregistrer';
+}
+
+async function deleteProprio(id){
+  if(!confirm('Supprimer ce propriétaire ?'))return;
+  await sbFetch(`proprietaires?id=eq.${id}`,{method:'DELETE'});
+  proprietaires=proprietaires.filter(p=>p.id!==id);
+  apparts.filter(a=>a.proprietaire_id===id).forEach(a=>a.proprietaire_id=null);
+  renderProprietaires();showToast('🗑 Propriétaire supprimé');
+}
+
+function openAssignApparts(proprioId){
+  const p=proprietaires.find(x=>x.id===proprioId);if(!p)return;
+  const assigned=apparts.filter(a=>a.proprietaire_id===proprioId);
+  const unassigned=apparts.filter(a=>!a.proprietaire_id||a.proprietaire_id===proprioId);
+  let html=`<div style="font-weight:700;margin-bottom:1rem">Assigner des appartements à ${p.name}</div>`;
+  if(!apparts.length){html+='<div style="color:#8A8A99;font-size:13px">Aucun appartement. Ajoutez-en dans Le Parc.</div>';}
+  else{
+    apparts.forEach(a=>{
+      const isAssigned=a.proprietaire_id===proprioId;
+      const otherProprio=!isAssigned&&a.proprietaire_id?proprietaires.find(p=>p.id===a.proprietaire_id):null;
+      html+=`<label style="display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;cursor:pointer;border:1px solid #E8E8EE;margin-bottom:6px${otherProprio?';opacity:0.5':''}">
+        <input type="checkbox" ${isAssigned?'checked':''} ${otherProprio?'disabled':''} onchange="assignAppart('${a.id}','${proprioId}',this.checked)" style="width:18px;height:18px;accent-color:#6B3FA0"/>
+        <span style="font-size:14px">${a.emoji||'🏠'}</span>
+        <div><div style="font-size:13px;font-weight:500">${a.name}</div><div style="font-size:11px;color:#8A8A99">${a.city||a.zone||''}${otherProprio?' · Assigné à '+otherProprio.name:''}</div></div>
+      </label>`;
+    });
+  }
+  html+=`<button class="btn btn-purple" onclick="closeAssignModal()" style="width:100%;margin-top:1rem;justify-content:center">✓ Terminé</button>`;
+  document.getElementById('modal-proprio-title').textContent='Assigner les appartements';
+  document.querySelector('#modal-proprio .modal').innerHTML=`<div class="modal-head"><div class="modal-title">Assigner à ${p.name}</div><button class="modal-close" onclick="closeAssignModal()">✕</button></div>${html}`;
+  document.getElementById('modal-proprio').classList.add('open');
+}
+
+function closeAssignModal(){
+  document.getElementById('modal-proprio').classList.remove('open');
+  // Restore modal content
+  document.querySelector('#modal-proprio .modal').innerHTML=`
+    <div class="modal-head"><div class="modal-title" id="modal-proprio-title">Ajouter un propriétaire</div><button class="modal-close" onclick="closeProprioModal()">✕</button></div>
+    <div class="form-group"><label>Nom complet ★</label><input type="text" id="mp-name" placeholder="Jean Dupont"/></div>
+    <div class="form-group"><label>Email</label><input type="email" id="mp-email" placeholder="jean@exemple.fr"/></div>
+    <div class="form-group"><label>Téléphone</label><input type="text" id="mp-phone" placeholder="06 12 34 56 78"/></div>
+    <div class="form-group"><label>Commission (%)</label><input type="number" id="mp-commission" placeholder="20" value="20"/></div>
+    <div class="form-group"><label>IBAN</label><input type="text" id="mp-iban" placeholder="FR76 1234…"/></div>
+    <div class="form-group"><label>Notes</label><input type="text" id="mp-notes" placeholder="Contrat signé le…"/></div>
+    <div style="display:flex;gap:8px;margin-top:1.25rem">
+      <button class="btn" onclick="closeProprioModal()" style="flex:1">Annuler</button>
+      <button class="btn btn-purple" onclick="saveProprietaire()" id="btn-save-proprio" style="flex:2">✓ Enregistrer</button>
+    </div>
+    <div class="auth-error" id="modal-proprio-error"></div>`;
+  renderProprietaires();
+}
+
+async function assignAppart(aptId,proprioId,assign){
+  const val=assign?proprioId:null;
+  await sbFetch(`appartements?id=eq.${aptId}`,{method:'PATCH',body:JSON.stringify({proprietaire_id:val})});
+  const a=apparts.find(x=>x.id===aptId);
+  if(a)a.proprietaire_id=val;
+  showToast(assign?'✓ Appartement assigné':'Appartement retiré');
+}
+
+// RAPPORTS MENSUELS
+function initRapportMois(){
+  const sel=document.getElementById('rapport-mois');if(!sel)return;
+  const now=new Date();
+  sel.innerHTML='';
+  for(let i=0;i<6;i++){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const val=d.toISOString().slice(0,7);
+    const label=d.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+    sel.innerHTML+=`<option value="${val}">${label.charAt(0).toUpperCase()+label.slice(1)}</option>`;
+  }
+}
+
+function renderRapports(){
+  const list=document.getElementById('rapports-list');
+  const empty=document.getElementById('rapports-empty');
+  if(!list)return;
+  if(!proprietaires.length){empty.style.display='block';list.innerHTML='';return;}
+  empty.style.display='none';
+
+  const mois=document.getElementById('rapport-mois')?.value||new Date().toISOString().slice(0,7);
+  const moisLabel=new Date(mois+'-01').toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+
+  let html='';
+  proprietaires.forEach(p=>{
+    const pApparts=apparts.filter(a=>a.proprietaire_id===p.id);
+    const pRes=reservations.filter(r=>{
+      const apt=pApparts.find(a=>a.id===r.appartement_id);
+      return apt&&r.date_from&&r.date_from.startsWith(mois);
+    });
+    const revBrut=pRes.reduce((s,r)=>s+(r.price_total||0),0);
+    const nuits=pRes.reduce((s,r)=>s+(r.nights||0),0);
+    const comm=Math.round(revBrut*(p.commission||20)/100);
+    const net=revBrut-comm;
+    const nbJours=new Date(+mois.split('-')[0],+mois.split('-')[1],0).getDate();
+    const occMax=pApparts.length*nbJours;
+    const occ=occMax>0?Math.round(nuits/occMax*100):0;
+
+    html+=`<div class="card" style="margin-bottom:.75rem">
+      <div class="card-head">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#6B3FA0,#FF6B6B);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:white;flex-shrink:0">${(p.name||'?').charAt(0).toUpperCase()}</div>
+          <div>
+            <div style="font-size:15px;font-weight:700">${p.name}</div>
+            <div style="font-size:12px;color:#8A8A99">${moisLabel} · ${pApparts.length} appart${pApparts.length>1?'s':''}</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;margin-bottom:1rem">
+        <div style="background:#F5F4FF;border-radius:10px;padding:.75rem;text-align:center">
+          <div style="font-size:20px;font-weight:700">${revBrut}€</div>
+          <div style="font-size:11px;color:#8A8A99">Revenus bruts</div>
+        </div>
+        <div style="background:#FAEEDA;border-radius:10px;padding:.75rem;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:#BA7517">${comm}€</div>
+          <div style="font-size:11px;color:#8A8A99">Commission ${p.commission||20}%</div>
+        </div>
+        <div style="background:#E1F5EE;border-radius:10px;padding:.75rem;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:#059669">${net}€</div>
+          <div style="font-size:11px;color:#8A8A99">Net propriétaire</div>
+        </div>
+        <div style="background:#F5F4FF;border-radius:10px;padding:.75rem;text-align:center">
+          <div style="font-size:20px;font-weight:700">${pRes.length}</div>
+          <div style="font-size:11px;color:#8A8A99">Réservations</div>
+        </div>
+        <div style="background:#F5F4FF;border-radius:10px;padding:.75rem;text-align:center">
+          <div style="font-size:20px;font-weight:700">${nuits}</div>
+          <div style="font-size:11px;color:#8A8A99">Nuits vendues</div>
+        </div>
+        <div style="background:#F5F4FF;border-radius:10px;padding:.75rem;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:${occ>=60?'#059669':occ>=40?'#BA7517':'#D85A30'}">${occ}%</div>
+          <div style="font-size:11px;color:#8A8A99">Occupation</div>
+        </div>
+      </div>
+      ${pApparts.length?`<div style="font-size:12px;color:#8A8A99;margin-bottom:6px">Détail par appartement</div>
+      <table style="min-width:auto"><thead><tr><th>Appartement</th><th>Résa</th><th>Nuits</th><th>Revenus</th></tr></thead><tbody>
+      ${pApparts.map(a=>{
+        const aRes=pRes.filter(r=>r.appartement_id===a.id);
+        const aRev=aRes.reduce((s,r)=>s+(r.price_total||0),0);
+        const aN=aRes.reduce((s,r)=>s+(r.nights||0),0);
+        return`<tr><td><div class="apt-name"><div class="apt-emoji" style="width:24px;height:24px;font-size:14px">${a.emoji||'🏠'}</div>${a.name}</div></td><td>${aRes.length}</td><td>${aN}</td><td style="font-weight:600">${aRev}€</td></tr>`;
+      }).join('')}
+      </tbody></table>`:'<div style="font-size:12px;color:#BA7517">⚠ Aucun appartement assigné</div>'}
+    </div>`;
+  });
+
+  list.innerHTML=html;
+}
+
+async function genererRapports(){
+  const mois=document.getElementById('rapport-mois')?.value||new Date().toISOString().slice(0,7);
+  for(const p of proprietaires){
+    const pApparts=apparts.filter(a=>a.proprietaire_id===p.id);
+    const pRes=reservations.filter(r=>pApparts.some(a=>a.id===r.appartement_id)&&r.date_from&&r.date_from.startsWith(mois));
+    const revBrut=pRes.reduce((s,r)=>s+(r.price_total||0),0);
+    const nuits=pRes.reduce((s,r)=>s+(r.nights||0),0);
+    const comm=Math.round(revBrut*(p.commission||20)/100);
+    const net=revBrut-comm;
+    const nbJours=new Date(+mois.split('-')[0],+mois.split('-')[1],0).getDate();
+    const occMax=pApparts.length*nbJours;
+    const occ=occMax>0?Math.round(nuits/occMax*100):0;
+    try{
+      await sbFetch('rapports',{method:'POST',body:JSON.stringify({
+        user_id:currentUser.user.id,proprietaire_id:p.id,mois,
+        revenus_brut:revBrut,commission_pct:p.commission||20,
+        commission_montant:comm,net_proprietaire:net,
+        nb_reservations:pRes.length,nb_nuits:nuits,taux_occupation:occ
+      })});
+    }catch(e){}
+  }
+  renderRapports();
+  showToast('✓ Rapports générés pour '+proprietaires.length+' propriétaire'+(proprietaires.length>1?'s':''));
 }
 
 // STRIPE & TARIFS
