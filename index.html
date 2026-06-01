@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sublyfe — Sub. Life. Simplified.</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;color:#1A1A2E;background:#F5F4FF;font-size:14px;-webkit-font-smoothing:antialiased}
+#auth-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem;background:#F5F4FF}
+.auth-card{background:white;border:0.5px solid #E8E8EE;border-radius:14px;padding:2rem;width:100%;max-width:380px}
+.auth-logo{font-size:26px;font-weight:700;margin-bottom:2px}
+.auth-logo span{background:linear-gradient(90deg,#6B3FA0,#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.auth-tagline{font-size:13px;color:#8A8A99;margin-bottom:1.5rem;font-style:italic}
+.auth-tabs{display:flex;margin-bottom:1.5rem;border-bottom:1px solid #E8E8EE}
+.auth-tab{padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:none;color:#8A8A99;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit}
+.auth-tab.active{color:#6B3FA0;border-bottom-color:#6B3FA0}
+.form-group{margin-bottom:1rem}
+.form-group label{display:block;font-size:11px;color:#8A8A99;margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+.form-group input,.form-group select{width:100%;padding:9px 12px;border-radius:8px;border:1px solid #E8E8EE;background:white;color:#1A1A2E;font-size:14px;font-family:inherit}
+.form-group input:focus{outline:none;border-color:#6B3FA0}
+.btn-full{width:100%;padding:11px;border-radius:8px;background:linear-gradient(135deg,#6B3FA0,#9333EA);color:white;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:0.5rem}
+.btn-full:disabled{opacity:0.6;cursor:not-allowed}
+.auth-error{margin-top:0.75rem;padding:0.75rem;background:#FEE2E2;border-radius:8px;font-size:12px;color:#DC2626;display:none}
+.auth-success{margin-top:0.75rem;padding:0.75rem;background:#E0F2E9;border-radius:8px;font-size:12px;color:#059669;display:none}
+.app{display:flex;min-height:100vh;flex-direction:column}
+.beta-banner{background:linear-gradient(90deg,#6B3FA0,#FF6B6B);color:white;text-align:center;padding:10px 20px;font-size:13px;font-weight:600}
+.app-body{display:flex;flex:1;min-height:0}
+.sidebar{width:250px;background:white;border-right:1px solid #EEEEF5;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sidebar-brand{padding:1.5rem 1.25rem 1rem}
+.brand-logo{font-size:24px;font-weight:700}
+.brand-logo span{background:linear-gradient(90deg,#6B3FA0,#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.brand-tagline{font-size:11px;color:#8A8A99;margin-top:3px;font-style:italic}
+.sidebar-sep{height:1px;background:#EEEEF5;margin:0 1.25rem 0.75rem}
+.nav-section-label{font-size:10px;font-weight:700;color:#B0A8C8;text-transform:uppercase;letter-spacing:1px;padding:0.75rem 1.25rem 0.35rem}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 1rem;margin:1px 0.75rem;border-radius:10px;color:#3A3A50;cursor:pointer;font-size:13px;font-weight:500;border:none;background:none;font-family:inherit;width:calc(100% - 1.5rem);text-align:left;transition:all .12s}
+.nav-item:hover{background:#F5F4FF;color:#6B3FA0}
+.nav-item.active{background:#F0EBF9;color:#6B3FA0;font-weight:600}
+.nav-emoji{font-size:18px;width:24px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:#FF6B6B;color:white;font-size:10px;padding:2px 7px;border-radius:100px;font-weight:700}
+.nav-badge-new{margin-left:auto;background:linear-gradient(135deg,#6B3FA0,#9333EA);color:white;font-size:10px;padding:2px 8px;border-radius:100px;font-weight:700}
+.sidebar-footer{margin-top:auto;padding:0.75rem 1rem;border-top:1px solid #EEEEF5}
+.user-row{display:flex;align-items:center;gap:8px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6B3FA0,#FF6B6B);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:white;flex-shrink:0}
+.user-name{font-size:13px;font-weight:600}
+.user-plan{font-size:11px;color:#6B3FA0;font-weight:600}
+.btn-logout{margin-left:auto;background:none;border:none;cursor:pointer;color:#B0A8C8;font-size:18px}
+.main{flex:1;overflow-y:auto;min-width:0;background:#F5F4FF}
+.page{display:none;padding:2rem}
+.page.active{display:block}
+.page-title{font-size:28px;font-weight:700;color:#1A1A2E}
+.page-sub{font-size:13px;color:#8A8A99;margin-top:4px}
+.page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;gap:1rem;flex-wrap:wrap}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #E8E8EE;background:white;color:#1A1A2E;font-family:inherit;display:inline-flex;align-items:center;gap:6px;transition:all .12s}
+.btn:hover{border-color:#6B3FA0;color:#6B3FA0}
+.btn-purple{background:linear-gradient(135deg,#6B3FA0,#9333EA);color:white;border:none}
+.btn-purple:hover{opacity:0.9;color:white}
+.btn-ai{background:linear-gradient(135deg,#7C3AED,#9333EA);color:white;border:none}
+.btn-ai:hover{opacity:0.9;color:white}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn:disabled{opacity:0.5;cursor:not-allowed}
+.card{background:white;border-radius:14px;padding:1.25rem;margin-bottom:1rem;border:1px solid #EEEEF5}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;gap:0.5rem;flex-wrap:wrap}
+.card-title{font-size:15px;font-weight:700}
+.grid-2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:1rem;margin-bottom:1rem}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:1.25rem}
+.kpi{background:white;border-radius:12px;padding:1rem;border:1px solid #EEEEF5}
+.kpi-label{font-size:10px;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;font-weight:700;margin-bottom:6px}
+.kpi-value{font-size:26px;font-weight:700;line-height:1}
+.kpi-delta{margin-top:6px;font-size:12px;font-weight:600}
+.kpi-ai{border-color:#C4B5FD;background:linear-gradient(135deg,#F5F0FF,white)}
+.kpi-ai .kpi-value{color:#6B3FA0}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:480px}
+th{text-align:left;padding:8px 10px;color:#8A8A99;font-size:10px;text-transform:uppercase;letter-spacing:0.8px;font-weight:700;border-bottom:1px solid #EEEEF5;white-space:nowrap}
+td{padding:11px 10px;border-bottom:1px solid #EEEEF5;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAFF}
+.apt-name{font-weight:600;display:flex;align-items:center;gap:8px}
+.apt-emoji{font-size:18px;width:32px;height:32px;background:#F5F4FF;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tag{display:inline-block;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:700}
+.tag-ok{background:#E0F2E9;color:#059669}
+.tag-warn{background:#FEF3C7;color:#D97706}
+.tag-bad{background:#FEE2E2;color:#DC2626}
+.tag-info{background:#F0EBF9;color:#6B3FA0}
+.tag-ai{background:linear-gradient(135deg,#F0EBF9,#FCE7F3);color:#6B3FA0}
+.price-main{font-size:15px;font-weight:700}
+.price-floor{font-size:11px;color:#DC2626;font-weight:500}
+.price-ai{font-size:13px;font-weight:700;color:#6B3FA0}
+.price-comp{font-size:11px;color:#8A8A99}
+.toggle{width:34px;height:19px;border-radius:100px;border:none;cursor:pointer;position:relative;transition:background .15s;flex-shrink:0}
+.toggle.on{background:linear-gradient(90deg,#6B3FA0,#9333EA)}
+.toggle.off{background:#D1D1D8}
+.toggle::after{content:'';position:absolute;top:3px;width:13px;height:13px;border-radius:50%;background:white;transition:left .15s}
+.toggle.on::after{left:18px}
+.toggle.off::after{left:3px}
+.ai-bubble{background:linear-gradient(135deg,#F5F0FF,#FDF2FF);border:1px solid #C4B5FD;border-radius:12px;padding:1rem;margin-top:0.75rem}
+.ai-bubble-head{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#6B3FA0;margin-bottom:8px}
+.ai-dot{width:7px;height:7px;border-radius:50%;background:#6B3FA0;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.ai-bubble-text{font-size:13px;color:#3A3A50;line-height:1.65}
+.typing{display:flex;gap:5px;align-items:center;padding:4px 0}
+.typing span{width:7px;height:7px;border-radius:50%;background:#9B72CF;animation:bounce 1s infinite}
+.typing span:nth-child(2){animation-delay:.15s}
+.typing span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.event-card{background:white;border-radius:12px;padding:1rem;border:1px solid #EEEEF5;margin-bottom:0.75rem}
+.event-card.hot{border-color:#FCD34D;background:linear-gradient(135deg,#FFFBEB,white)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,26,46,0.45);z-index:100;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal{background:white;border-radius:16px;padding:1.5rem;width:100%;max-width:420px;border:1px solid #EEEEF5}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
+.modal-title{font-size:17px;font-weight:700}
+.modal-close{background:none;border:none;cursor:pointer;color:#8A8A99;font-size:20px}
+.loading-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#F5F4FF;flex-direction:column;gap:1rem}
+.loading-logo{font-size:32px;font-weight:700}
+.loading-logo span{background:linear-gradient(90deg,#6B3FA0,#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.spinner{width:32px;height:32px;border:3px solid #E8E8EE;border-top-color:#6B3FA0;border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#1A1A2E;color:white;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.setting-row{display:flex;justify-content:space-between;align-items:center;padding:0.85rem 0;border-bottom:1px solid #EEEEF5}
+.setting-row:last-child{border-bottom:none}
+.setting-label{font-size:13px;font-weight:600}
+.setting-desc{font-size:12px;color:#8A8A99;margin-top:2px}
+.settings-section-title{font-size:10px;font-weight:700;color:#B0A8C8;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.5rem;padding-bottom:0.5rem;border-bottom:1px solid #EEEEF5}
+</style>
+</head>
+<body>
+
+<div class="loading-screen" id="loading">
+  <div class="loading-logo">Sub<span>lyfe</span></div>
+  <div class="spinner"></div>
+  <div style="font-size:13px;color:#8A8A99">Connexion…</div>
+</div>
+
+<div id="auth-screen" style="display:none">
+  <div class="auth-card">
+    <div class="auth-logo">Sub<span>lyfe</span></div>
+    <div class="auth-tagline">Sub. Life. Simplified.</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Connexion</button>
+      <button class="auth-tab" onclick="switchTab('register')">Créer un compte</button>
+    </div>
+    <div id="login-form">
+      <div class="form-group"><label>Email</label><input type="email" id="l-email" placeholder="vous@exemple.fr"/></div>
+      <div class="form-group"><label>Mot de passe</label><input type="password" id="l-pwd" placeholder="••••••••"/></div>
+      <button class="btn-full" id="btn-login" onclick="doLogin()">🚀 Se connecter</button>
+      <div class="auth-error" id="login-error"></div>
+    </div>
+    <div id="register-form" style="display:none">
+      <div class="form-group"><label>Nom complet</label><input type="text" id="r-name" placeholder="Marie Martin"/></div>
+      <div class="form-group"><label>Email</label><input type="email" id="r-email" placeholder="vous@exemple.fr"/></div>
+      <div class="form-group"><label>Profil</label>
+        <select id="r-type">
+          <option value="solo">🏠 Gestionnaire solo</option>
+          <option value="concierge">🏢 Conciergerie</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Mot de passe</label><input type="password" id="r-pwd" placeholder="min. 6 caractères"/></div>
+      <button class="btn-full" id="btn-register" onclick="doRegister()">✨ Créer mon compte</button>
+      <div class="auth-error" id="register-error"></div>
+      <div class="auth-success" id="register-success"></div>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="app" style="display:none">
+  <div class="beta-banner">🚀 <strong>Beta Sublyfe</strong> — Module IA Pricing activé</div>
+  <div class="app-body">
+    <div class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-logo">Sub<span>lyfe</span></div>
+        <div class="brand-tagline">Sub. Life. Simplified.</div>
+      </div>
+      <div class="sidebar-sep"></div>
+      <div class="nav-section-label">Mon Business</div>
+      <button class="nav-item active" onclick="goTo('cockpit',this)"><span class="nav-emoji">📊</span>Le Cockpit</button>
+      <button class="nav-item" onclick="goTo('parc',this)"><span class="nav-emoji">🏠</span>Le Parc <span class="nav-badge" id="parc-badge">0</span></button>
+      <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji">🤖</span>IA Pricing <span class="nav-badge-new">NEW</span></button>
+      <button class="nav-item" onclick="goTo('agenda',this)"><span class="nav-emoji">📅</span>L'Agenda</button>
+      <button class="nav-item" onclick="goTo('squad',this)"><span class="nav-emoji">👥</span>La Squad</button>
+      <div class="nav-section-label">Réseau Sublyfer</div>
+      <button class="nav-item" onclick="goTo('clean',this)"><span class="nav-emoji">🧹</span>Sublyfer Clean</button>
+      <button class="nav-item" onclick="goTo('annuaire',this)"><span class="nav-emoji">🟡</span>L'Annuaire</button>
+      <div class="nav-section-label" id="concierge-label" style="display:none">Conciergerie</div>
+      <button class="nav-item" id="clients-btn" onclick="goTo('clients',this)" style="display:none"><span class="nav-emoji">🏢</span>Mes Clients</button>
+      <div class="nav-section-label">Compte</div>
+      <button class="nav-item" onclick="goTo('settings',this)"><span class="nav-emoji">⚙️</span>Paramètres</button>
+      <div class="sidebar-footer">
+        <div class="user-row">
+          <div class="user-avatar" id="s-avatar">?</div>
+          <div><div class="user-name" id="s-name">…</div><div class="user-plan" id="s-plan">…</div></div>
+          <button class="btn-logout" onclick="doLogout()" title="Déconnexion">↩</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="page active" id="page-cockpit">
+        <div class="page-header">
+          <div><div class="page-title">Le Cockpit 📊</div><div class="page-sub" id="cockpit-date"></div></div>
+          <div class="actions">
+            <button class="btn" onclick="goTo('parc',document.querySelector('.nav-item:nth-child(2)'))">+ Ajouter un appart</button>
+            <button class="btn btn-ai" onclick="goTo('pricing',document.querySelector('.nav-item:nth-child(3)'))">🤖 PriceBot</button>
+          </div>
+        </div>
+        <div class="kpi-grid" id="cockpit-kpis"></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Le Parc — vue rapide</div></div>
+            <div class="table-wrap"><table id="cockpit-table"></table></div>
+            <div id="cockpit-empty" style="text-align:center;padding:2rem;color:#8A8A99;display:none">
+              <div style="font-size:32px;margin-bottom:8px">🏠</div>
+              <div style="font-weight:600;margin-bottom:4px">Aucun appartement</div>
+              <div style="font-size:12px">Ajoutez votre premier appartement dans "Le Parc"</div>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="card-head"><div class="card-title">🔥 Événements chauds</div></div>
+              <div id="cockpit-events"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page" id="page-parc">
+        <div class="page-header">
+          <div><div class="page-title">Le Parc 🏠</div><div class="page-sub" id="parc-sub">Chargement…</div></div>
+          <div class="actions"><button class="btn btn-purple" onclick="openAddModal()">+ Ajouter un appartement</button></div>
+        </div>
+        <div class="card">
+          <div class="table-wrap"><table id="parc-table"></table></div>
+          <div id="parc-empty" style="text-align:center;padding:2.5rem;color:#8A8A99;display:none">
+            <div style="font-size:40px;margin-bottom:1rem">🏠</div>
+            <div style="font-weight:600;font-size:16px;margin-bottom:6px">Aucun appartement encore</div>
+            <div style="font-size:13px;margin-bottom:1.25rem">Ajoutez votre premier logement pour commencer</div>
+            <button class="btn btn-purple" onclick="openAddModal()">+ Ajouter mon premier appartement</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="page" id="page-pricing">
+        <div class="page-header">
+          <div><div class="page-title">IA Pricing 🤖</div><div class="page-sub">PriceBot analyse votre parc en temps réel</div></div>
+          <div class="actions"><button class="btn btn-ai" onclick="runGlobal()" id="btn-global">🤖 Analyse globale</button></div>
+        </div>
+        <div id="global-result"></div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Recommandations par appartement</div><span class="tag tag-ai">🤖 IA active</span></div>
+          <div class="table-wrap"><table id="pricing-table"></table></div>
+        </div>
+      </div>
+
+      <div class="page" id="page-agenda">
+        <div class="page-header"><div><div class="page-title">L'Agenda 📅</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem">
+          <div style="font-size:40px;margin-bottom:1rem">📅</div>
+          <div style="font-weight:600;font-size:16px;margin-bottom:6px">Agenda à venir</div>
+          <div style="font-size:13px;color:#8A8A99">Synchronisation Airbnb & Booking.com — disponible en version Pro</div>
+        </div>
+      </div>
+
+      <div class="page" id="page-squad">
+        <div class="page-header"><div><div class="page-title">La Squad 👥</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem">
+          <div style="font-size:40px;margin-bottom:1rem">👥</div>
+          <div style="font-weight:600;font-size:16px;margin-bottom:6px">Gestion de l'équipe ménage</div>
+          <div style="font-size:13px;color:#8A8A99">Ajoutez vos cleaners et assignez-les à vos appartements</div>
+        </div>
+      </div>
+
+      <div class="page" id="page-clean">
+        <div class="page-header"><div><div class="page-title">Sublyfer Clean 🧹</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem">
+          <div style="font-size:48px;margin-bottom:1rem">🧹</div>
+          <div style="font-size:18px;font-weight:700;margin-bottom:8px">Réseau Sublyfer Clean</div>
+          <div style="font-size:13px;color:#8A8A99;margin-bottom:1.5rem">Prestataires ménage vérifiés et géolocalisés</div>
+          <button class="btn btn-purple">Bientôt disponible</button>
+        </div>
+      </div>
+
+      <div class="page" id="page-annuaire">
+        <div class="page-header"><div><div class="page-title">L'Annuaire 🟡</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem">
+          <div style="font-size:48px;margin-bottom:1rem">🟡</div>
+          <div style="font-size:18px;font-weight:700;margin-bottom:8px">Annuaire des partenaires</div>
+          <div style="font-size:13px;color:#8A8A99;margin-bottom:1.5rem">Artisans, avocats, photographes spécialisés sous-location</div>
+          <button class="btn btn-purple">Bientôt disponible</button>
+        </div>
+      </div>
+
+      <div class="page" id="page-clients">
+        <div class="page-header"><div><div class="page-title">Mes Clients 🏢</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem">
+          <div style="font-size:36px;margin-bottom:1rem">🏢</div>
+          <div style="font-weight:600;margin-bottom:6px">Gestion multi-clients</div>
+          <div style="font-size:13px;color:#8A8A99">Gérez les portefeuilles de vos clients conciergerie</div>
+        </div>
+      </div>
+
+      <div class="page" id="page-settings">
+        <div class="page-header"><div><div class="page-title">Paramètres ⚙️</div></div></div>
+        <div class="card">
+          <div class="settings-section-title">Mon compte</div>
+          <div class="setting-row"><div><div class="setting-label">Nom</div></div><input type="text" id="set-name" style="width:180px;padding:6px 10px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit"/></div>
+          <div class="setting-row"><div><div class="setting-label">Email</div></div><span id="set-email" style="font-size:13px;color:#8A8A99"></span></div>
+          <div class="setting-row"><div><div class="setting-label">Type de compte</div></div><span class="tag tag-info" id="set-type"></span></div>
+          <div style="margin-top:1rem" class="settings-section-title">IA Pricing</div>
+          <div class="setting-row"><div><div class="setting-label">Mode automatique global</div><div class="setting-desc">PriceBot ajuste sans confirmation</div></div><button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button></div>
+          <div class="setting-row"><div><div class="setting-label">Alertes événements</div></div><button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button></div>
+          <div style="margin-top:1rem" class="settings-section-title">Abonnement</div>
+          <div class="setting-row"><div><div class="setting-label" id="set-plan">Plan Starter</div><div class="setting-desc">Jusqu'à 5 appartements · PriceBot inclus</div></div><button class="btn btn-purple btn-sm">Upgrader →</button></div>
+          <button class="btn btn-purple" onclick="saveProfile()" style="margin-top:1rem">✓ Sauvegarder</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-title">Ajouter un appartement</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="form-group"><label>Nom</label><input type="text" id="m-name" placeholder="Studio Bastille"/></div>
+    <div class="form-group"><label>Zone / Quartier</label><input type="text" id="m-zone" placeholder="Paris 11e"/></div>
+    <div class="form-group"><label>Emoji</label>
+      <select id="m-emoji"><option>🏠</option><option>🛋️</option><option>🌸</option><option>🏗️</option><option>⭐</option><option>🏡</option><option>🌇</option><option>🌃</option></select>
+    </div>
+    <div class="form-group"><label>Loyer mensuel (€)</label><input type="number" id="m-rent" placeholder="900"/></div>
+    <div class="form-group"><label>Coût ménage / nuit (€)</label><input type="number" id="m-clean" placeholder="25"/></div>
+    <div class="form-group"><label>Prix actuel / nuit (€)</label><input type="number" id="m-price" placeholder="95"/></div>
+    <div class="form-group"><label>Concurrent référence (€/nuit)</label><input type="number" id="m-comp" placeholder="105"/></div>
+    <div style="display:flex;gap:8px;margin-top:1.25rem">
+      <button class="btn" onclick="closeModal()" style="flex:1">Annuler</button>
+      <button class="btn btn-purple" onclick="saveAppart()" id="btn-save-appart" style="flex:2">✓ Enregistrer</button>
+    </div>
+    <div class="auth-error" id="modal-error"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL='https://gtffekgqglpxjjligffi.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0ZmZla2dxZ2xweGpqbGlnZmZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyNjUxODMsImV4cCI6MjA5NTg0MTE4M30.8SHvalTRdUD4dXjcKP8s13yXhtg3NDrjQCBXDlu-jyE';
+let currentUser=null,currentProfile=null,apparts=[],events=[],editId=null;
+
+const h=(path,opts={})=>fetch(`${SB_URL}/rest/v1/${path}`,{headers:{'apikey':SB_KEY,'Authorization':`Bearer ${currentUser?.access_token||SB_KEY}`,'Content-Type':'application/json','Prefer':'return=representation',...opts.headers},...opts});
+const authH=(path,body,method='POST')=>fetch(`${SB_URL}/auth/v1/${path}`,{method,headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify(body)});
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+function showErr(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',4000)}
+
+async function init(){
+  const stored=localStorage.getItem('sb_session');
+  if(stored){try{currentUser=JSON.parse(stored);await loadApp();return;}catch(e){}}
+  document.getElementById('loading').style.display='none';
+  document.getElementById('auth-screen').style.display='flex';
+}
+
+function switchTab(t){
+  document.querySelectorAll('.auth-tab').forEach((b,i)=>b.classList.toggle('active',i===(t==='login'?0:1)));
+  document.getElementById('login-form').style.display=t==='login'?'block':'none';
+  document.getElementById('register-form').style.display=t==='register'?'block':'none';
+}
+
+async function doLogin(){
+  const email=document.getElementById('l-email').value.trim();
+  const pwd=document.getElementById('l-pwd').value;
+  if(!email||!pwd){showErr('login-error','Remplissez tous les champs');return}
+  const btn=document.getElementById('btn-login');btn.disabled=true;btn.textContent='Connexion…';
+  try{
+    const res=await authH('token?grant_type=password',{email,password:pwd});
+    const data=await res.json();
+    if(data.error||data.error_description){showErr('login-error',data.error_description||data.error);btn.disabled=false;btn.textContent='🚀 Se connecter';return}
+    currentUser=data;localStorage.setItem('sb_session',JSON.stringify(data));await loadApp();
+  }catch(e){showErr('login-error','Erreur réseau');btn.disabled=false;btn.textContent='🚀 Se connecter';}
+}
+
+async function doRegister(){
+  const name=document.getElementById('r-name').value.trim();
+  const email=document.getElementById('r-email').value.trim();
+  const pwd=document.getElementById('r-pwd').value;
+  const type=document.getElementById('r-type').value;
+  if(!name||!email||!pwd){showErr('register-error','Remplissez tous les champs');return}
+  if(pwd.length<6){showErr('register-error','Mot de passe : 6 caractères minimum');return}
+  const btn=document.getElementById('btn-register');btn.disabled=true;btn.textContent='Création…';
+  try{
+    const res=await authH('signup',{email,password:pwd,data:{name,type}});
+    const data=await res.json();
+    if(data.error){showErr('register-error',data.error);btn.disabled=false;btn.textContent='✨ Créer mon compte';return}
+    const s=document.getElementById('register-success');s.textContent='✓ Compte créé ! Vérifiez votre email puis connectez-vous.';s.style.display='block';
+    btn.disabled=false;btn.textContent='✨ Créer mon compte';setTimeout(()=>switchTab('login'),3000);
+  }catch(e){showErr('register-error','Erreur réseau');btn.disabled=false;btn.textContent='✨ Créer mon compte';}
+}
+
+async function doLogout(){
+  localStorage.removeItem('sb_session');currentUser=null;currentProfile=null;apparts=[];
+  document.getElementById('app').style.display='none';
+  document.getElementById('auth-screen').style.display='flex';
+}
+
+async function loadApp(){
+  document.getElementById('loading').style.display='flex';
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app').style.display='none';
+  try{
+    const pRes=await h(`profiles?id=eq.${currentUser.user.id}&select=*`);
+    const pData=await pRes.json();
+    currentProfile=pData&&pData.length>0?pData[0]:{id:currentUser.user.id,name:currentUser.user.email.split('@')[0],email:currentUser.user.email,type:'solo',plan:'Starter'};
+    const aRes=await h(`appartements?user_id=eq.${currentUser.user.id}&select=*&order=created_at.asc`);
+    apparts=await aRes.json()||[];
+    const eRes=await h(`evenements?select=*`);
+    events=await eRes.json()||[];
+    renderSidebar();renderAll();
+    document.getElementById('loading').style.display='none';
+    document.getElementById('app').style.display='flex';
+    document.getElementById('cockpit-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    document.getElementById('set-name').value=currentProfile.name||'';
+    document.getElementById('set-email').textContent=currentProfile.email||'';
+    document.getElementById('set-type').textContent=currentProfile.type==='concierge'?'🏢 Conciergerie':'🏠 Solo';
+    document.getElementById('set-plan').textContent='Plan '+(currentProfile.plan||'Starter');
+  }catch(e){document.getElementById('loading').style.display='none';document.getElementById('auth-screen').style.display='flex';}
+}
+
+function renderSidebar(){
+  document.getElementById('s-name').textContent=(currentProfile.name||'User').split(' ')[0];
+  document.getElementById('s-avatar').textContent=(currentProfile.name||'U').charAt(0).toUpperCase();
+  document.getElementById('s-plan').textContent='Plan '+(currentProfile.plan||'Starter');
+  document.getElementById('parc-badge').textContent=apparts.length;
+  if(currentProfile.type==='concierge'){document.getElementById('concierge-label').style.display='block';document.getElementById('clients-btn').style.display='flex';}
+}
+
+function floor(a){return Math.round((a.rent||0)/30+(a.cleaner||0))}
+
+function renderAll(){renderKPIs();renderCockpitTable();renderCockpitEvents();renderParcTable();renderPricingTable();document.getElementById('parc-badge').textContent=apparts.length;document.getElementById('parc-sub').textContent=apparts.length+' appartement'+(apparts.length>1?'s':'')+' dans votre parc';}
+
+function renderKPIs(){
+  const booked=apparts.filter(a=>a.booked);const rev=booked.reduce((s,a)=>s+(a.price||0),0);
+  const margin=booked.length?Math.round(booked.reduce((s,a)=>s+(a.price-floor(a))/Math.max(a.price,1)*100,0)/booked.length):0;
+  const ai=apparts.filter(a=>a.auto_pricing).length;const total=apparts.length||1;
+  document.getElementById('cockpit-kpis').innerHTML=`
+    <div class="kpi"><div class="kpi-label">Revenus ce soir</div><div class="kpi-value">${rev}€</div><div class="kpi-delta" style="color:#10B981">${booked.length} appart${booked.length>1?'s':''} loué${booked.length>1?'s':''}</div></div>
+    <div class="kpi"><div class="kpi-label">Occupation</div><div class="kpi-value">${Math.round(booked.length/total*100)}%</div><div class="kpi-delta" style="color:#10B981">${booked.length}/${apparts.length} apparts</div></div>
+    <div class="kpi"><div class="kpi-label">Marge moy.</div><div class="kpi-value">${margin}%</div><div class="kpi-delta" style="color:#8A8A99">vs plancher</div></div>
+    <div class="kpi kpi-ai"><div class="kpi-label">PriceBot actif</div><div class="kpi-value">${ai}/${apparts.length}</div><div class="kpi-delta" style="color:#6B3FA0">🤖 auto-pilotés</div></div>`;
+}
+
+function renderCockpitTable(){
+  const empty=document.getElementById('cockpit-empty');const tbl=document.getElementById('cockpit-table');
+  if(!apparts.length){empty.style.display='block';tbl.innerHTML='';return}
+  empty.style.display='none';
+  tbl.innerHTML=`<thead><tr><th>Appartement</th><th>Prix/nuit</th><th>Statut</th><th>Reco IA</th></tr></thead><tbody>`+apparts.slice(0,5).map(a=>`<tr><td><div class="apt-name"><div class="apt-emoji">${a.emoji||'🏠'}</div>${a.name}</div></td><td class="price-main">${a.price||0}€</td><td><span class="tag ${a.booked?'tag-ok':'tag-warn'}">${a.booked?'Loué':'Libre'}</span></td><td><span class="tag tag-ai">${a.ai_rec||Math.round((a.price||0)*1.08)}€</span></td></tr>`).join('')+`</tbody>`;
+}
+
+function renderCockpitEvents(){
+  const hot=events.filter(e=>e.hot).slice(0,3);
+  document.getElementById('cockpit-events').innerHTML=hot.length?hot.map(e=>`<div class="event-card hot"><div style="display:flex;align-items:center;gap:10px"><div style="font-size:24px">${e.emoji}</div><div style="flex:1"><div style="font-weight:600;font-size:13px">${e.name}</div><div style="font-size:12px;color:#8A8A99">${e.date_label} · ${e.zone}</div></div><div style="text-align:right"><div style="font-size:16px;font-weight:700;color:#D97706">+${e.boost}%</div><div style="font-size:10px;color:#8A8A99">boost prix</div></div></div></div>`).join(''):'<div style="color:#8A8A99;font-size:13px;text-align:center;padding:1rem">Aucun événement détecté</div>';
+}
+
+function renderParcTable(){
+  const empty=document.getElementById('parc-empty');const tbl=document.getElementById('parc-table');
+  if(!apparts.length){empty.style.display='block';tbl.innerHTML='';return}
+  empty.style.display='none';
+  tbl.innerHTML=`<thead><tr><th>Appartement</th><th>Plancher</th><th>Prix/nuit</th><th>Statut</th><th>Marge</th><th>Actions</th></tr></thead><tbody>`+apparts.map(a=>{const fl=floor(a);const safe=a.price>=fl;return`<tr><td><div class="apt-name"><div class="apt-emoji">${a.emoji||'🏠'}</div><div><div>${a.name}</div><div style="font-size:11px;color:#8A8A99">${a.zone||''}</div></div></div></td><td><div class="price-floor">${fl}€</div><div style="font-size:11px;color:#8A8A99">loyer ${a.rent||0}€ + ménage ${a.cleaner||0}€</div></td><td><div class="price-main">${a.price||0}€</div><div class="price-comp">Concurrent: ${a.comp||0}€</div></td><td><span class="tag ${a.booked?'tag-ok':'tag-warn'}">${a.booked?'Loué':'Libre'}</span></td><td><span class="tag ${safe?'tag-ok':'tag-bad'}">${safe?'✓ OK':'⚠ Risque'}</span></td><td style="white-space:nowrap"><button class="btn btn-sm" onclick="openEdit('${a.id}')" style="margin-right:4px">✏️</button><button class="btn btn-sm" onclick="toggleBooked('${a.id}',${!a.booked})">${a.booked?'🔓':'🔒'}</button><button class="btn btn-sm" onclick="deleteAppart('${a.id}')" style="margin-left:4px;color:#DC2626">🗑</button></td></tr>`;}).join('')+`</tbody>`;
+}
+
+function renderPricingTable(){
+  if(!apparts.length){document.getElementById('pricing-table').innerHTML=`<tr><td colspan="6" style="text-align:center;padding:2rem;color:#8A8A99">Aucun appartement. Ajoutez-en un dans "Le Parc".</td></tr>`;return}
+  document.getElementById('pricing-table').innerHTML=`<thead><tr><th>Appartement</th><th>Prix actuel</th><th>Reco PriceBot</th><th>Contexte</th><th>Mode</th><th>Actions</th></tr></thead><tbody>`+apparts.map(a=>{const rec=a.ai_rec||Math.round((a.price||0)*1.08);const diff=rec-(a.price||0);return`<tr><td><div class="apt-name"><div class="apt-emoji">${a.emoji||'🏠'}</div>${a.name}</div></td><td><div class="price-main">${a.price||0}€</div><div class="price-floor">Plancher: ${floor(a)}€</div></td><td><div class="price-ai">🤖 ${rec}€ <span style="font-size:11px;color:${diff>=0?'#059669':'#DC2626'}">(${diff>=0?'+':''}${diff}€)</span></div><div class="price-comp">Concurrent: ${a.comp||0}€</div></td><td>${a.has_event?'<span class="tag tag-warn">🎸 Événement</span>':'<span class="tag" style="background:#F0F0F5;color:#8A8A99">Normal</span>'}</td><td><div style="display:flex;align-items:center;gap:6px"><button class="toggle ${a.auto_pricing?'on':'off'}" onclick="toggleAutoPricing('${a.id}',${!a.auto_pricing})"></button><span style="font-size:12px;color:#8A8A99">${a.auto_pricing?'Auto':'Manuel'}</span></div></td><td style="white-space:nowrap"><button class="btn btn-sm" onclick="applyAI('${a.id}',${rec})" style="margin-right:4px">✓</button><button class="btn btn-sm btn-ai" onclick="askAI('${a.id}')">🤖</button></td></tr><tr id="ai-row-${a.id}" style="display:none"><td colspan="6" style="padding:0 10px 12px"><div id="ai-bubble-${a.id}"></div></td></tr>`;}).join('')+`</tbody>`;
+}
+
+function goTo(page,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');if(btn)btn.classList.add('active');}
+function openAddModal(){editId=null;document.getElementById('modal-title').textContent='Ajouter un appartement';['m-name','m-zone','m-rent','m-clean','m-price','m-comp'].forEach(id=>document.getElementById(id).value='');document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
+function openEdit(id){const a=apparts.find(x=>x.id===id);if(!a)return;editId=id;document.getElementById('modal-title').textContent='Modifier '+a.name;document.getElementById('m-name').value=a.name||'';document.getElementById('m-zone').value=a.zone||'';document.getElementById('m-emoji').value=a.emoji||'🏠';document.getElementById('m-rent').value=a.rent||'';document.getElementById('m-clean').value=a.cleaner||'';document.getElementById('m-price').value=a.price||'';document.getElementById('m-comp').value=a.comp||'';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
+function closeModal(){document.getElementById('modal').classList.remove('open')}
+
+async function saveAppart(){
+  const name=document.getElementById('m-name').value.trim();
+  if(!name){showErr('modal-error','Le nom est obligatoire');return}
+  const btn=document.getElementById('btn-save-appart');btn.disabled=true;btn.textContent='Enregistrement…';
+  const price=+document.getElementById('m-price').value||0;
+  const body={user_id:currentUser.user.id,name,zone:document.getElementById('m-zone').value||'Paris',emoji:document.getElementById('m-emoji').value||'🏠',rent:+document.getElementById('m-rent').value||0,cleaner:+document.getElementById('m-clean').value||0,price,comp:+document.getElementById('m-comp').value||0,ai_rec:Math.round(price*1.08),booked:false,auto_pricing:true,has_event:false};
+  try{
+    if(editId){await h(`appartements?id=eq.${editId}`,{method:'PATCH',body:JSON.stringify(body)});const idx=apparts.findIndex(a=>a.id===editId);if(idx>=0)apparts[idx]={...apparts[idx],...body};showToast('✓ Appartement modifié');}
+    else{const res=await h('appartements',{method:'POST',body:JSON.stringify(body)});const created=await res.json();apparts.push(Array.isArray(created)&&created[0]?created[0]:{...body,id:Date.now().toString()});showToast('✓ Appartement ajouté');}
+    closeModal();renderAll();
+  }catch(e){showErr('modal-error','Erreur. Réessayez.');}
+  btn.disabled=false;btn.textContent='✓ Enregistrer';
+}
+
+async function toggleBooked(id,val){await h(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({booked:val})});const a=apparts.find(x=>x.id===id);if(a)a.booked=val;renderAll();showToast(val?'🔒 Marqué loué':'🔓 Marqué libre');}
+async function toggleAutoPricing(id,val){await h(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({auto_pricing:val})});const a=apparts.find(x=>x.id===id);if(a)a.auto_pricing=val;renderPricingTable();showToast(val?'🤖 Auto activé':'Mode manuel');}
+async function applyAI(id,rec){await h(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({price:rec})});const a=apparts.find(x=>x.id===id);if(a)a.price=rec;renderAll();showToast('✓ Prix appliqué : '+rec+'€');}
+async function deleteAppart(id){if(!confirm('Supprimer cet appartement ?'))return;await h(`appartements?id=eq.${id}`,{method:'DELETE'});apparts=apparts.filter(a=>a.id!==id);renderAll();showToast('🗑 Supprimé');}
+async function saveProfile(){const name=document.getElementById('set-name').value.trim();await h(`profiles?id=eq.${currentProfile.id}`,{method:'PATCH',body:JSON.stringify({name})});currentProfile.name=name;renderSidebar();showToast('✓ Profil sauvegardé');}
+
+async function runGlobal(){
+  const btn=document.getElementById('btn-global');const zone=document.getElementById('global-result');
+  btn.disabled=true;btn.textContent='⏳ Analyse…';
+  zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head"><div class="ai-dot"></div> PriceBot analyse…</div><div class="ai-bubble-text"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
+  if(!apparts.length){zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">🤖 PriceBot</div><div class="ai-bubble-text">Ajoutez d'abord des appartements dans "Le Parc".</div></div>`;btn.disabled=false;btn.innerHTML='🤖 Analyse globale';return;}
+  const ctx=apparts.map(a=>`${a.name} (${a.zone}): prix=${a.price}€, reco=${a.ai_rec||Math.round(a.price*1.08)}€, plancher=${floor(a)}€, concurrent=${a.comp}€, ${a.booked?'loué':'libre'}${a.has_event?', événement proche':''}`).join('\n');
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:500,system:"Tu es PriceBot, IA pricing de Sublyfe. Analyses concises, chiffrées, actionnables. Français, emojis, 4-5 phrases max.",messages:[{role:"user",content:`Parc:\n${ctx}\n\nBriefing: actions immédiates, opportunités hausse, risques plancher ?`}]})});
+    const data=await res.json();const text=data.content?.find(b=>b.type==='text')?.text||"Analyse indisponible.";
+    zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">🤖 Analyse globale — PriceBot</div><div class="ai-bubble-text">${text.replace(/\n/g,'<br/>')}</div></div>`;
+  }catch(e){zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">⚠️ Erreur IA</div><div class="ai-bubble-text">Connexion indisponible.</div></div>`;}
+  btn.disabled=false;btn.innerHTML='🤖 Analyse globale';
+}
+
+async function askAI(id){
+  const a=apparts.find(x=>x.id===id);if(!a)return;
+  const row=document.getElementById('ai-row-'+id);const bubble=document.getElementById('ai-bubble-'+id);
+  row.style.display='table-row';
+  bubble.innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head"><div class="ai-dot"></div> Analyse de ${a.name}…</div><div class="ai-bubble-text"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,system:"Tu es PriceBot, IA pricing Sublyfe. Conseils tarification précis, 3-4 phrases, chiffres, emojis.",messages:[{role:"user",content:`${a.name} (${a.zone}) — prix: ${a.price}€, reco: ${a.ai_rec||Math.round(a.price*1.08)}€, concurrent: ${a.comp}€, plancher: ${floor(a)}€, ${a.booked?'loué':'libre'}${a.has_event?', événement proche':''}\nQuel prix ce soir ?`}]})});
+    const data=await res.json();const text=data.content?.find(b=>b.type==='text')?.text||"Indisponible.";
+    bubble.innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head">🤖 ${a.name} — PriceBot</div><div class="ai-bubble-text">${text.replace(/\n/g,'<br/>')}</div></div>`;
+  }catch(e){bubble.innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head">⚠️ Erreur</div><div class="ai-bubble-text">IA indisponible.</div></div>`;}
+}
+
+init();
+</script>
+</body>
+</html>
