@@ -163,9 +163,22 @@ tr:hover td{background:#FAFAFF}
     </div>
     <div id="login-form">
       <div class="form-group"><label>Email</label><input type="email" id="l-email" placeholder="vous@exemple.fr"/></div>
-      <div class="form-group"><label>Mot de passe</label><input type="password" id="l-pwd" placeholder="••••••••"/></div>
+      <div class="form-group">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <label style="margin-bottom:0">Mot de passe</label>
+          <button onclick="showForgotPassword()" style="background:none;border:none;font-size:12px;color:#6B3FA0;cursor:pointer;font-family:inherit;padding:0">Mot de passe oublié ?</button>
+        </div>
+        <input type="password" id="l-pwd" placeholder="••••••••"/>
+      </div>
       <button class="btn-full" id="btn-login" onclick="doLogin()">🚀 Se connecter</button>
       <div class="auth-error" id="login-error"></div>
+    </div>
+    <div id="forgot-form" style="display:none">
+      <div class="form-group"><label>Votre email</label><input type="email" id="forgot-email" placeholder="vous@exemple.fr"/></div>
+      <button class="btn-full" id="btn-forgot" onclick="doForgotPassword()">📧 Envoyer le lien</button>
+      <div class="auth-error" id="forgot-error"></div>
+      <div class="auth-success" id="forgot-success"></div>
+      <button onclick="showLogin()" style="width:100%;margin-top:.75rem;background:none;border:none;font-size:13px;color:#8A8A99;cursor:pointer;font-family:inherit">← Retour à la connexion</button>
     </div>
     <div id="register-form" style="display:none">
       <div class="form-group"><label>Nom complet</label><input type="text" id="r-name" placeholder="Marie Martin"/></div>
@@ -454,6 +467,84 @@ tr:hover td{background:#FAFAFF}
   </div>
 </div>
 
+
+<!-- ONBOARDING -->
+<div id="onboarding-overlay" style="display:none;position:fixed;inset:0;background:rgba(26,26,46,0.6);z-index:200;align-items:center;justify-content:center;padding:1rem">
+  <div style="background:white;border-radius:20px;padding:2rem;width:100%;max-width:480px;border:1px solid #EEEEF5">
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div class="brand-logo" style="font-size:24px;font-weight:700;justify-content:center;display:flex">Sub<span style="background:linear-gradient(90deg,#6B3FA0,#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent">lyfe</span></div>
+      <div style="font-size:11px;color:#8A8A99;font-style:italic">Sub. Life. Simplified.</div>
+    </div>
+    <!-- Step 1 -->
+    <div id="onb-step-1">
+      <div style="text-align:center;margin-bottom:1.5rem">
+        <div style="font-size:48px;margin-bottom:.75rem">🏠</div>
+        <div style="font-size:20px;font-weight:700;margin-bottom:6px">Bienvenue sur Sublyfe !</div>
+        <div style="font-size:13px;color:#8A8A99;line-height:1.6">On va configurer votre compte en 3 étapes rapides pour que vous puissiez gérer vos appartements comme un pro.</div>
+      </div>
+      <div style="display:grid;gap:10px;margin-bottom:1.5rem">
+        <div style="display:flex;align-items:center;gap:12px;padding:.75rem;background:#F5F4FF;border-radius:10px">
+          <div style="width:32px;height:32px;background:#6B3FA0;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0">1</div>
+          <div><div style="font-size:13px;font-weight:600">Ajoutez votre premier appartement</div><div style="font-size:12px;color:#8A8A99">Nom, ville, prix — 1 minute</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:.75rem;background:#F5F4FF;border-radius:10px">
+          <div style="width:32px;height:32px;background:#6B3FA0;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0">2</div>
+          <div><div style="font-size:13px;font-weight:600">Connectez Smoobu (optionnel)</div><div style="font-size:12px;color:#8A8A99">Import automatique de vos données</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:.75rem;background:#F5F4FF;border-radius:10px">
+          <div style="width:32px;height:32px;background:#6B3FA0;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0">3</div>
+          <div><div style="font-size:13px;font-weight:600">Activez PriceBot</div><div style="font-size:12px;color:#8A8A99">L'IA optimise vos prix automatiquement</div></div>
+        </div>
+      </div>
+      <button class="btn-full" onclick="onbNext(2)">C'est parti ! →</button>
+    </div>
+    <!-- Step 2 -->
+    <div id="onb-step-2" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+        <div style="font-size:13px;color:#8A8A99">Étape 1/2</div>
+        <div style="display:flex;gap:6px"><div style="width:24px;height:4px;border-radius:100px;background:#6B3FA0"></div><div style="width:24px;height:4px;border-radius:100px;background:#E8E8EE"></div></div>
+      </div>
+      <div style="text-align:center;margin-bottom:1.25rem">
+        <div style="font-size:32px;margin-bottom:.5rem">🏠</div>
+        <div style="font-size:18px;font-weight:700;margin-bottom:4px">Votre premier appartement</div>
+        <div style="font-size:13px;color:#8A8A99">Ces infos permettent à PriceBot de calculer votre plancher de rentabilité</div>
+      </div>
+      <div class="form-group"><label>Nom de l'appartement</label><input type="text" id="onb-name" placeholder="Studio Bastille"/></div>
+      <div class="form-group"><label>Ville ★</label><input type="text" id="onb-city" placeholder="Paris, Lyon, Bordeaux…"/></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="form-group"><label>Loyer mensuel (€)</label><input type="number" id="onb-rent" placeholder="900"/></div>
+        <div class="form-group"><label>Prix / nuit (€)</label><input type="number" id="onb-price" placeholder="95"/></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:.5rem">
+        <button class="btn" onclick="onbSkip()" style="flex:1">Passer</button>
+        <button class="btn btn-purple" onclick="onbSaveAppart()" style="flex:2">Enregistrer →</button>
+      </div>
+    </div>
+    <!-- Step 3 -->
+    <div id="onb-step-3" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+        <div style="font-size:13px;color:#8A8A99">Étape 2/2</div>
+        <div style="display:flex;gap:6px"><div style="width:24px;height:4px;border-radius:100px;background:#6B3FA0"></div><div style="width:24px;height:4px;border-radius:100px;background:#6B3FA0"></div></div>
+      </div>
+      <div style="text-align:center;margin-bottom:1.25rem">
+        <div style="font-size:32px;margin-bottom:.5rem">🔗</div>
+        <div style="font-size:18px;font-weight:700;margin-bottom:4px">Connectez Smoobu</div>
+        <div style="font-size:13px;color:#8A8A99">Importez automatiquement vos réservations Airbnb & Booking</div>
+      </div>
+      <div class="form-group">
+        <label>Clé API Smoobu (optionnel)</label>
+        <input type="text" id="onb-smoobu" placeholder="Smoobu → Paramètres → Avancé → Clés API" style="font-size:12px"/>
+      </div>
+      <div style="background:#F5F4FF;border-radius:8px;padding:.75rem;font-size:12px;color:#6B3FA0;margin-bottom:1rem">
+        💡 Vous pouvez connecter Smoobu plus tard dans Intégrations → Smoobu
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="onbFinish()" style="flex:1">Plus tard</button>
+        <button class="btn btn-green" onclick="onbConnectSmoobu()" style="flex:2">🔗 Connecter & Terminer</button>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -542,6 +633,7 @@ async function loadApp(){
     if(apparts.length)loadEvents(false);
     renderTarifs();
     checkPaymentReturn();
+    checkOnboarding();
   }catch(e){document.getElementById('loading').style.display='none';document.getElementById('auth-screen').style.display='flex';}
 }
 
@@ -1022,6 +1114,68 @@ async function askAI(id){
 }
 
 
+
+// ONBOARDING
+function checkOnboarding(){
+  const seen=localStorage.getItem('onb_seen_'+currentUser?.user?.id);
+  if(!seen&&apparts.length===0){
+    document.getElementById('onboarding-overlay').style.display='flex';
+  }
+}
+function onbNext(step){
+  document.querySelectorAll('[id^=onb-step-]').forEach(el=>el.style.display='none');
+  document.getElementById('onb-step-'+step).style.display='block';
+}
+function onbSkip(){onbNext(3);}
+async function onbSaveAppart(){
+  const name=document.getElementById('onb-name').value.trim();
+  const city=document.getElementById('onb-city').value.trim();
+  const price=+document.getElementById('onb-price').value||100;
+  const rent=+document.getElementById('onb-rent').value||900;
+  if(!name||!city){showToast('Nom et ville obligatoires');return}
+  const body={user_id:currentUser.user.id,name,city,zone:'',emoji:'🏠',rent,cleaner:25,price,comp:Math.round(price*1.05),ai_rec:Math.round(price*1.08),booked:false,auto_pricing:true,has_event:false};
+  try{
+    const res=await sbFetch('appartements',{method:'POST',body:JSON.stringify(body)});
+    const c=await res.json();
+    apparts.push(Array.isArray(c)&&c[0]?c[0]:{...body,id:Date.now().toString()});
+    renderAll();showToast('🏠 Appartement ajouté !');
+    onbNext(3);
+  }catch(e){showToast('Erreur — réessayez');}
+}
+async function onbConnectSmoobu(){
+  const key=document.getElementById('onb-smoobu').value.trim();
+  if(key){smoobuKey=key;try{localStorage.setItem('smoobu_key',key);}catch(e){}syncSmoobu();}
+  onbFinish();
+}
+function onbFinish(){
+  try{localStorage.setItem('onb_seen_'+currentUser?.user?.id,'1');}catch(e){}
+  document.getElementById('onboarding-overlay').style.display='none';
+  renderAll();
+  goTo('cockpit',document.querySelectorAll('.nav-item')[0]);
+  showToast('✓ Compte configuré ! Bienvenue sur Sublyfe 🎉');
+}
+
+// MOT DE PASSE OUBLIÉ
+function showForgotPassword(){
+  document.getElementById('login-form').style.display='none';
+  document.getElementById('forgot-form').style.display='block';
+}
+function showLogin(){
+  document.getElementById('forgot-form').style.display='none';
+  document.getElementById('login-form').style.display='block';
+}
+async function doForgotPassword(){
+  const email=document.getElementById('forgot-email').value.trim();
+  if(!email){showErr('forgot-error','Entrez votre email');return}
+  const btn=document.getElementById('btn-forgot');btn.disabled=true;btn.textContent='Envoi...';
+  try{
+    const res=await fetch(`${SB_URL}/auth/v1/recover`,{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email})});
+    if(res.ok){showOk('forgot-success','✓ Email envoyé ! Vérifiez votre boîte mail.');}
+    else{showErr('forgot-error','Email introuvable');}
+  }catch(e){showErr('forgot-error','Erreur réseau');}
+  btn.disabled=false;btn.textContent='📧 Envoyer le lien';
+}
+
 // STRIPE & TARIFS
 function renderTarifs(){
   const content=document.getElementById('tarifs-content');if(!content)return;
@@ -1113,3 +1267,4 @@ function checkPaymentReturn(){
 </script>
 </body>
 </html>
+
