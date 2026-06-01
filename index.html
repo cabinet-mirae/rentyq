@@ -4,13 +4,6 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Sublyfe</title>
-<script>
-// Fix immédiat — affiche auth si pas de session
-window.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('auth-screen').style.display = 'flex';
-});
-</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',system-ui,sans-serif;color:#1A1A2E;background:#F5F4FF;font-size:14px}
@@ -30,6 +23,7 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A1A2E;background:#F5F4FF;f
 .form-group{margin-bottom:1rem}
 .form-group label{display:block;font-size:11px;color:#8A8A99;margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
 .form-group input,.form-group select{width:100%;padding:9px 12px;border-radius:8px;border:1px solid #E8E8EE;background:white;color:#1A1A2E;font-size:14px;font-family:inherit}
+.form-group input:focus{outline:none;border-color:#6B3FA0}
 .btn-full{width:100%;padding:11px;border-radius:8px;background:linear-gradient(135deg,#6B3FA0,#9333EA);color:white;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:0.5rem}
 .auth-error{margin-top:0.75rem;padding:0.75rem;background:#FEE2E2;border-radius:8px;font-size:12px;color:#DC2626;display:none}
 .auth-success{margin-top:0.75rem;padding:0.75rem;background:#E0F2E9;border-radius:8px;font-size:12px;color:#059669;display:none}
@@ -119,9 +113,23 @@ tr:hover td{background:#FAFAFF}
 @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 .event-card{background:white;border-radius:12px;padding:1rem;border:1px solid #EEEEF5;margin-bottom:0.75rem}
 .event-card.hot{border-color:#FCD34D;background:linear-gradient(135deg,#FFFBEB,white)}
+.event-card.hot .ev-boost{color:#D97706}
+.ev-row{display:flex;align-items:center;gap:10px}
+.ev-emoji{font-size:24px;flex-shrink:0}
+.ev-info{flex:1;min-width:0}
+.ev-name{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev-meta{font-size:12px;color:#8A8A99;margin-top:2px}
+.ev-boost{font-size:16px;font-weight:700;text-align:right;flex-shrink:0}
+.ev-boost-lbl{font-size:10px;color:#8A8A99;text-align:right}
+.city-section{margin-bottom:1.5rem}
+.city-header{display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;padding-bottom:0.5rem;border-bottom:2px solid #F0EBF9}
+.city-name{font-size:18px;font-weight:700}
+.city-apts{font-size:12px;color:#8A8A99}
+.city-count{background:#F0EBF9;color:#6B3FA0;font-size:11px;font-weight:700;padding:2px 8px;border-radius:100px}
+.events-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:0.75rem}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,26,46,0.45);z-index:100;align-items:center;justify-content:center;padding:1rem}
 .modal-overlay.open{display:flex}
-.modal{background:white;border-radius:16px;padding:1.5rem;width:100%;max-width:420px;border:1px solid #EEEEF5;max-height:90vh;overflow-y:auto}
+.modal{background:white;border-radius:16px;padding:1.5rem;width:100%;max-width:440px;border:1px solid #EEEEF5;max-height:90vh;overflow-y:auto}
 .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
 .modal-title{font-size:17px;font-weight:700}
 .modal-close{background:none;border:none;cursor:pointer;color:#8A8A99;font-size:20px}
@@ -136,11 +144,6 @@ tr:hover td{background:#FAFAFF}
 .status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block}
 .status-dot.connected{background:#10B981}
 .status-dot.disconnected{background:#D1D1D8}
-.booking-platform{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.platform-airbnb{background:#FFE0D3;color:#FF5A5F}
-.platform-booking{background:#D3E8FF;color:#003580}
-.platform-direct{background:#E0F2E9;color:#059669}
-.platform-other{background:#F5F4FF;color:#6B3FA0}
 </style>
 </head>
 <body>
@@ -182,7 +185,7 @@ tr:hover td{background:#FAFAFF}
 </div>
 
 <div class="app" id="app">
-  <div class="beta-banner">🚀 <strong>Beta Sublyfe</strong> — IA Pricing + Intégration Smoobu</div>
+  <div class="beta-banner">🚀 <strong>Beta Sublyfe</strong> — IA Pricing + Smoobu + Événements Ticketmaster</div>
   <div class="app-body">
     <div class="sidebar">
       <div class="sidebar-brand">
@@ -195,6 +198,7 @@ tr:hover td{background:#FAFAFF}
       <button class="nav-item" onclick="goTo('parc',this)"><span class="nav-emoji">🏠</span>Le Parc <span class="nav-badge" id="parc-badge">0</span></button>
       <button class="nav-item" onclick="goTo('reservations',this)"><span class="nav-emoji">📋</span>Réservations</button>
       <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji">🤖</span>IA Pricing <span class="nav-badge-new">NEW</span></button>
+      <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji">🎯</span>Événements <span class="nav-badge-new" id="events-badge" style="display:none">0</span></button>
       <button class="nav-item" onclick="goTo('squad',this)"><span class="nav-emoji">👥</span>La Squad</button>
       <div class="nav-section-label">Intégrations</div>
       <button class="nav-item" onclick="goTo('smoobu',this)"><span class="nav-emoji">🔗</span>Smoobu <span class="smoobu-badge" id="smoobu-nav-badge" style="display:none">✓</span></button>
@@ -211,13 +215,15 @@ tr:hover td{background:#FAFAFF}
         </div>
       </div>
     </div>
+
     <div class="main">
 
+      <!-- COCKPIT -->
       <div class="page active" id="page-cockpit">
         <div class="page-header">
           <div><div class="page-title">Le Cockpit 📊</div><div class="page-sub" id="cockpit-date"></div></div>
           <div class="actions">
-            <button class="btn" onclick="goTo('smoobu',document.querySelectorAll('.nav-item')[5])">🔗 Connecter Smoobu</button>
+            <button class="btn" onclick="goTo('events',document.querySelectorAll('.nav-item')[4])">🎯 Événements</button>
             <button class="btn btn-ai" onclick="goTo('pricing',document.querySelectorAll('.nav-item')[3])">🤖 PriceBot</button>
           </div>
         </div>
@@ -229,20 +235,26 @@ tr:hover td{background:#FAFAFF}
             <div id="cockpit-empty" style="text-align:center;padding:2rem;color:#8A8A99;display:none">
               <div style="font-size:32px;margin-bottom:8px">🏠</div>
               <div style="font-weight:600;margin-bottom:4px">Aucun appartement</div>
-              <div style="font-size:12px">Ajoutez via Smoobu ou manuellement dans "Le Parc"</div>
+              <button class="btn btn-purple btn-sm" onclick="openAddModal()" style="margin-top:0.5rem">+ Ajouter</button>
             </div>
           </div>
-          <div class="card">
-            <div class="card-head"><div class="card-title">🔥 Événements chauds</div></div>
-            <div id="cockpit-events"></div>
+          <div>
+            <div class="card" id="cockpit-events-card">
+              <div class="card-head"><div class="card-title">🎯 Événements chauds</div><button class="btn btn-sm" onclick="goTo('events',document.querySelectorAll('.nav-item')[4])">Voir tout</button></div>
+              <div id="cockpit-events"></div>
+            </div>
           </div>
         </div>
       </div>
 
+      <!-- LE PARC -->
       <div class="page" id="page-parc">
         <div class="page-header">
           <div><div class="page-title">Le Parc 🏠</div><div class="page-sub" id="parc-sub"></div></div>
-          <div class="actions"><button class="btn btn-purple" onclick="openAddModal()">+ Ajouter</button></div>
+          <div class="actions">
+            <button class="btn btn-green" onclick="syncSmoobu()" id="btn-sync" style="display:none">🔄 Sync Smoobu</button>
+            <button class="btn btn-purple" onclick="openAddModal()">+ Ajouter</button>
+          </div>
         </div>
         <div class="card">
           <div class="table-wrap"><table id="parc-table"></table></div>
@@ -254,6 +266,7 @@ tr:hover td{background:#FAFAFF}
         </div>
       </div>
 
+      <!-- RESERVATIONS -->
       <div class="page" id="page-reservations">
         <div class="page-header">
           <div><div class="page-title">Réservations 📋</div><div class="page-sub" id="res-sub"></div></div>
@@ -264,12 +277,12 @@ tr:hover td{background:#FAFAFF}
           <div id="res-empty" style="text-align:center;padding:2rem;color:#8A8A99;display:none">
             <div style="font-size:36px;margin-bottom:1rem">📋</div>
             <div style="font-weight:600;margin-bottom:6px">Aucune réservation</div>
-            <div style="font-size:12px;margin-bottom:1rem">Connectez Smoobu pour importer automatiquement</div>
-            <button class="btn btn-green" onclick="goTo('smoobu',document.querySelectorAll('.nav-item')[5])">🔗 Connecter Smoobu</button>
+            <button class="btn btn-green" onclick="goTo('smoobu',document.querySelectorAll('.nav-item')[6])">🔗 Connecter Smoobu</button>
           </div>
         </div>
       </div>
 
+      <!-- IA PRICING -->
       <div class="page" id="page-pricing">
         <div class="page-header">
           <div><div class="page-title">IA Pricing 🤖</div><div class="page-sub">PriceBot analyse votre parc</div></div>
@@ -282,6 +295,38 @@ tr:hover td{background:#FAFAFF}
         </div>
       </div>
 
+      <!-- EVENEMENTS -->
+      <div class="page" id="page-events">
+        <div class="page-header">
+          <div><div class="page-title">Événements 🎯</div><div class="page-sub" id="events-sub">Détectés automatiquement selon vos villes</div></div>
+          <div class="actions">
+            <button class="btn btn-ai" onclick="loadEvents(true)" id="btn-refresh-events">🔄 Actualiser</button>
+          </div>
+        </div>
+        <div id="events-loading" style="text-align:center;padding:3rem;display:none">
+          <div class="spinner" style="margin:0 auto 1rem"></div>
+          <div style="font-size:13px;color:#8A8A99">Recherche des événements dans vos villes…</div>
+        </div>
+        <div id="events-empty" style="text-align:center;padding:3rem;display:none">
+          <div style="font-size:40px;margin-bottom:1rem">🎯</div>
+          <div style="font-weight:600;font-size:16px;margin-bottom:6px">Ajoutez des appartements</div>
+          <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">Les événements s'affichent automatiquement selon les villes de vos appartements</div>
+          <button class="btn btn-purple" onclick="openAddModal()">+ Ajouter un appartement</button>
+        </div>
+        <div id="events-container"></div>
+      </div>
+
+      <!-- SQUAD -->
+      <div class="page" id="page-squad">
+        <div class="page-header"><div><div class="page-title">La Squad 👥</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem">
+          <div style="font-size:40px;margin-bottom:1rem">👥</div>
+          <div style="font-weight:600;font-size:16px">Gestion de l'équipe ménage</div>
+          <div style="font-size:13px;color:#8A8A99;margin-top:6px">Bientôt disponible</div>
+        </div>
+      </div>
+
+      <!-- SMOOBU -->
       <div class="page" id="page-smoobu">
         <div class="page-header"><div><div class="page-title">Intégration Smoobu 🔗</div><div class="page-sub">Importez vos données Airbnb & Booking automatiquement</div></div></div>
         <div class="smoobu-connect-box">
@@ -301,7 +346,7 @@ tr:hover td{background:#FAFAFF}
             <div style="font-size:11px;color:#8A8A99;margin-top:4px">Smoobu → Paramètres → Avancé → Clés API</div>
           </div>
           <div style="display:flex;gap:8px">
-            <button class="btn btn-green" onclick="testSmoobu()" id="btn-test">🔌 Tester la connexion</button>
+            <button class="btn btn-green" onclick="testSmoobu()" id="btn-test">🔌 Tester</button>
             <button class="btn btn-purple" onclick="saveSmoobuKey()" id="btn-save-smoobu" style="display:none">💾 Sauvegarder & Sync</button>
           </div>
           <div class="auth-error" id="smoobu-error"></div>
@@ -313,16 +358,12 @@ tr:hover td{background:#FAFAFF}
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem">
               <div class="kpi"><div class="kpi-label">Appartements</div><div class="kpi-value" id="sm-apts">0</div></div>
               <div class="kpi"><div class="kpi-label">Réservations</div><div class="kpi-value" id="sm-bookings">0</div></div>
-              <div class="kpi"><div class="kpi-label">Revenus importés</div><div class="kpi-value" id="sm-revenue">0€</div></div>
+              <div class="kpi"><div class="kpi-label">Revenus</div><div class="kpi-value" id="sm-revenue">0€</div></div>
             </div>
           </div>
           <div class="card">
             <div class="card-head"><div class="card-title">Appartements Smoobu</div></div>
             <div class="table-wrap"><table id="smoobu-apts-table"></table></div>
-          </div>
-          <div class="card">
-            <div class="card-head"><div class="card-title">Dernières réservations</div></div>
-            <div class="table-wrap"><table id="smoobu-res-table"></table></div>
           </div>
         </div>
         <div class="card">
@@ -336,15 +377,7 @@ tr:hover td{background:#FAFAFF}
         </div>
       </div>
 
-      <div class="page" id="page-squad">
-        <div class="page-header"><div><div class="page-title">La Squad 👥</div></div></div>
-        <div class="card" style="text-align:center;padding:3rem">
-          <div style="font-size:40px;margin-bottom:1rem">👥</div>
-          <div style="font-weight:600;font-size:16px">Gestion de l'équipe ménage</div>
-          <div style="font-size:13px;color:#8A8A99;margin-top:6px">Bientôt disponible</div>
-        </div>
-      </div>
-
+      <!-- CLEAN -->
       <div class="page" id="page-clean">
         <div class="page-header"><div><div class="page-title">Sublyfer Clean 🧹</div></div></div>
         <div class="card" style="text-align:center;padding:3rem">
@@ -354,6 +387,7 @@ tr:hover td{background:#FAFAFF}
         </div>
       </div>
 
+      <!-- ANNUAIRE -->
       <div class="page" id="page-annuaire">
         <div class="page-header"><div><div class="page-title">L'Annuaire 🟡</div></div></div>
         <div class="card" style="text-align:center;padding:3rem">
@@ -363,6 +397,7 @@ tr:hover td{background:#FAFAFF}
         </div>
       </div>
 
+      <!-- SETTINGS -->
       <div class="page" id="page-settings">
         <div class="page-header"><div><div class="page-title">Paramètres ⚙️</div></div></div>
         <div class="card">
@@ -371,8 +406,9 @@ tr:hover td{background:#FAFAFF}
           <div class="setting-row"><div><div class="setting-label">Email</div></div><span id="set-email" style="font-size:13px;color:#8A8A99"></span></div>
           <div style="margin-top:1rem" class="settings-section-title">IA Pricing</div>
           <div class="setting-row"><div><div class="setting-label">Mode automatique</div><div class="setting-desc">PriceBot ajuste sans confirmation</div></div><button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button></div>
+          <div class="setting-row"><div><div class="setting-label">Alertes événements</div><div class="setting-desc">Notifier lors d'un événement détecté</div></div><button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button></div>
           <div style="margin-top:1rem" class="settings-section-title">Abonnement</div>
-          <div class="setting-row"><div><div class="setting-label" id="set-plan">Plan Starter</div><div class="setting-desc">Jusqu'à 5 appartements · PriceBot · Smoobu sync</div></div><button class="btn btn-purple btn-sm">Upgrader →</button></div>
+          <div class="setting-row"><div><div class="setting-label" id="set-plan">Plan Starter</div><div class="setting-desc">Appartements illimités · PriceBot · Smoobu · Événements</div></div><button class="btn btn-purple btn-sm">Upgrader →</button></div>
           <button class="btn btn-purple" onclick="saveProfile()" style="margin-top:1rem">✓ Sauvegarder</button>
         </div>
       </div>
@@ -381,12 +417,14 @@ tr:hover td{background:#FAFAFF}
   </div>
 </div>
 
+<!-- MODAL APPART -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <div class="modal-head"><div class="modal-title" id="modal-title">Ajouter un appartement</div><button class="modal-close" onclick="closeModal()">✕</button></div>
     <div class="form-group"><label>Nom</label><input type="text" id="m-name" placeholder="Studio Bastille"/></div>
-    <div class="form-group"><label>Zone</label><input type="text" id="m-zone" placeholder="Paris 11e"/></div>
-    <div class="form-group"><label>Emoji</label><select id="m-emoji"><option>🏠</option><option>🛋️</option><option>🌸</option><option>⭐</option><option>🏡</option><option>🌇</option></select></div>
+    <div class="form-group"><label>Ville ★</label><input type="text" id="m-city" placeholder="Paris, Lyon, Bordeaux…"/></div>
+    <div class="form-group"><label>Quartier / Adresse</label><input type="text" id="m-zone" placeholder="11e arrondissement"/></div>
+    <div class="form-group"><label>Emoji</label><select id="m-emoji"><option>🏠</option><option>🛋️</option><option>🌸</option><option>⭐</option><option>🏡</option><option>🌇</option><option>🌃</option></select></div>
     <div class="form-group"><label>Loyer mensuel (€)</label><input type="number" id="m-rent" placeholder="900"/></div>
     <div class="form-group"><label>Coût ménage / nuit (€)</label><input type="number" id="m-clean" placeholder="25"/></div>
     <div class="form-group"><label>Prix / nuit (€)</label><input type="number" id="m-price" placeholder="95"/></div>
@@ -399,6 +437,7 @@ tr:hover td{background:#FAFAFF}
   </div>
 </div>
 
+<!-- MODAL RESERVATION -->
 <div class="modal-overlay" id="modal-res">
   <div class="modal">
     <div class="modal-head"><div class="modal-title">Ajouter une réservation</div><button class="modal-close" onclick="closeResModal()">✕</button></div>
@@ -424,15 +463,25 @@ tr:hover td{background:#FAFAFF}
 const SB_URL='https://gtffekgqglpxjjligffi.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0ZmZla2dxZ2xweGpqbGlnZmZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyNjUxODMsImV4cCI6MjA5NTg0MTE4M30.8SHvalTRdUD4dXjcKP8s13yXhtg3NDrjQCBXDlu-jyE';
 const SMOOBU_FN='/.netlify/functions/smoobu';
-let currentUser=null,currentProfile=null,apparts=[],reservations=[],events=[],editId=null,smoobuKey=null;
+const EVENTS_FN='/.netlify/functions/events';
+let currentUser=null,currentProfile=null,apparts=[],reservations=[],editId=null,smoobuKey=null,eventsCache={};
 
-const sbFetch=(path,opts={})=>fetch(`${SB_URL}/rest/v1/${path}`,{headers:{'apikey':SB_KEY,'Authorization':`Bearer ${currentUser?.access_token||SB_KEY}`,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})}, method:opts.method||'GET', body:opts.body});
+const sbFetch=(path,opts={})=>fetch(`${SB_URL}/rest/v1/${path}`,{headers:{'apikey':SB_KEY,'Authorization':`Bearer ${currentUser?.access_token||SB_KEY}`,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})},method:opts.method||'GET',body:opts.body});
 const authFetch=(path,body)=>fetch(`${SB_URL}/auth/v1/${path}`,{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify(body)});
 const smoobuCall=(action,params={})=>fetch(SMOOBU_FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,apiKey:smoobuKey,params})}).then(r=>r.json());
+const eventsCall=(city)=>fetch(EVENTS_FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({city,countryCode:'FR',radius:20})}).then(r=>r.json());
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
 function showErr(id,msg){const el=document.getElementById(id);if(!el)return;el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',5000)}
 function showOk(id,msg){const el=document.getElementById(id);if(!el)return;el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',5000)}
+
+function extractCity(zone,city){
+  if(city&&city.trim())return city.trim();
+  if(!zone)return null;
+  const known=['Paris','Lyon','Marseille','Bordeaux','Toulouse','Nice','Nantes','Strasbourg','Montpellier','Lille','Rennes','Grenoble','Rouen','Toulon','Saint-Etienne','Dijon','Angers','Nîmes','Villeurbanne','Le Mans'];
+  for(const c of known){if(zone.toLowerCase().includes(c.toLowerCase()))return c;}
+  return zone.split(' ')[0];
+}
 
 function switchTab(t){
   document.querySelectorAll('.auth-tab').forEach((b,i)=>b.classList.toggle('active',i===(t==='login'?0:1)));
@@ -441,25 +490,20 @@ function switchTab(t){
 }
 
 async function doLogin(){
-  const email=document.getElementById('l-email').value.trim();
-  const pwd=document.getElementById('l-pwd').value;
+  const email=document.getElementById('l-email').value.trim();const pwd=document.getElementById('l-pwd').value;
   if(!email||!pwd){showErr('login-error','Remplissez tous les champs');return}
   const btn=document.getElementById('btn-login');btn.disabled=true;btn.textContent='Connexion…';
   try{
     const res=await authFetch('token?grant_type=password',{email,password:pwd});
     const data=await res.json();
     if(data.error||data.error_description){showErr('login-error',data.error_description||data.error);btn.disabled=false;btn.textContent='🚀 Se connecter';return}
-    currentUser=data;
-    try{localStorage.setItem('sb_session',JSON.stringify(data));}catch(e){}
+    currentUser=data;try{localStorage.setItem('sb_session',JSON.stringify(data));}catch(e){}
     await loadApp();
   }catch(e){showErr('login-error','Erreur réseau');btn.disabled=false;btn.textContent='🚀 Se connecter';}
 }
 
 async function doRegister(){
-  const name=document.getElementById('r-name').value.trim();
-  const email=document.getElementById('r-email').value.trim();
-  const pwd=document.getElementById('r-pwd').value;
-  const type=document.getElementById('r-type').value;
+  const name=document.getElementById('r-name').value.trim();const email=document.getElementById('r-email').value.trim();const pwd=document.getElementById('r-pwd').value;const type=document.getElementById('r-type').value;
   if(!name||!email||!pwd){showErr('register-error','Remplissez tous les champs');return}
   if(pwd.length<6){showErr('register-error','6 caractères minimum');return}
   const btn=document.getElementById('btn-register');btn.disabled=true;btn.textContent='Création…';
@@ -468,14 +512,13 @@ async function doRegister(){
     const data=await res.json();
     if(data.error){showErr('register-error',data.error);btn.disabled=false;btn.textContent='✨ Créer mon compte';return}
     showOk('register-success','✓ Compte créé ! Connectez-vous.');
-    btn.disabled=false;btn.textContent='✨ Créer mon compte';
-    setTimeout(()=>switchTab('login'),2000);
+    btn.disabled=false;btn.textContent='✨ Créer mon compte';setTimeout(()=>switchTab('login'),2000);
   }catch(e){showErr('register-error','Erreur réseau');btn.disabled=false;btn.textContent='✨ Créer mon compte';}
 }
 
 function doLogout(){
   try{localStorage.removeItem('sb_session');}catch(e){}
-  currentUser=null;currentProfile=null;apparts=[];reservations=[];
+  currentUser=null;currentProfile=null;apparts=[];reservations=[];eventsCache={};
   document.getElementById('app').style.display='none';
   document.getElementById('auth-screen').style.display='flex';
 }
@@ -489,12 +532,7 @@ async function loadApp(){
     currentProfile=(pData&&pData.length>0)?pData[0]:{id:currentUser.user.id,name:currentUser.user.email.split('@')[0],email:currentUser.user.email,type:'solo',plan:'Starter'};
     const aRes=await sbFetch(`appartements?user_id=eq.${currentUser.user.id}&select=*&order=created_at.asc`);
     apparts=await aRes.json()||[];
-    try{
-      const rRes=await sbFetch(`reservations?user_id=eq.${currentUser.user.id}&select=*&order=date_from.desc`);
-      reservations=await rRes.json()||[];
-    }catch(e){reservations=[];}
-    const eRes=await sbFetch(`evenements?select=*`);
-    events=await eRes.json()||[];
+    try{const rRes=await sbFetch(`reservations?user_id=eq.${currentUser.user.id}&select=*&order=date_from.desc`);reservations=await rRes.json()||[];}catch(e){reservations=[];}
     document.getElementById('loading').style.display='none';
     document.getElementById('app').style.display='flex';
     renderSidebar();renderAll();
@@ -503,10 +541,8 @@ async function loadApp(){
     document.getElementById('set-email').textContent=currentProfile.email||'';
     document.getElementById('set-plan').textContent='Plan '+(currentProfile.plan||'Starter');
     if(smoobuKey)updateSmoobuUI(true);
-  }catch(e){
-    document.getElementById('loading').style.display='none';
-    document.getElementById('auth-screen').style.display='flex';
-  }
+    if(apparts.length)loadEvents(false);
+  }catch(e){document.getElementById('loading').style.display='none';document.getElementById('auth-screen').style.display='flex';}
 }
 
 function renderSidebar(){
@@ -519,51 +555,57 @@ function renderSidebar(){
 function floor(a){return Math.round((a.rent||0)/30+(a.cleaner||0))}
 
 function renderAll(){
-  renderKPIs();renderCockpitTable();renderCockpitEvents();
-  renderParcTable();renderResTable();renderPricingTable();
+  renderKPIs();renderCockpitTable();renderParcTable();renderResTable();renderPricingTable();
   document.getElementById('parc-badge').textContent=apparts.length;
   document.getElementById('parc-sub').textContent=apparts.length+' appartement'+(apparts.length>1?'s':'');
   document.getElementById('res-sub').textContent=reservations.length+' réservation'+(reservations.length>1?'s':'');
+  if(smoobuKey){document.getElementById('btn-sync').style.display='inline-flex';}
 }
 
 function renderKPIs(){
-  const booked=apparts.filter(a=>a.booked);
-  const rev=booked.reduce((s,a)=>s+(a.price||0),0);
-  const total=apparts.length||1;
-  const ai=apparts.filter(a=>a.auto_pricing).length;
-  const monthRes=reservations.filter(r=>r.date_from&&r.date_from.startsWith(new Date().toISOString().slice(0,7)));
+  const booked=apparts.filter(a=>a.booked);const rev=booked.reduce((s,a)=>s+(a.price||0),0);
+  const total=apparts.length||1;const ai=apparts.filter(a=>a.auto_pricing).length;
+  const month=new Date().toISOString().slice(0,7);
+  const monthRes=reservations.filter(r=>r.date_from&&r.date_from.startsWith(month));
   const monthRev=monthRes.reduce((s,r)=>s+(r.price_total||0),0);
+  const hotCount=Object.values(eventsCache).flat().filter(e=>e.hot).length;
   document.getElementById('cockpit-kpis').innerHTML=`
     <div class="kpi"><div class="kpi-label">Revenus ce soir</div><div class="kpi-value">${rev}€</div><div class="kpi-delta" style="color:#10B981">${booked.length}/${apparts.length} loués</div></div>
     <div class="kpi"><div class="kpi-label">Revenus ce mois</div><div class="kpi-value">${monthRev}€</div><div class="kpi-delta" style="color:#059669">${monthRes.length} résa${monthRes.length>1?'s':''}</div></div>
     <div class="kpi"><div class="kpi-label">Occupation</div><div class="kpi-value">${Math.round(booked.length/total*100)}%</div><div class="kpi-delta" style="color:#8A8A99">ce soir</div></div>
-    <div class="kpi kpi-ai"><div class="kpi-label">PriceBot</div><div class="kpi-value">${ai}/${apparts.length}</div><div class="kpi-delta" style="color:#6B3FA0">🤖 auto</div></div>`;
+    <div class="kpi kpi-ai"><div class="kpi-label">PriceBot</div><div class="kpi-value">${ai}/${apparts.length}</div><div class="kpi-delta" style="color:#6B3FA0">🤖 auto</div></div>
+    ${hotCount>0?`<div class="kpi" style="border-color:#FCD34D;background:linear-gradient(135deg,#FFFBEB,white)"><div class="kpi-label">Événements chauds</div><div class="kpi-value" style="color:#D97706">${hotCount}</div><div class="kpi-delta" style="color:#D97706">🔥 boost possible</div></div>`:''}`;
 }
 
 function renderCockpitTable(){
   const e=document.getElementById('cockpit-empty');const t=document.getElementById('cockpit-table');
   if(!apparts.length){e.style.display='block';t.innerHTML='';return}e.style.display='none';
-  t.innerHTML=`<thead><tr><th>Appartement</th><th>Prix/nuit</th><th>Statut</th><th>Reco IA</th></tr></thead><tbody>`+
-  apparts.slice(0,5).map(a=>`<tr><td><div class="apt-name"><div class="apt-emoji">${a.emoji||'🏠'}</div>${a.name}</div></td><td class="price-main">${a.price||0}€</td><td><span class="tag ${a.booked?'tag-ok':'tag-warn'}">${a.booked?'Loué':'Libre'}</span></td><td><span class="tag tag-ai">${a.ai_rec||Math.round((a.price||0)*1.08)}€</span></td></tr>`).join('')+`</tbody>`;
+  t.innerHTML=`<thead><tr><th>Appartement</th><th>Ville</th><th>Prix/nuit</th><th>Statut</th><th>Reco IA</th></tr></thead><tbody>`+
+  apparts.slice(0,5).map(a=>`<tr><td><div class="apt-name"><div class="apt-emoji">${a.emoji||'🏠'}</div>${a.name}</div></td><td style="font-size:12px;color:#8A8A99">${a.city||extractCity(a.zone,null)||'—'}</td><td class="price-main">${a.price||0}€</td><td><span class="tag ${a.booked?'tag-ok':'tag-warn'}">${a.booked?'Loué':'Libre'}</span></td><td><span class="tag tag-ai">${a.ai_rec||Math.round((a.price||0)*1.08)}€</span></td></tr>`).join('')+`</tbody>`;
 }
 
 function renderCockpitEvents(){
-  const hot=events.filter(e=>e.hot).slice(0,3);
-  document.getElementById('cockpit-events').innerHTML=hot.length?hot.map(e=>`
-    <div class="event-card hot"><div style="display:flex;align-items:center;gap:10px">
-      <div style="font-size:24px">${e.emoji}</div>
-      <div style="flex:1"><div style="font-weight:600;font-size:13px">${e.name}</div><div style="font-size:12px;color:#8A8A99">${e.date_label}</div></div>
-      <div style="text-align:right"><div style="font-size:16px;font-weight:700;color:#D97706">+${e.boost}%</div></div>
-    </div></div>`).join(''):'<div style="color:#8A8A99;font-size:13px;text-align:center;padding:1rem">Aucun événement</div>';
+  const allHot=Object.values(eventsCache).flat().filter(e=>e.hot).slice(0,4);
+  const container=document.getElementById('cockpit-events');
+  if(!allHot.length){container.innerHTML='<div style="color:#8A8A99;font-size:13px;text-align:center;padding:1rem">Aucun événement chaud détecté</div>';return;}
+  container.innerHTML=allHot.map(e=>`
+    <div class="event-card hot">
+      <div class="ev-row">
+        <div class="ev-emoji">${e.emoji}</div>
+        <div class="ev-info"><div class="ev-name">${e.name}</div><div class="ev-meta">${e.date_label} · ${e.city}</div></div>
+        <div><div class="ev-boost">+${e.boost}%</div><div class="ev-boost-lbl">boost</div></div>
+      </div>
+    </div>`).join('');
 }
 
 function renderParcTable(){
   const e=document.getElementById('parc-empty');const t=document.getElementById('parc-table');
   if(!apparts.length){e.style.display='block';t.innerHTML='';return}e.style.display='none';
-  t.innerHTML=`<thead><tr><th>Appartement</th><th>Plancher</th><th>Prix/nuit</th><th>Statut</th><th>Marge</th><th>Actions</th></tr></thead><tbody>`+
-  apparts.map(a=>{const fl=floor(a);const safe=a.price>=fl;return`<tr>
+  t.innerHTML=`<thead><tr><th>Appartement</th><th>Ville</th><th>Plancher</th><th>Prix/nuit</th><th>Statut</th><th>Marge</th><th>Actions</th></tr></thead><tbody>`+
+  apparts.map(a=>{const fl=floor(a);const safe=a.price>=fl;const city=a.city||extractCity(a.zone,null)||'—';return`<tr>
     <td><div class="apt-name"><div class="apt-emoji">${a.emoji||'🏠'}</div><div><div>${a.name}</div><div style="font-size:11px;color:#8A8A99">${a.zone||''}</div></div></div></td>
-    <td><div class="price-floor">${fl}€</div><div style="font-size:11px;color:#8A8A99">${a.rent||0}€ + ${a.cleaner||0}€</div></td>
+    <td style="font-weight:600;color:#6B3FA0">${city}</td>
+    <td><div class="price-floor">${fl}€</div></td>
     <td><div class="price-main">${a.price||0}€</div><div class="price-comp">Conc: ${a.comp||0}€</div></td>
     <td><span class="tag ${a.booked?'tag-ok':'tag-warn'}">${a.booked?'Loué':'Libre'}</span></td>
     <td><span class="tag ${safe?'tag-ok':'tag-bad'}">${safe?'✓':'⚠'}</span></td>
@@ -579,7 +621,7 @@ function renderResTable(){
   const e=document.getElementById('res-empty');const t=document.getElementById('res-table');
   if(!reservations.length){e.style.display='block';t.innerHTML='';return}e.style.display='none';
   const pi={airbnb:'🏠',booking:'🏨',direct:'✉️',other:'📌'};
-  t.innerHTML=`<thead><tr><th>Appartement</th><th>Voyageur</th><th>Arrivée</th><th>Départ</th><th>Nuits</th><th>Revenus</th><th>Plateforme</th></tr></thead><tbody>`+
+  t.innerHTML=`<thead><tr><th>Appartement</th><th>Voyageur</th><th>Arrivée</th><th>Départ</th><th>Nuits</th><th>Revenus</th><th>Plat.</th></tr></thead><tbody>`+
   reservations.slice(0,50).map(r=>{
     const apt=apparts.find(a=>a.id===r.appartement_id)||{name:r.apartment_name||'—',emoji:'🏠'};
     const nights=r.nights||0;const pn=nights>0?Math.round((r.price_total||0)/nights):0;
@@ -591,95 +633,176 @@ function renderResTable(){
 }
 
 function renderPricingTable(){
-  if(!apparts.length){document.getElementById('pricing-table').innerHTML=`<tr><td colspan="6" style="text-align:center;padding:2rem;color:#8A8A99">Ajoutez des appartements dans "Le Parc".</td></tr>`;return}
-  document.getElementById('pricing-table').innerHTML=`<thead><tr><th>Appartement</th><th>Prix actuel</th><th>Reco PriceBot</th><th>Contexte</th><th>Mode</th><th>Actions</th></tr></thead><tbody>`+
-  apparts.map(a=>{const rec=a.ai_rec||Math.round((a.price||0)*1.08);const diff=rec-(a.price||0);return`<tr>
-    <td><div class="apt-name"><div class="apt-emoji">${a.emoji||'🏠'}</div>${a.name}</div></td>
+  if(!apparts.length){document.getElementById('pricing-table').innerHTML=`<tr><td colspan="6" style="text-align:center;padding:2rem;color:#8A8A99">Ajoutez des appartements.</td></tr>`;return}
+  document.getElementById('pricing-table').innerHTML=`<thead><tr><th>Appartement</th><th>Prix actuel</th><th>Reco PriceBot</th><th>Événements</th><th>Mode</th><th>Actions</th></tr></thead><tbody>`+
+  apparts.map(a=>{
+    const rec=a.ai_rec||Math.round((a.price||0)*1.08);const diff=rec-(a.price||0);
+    const city=a.city||extractCity(a.zone,null)||'';
+    const cityEvents=eventsCache[city]||[];const hotEvents=cityEvents.filter(e=>e.hot);
+    const evTag=hotEvents.length>0?`<span class="tag tag-warn">🔥 ${hotEvents.length} chaud${hotEvents.length>1?'s':''}</span>`:'<span class="tag" style="background:#F0F0F5;color:#8A8A99">Normal</span>';
+    return`<tr>
+    <td><div class="apt-name"><div class="apt-emoji">${a.emoji||'🏠'}</div><div>${a.name}<div style="font-size:11px;color:#8A8A99">${city}</div></div></div></td>
     <td><div class="price-main">${a.price||0}€</div><div class="price-floor">Plancher: ${floor(a)}€</div></td>
     <td><div class="price-ai">🤖 ${rec}€ <span style="font-size:11px;color:${diff>=0?'#059669':'#DC2626'}">(${diff>=0?'+':''}${diff}€)</span></div></td>
-    <td>${a.has_event?'<span class="tag tag-warn">🎸 Événement</span>':'<span class="tag" style="background:#F0F0F5;color:#8A8A99">Normal</span>'}</td>
+    <td>${evTag}</td>
     <td><div style="display:flex;align-items:center;gap:6px"><button class="toggle ${a.auto_pricing?'on':'off'}" onclick="toggleAutoPricing('${a.id}',${!a.auto_pricing})"></button><span style="font-size:12px;color:#8A8A99">${a.auto_pricing?'Auto':'Manuel'}</span></div></td>
     <td style="white-space:nowrap"><button class="btn btn-sm" onclick="applyAI('${a.id}',${rec})" style="margin-right:4px">✓</button><button class="btn btn-sm btn-ai" onclick="askAI('${a.id}')">🤖</button></td>
   </tr><tr id="ai-row-${a.id}" style="display:none"><td colspan="6" style="padding:0 10px 12px"><div id="ai-bubble-${a.id}"></div></td></tr>`;}).join('')+`</tbody>`;
 }
 
-function updateSmoobuUI(connected){
-  const dot=document.getElementById('status-dot');
-  const label=document.getElementById('status-label');
-  const badge=document.getElementById('smoobu-nav-badge');
-  const saveBtn=document.getElementById('btn-save-smoobu');
-  if(connected){
-    dot.className='status-dot connected';label.textContent='Connecté ✓';
-    if(badge)badge.style.display='inline-block';
-    if(saveBtn)saveBtn.style.display='inline-flex';
-    document.getElementById('smoobu-data').style.display='block';
+// EVENTS
+async function loadEvents(force){
+  if(!apparts.length){
+    document.getElementById('events-empty').style.display='block';
+    document.getElementById('events-container').innerHTML='';
+    return;
   }
+  document.getElementById('events-empty').style.display='none';
+  document.getElementById('events-loading').style.display='block';
+  document.getElementById('events-container').innerHTML='';
+
+  // Grouper les apparts par ville
+  const citiesMap={};
+  apparts.forEach(a=>{
+    const city=a.city||extractCity(a.zone,null);
+    if(!city)return;
+    const cityNorm=city.charAt(0).toUpperCase()+city.slice(1).toLowerCase();
+    if(!citiesMap[cityNorm])citiesMap[cityNorm]=[];
+    citiesMap[cityNorm].push(a);
+  });
+
+  const cities=Object.keys(citiesMap);
+  if(!cities.length){
+    document.getElementById('events-loading').style.display='none';
+    document.getElementById('events-empty').style.display='block';
+    return;
+  }
+
+  // Charger les événements pour chaque ville
+  for(const city of cities){
+    if(!force&&eventsCache[city])continue;
+    try{
+      const data=await eventsCall(city);
+      eventsCache[city]=data.events||[];
+    }catch(e){eventsCache[city]=[];}
+  }
+
+  document.getElementById('events-loading').style.display='none';
+  renderEventsPage(citiesMap);
+  renderCockpitEvents();
+  renderKPIs();
+
+  // Badge événements chauds
+  const totalHot=Object.values(eventsCache).flat().filter(e=>e.hot).length;
+  const badge=document.getElementById('events-badge');
+  if(totalHot>0){badge.textContent='🔥 '+totalHot;badge.style.display='inline-block';}
+  else badge.style.display='none';
+}
+
+function renderEventsPage(citiesMap){
+  const container=document.getElementById('events-container');
+  const cities=Object.keys(citiesMap);
+  let html='';
+  let totalEvents=0;
+
+  for(const city of cities){
+    const cityEvents=eventsCache[city]||[];
+    const apts=citiesMap[city];
+    totalEvents+=cityEvents.length;
+    const hotCount=cityEvents.filter(e=>e.hot).length;
+
+    html+=`<div class="city-section">
+      <div class="city-header">
+        <div class="city-name">📍 ${city}</div>
+        <div class="city-apts">${apts.map(a=>a.emoji||'🏠'+' '+a.name).join(', ')}</div>
+        ${hotCount>0?`<span class="city-count">🔥 ${hotCount} chaud${hotCount>1?'s':''}</span>`:''}
+        ${cityEvents.length>0?`<span class="city-count">${cityEvents.length} événement${cityEvents.length>1?'s':''}</span>`:''}
+      </div>`;
+
+    if(!cityEvents.length){
+      html+=`<div style="color:#8A8A99;font-size:13px;padding:1rem;background:white;border-radius:12px;border:1px solid #EEEEF5">Aucun événement trouvé pour ${city} dans les 90 prochains jours.</div>`;
+    } else {
+      html+=`<div class="events-grid">`;
+      cityEvents.slice(0,12).forEach(e=>{
+        html+=`<div class="event-card ${e.hot?'hot':''}">
+          <div class="ev-row">
+            <div class="ev-emoji">${e.emoji}</div>
+            <div class="ev-info">
+              <div class="ev-name">${e.name}</div>
+              <div class="ev-meta">${e.date_label}${e.venue?' · '+e.venue:''}</div>
+              <div style="margin-top:4px">
+                <span class="tag ${e.hot?'tag-warn':'tag-info'}">${e.hot?'🔥 Chaud':e.segment||'Événement'}</span>
+              </div>
+            </div>
+            <div>
+              <div class="ev-boost" style="color:${e.hot?'#D97706':'#6B3FA0'}">+${e.boost}%</div>
+              <div class="ev-boost-lbl">prix</div>
+            </div>
+          </div>
+        </div>`;
+      });
+      html+=`</div>`;
+    }
+    html+=`</div>`;
+  }
+
+  document.getElementById('events-sub').textContent=`${totalEvents} événements détectés dans ${cities.length} ville${cities.length>1?'s':''}`;
+  container.innerHTML=html;
+}
+
+function refreshEvents(){loadEvents(true);}
+
+// SMOOBU
+function updateSmoobuUI(connected){
+  const dot=document.getElementById('status-dot');const label=document.getElementById('status-label');
+  const badge=document.getElementById('smoobu-nav-badge');const saveBtn=document.getElementById('btn-save-smoobu');
+  if(connected){dot.className='status-dot connected';label.textContent='Connecté ✓';if(badge)badge.style.display='inline-block';if(saveBtn)saveBtn.style.display='inline-flex';document.getElementById('smoobu-data').style.display='block';}
 }
 
 async function testSmoobu(){
-  const key=document.getElementById('smoobu-key').value.trim();
-  if(!key){showErr('smoobu-error','Entrez votre clé API');return}
-  const btn=document.getElementById('btn-test');btn.disabled=true;btn.textContent='Test…';
-  smoobuKey=key;
-  try{
-    const data=await smoobuCall('testConnection');
-    if(data.success){showOk('smoobu-success','✓ Connexion réussie !');updateSmoobuUI(true);}
-    else{showErr('smoobu-error','Clé invalide');smoobuKey=null;}
-  }catch(e){showErr('smoobu-error','Erreur de connexion');smoobuKey=null;}
-  btn.disabled=false;btn.textContent='🔌 Tester la connexion';
+  const key=document.getElementById('smoobu-key').value.trim();if(!key){showErr('smoobu-error','Entrez votre clé API');return}
+  const btn=document.getElementById('btn-test');btn.disabled=true;btn.textContent='Test…';smoobuKey=key;
+  try{const data=await smoobuCall('testConnection');if(data.success){showOk('smoobu-success','✓ Connexion réussie !');updateSmoobuUI(true);}else{showErr('smoobu-error','Clé invalide');smoobuKey=null;}}
+  catch(e){showErr('smoobu-error','Erreur');smoobuKey=null;}
+  btn.disabled=false;btn.textContent='🔌 Tester';
 }
 
 async function saveSmoobuKey(){
-  const key=document.getElementById('smoobu-key').value.trim();
-  if(!key)return;
-  smoobuKey=key;
-  try{localStorage.setItem('smoobu_key',key);}catch(e){}
+  const key=document.getElementById('smoobu-key').value.trim();if(!key)return;
+  smoobuKey=key;try{localStorage.setItem('smoobu_key',key);}catch(e){}
   await syncSmoobu();
 }
 
 async function syncSmoobu(){
-  if(!smoobuKey)return;
-  showToast('🔄 Sync Smoobu…');
+  if(!smoobuKey)return;showToast('🔄 Sync Smoobu…');
   try{
-    const aptsData=await smoobuCall('getApartments');
-    const smoobuApts=aptsData._embedded?.apartments||aptsData.apartments||[];
+    const aptsData=await smoobuCall('getApartments');const smoobuApts=aptsData._embedded?.apartments||aptsData.apartments||[];
     for(const sa of smoobuApts){
       if(!apparts.find(a=>a.smoobu_id===String(sa.id))){
-        const body={user_id:currentUser.user.id,name:sa.name||'Appart Smoobu',zone:sa.city||'',emoji:'🏠',rent:0,cleaner:25,price:sa.price||100,comp:0,ai_rec:Math.round((sa.price||100)*1.08),booked:false,auto_pricing:true,has_event:false,smoobu_id:String(sa.id)};
-        const res=await sbFetch('appartements',{method:'POST',body:JSON.stringify(body)});
-        const created=await res.json();
-        if(Array.isArray(created)&&created[0])apparts.push(created[0]);
+        const city=sa.city||sa.location||'';
+        const body={user_id:currentUser.user.id,name:sa.name||'Appart Smoobu',city:city,zone:'',emoji:'🏠',rent:0,cleaner:25,price:sa.price||100,comp:0,ai_rec:Math.round((sa.price||100)*1.08),booked:false,auto_pricing:true,has_event:false,smoobu_id:String(sa.id)};
+        const res=await sbFetch('appartements',{method:'POST',body:JSON.stringify(body)});const c=await res.json();
+        if(Array.isArray(c)&&c[0])apparts.push(c[0]);
       }
     }
-    const bkData=await smoobuCall('getBookings');
-    const bookings=bkData.bookings||bkData._embedded?.bookings||[];
+    const bkData=await smoobuCall('getBookings');const bookings=bkData.bookings||bkData._embedded?.bookings||[];
     const real=bookings.filter(b=>!b['is-blocked-booking']);
-    let rev=0;
-    real.forEach(b=>rev+=b.price||0);
+    let rev=0;real.forEach(b=>rev+=b.price||0);
     document.getElementById('sm-apts').textContent=smoobuApts.length;
     document.getElementById('sm-bookings').textContent=real.length;
     document.getElementById('sm-revenue').textContent=Math.round(rev)+'€';
-    renderSmoobuApts(smoobuApts);renderSmoobuRes(real);
-    renderAll();showToast(`✓ ${smoobuApts.length} apparts, ${real.length} réservations`);
+    renderSmoobuApts(smoobuApts);
+    renderAll();
+    if(apparts.length)loadEvents(true);
+    showToast(`✓ ${smoobuApts.length} apparts, ${real.length} réservations`);
   }catch(e){showToast('⚠️ Erreur sync');}
 }
-
-function detectPlatform(ch){if(!ch)return'other';const c=ch.toLowerCase();if(c.includes('airbnb'))return'airbnb';if(c.includes('booking'))return'booking';if(c.includes('direct'))return'direct';return'other';}
 
 function renderSmoobuApts(apts){
   const t=document.getElementById('smoobu-apts-table');
   if(!apts||!apts.length){t.innerHTML='<tr><td style="padding:1rem;color:#8A8A99">Aucun appartement</td></tr>';return}
-  t.innerHTML=`<thead><tr><th>Nom</th><th>Ville</th><th>Prix base</th><th>ID</th></tr></thead><tbody>`+
-  apts.map(a=>`<tr><td><div class="apt-name"><div class="apt-emoji">🏠</div>${a.name||'—'}</div></td><td>${a.city||'—'}</td><td>${a.price||'—'}€</td><td><span style="font-size:11px;color:#8A8A99">#${a.id}</span></td></tr>`).join('')+`</tbody>`;
-}
-
-function renderSmoobuRes(bookings){
-  const t=document.getElementById('smoobu-res-table');
-  const real=bookings.filter(b=>!b['is-blocked-booking']).slice(0,10);
-  if(!real.length){t.innerHTML='<tr><td style="padding:1rem;color:#8A8A99">Aucune réservation</td></tr>';return}
-  const pi={airbnb:'🏠',booking:'🏨',direct:'✉️',other:'📌'};
-  t.innerHTML=`<thead><tr><th>Voyageur</th><th>Appartement</th><th>Arrivée</th><th>Départ</th><th>Montant</th></tr></thead><tbody>`+
-  real.map(b=>`<tr><td>${b.firstname?`${b.firstname} ${b.lastname||''}`.trim():'—'}</td><td>${b.apartment?.name||'—'}</td><td>${b.arrival||b.from||'—'}</td><td>${b.departure||b.to||'—'}</td><td style="font-weight:700">${b.price||0}€</td></tr>`).join('')+`</tbody>`;
+  t.innerHTML=`<thead><tr><th>Nom</th><th>Ville</th><th>Prix base</th></tr></thead><tbody>`+
+  apts.map(a=>`<tr><td><div class="apt-name"><div class="apt-emoji">🏠</div>${a.name||'—'}</div></td><td>${a.city||'—'}</td><td>${a.price||'—'}€</td></tr>`).join('')+`</tbody>`;
 }
 
 function goTo(page,btn){
@@ -687,22 +810,29 @@ function goTo(page,btn){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
   if(btn)btn.classList.add('active');
+  if(page==='events'&&apparts.length&&!Object.keys(eventsCache).length)loadEvents(false);
 }
-function openAddModal(){editId=null;['m-name','m-zone','m-rent','m-clean','m-price','m-comp'].forEach(id=>document.getElementById(id).value='');document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
-function openEdit(id){const a=apparts.find(x=>x.id===id);if(!a)return;editId=id;document.getElementById('m-name').value=a.name||'';document.getElementById('m-zone').value=a.zone||'';document.getElementById('m-emoji').value=a.emoji||'🏠';document.getElementById('m-rent').value=a.rent||'';document.getElementById('m-clean').value=a.cleaner||'';document.getElementById('m-price').value=a.price||'';document.getElementById('m-comp').value=a.comp||'';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
+
+function openAddModal(){editId=null;['m-name','m-city','m-zone','m-rent','m-clean','m-price','m-comp'].forEach(id=>document.getElementById(id).value='');document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
+function openEdit(id){const a=apparts.find(x=>x.id===id);if(!a)return;editId=id;document.getElementById('m-name').value=a.name||'';document.getElementById('m-city').value=a.city||'';document.getElementById('m-zone').value=a.zone||'';document.getElementById('m-emoji').value=a.emoji||'🏠';document.getElementById('m-rent').value=a.rent||'';document.getElementById('m-clean').value=a.cleaner||'';document.getElementById('m-price').value=a.price||'';document.getElementById('m-comp').value=a.comp||'';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
 function closeModal(){document.getElementById('modal').classList.remove('open')}
 function openAddResModal(){document.getElementById('mr-apt').innerHTML=apparts.map(a=>`<option value="${a.id}">${a.emoji||'🏠'} ${a.name}</option>`).join('');document.getElementById('modal-res').classList.add('open');}
 function closeResModal(){document.getElementById('modal-res').classList.remove('open')}
 
 async function saveAppart(){
-  const name=document.getElementById('m-name').value.trim();if(!name){showErr('modal-error','Nom obligatoire');return}
+  const name=document.getElementById('m-name').value.trim();const city=document.getElementById('m-city').value.trim();
+  if(!name){showErr('modal-error','Nom obligatoire');return}
+  if(!city){showErr('modal-error','Ville obligatoire — nécessaire pour les événements');return}
   const btn=document.getElementById('btn-save-appart');btn.disabled=true;btn.textContent='…';
   const price=+document.getElementById('m-price').value||0;
-  const body={user_id:currentUser.user.id,name,zone:document.getElementById('m-zone').value||'',emoji:document.getElementById('m-emoji').value||'🏠',rent:+document.getElementById('m-rent').value||0,cleaner:+document.getElementById('m-clean').value||0,price,comp:+document.getElementById('m-comp').value||0,ai_rec:Math.round(price*1.08),booked:false,auto_pricing:true,has_event:false};
+  const body={user_id:currentUser.user.id,name,city,zone:document.getElementById('m-zone').value||'',emoji:document.getElementById('m-emoji').value||'🏠',rent:+document.getElementById('m-rent').value||0,cleaner:+document.getElementById('m-clean').value||0,price,comp:+document.getElementById('m-comp').value||0,ai_rec:Math.round(price*1.08),booked:false,auto_pricing:true,has_event:false};
   try{
     if(editId){await sbFetch(`appartements?id=eq.${editId}`,{method:'PATCH',body:JSON.stringify(body)});const i=apparts.findIndex(a=>a.id===editId);if(i>=0)apparts[i]={...apparts[i],...body};showToast('✓ Modifié');}
     else{const res=await sbFetch('appartements',{method:'POST',body:JSON.stringify(body)});const c=await res.json();apparts.push(Array.isArray(c)&&c[0]?c[0]:{...body,id:Date.now().toString()});showToast('✓ Ajouté');}
     closeModal();renderAll();
+    // Charger les événements pour la nouvelle ville
+    const cityNorm=city.charAt(0).toUpperCase()+city.slice(1).toLowerCase();
+    if(!eventsCache[cityNorm])loadEvents(false);
   }catch(e){showErr('modal-error','Erreur');}
   btn.disabled=false;btn.textContent='✓ Enregistrer';
 }
@@ -727,11 +857,12 @@ async function runGlobal(){
   btn.disabled=true;btn.textContent='⏳…';
   zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head"><div class="ai-dot"></div> PriceBot analyse…</div><div class="ai-bubble-text"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
   if(!apparts.length){zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">🤖</div><div class="ai-bubble-text">Ajoutez des appartements d'abord.</div></div>`;btn.disabled=false;btn.innerHTML='🤖 Analyse globale';return;}
-  const ctx=apparts.map(a=>`${a.name}: prix=${a.price}€, plancher=${floor(a)}€, ${a.booked?'loué':'libre'}`).join('\n');
+  const evCtx=Object.entries(eventsCache).map(([city,evs])=>{const hot=evs.filter(e=>e.hot);return hot.length?`${city}: ${hot.map(e=>e.name+' (+'+e.boost+'%)').join(', ')}`:null;}).filter(Boolean).join(' | ');
+  const ctx=apparts.map(a=>`${a.name} (${a.city||a.zone||'?'}): prix=${a.price}€, plancher=${floor(a)}€, ${a.booked?'loué':'libre'}`).join('\n');
   try{
-    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:500,system:"Tu es PriceBot, IA pricing Sublyfe. Analyses courtes, chiffrées, actionnables. Français, emojis.",messages:[{role:"user",content:`${ctx}\nBriefing rapide ?`}]})});
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:600,system:"Tu es PriceBot, IA pricing Sublyfe France. Analyses précises, chiffrées, actionnables. Français, emojis, 5-6 phrases.",messages:[{role:"user",content:`Parc:\n${ctx}\n${evCtx?'Événements chauds: '+evCtx:''}\nBriefing et recommandations ?`}]})});
     const data=await res.json();const text=data.content?.find(b=>b.type==='text')?.text||"Indisponible.";
-    zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">🤖 PriceBot</div><div class="ai-bubble-text">${text.replace(/\n/g,'<br/>')}</div></div>`;
+    zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">🤖 PriceBot — Analyse globale</div><div class="ai-bubble-text">${text.replace(/\n/g,'<br/>')}</div></div>`;
   }catch(e){zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">⚠️</div><div class="ai-bubble-text">IA indisponible.</div></div>`;}
   btn.disabled=false;btn.innerHTML='🤖 Analyse globale';
 }
@@ -740,20 +871,22 @@ async function askAI(id){
   const a=apparts.find(x=>x.id===id);if(!a)return;
   document.getElementById('ai-row-'+id).style.display='table-row';
   document.getElementById('ai-bubble-'+id).innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head"><div class="ai-dot"></div> Analyse…</div><div class="ai-bubble-text"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
+  const city=a.city||extractCity(a.zone,null)||'';
+  const cityEvents=eventsCache[city]||[];const hotEvs=cityEvents.filter(e=>e.hot);
+  const evCtx=hotEvs.length?` Événements chauds à ${city}: ${hotEvs.slice(0,3).map(e=>e.name+' le '+e.date_label+' (+'+e.boost+'%)').join(', ')}.`:'';
   try{
-    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,system:"PriceBot Sublyfe. 3-4 phrases, chiffres, emojis.",messages:[{role:"user",content:`${a.name}: prix=${a.price}€, reco=${a.ai_rec||Math.round(a.price*1.08)}€, plancher=${floor(a)}€, ${a.booked?'loué':'libre'}. Prix ce soir ?`}]})});
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,system:"PriceBot Sublyfe. 3-4 phrases, chiffres, emojis.",messages:[{role:"user",content:`${a.name} (${city}): prix=${a.price}€, reco=${a.ai_rec||Math.round(a.price*1.08)}€, plancher=${floor(a)}€, ${a.booked?'loué':'libre'}.${evCtx} Prix optimal ce soir ?`}]})});
     const data=await res.json();const text=data.content?.find(b=>b.type==='text')?.text||"Indisponible.";
     document.getElementById('ai-bubble-'+id).innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head">🤖 ${a.name}</div><div class="ai-bubble-text">${text.replace(/\n/g,'<br/>')}</div></div>`;
   }catch(e){document.getElementById('ai-bubble-'+id).innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head">⚠️</div><div class="ai-bubble-text">Indisponible.</div></div>`;}
 }
 
-// Init — affiche auth immédiatement, charge session si dispo
+// Init
 (async function(){
   document.getElementById('loading').style.display='none';
   document.getElementById('auth-screen').style.display='flex';
   try{
-    const storedKey=localStorage.getItem('smoobu_key');
-    if(storedKey)smoobuKey=storedKey;
+    const storedKey=localStorage.getItem('smoobu_key');if(storedKey)smoobuKey=storedKey;
     const stored=localStorage.getItem('sb_session');
     if(stored){
       currentUser=JSON.parse(stored);
@@ -770,4 +903,3 @@ async function askAI(id){
 </script>
 </body>
 </html>
-
