@@ -518,25 +518,21 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 function showErr(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',5000)}
 function showSuccess(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',5000)}
 
-async function init(){
-  async function init(){
-  document.getElementById('loading').style.display='none';
-  document.getElementById('auth-screen').style.display='flex';
+async function init(){try{localStorage.removeItem("sb_session_test");}catch(e){}
+  document.getElementById("loading").style.display="none";
+  document.getElementById("auth-screen").style.display="flex";
+  const stored=localStorage.getItem("sb_session");
+  const storedKey=localStorage.getItem("smoobu_key");
+  if(storedKey)smoobuKey=storedKey;
+  if(stored){try{currentUser=JSON.parse(stored);document.getElementById("loading").style.display="flex";document.getElementById("auth-screen").style.display="none";await loadApp();return;}catch(e){localStorage.removeItem("sb_session");}}
+  return;
+//OLDINIT
   const stored=localStorage.getItem('sb_session');
   const storedKey=localStorage.getItem('smoobu_key');
   if(storedKey)smoobuKey=storedKey;
-  if(stored){
-    try{
-      currentUser=JSON.parse(stored);
-      document.getElementById('loading').style.display='flex';
-      document.getElementById('auth-screen').style.display='none';
-      await loadApp();
-      return;
-    }catch(e){
-      localStorage.removeItem('sb_session');
-    }
-  }
-}ay='flex';
+  if(stored){try{currentUser=JSON.parse(stored);await loadApp();return;}catch(e){}}
+  document.getElementById('loading').style.display='none';
+  document.getElementById('auth-screen').style.display='flex';
 }
 
 function switchTab(t){
