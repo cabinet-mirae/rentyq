@@ -519,12 +519,24 @@ function showErr(id,msg){const el=document.getElementById(id);el.textContent=msg
 function showSuccess(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',5000)}
 
 async function init(){
+  async function init(){
+  document.getElementById('loading').style.display='none';
+  document.getElementById('auth-screen').style.display='flex';
   const stored=localStorage.getItem('sb_session');
   const storedKey=localStorage.getItem('smoobu_key');
   if(storedKey)smoobuKey=storedKey;
-  if(stored){try{currentUser=JSON.parse(stored);await loadApp();return;}catch(e){}}
-  document.getElementById('loading').style.display='none';
-  document.getElementById('auth-screen').style.display='flex';
+  if(stored){
+    try{
+      currentUser=JSON.parse(stored);
+      document.getElementById('loading').style.display='flex';
+      document.getElementById('auth-screen').style.display='none';
+      await loadApp();
+      return;
+    }catch(e){
+      localStorage.removeItem('sb_session');
+    }
+  }
+}ay='flex';
 }
 
 function switchTab(t){
