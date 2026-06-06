@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Sublyfe</title>
+<title>RentiQ — Stop guessing. Start earning.</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',system-ui,sans-serif;color:#1A1A2E;background:#F5F4FF;font-size:14px}
@@ -37,9 +37,9 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A1A2E;background:#F5F4FF;f
 .brand-tagline{font-size:11px;color:#8A8A99;margin-top:3px;font-style:italic}
 .sidebar-sep{height:1px;background:#EEEEF5;margin:0 1.25rem 0.75rem}
 .nav-section-label{font-size:10px;font-weight:700;color:#B0A8C8;text-transform:uppercase;letter-spacing:1px;padding:0.75rem 1.25rem 0.35rem}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 1rem;margin:1px 0.75rem;border-radius:10px;color:#3A3A50;cursor:pointer;font-size:13px;font-weight:500;border:none;background:none;font-family:inherit;width:calc(100% - 1.5rem);text-align:left;transition:all .12s}
-.nav-item:hover{background:#F5F4FF;color:#6B3FA0}
-.nav-item.active{background:#F0EBF9;color:#6B3FA0;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 1rem;margin:1px 0.75rem;border-radius:10px;color:rgba(255,255,255,0.5);cursor:pointer;font-size:13px;font-weight:500;border:none;background:none;font-family:inherit;width:calc(100% - 1.5rem);text-align:left;transition:all .12s}
+.nav-item:hover{background:rgba(107,63,160,0.15);color:white}
+.nav-item.active{background:rgba(107,63,160,0.25);color:white;font-weight:600}
 .nav-emoji{font-size:18px;width:24px;text-align:center;flex-shrink:0}
 .nav-badge{margin-left:auto;background:#FF6B6B;color:white;font-size:10px;padding:2px 7px;border-radius:100px;font-weight:700}
 .nav-badge-new{margin-left:auto;background:linear-gradient(135deg,#6B3FA0,#9333EA);color:white;font-size:10px;padding:2px 8px;border-radius:100px;font-weight:700}
@@ -47,9 +47,9 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A1A2E;background:#F5F4FF;f
 .sidebar-footer{margin-top:auto;padding:0.75rem 1rem;border-top:1px solid #EEEEF5}
 .user-row{display:flex;align-items:center;gap:8px}
 .user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6B3FA0,#FF6B6B);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:white;flex-shrink:0}
-.user-name{font-size:13px;font-weight:600}
-.user-plan{font-size:11px;color:#6B3FA0;font-weight:600}
-.btn-logout{margin-left:auto;background:none;border:none;cursor:pointer;color:#B0A8C8;font-size:18px}
+.user-name{font-size:13px;font-weight:600;color:white}
+.user-plan{font-size:11px;color:#9B72CF;font-weight:600}
+.btn-logout{margin-left:auto;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.3);font-size:18px}
 .main{flex:1;overflow-y:auto;background:#F5F4FF}
 .page{display:none;padding:2rem}
 .page.active{display:block}
@@ -149,14 +149,42 @@ tr:hover td{background:#FAFAFF}
 <body>
 
 <div id="loading">
-  <div class="loading-logo">Sub<span>lyfe</span></div>
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
+    <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" style="width:36px">
+      <defs><linearGradient id="lg-load" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6B3FA0"/><stop offset="100%" stop-color="#FF6B6B"/></linearGradient></defs>
+      <rect width="36" height="36" rx="9" fill="url(#lg-load)"/>
+      <text x="3" y="26" font-family="Inter,system-ui,sans-serif" font-size="20" font-weight="700" fill="white">RiQ</text>
+    </svg>
+    <div class="loading-logo">Rent<span>iQ</span></div>
+  </div>
   <div class="spinner"></div>
 </div>
 
-<div id="auth-screen">
-  <div class="auth-card">
-    <div class="auth-logo">Sub<span>lyfe</span></div>
-    <div class="auth-tagline">Sub. Life. Simplified.</div>
+<div id="auth-screen" style="background:linear-gradient(135deg,#1a0a2e 0%,#2d1b4e 30%,#1e3a5f 60%,#0a2540 100%);display:none;min-height:100vh;padding:0">
+  <div style="display:flex;min-height:100vh;width:100%">
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:3rem;max-width:420px">
+      <div style="font-size:12px;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:2rem">Smart rental management</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem">
+        <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" style="width:36px">
+          <defs><linearGradient id="lg-auth" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6B3FA0"/><stop offset="100%" stop-color="#FF6B6B"/></linearGradient></defs>
+          <rect width="36" height="36" rx="9" fill="url(#lg-auth)"/>
+          <text x="3" y="26" font-family="Inter,system-ui,sans-serif" font-size="20" font-weight="700" fill="white">RiQ</text>
+        </svg>
+        <div style="font-size:32px;font-weight:700;color:white">Rent<span style="background:linear-gradient(90deg,#9B72CF,#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent">iQ</span></div>
+      </div>
+      <div style="font-size:16px;color:rgba(255,255,255,0.7);line-height:1.6;margin-bottom:2rem">Stop guessing.<br>Start earning.</div>
+      <div style="display:flex;gap:1.5rem;color:rgba(255,255,255,0.35);font-size:11px">
+        <div style="display:flex;align-items:center;gap:5px"><span style="color:#9B72CF">&#9733;</span> EVA pricing IA</div>
+        <div style="display:flex;align-items:center;gap:5px"><span style="color:#FF6B6B">&#9733;</span> Events tracking</div>
+        <div style="display:flex;align-items:center;gap:5px"><span style="color:#5DCAA5">&#9733;</span> Analytics</div>
+      </div>
+    </div>
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:2rem">
+  <div class="auth-card" style="background:rgba(255,255,255,0.97);backdrop-filter:blur(20px);border-radius:20px;max-width:380px;border:1px solid rgba(255,255,255,0.15)">
+    <div style="text-align:center;margin-bottom:0.25rem">
+      <div class="auth-logo">Rent<span>iQ</span></div>
+    </div>
+    <div class="auth-tagline" style="text-align:center">Connectez-vous à votre espace</div>
     <div class="auth-tabs">
       <button class="auth-tab active" onclick="switchTab('login')">Connexion</button>
       <button class="auth-tab" onclick="switchTab('register')">Créer un compte</button>
@@ -201,50 +229,59 @@ tr:hover td{background:#FAFAFF}
       <div class="auth-success" id="register-success"></div>
     </div>
   </div>
+    </div>
+  </div>
 </div>
 
 <div class="app" id="app">
-  <div class="beta-banner">🚀 <strong>Beta Sublyfe</strong> — IA Pricing + Smoobu + Événements Ticketmaster</div>
+  <div class="beta-banner" style="background:linear-gradient(90deg,#1A1A2E,#2d1b4e,#1A1A2E)">🚀 <strong>Beta RentiQ</strong> — EVA Pricing + Smoobu + Événements Ticketmaster</div>
   <div class="app-body">
-    <div class="sidebar">
+    <div class="sidebar" style="background:#1A1A2E;border-right:1px solid rgba(255,255,255,0.08)">
       <div class="sidebar-brand">
-        <div class="brand-logo">Sub<span>lyfe</span></div>
-        <div class="brand-tagline">Sub. Life. Simplified.</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="width:28px;flex-shrink:0">
+            <defs><linearGradient id="lg-side" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6B3FA0"/><stop offset="100%" stop-color="#FF6B6B"/></linearGradient></defs>
+            <rect width="32" height="32" rx="8" fill="url(#lg-side)"/>
+            <text x="2.5" y="23" font-family="Inter,system-ui,sans-serif" font-size="18" font-weight="700" fill="white">RiQ</text>
+          </svg>
+          <div class="brand-logo" style="color:white">Rent<span style="background:linear-gradient(90deg,#9B72CF,#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent">iQ</span></div>
+        </div>
+        <div class="brand-tagline" style="color:rgba(255,255,255,0.35);margin-left:36px">Stop guessing. Start earning.</div>
       </div>
-      <div id="mode-switcher" style="display:none;margin:0 .75rem .5rem;background:#F5F4FF;border-radius:10px;padding:3px;display:flex">
-        <button id="mode-btn-solo" onclick="switchMode('solo')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:#6B3FA0;color:white;transition:all .15s">🏠 Gestion</button>
-        <button id="mode-btn-concierge" onclick="switchMode('concierge')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:transparent;color:#8A8A99;transition:all .15s">🏢 Conciergerie</button>
+      <div id="mode-switcher" style="display:none;margin:0 .75rem .5rem;background:rgba(255,255,255,0.08);border-radius:10px;padding:3px;display:flex">
+        <button id="mode-btn-solo" onclick="switchMode('solo')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:rgba(107,63,160,0.5);color:white;transition:all .15s">🏠 Gestion</button>
+        <button id="mode-btn-concierge" onclick="switchMode('concierge')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:transparent;color:rgba(255,255,255,0.4);transition:all .15s">🏢 Conciergerie</button>
       </div>
-      <div class="sidebar-sep"></div>
+      <div class="sidebar-sep" style="background:rgba(255,255,255,0.08)"></div>
       <div id="nav-solo">
       <div class="nav-section-label">Mon Business</div>
       <button class="nav-item active" onclick="goTo('cockpit',this)"><span class="nav-emoji">📊</span>Le Cockpit</button>
       <button class="nav-item" onclick="goTo('parc',this)"><span class="nav-emoji">🏠</span>Le Parc <span class="nav-badge" id="parc-badge">0</span></button>
       <button class="nav-item" onclick="goTo('reservations',this)"><span class="nav-emoji">📋</span>Réservations</button>
-      <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji">🤖</span>IA Pricing <span class="nav-badge-new">NEW</span></button>
+      <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji">🤖</span>EVA Pricing <span class="nav-badge-new">NEW</span></button>
       <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji">🎯</span>Événements <span class="nav-badge-new" id="events-badge" style="display:none">0</span></button>
       <button class="nav-item" onclick="goTo('squad',this)"><span class="nav-emoji">👥</span>La Squad</button>
-      <div class="nav-section-label">Intégrations</div>
+      <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Intégrations</div>
       <button class="nav-item" onclick="goTo('smoobu',this)"><span class="nav-emoji">🔗</span>Smoobu <span class="smoobu-badge" id="smoobu-nav-badge" style="display:none">✓</span></button>
-      <div class="nav-section-label">Réseau Sublyfer</div>
-      <button class="nav-item" onclick="goTo('clean',this)"><span class="nav-emoji">🧹</span>Sublyfer Clean</button>
+      <div class="nav-section-label">Réseau RentiQr</div>
+      <button class="nav-item" onclick="goTo('clean',this)"><span class="nav-emoji">🧹</span>RentiQr Clean</button>
       <button class="nav-item" onclick="goTo('annuaire',this)"><span class="nav-emoji">🟡</span>L'Annuaire</button>
       </div>
       <div id="nav-concierge" style="display:none">
-      <div class="nav-section-label">Conciergerie</div>
+      <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Conciergerie</div>
       <button class="nav-item" onclick="goTo('cockpit-c',this)"><span class="nav-emoji">📊</span>Dashboard</button>
       <button class="nav-item" onclick="goTo('proprietaires',this)"><span class="nav-emoji">👤</span>Propriétaires</button>
       <button class="nav-item" onclick="goTo('parc-c',this)"><span class="nav-emoji">🏠</span>Parc géré</button>
       <button class="nav-item" onclick="goTo('rapports',this)"><span class="nav-emoji">📊</span>Rapports mensuels</button>
-      <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji">🤖</span>IA Pricing</button>
+      <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji">🤖</span>EVA Pricing</button>
       <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji">🎯</span>Événements</button>
-      <div class="nav-section-label">Intégrations</div>
+      <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Intégrations</div>
       <button class="nav-item" onclick="goTo('smoobu',this)"><span class="nav-emoji">🔗</span>Smoobu</button>
       </div>
-      <div class="nav-section-label">Compte</div>
+      <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Compte</div>
       <button class="nav-item" onclick="goTo('tarifs',this)"><span class="nav-emoji">💳</span>Tarifs &amp; Abonnement</button>
       <button class="nav-item" onclick="goTo('settings',this)"><span class="nav-emoji">⚙️</span>Paramètres</button>
-      <div class="sidebar-footer">
+      <div class="sidebar-footer" style="border-top:1px solid rgba(255,255,255,0.08)">
         <div class="user-row">
           <div class="user-avatar" id="s-avatar">?</div>
           <div><div class="user-name" id="s-name">…</div><div class="user-plan" id="s-plan">…</div></div>
@@ -261,7 +298,7 @@ tr:hover td{background:#FAFAFF}
           <div><div class="page-title">Le Cockpit 📊</div><div class="page-sub" id="cockpit-date"></div></div>
           <div class="actions">
             <button class="btn" onclick="goTo('events',document.querySelectorAll('.nav-item')[4])">🎯 Événements</button>
-            <button class="btn btn-ai" onclick="goTo('pricing',document.querySelectorAll('.nav-item')[3])">🤖 PriceBot</button>
+            <button class="btn btn-ai" onclick="goTo('pricing',document.querySelectorAll('.nav-item')[3])">🤖 EVA</button>
           </div>
         </div>
         <div id="cockpit-dash"></div>
@@ -305,7 +342,7 @@ tr:hover td{background:#FAFAFF}
       <!-- IA PRICING -->
       <div class="page" id="page-pricing">
         <div class="page-header">
-          <div><div class="page-title">IA Pricing 🤖</div><div class="page-sub">PriceBot analyse votre parc</div></div>
+          <div><div class="page-title">EVA Pricing 🤖</div><div class="page-sub">EVA analyse votre parc</div></div>
           <div class="actions"><button class="btn btn-ai" onclick="runGlobal()" id="btn-global">🤖 Analyse globale</button></div>
         </div>
         <div id="global-result"></div>
@@ -452,10 +489,10 @@ tr:hover td{background:#FAFAFF}
 
       <!-- CLEAN -->
       <div class="page" id="page-clean">
-        <div class="page-header"><div><div class="page-title">Sublyfer Clean 🧹</div></div></div>
+        <div class="page-header"><div><div class="page-title">RentiQr Clean 🧹</div></div></div>
         <div class="card" style="text-align:center;padding:3rem">
           <div style="font-size:48px;margin-bottom:1rem">🧹</div>
-          <div style="font-size:18px;font-weight:700;margin-bottom:8px">Réseau Sublyfer Clean</div>
+          <div style="font-size:18px;font-weight:700;margin-bottom:8px">Réseau RentiQr Clean</div>
           <button class="btn btn-purple">Bientôt disponible</button>
         </div>
       </div>
@@ -478,7 +515,7 @@ tr:hover td{background:#FAFAFF}
           <div class="card" style="text-align:center;padding:3rem;border-color:#5DCAA5;background:#ECFDF5">
             <div style="font-size:48px;margin-bottom:1rem">🎉</div>
             <div style="font-size:20px;font-weight:700;margin-bottom:8px;color:#059669">Paiement réussi !</div>
-            <div style="font-size:13px;color:#8A8A99;margin-bottom:1.5rem">Votre abonnement est actif. Bienvenue dans Sublyfe Pro !</div>
+            <div style="font-size:13px;color:#8A8A99;margin-bottom:1.5rem">Votre abonnement est actif. Bienvenue dans RentiQ Pro !</div>
             <button class="btn btn-purple" onclick="goTo('cockpit',document.querySelectorAll('.nav-item')[0])">Aller au Cockpit →</button>
           </div>
         </div>
@@ -493,11 +530,11 @@ tr:hover td{background:#FAFAFF}
           <div style="margin-top:1rem" class="settings-section-title">Modules actifs</div>
           <div class="setting-row"><div><div class="setting-label">🏠 Gestion sous-location</div><div class="setting-desc">Gérer vos propres appartements</div></div><button class="toggle" id="toggle-mod-solo" onclick="toggleModule('solo')"></button></div>
           <div class="setting-row"><div><div class="setting-label">🏢 Conciergerie</div><div class="setting-desc">Gérer les biens de vos clients</div></div><button class="toggle" id="toggle-mod-concierge" onclick="toggleModule('concierge')"></button></div>
-          <div style="margin-top:1rem" class="settings-section-title">IA Pricing</div>
-          <div class="setting-row"><div><div class="setting-label">Mode automatique</div><div class="setting-desc">PriceBot ajuste sans confirmation</div></div><button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button></div>
+          <div style="margin-top:1rem" class="settings-section-title">EVA Pricing</div>
+          <div class="setting-row"><div><div class="setting-label">Mode automatique</div><div class="setting-desc">EVA ajuste sans confirmation</div></div><button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button></div>
           <div class="setting-row"><div><div class="setting-label">Alertes événements</div><div class="setting-desc">Notifier lors d'un événement détecté</div></div><button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button></div>
           <div style="margin-top:1rem" class="settings-section-title">Abonnement</div>
-          <div class="setting-row"><div><div class="setting-label" id="set-plan">Plan Starter</div><div class="setting-desc">Appartements illimités · PriceBot · Smoobu · Événements</div></div><button class="btn btn-purple btn-sm">Upgrader →</button></div>
+          <div class="setting-row"><div><div class="setting-label" id="set-plan">Plan Starter</div><div class="setting-desc">Appartements illimités · EVA · Smoobu · Événements</div></div><button class="btn btn-purple btn-sm">Upgrader →</button></div>
           <button class="btn btn-purple" onclick="saveProfile()" style="margin-top:1rem">✓ Sauvegarder</button>
         </div>
       </div>
@@ -551,14 +588,14 @@ tr:hover td{background:#FAFAFF}
 <div id="onboarding-overlay" style="display:none;position:fixed;inset:0;background:rgba(26,26,46,0.6);z-index:200;align-items:center;justify-content:center;padding:1rem">
   <div style="background:white;border-radius:20px;padding:2rem;width:100%;max-width:480px;border:1px solid #EEEEF5">
     <div style="text-align:center;margin-bottom:1.5rem">
-      <div class="brand-logo" style="font-size:24px;font-weight:700;justify-content:center;display:flex">Sub<span style="background:linear-gradient(90deg,#6B3FA0,#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent">lyfe</span></div>
-      <div style="font-size:11px;color:#8A8A99;font-style:italic">Sub. Life. Simplified.</div>
+      <div class="brand-logo" style="font-size:24px;font-weight:700;justify-content:center;display:flex">Rent<span style="background:linear-gradient(90deg,#6B3FA0,#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent">iQ</span></div>
+      <div style="font-size:11px;color:#8A8A99;font-style:italic">Stop guessing. Start earning.</div>
     </div>
     <!-- Step 1 -->
     <div id="onb-step-1">
       <div style="text-align:center;margin-bottom:1.5rem">
         <div style="font-size:48px;margin-bottom:.75rem">🏠</div>
-        <div style="font-size:20px;font-weight:700;margin-bottom:6px">Bienvenue sur Sublyfe !</div>
+        <div style="font-size:20px;font-weight:700;margin-bottom:6px">Bienvenue sur RentiQ !</div>
         <div style="font-size:13px;color:#8A8A99;line-height:1.6">On va configurer votre compte en 3 étapes rapides pour que vous puissiez gérer vos appartements comme un pro.</div>
       </div>
       <div style="display:grid;gap:10px;margin-bottom:1.5rem">
@@ -572,7 +609,7 @@ tr:hover td{background:#FAFAFF}
         </div>
         <div style="display:flex;align-items:center;gap:12px;padding:.75rem;background:#F5F4FF;border-radius:10px">
           <div style="width:32px;height:32px;background:#6B3FA0;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0">3</div>
-          <div><div style="font-size:13px;font-weight:600">Activez PriceBot</div><div style="font-size:12px;color:#8A8A99">L'IA optimise vos prix automatiquement</div></div>
+          <div><div style="font-size:13px;font-weight:600">Activez EVA</div><div style="font-size:12px;color:#8A8A99">L'IA optimise vos prix automatiquement</div></div>
         </div>
       </div>
       <button class="btn-full" onclick="onbNext(2)">C'est parti ! →</button>
@@ -586,7 +623,7 @@ tr:hover td{background:#FAFAFF}
       <div style="text-align:center;margin-bottom:1.25rem">
         <div style="font-size:32px;margin-bottom:.5rem">🏠</div>
         <div style="font-size:18px;font-weight:700;margin-bottom:4px">Votre premier appartement</div>
-        <div style="font-size:13px;color:#8A8A99">Ces infos permettent à PriceBot de calculer votre plancher de rentabilité</div>
+        <div style="font-size:13px;color:#8A8A99">Ces infos permettent à EVA de calculer votre plancher de rentabilité</div>
       </div>
       <div class="form-group"><label>Nom de l'appartement</label><input type="text" id="onb-name" placeholder="Studio Bastille"/></div>
       <div class="form-group"><label>Ville ★</label><input type="text" id="onb-city" placeholder="Paris, Lyon, Bordeaux…"/></div>
@@ -647,9 +684,9 @@ tr:hover td{background:#FAFAFF}
 <script>
 const SB_URL='https://gtffekgqglpxjjligffi.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0ZmZla2dxZ2xweGpqbGlnZmZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyNjUxODMsImV4cCI6MjA5NTg0MTE4M30.8SHvalTRdUD4dXjcKP8s13yXhtg3NDrjQCBXDlu-jyE';
-const SMOOBU_FN='/.netlify/functions/smoobu';
-const EVENTS_FN='/.netlify/functions/events';
-const STRIPE_FN='/.netlify/functions/stripe';
+const SMOOBU_FN='/api/smoobu';
+const EVENTS_FN='/api/events';
+const STRIPE_FN='/api/stripe';
 let currentUser=null,currentProfile=null,apparts=[],reservations=[],editId=null,smoobuKey=null,eventsCache={};
 
 const sbFetch=(path,opts={})=>fetch(`${SB_URL}/rest/v1/${path}`,{headers:{'apikey':SB_KEY,'Authorization':`Bearer ${currentUser?.access_token||SB_KEY}`,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})},method:opts.method||'GET',body:opts.body});
@@ -779,8 +816,8 @@ function genAlerts(apts){
   apts.forEach(a=>{
     const fl=floor(a);const city=a.city||extractCity(a.zone,null)||'';
     const cityEvs=eventsCache[city]||[];const hotEvs=cityEvs.filter(e=>e.hot);
-    if(!a.booked)alerts.push({type:'urgent',icon:'ti-moon',title:`${a.name} — libre ce soir`,desc:`Prix ${a.price||0}€ vs concurrent ${a.comp||0}€. Baissez pour remplir ou activez PriceBot.`,action:'Ajuster'});
-    if(hotEvs.length>0)alerts.push({type:'warning',icon:'ti-sparkles',title:`Événement détecté — ${a.name} (${city})`,desc:`${hotEvs[0].name} · PriceBot suggère ${a.ai_rec||Math.round((a.price||0)*1.08)}€ (+${(a.ai_rec||Math.round((a.price||0)*1.08))-(a.price||0)}€).`,action:'Appliquer'});
+    if(!a.booked)alerts.push({type:'urgent',icon:'ti-moon',title:`${a.name} — libre ce soir`,desc:`Prix ${a.price||0}€ vs concurrent ${a.comp||0}€. Baissez pour remplir ou activez EVA.`,action:'Ajuster'});
+    if(hotEvs.length>0)alerts.push({type:'warning',icon:'ti-sparkles',title:`Événement détecté — ${a.name} (${city})`,desc:`${hotEvs[0].name} · EVA suggère ${a.ai_rec||Math.round((a.price||0)*1.08)}€ (+${(a.ai_rec||Math.round((a.price||0)*1.08))-(a.price||0)}€).`,action:'Appliquer'});
     if((a.price||0)<fl)alerts.push({type:'urgent',icon:'ti-alert-triangle',title:`Prix sous plancher — ${a.name}`,desc:`${a.price||0}€/nuit < plancher ${fl}€. Perte sur chaque nuit vendue.`,action:'Corriger'});
   });
   return alerts.slice(0,5);
@@ -904,13 +941,13 @@ function renderCockpit(){
     h+=`</div>`;
   }
 
-  // PriceBot brief
+  // EVA — brief
   const hotAlerts=genAlerts(apts).filter(a=>a.type==='urgent');
   if(hotAlerts.length){
     h+=`<div style="background:#F5F0FF;border:0.5px solid #C4B5FD;border-radius:12px;padding:1rem">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem;font-size:13px;font-weight:500;color:#6B3FA0">
         <div style="width:7px;height:7px;border-radius:50%;background:#6B3FA0;animation:pulse 1.5s infinite"></div>
-        PriceBot — actions immédiates
+        EVA — actions immédiates
       </div>
       <div style="font-size:13px;color:#3A3A50;line-height:1.65">`;
     hotAlerts.slice(0,3).forEach((a,i)=>{
@@ -970,7 +1007,7 @@ function renderResTable(){
 
 function renderPricingTable(){
   if(!apparts.length){document.getElementById('pricing-table').innerHTML=`<tr><td colspan="6" style="text-align:center;padding:2rem;color:#8A8A99">Ajoutez des appartements.</td></tr>`;return}
-  document.getElementById('pricing-table').innerHTML=`<thead><tr><th>Appartement</th><th>Prix actuel</th><th>Reco PriceBot</th><th>Événements</th><th>Mode</th><th>Actions</th></tr></thead><tbody>`+
+  document.getElementById('pricing-table').innerHTML=`<thead><tr><th>Appartement</th><th>Prix actuel</th><th>Reco EVA</th><th>Événements</th><th>Mode</th><th>Actions</th></tr></thead><tbody>`+
   apparts.map(a=>{
     const rec=a.ai_rec||Math.round((a.price||0)*1.08);const diff=rec-(a.price||0);
     const city=a.city||extractCity(a.zone,null)||'';
@@ -1195,14 +1232,14 @@ async function saveProfile(){const name=document.getElementById('set-name').valu
 async function runGlobal(){
   const btn=document.getElementById('btn-global');const zone=document.getElementById('global-result');
   btn.disabled=true;btn.textContent='⏳…';
-  zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head"><div class="ai-dot"></div> PriceBot analyse…</div><div class="ai-bubble-text"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
+  zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head"><div class="ai-dot"></div> EVA analyse…</div><div class="ai-bubble-text"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
   if(!apparts.length){zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">🤖</div><div class="ai-bubble-text">Ajoutez des appartements d'abord.</div></div>`;btn.disabled=false;btn.innerHTML='🤖 Analyse globale';return;}
   const evCtx=Object.entries(eventsCache).map(([city,evs])=>{const hot=evs.filter(e=>e.hot);return hot.length?`${city}: ${hot.map(e=>e.name+' (+'+e.boost+'%)').join(', ')}`:null;}).filter(Boolean).join(' | ');
   const ctx=apparts.map(a=>`${a.name} (${a.city||a.zone||'?'}): prix=${a.price}€, plancher=${floor(a)}€, ${a.booked?'loué':'libre'}`).join('\n');
   try{
-    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:600,system:"Tu es PriceBot, IA pricing Sublyfe France. Analyses précises, chiffrées, actionnables. Français, emojis, 5-6 phrases.",messages:[{role:"user",content:`Parc:\n${ctx}\n${evCtx?'Événements chauds: '+evCtx:''}\nBriefing et recommandations ?`}]})});
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:600,system:"Tu es EVA, IA pricing RentiQ France. Analyses précises, chiffrées, actionnables. Français, emojis, 5-6 phrases.",messages:[{role:"user",content:`Parc:\n${ctx}\n${evCtx?'Événements chauds: '+evCtx:''}\nBriefing et recommandations ?`}]})});
     const data=await res.json();const text=data.content?.find(b=>b.type==='text')?.text||"Indisponible.";
-    zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">🤖 PriceBot — Analyse globale</div><div class="ai-bubble-text">${text.replace(/\n/g,'<br/>')}</div></div>`;
+    zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">🤖 EVA — Analyse globale</div><div class="ai-bubble-text">${text.replace(/\n/g,'<br/>')}</div></div>`;
   }catch(e){zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">⚠️</div><div class="ai-bubble-text">IA indisponible.</div></div>`;}
   btn.disabled=false;btn.innerHTML='🤖 Analyse globale';
 }
@@ -1215,7 +1252,7 @@ async function askAI(id){
   const cityEvents=eventsCache[city]||[];const hotEvs=cityEvents.filter(e=>e.hot);
   const evCtx=hotEvs.length?` Événements chauds à ${city}: ${hotEvs.slice(0,3).map(e=>e.name+' le '+e.date_label+' (+'+e.boost+'%)').join(', ')}.`:'';
   try{
-    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,system:"PriceBot Sublyfe. 3-4 phrases, chiffres, emojis.",messages:[{role:"user",content:`${a.name} (${city}): prix=${a.price}€, reco=${a.ai_rec||Math.round(a.price*1.08)}€, plancher=${floor(a)}€, ${a.booked?'loué':'libre'}.${evCtx} Prix optimal ce soir ?`}]})});
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,system:"EVA, l'IA de RentiQ. 3-4 phrases, chiffres, emojis.",messages:[{role:"user",content:`${a.name} (${city}): prix=${a.price}€, reco=${a.ai_rec||Math.round(a.price*1.08)}€, plancher=${floor(a)}€, ${a.booked?'loué':'libre'}.${evCtx} Prix optimal ce soir ?`}]})});
     const data=await res.json();const text=data.content?.find(b=>b.type==='text')?.text||"Indisponible.";
     document.getElementById('ai-bubble-'+id).innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head">🤖 ${a.name}</div><div class="ai-bubble-text">${text.replace(/\n/g,'<br/>')}</div></div>`;
   }catch(e){document.getElementById('ai-bubble-'+id).innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head">⚠️</div><div class="ai-bubble-text">Indisponible.</div></div>`;}
@@ -1260,7 +1297,7 @@ function onbFinish(){
   document.getElementById('onboarding-overlay').style.display='none';
   renderAll();
   goTo('cockpit',document.querySelectorAll('.nav-item')[0]);
-  showToast('✓ Compte configuré ! Bienvenue sur Sublyfe 🎉');
+  showToast('✓ Compte configuré ! Bienvenue sur RentiQ 🎉');
 }
 
 // MOT DE PASSE OUBLIÉ
@@ -1327,14 +1364,14 @@ function switchMode(mode){
   if(mode==='solo'){
     if(navSolo)navSolo.style.display='block';
     if(navConc)navConc.style.display='none';
-    if(btnSolo){btnSolo.style.background='#6B3FA0';btnSolo.style.color='white';}
-    if(btnConc){btnConc.style.background='transparent';btnConc.style.color='#8A8A99';}
+    if(btnSolo){btnSolo.style.background='rgba(107,63,160,0.5)';btnSolo.style.color='white';}
+    if(btnConc){btnConc.style.background='transparent';btnConc.style.color='rgba(255,255,255,0.4)';}
     goTo('cockpit',document.querySelector('#nav-solo .nav-item'));
   } else {
     if(navSolo)navSolo.style.display='none';
     if(navConc)navConc.style.display='block';
-    if(btnConc){btnConc.style.background='#6B3FA0';btnConc.style.color='white';}
-    if(btnSolo){btnSolo.style.background='transparent';btnSolo.style.color='#8A8A99';}
+    if(btnConc){btnConc.style.background='rgba(107,63,160,0.5)';btnConc.style.color='white';}
+    if(btnSolo){btnSolo.style.background='transparent';btnSolo.style.color='rgba(255,255,255,0.4)';}
     goTo('cockpit-c',document.querySelector('#nav-concierge .nav-item'));
     renderCockpitConcierge();
     renderParcConcierge();
@@ -1787,7 +1824,7 @@ function renderTarifs(){
       <div style="font-size:36px;font-weight:700;margin-bottom:4px">29€<span style="font-size:14px;font-weight:400;color:#8A8A99">/mois</span></div>
       <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">14 jours offerts</div>
       <div style="font-size:13px;line-height:2;margin-bottom:1.25rem;color:#3A3A50">
-        ✓ Jusqu'à 5 appartements<br>✓ PriceBot IA<br>✓ Intégration Smoobu<br>✓ Événements Ticketmaster<br>✗ Mode conciergerie
+        ✓ Jusqu'à 5 appartements<br>✓ EVA IA<br>✓ Intégration Smoobu<br>✓ Événements Ticketmaster<br>✗ Mode conciergerie
       </div>
       <button onclick="startCheckout('starter')" class="btn btn-purple" style="width:100%;justify-content:center;padding:10px" ${isStarter?'disabled':''}>${isStarter?'Plan actuel':"Commencer l'essai gratuit"}</button>
     </div>
@@ -1797,7 +1834,7 @@ function renderTarifs(){
       <div style="font-size:36px;font-weight:700;margin-bottom:4px">79€<span style="font-size:14px;font-weight:400;color:#8A8A99">/mois</span></div>
       <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">14 jours offerts</div>
       <div style="font-size:13px;line-height:2;margin-bottom:1.25rem;color:#3A3A50">
-        ✓ Appartements illimités<br>✓ PriceBot IA avancé<br>✓ Intégration Smoobu<br>✓ Événements Ticketmaster<br>✓ Mode conciergerie multi-clients
+        ✓ Appartements illimités<br>✓ EVA IA avancé<br>✓ Intégration Smoobu<br>✓ Événements Ticketmaster<br>✓ Mode conciergerie multi-clients
       </div>
       <button onclick="startCheckout('pro')" class="btn btn-purple" style="width:100%;justify-content:center;padding:10px" ${isPro?'disabled':''}>${isPro?'Plan actuel':"Commencer l'essai gratuit"}</button>
     </div>
@@ -1808,7 +1845,7 @@ function renderTarifs(){
       <div style="font-size:13px;line-height:2;margin-bottom:1.25rem;color:#3A3A50">
         ✓ Multi-comptes<br>✓ API dédiée<br>✓ Support prioritaire<br>✓ Onboarding personnalisé<br>✓ Dashboard custom
       </div>
-      <button onclick="window.location.href='mailto:contact@sublyfe.fr'" class="btn" style="width:100%;justify-content:center;padding:10px">Nous contacter</button>
+      <button onclick="window.location.href='mailto:contact@rentiq.fr'" class="btn" style="width:100%;justify-content:center;padding:10px">Nous contacter</button>
     </div>
   </div>
   <div style="background:#F5F4FF;border-radius:12px;padding:1rem;font-size:13px;color:#6B3FA0;text-align:center">
@@ -1866,4 +1903,3 @@ function checkPaymentReturn(){
 </script>
 </body>
 </html>
-
