@@ -289,6 +289,7 @@ tr:hover td{background:#FAFAFF}
       <button class="nav-item" onclick="goTo('reservations',this)"><span class="nav-emoji">📋</span>Réservations</button>
       <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji">🤖</span>EVA Pricing <span class="nav-badge-new">NEW</span></button>
       <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji">🎯</span>Événements <span class="nav-badge-new" id="events-badge" style="display:none">0</span></button>
+      <button class="nav-item" onclick="goTo('finances',this)"><span class="nav-emoji">💰</span>Finances</button>
       <button class="nav-item" onclick="goTo('squad',this)"><span class="nav-emoji">👥</span>La Squad</button>
       <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Intégrations</div>
       <button class="nav-item" onclick="goTo('smoobu',this)"><span class="nav-emoji">🔗</span>Smoobu <span class="smoobu-badge" id="smoobu-nav-badge" style="display:none">✓</span></button>
@@ -302,6 +303,7 @@ tr:hover td{background:#FAFAFF}
       <button class="nav-item" onclick="goTo('proprietaires',this)"><span class="nav-emoji">👤</span>Propriétaires</button>
       <button class="nav-item" onclick="goTo('parc-c',this)"><span class="nav-emoji">🏠</span>Parc géré</button>
       <button class="nav-item" onclick="goTo('rapports',this)"><span class="nav-emoji">📊</span>Rapports mensuels</button>
+      <button class="nav-item" onclick="goTo('finances',this)"><span class="nav-emoji">💰</span>Finances</button>
       <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji">🤖</span>EVA Pricing</button>
       <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji">🎯</span>Événements</button>
       <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Intégrations</div>
@@ -452,6 +454,35 @@ tr:hover td{background:#FAFAFF}
           <div style="font-size:48px;margin-bottom:1rem">📊</div>
           <div style="font-weight:600;font-size:16px;margin-bottom:6px">Aucun rapport</div>
           <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">Ajoutez des propriétaires et des réservations puis générez les rapports</div>
+        </div>
+      </div>
+
+      <!-- FINANCES -->
+      <div class="page" id="page-finances">
+        <div class="page-header">
+          <div><div class="page-title">Finances 💰</div><div class="page-sub" id="finances-sub">Rentabilité nette de vos appartements</div></div>
+          <div class="actions">
+            <select id="fin-mois" style="padding:8px 12px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit" onchange="renderFinances()"></select>
+            <button class="btn" onclick="openImportCSV()">📥 Import CSV</button>
+            <button class="btn btn-purple" onclick="openChargesModal()">⚙ Charges</button>
+          </div>
+        </div>
+
+        <!-- KPIs Finances -->
+        <div class="kpi-grid" id="fin-kpis"></div>
+
+        <!-- P&L par appart -->
+        <div id="fin-pl-list"></div>
+
+        <!-- Vue globale -->
+        <div id="fin-global"></div>
+
+        <!-- Empty state -->
+        <div id="fin-empty" style="text-align:center;padding:3rem;display:none">
+          <div style="font-size:48px;margin-bottom:1rem">💰</div>
+          <div style="font-weight:600;font-size:16px;margin-bottom:6px">Configurez vos charges</div>
+          <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">Ajoutez les charges de vos appartements pour calculer votre rentabilité nette</div>
+          <button class="btn btn-purple" onclick="openChargesModal()">⚙ Configurer les charges</button>
         </div>
       </div>
 
@@ -708,6 +739,73 @@ tr:hover td{background:#FAFAFF}
   </div>
 </div>
 
+<!-- MODAL CHARGES -->
+<div class="modal-overlay" id="modal-charges">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-head"><div class="modal-title">⚙ Configuration des charges</div><button class="modal-close" onclick="closeChargesModal()">✕</button></div>
+    <div class="form-group"><label>Appartement</label>
+      <select id="ch-appart" onchange="loadChargesForAppart()" style="padding:8px 12px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit;width:100%"></select>
+    </div>
+    <div style="font-size:12px;font-weight:600;color:#8A8A99;text-transform:uppercase;letter-spacing:0.5px;margin:1rem 0 0.5rem;padding-bottom:0.5rem;border-bottom:1px solid #E8E8EE">Charges fixes mensuelles</div>
+    <div id="ch-fixes-list"></div>
+    <button onclick="addChargeRow('fixe')" style="margin:0.5rem 0;background:none;border:1px dashed #C4B5FD;border-radius:8px;padding:8px;width:100%;font-size:12px;color:#6B3FA0;cursor:pointer;font-family:inherit">+ Ajouter une charge fixe</button>
+    <div style="font-size:12px;font-weight:600;color:#8A8A99;text-transform:uppercase;letter-spacing:0.5px;margin:1rem 0 0.5rem;padding-bottom:0.5rem;border-bottom:1px solid #E8E8EE">Charges variables (par réservation)</div>
+    <div id="ch-vars-list"></div>
+    <button onclick="addChargeRow('variable')" style="margin:0.5rem 0;background:none;border:1px dashed #C4B5FD;border-radius:8px;padding:8px;width:100%;font-size:12px;color:#6B3FA0;cursor:pointer;font-family:inherit">+ Ajouter une charge variable</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem;background:#F8F7FF;border-radius:8px;margin-top:1rem">
+      <span style="font-size:13px;color:#8A8A99">Total charges fixes / mois</span>
+      <span style="font-size:16px;font-weight:600;color:#E24B4A" id="ch-total-fixes">0 €</span>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:1.25rem">
+      <button class="btn" onclick="closeChargesModal()" style="flex:1">Fermer</button>
+      <button class="btn btn-purple" onclick="saveAllCharges()" style="flex:2">✓ Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL IMPORT CSV -->
+<div class="modal-overlay" id="modal-import">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-head"><div class="modal-title">📥 Import relevé bancaire</div><button class="modal-close" onclick="closeImportCSV()">✕</button></div>
+    <div id="import-upload" style="border:2px dashed #C4B5FD;border-radius:12px;padding:2rem;text-align:center;cursor:pointer;margin-bottom:1rem" onclick="document.getElementById('csv-file').click()">
+      <div style="font-size:28px;margin-bottom:0.5rem">📄</div>
+      <div style="font-size:13px;color:#8A8A99">Glissez votre fichier CSV ici ou cliquez pour sélectionner</div>
+      <div style="font-size:11px;color:#B0B0B0;margin-top:4px">Boursorama, Revolut, BNP, Crédit Mutuel, La Banque Postale...</div>
+      <input type="file" id="csv-file" accept=".csv,.txt" style="display:none" onchange="handleCSVUpload(event)"/>
+    </div>
+    <div id="import-preview" style="display:none">
+      <div style="font-size:12px;font-weight:600;color:#8A8A99;margin-bottom:0.5rem" id="import-count">0 transactions détectées</div>
+      <div style="max-height:300px;overflow-y:auto;border:1px solid #E8E8EE;border-radius:8px" id="import-table"></div>
+      <div style="margin-top:0.75rem;padding:0.5rem 0.75rem;background:#F5F0FF;border-radius:8px;font-size:11px;color:#6B3FA0;display:flex;align-items:center;gap:6px">
+        ✨ EVA catégorise automatiquement les transactions. Corrigez manuellement si besoin.
+      </div>
+      <div style="display:flex;gap:8px;margin-top:1rem">
+        <button class="btn" onclick="closeImportCSV()" style="flex:1">Annuler</button>
+        <button class="btn btn-purple" onclick="saveImportedTransactions()" style="flex:2">✓ Importer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL REGLES CATEGORISATION -->
+<div class="modal-overlay" id="modal-rules">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-head"><div class="modal-title">🏷 Règles de catégorisation</div><button class="modal-close" onclick="closeRulesModal()">✕</button></div>
+    <div id="rules-list"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:0.75rem">
+      <input type="text" id="rule-keyword" placeholder="Mot-clé (ex: FATIMA)" style="padding:8px;border-radius:8px;border:1px solid #E8E8EE;font-size:12px"/>
+      <select id="rule-category" style="padding:8px;border-radius:8px;border:1px solid #E8E8EE;font-size:12px">
+        <option value="loyer">Loyer</option><option value="charges">Charges</option><option value="energie">Énergie</option>
+        <option value="internet">Internet</option><option value="assurance">Assurance</option><option value="menage">Ménage</option>
+        <option value="linge">Linge</option><option value="produits">Produits</option><option value="revenu">Revenu</option><option value="autre">Autre</option>
+      </select>
+      <select id="rule-appart" style="padding:8px;border-radius:8px;border:1px solid #E8E8EE;font-size:12px"></select>
+    </div>
+    <button class="btn btn-purple btn-sm" onclick="addRule()" style="width:100%;margin-top:0.5rem;justify-content:center">+ Ajouter la règle</button>
+    <button class="btn" onclick="closeRulesModal()" style="width:100%;margin-top:0.75rem;justify-content:center">Fermer</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -801,6 +899,7 @@ async function loadApp(){
     renderTarifs();
     checkPaymentReturn();
     await loadProprietaires();
+    await loadCharges();await loadTransactions();await loadCatRules();
     applyModules();
     if(userModules.includes('concierge')){renderProprietaires();initRapportMois();renderRapports();renderCockpitConcierge();renderParcConcierge();}
     checkOnboarding();
@@ -1231,6 +1330,7 @@ function goTo(page,btn){
   if(btn)btn.classList.add('active');
   if(page==='events'&&apparts.length&&!Object.keys(eventsCache).length)loadEvents(false);
   if(page==='cockpit-c')renderCockpitConcierge();
+  if(page==='finances'){initFinMois();renderFinances();}
   if(page==='parc-c')renderParcConcierge();
   if(page==='proprietaires')renderProprietaires();
   if(page==='rapports'){initRapportMois();renderRapports();}
@@ -1856,6 +1956,505 @@ async function genererRapports(){
   }
   renderRapports();
   showToast('✓ Rapports générés pour '+proprietaires.length+' propriétaire'+(proprietaires.length>1?'s':''));
+}
+
+
+// FINANCES MODULE
+let chargesData=[];
+let transactionsData=[];
+let catRules=[];
+let importBuffer=[];
+
+const DEFAULT_FIXES=[
+  {category:'loyer',label:'Loyer mensuel',amount:0,type:'fixe',per:'mois'},
+  {category:'charges_locatives',label:'Charges locatives',amount:0,type:'fixe',per:'mois'},
+  {category:'energie',label:'Électricité / gaz',amount:0,type:'fixe',per:'mois'},
+  {category:'internet',label:'Internet / WiFi',amount:0,type:'fixe',per:'mois'},
+  {category:'assurance',label:'Assurance PNO',amount:0,type:'fixe',per:'mois'}
+];
+const DEFAULT_VARS=[
+  {category:'menage',label:'Ménage / séjour',amount:0,type:'variable',per:'reservation'},
+  {category:'linge',label:'Linge / blanchisserie',amount:0,type:'variable',per:'reservation'},
+  {category:'produits',label:'Produits d\'accueil',amount:0,type:'variable',per:'reservation'},
+  {category:'commission_plateforme',label:'Commission plateforme (%)',amount:3,type:'variable',per:'reservation'}
+];
+
+const AUTO_CATEGORIES={
+  'LOYER':'loyer','FONCIA':'loyer','NEXITY':'loyer','ORPI':'loyer','CENTURY':'loyer','LAFORET':'loyer',
+  'EDF':'energie','ENGIE':'energie','ELECTRICITE':'energie','GAZ':'energie','DIRECT ENERGIE':'energie',
+  'FREE':'internet','ORANGE':'internet','SFR':'internet','BOUYGUES':'internet','RED BY':'internet',
+  'AIRBNB':'revenu','BOOKING':'revenu','VRBO':'revenu','ABRITEL':'revenu','HOMEAWAY':'revenu',
+  'MENAGE':'menage','CLEANING':'menage','NETTOYAGE':'menage',
+  'ASSURANCE':'assurance','MAIF':'assurance','AXA':'assurance','ALLIANZ':'assurance','MMA':'assurance',
+  'LINGE':'linge','BLANCHISSERIE':'linge','PRESSING':'linge',
+  'CHARGES':'charges_locatives','COPROPRIETE':'charges_locatives','SYNDIC':'charges_locatives'
+};
+
+async function loadCharges(){
+  try{
+    const res=await sbFetch(`charges?user_id=eq.${currentUser.user.id}&select=*`);
+    chargesData=await res.json()||[];
+  }catch(e){chargesData=[];}
+}
+
+async function loadTransactions(){
+  try{
+    const res=await sbFetch(`transactions?user_id=eq.${currentUser.user.id}&select=*&order=date.desc`);
+    transactionsData=await res.json()||[];
+  }catch(e){transactionsData=[];}
+}
+
+async function loadCatRules(){
+  try{
+    const res=await sbFetch(`categorisation_rules?user_id=eq.${currentUser.user.id}&select=*`);
+    catRules=await res.json()||[];
+  }catch(e){catRules=[];}
+}
+
+// CHARGES MODAL
+function openChargesModal(){
+  const sel=document.getElementById('ch-appart');
+  sel.innerHTML=apparts.map(a=>`<option value="${a.id}">${a.emoji||'🏠'} ${a.name}</option>`).join('');
+  document.getElementById('modal-charges').classList.add('open');
+  loadChargesForAppart();
+}
+
+function closeChargesModal(){document.getElementById('modal-charges').classList.remove('open');}
+
+function loadChargesForAppart(){
+  const aptId=document.getElementById('ch-appart').value;
+  const aptCharges=chargesData.filter(c=>c.appartement_id===aptId);
+  const apt=apparts.find(a=>a.id===aptId);
+  
+  // Fixes
+  const fixesDiv=document.getElementById('ch-fixes-list');
+  let fixesHtml='';
+  const fixes=aptCharges.filter(c=>c.type==='fixe');
+  const defaultFixes=DEFAULT_FIXES.map(d=>{
+    const existing=fixes.find(f=>f.category===d.category);
+    return existing||{...d,appartement_id:aptId};
+  });
+  const customFixes=fixes.filter(f=>!DEFAULT_FIXES.some(d=>d.category===f.category));
+  [...defaultFixes,...customFixes].forEach((c,i)=>{
+    fixesHtml+=`<div style="display:grid;grid-template-columns:1fr 100px 30px;gap:6px;align-items:center;margin-bottom:6px" data-type="fixe" data-cat="${c.category}" data-id="${c.id||''}">
+      <input type="text" value="${c.label}" class="ch-label" style="padding:8px;border-radius:8px;border:1px solid #E8E8EE;font-size:12px"/>
+      <input type="number" value="${c.amount||0}" class="ch-amount" style="padding:8px;border-radius:8px;border:1px solid #E8E8EE;font-size:12px;text-align:right" onchange="updateChargeTotals()"/>
+      <button onclick="this.parentElement.remove();updateChargeTotals()" style="background:none;border:none;color:#E24B4A;cursor:pointer;font-size:16px">✕</button>
+    </div>`;
+  });
+  // Use existing rent value as default
+  if(!fixes.find(f=>f.category==='loyer')&&apt&&apt.rent){
+    fixesHtml=fixesHtml.replace('value="0"','value="'+(apt.rent||0)+'"');
+  }
+  fixesDiv.innerHTML=fixesHtml;
+
+  // Variables
+  const varsDiv=document.getElementById('ch-vars-list');
+  let varsHtml='';
+  const vars=aptCharges.filter(c=>c.type==='variable');
+  const defaultVars=DEFAULT_VARS.map(d=>{
+    const existing=vars.find(f=>f.category===d.category);
+    return existing||{...d,appartement_id:aptId};
+  });
+  const customVars=vars.filter(f=>!DEFAULT_VARS.some(d=>d.category===f.category));
+  [...defaultVars,...customVars].forEach((c,i)=>{
+    const isPercent=c.category==='commission_plateforme';
+    varsHtml+=`<div style="display:grid;grid-template-columns:1fr 100px 30px;gap:6px;align-items:center;margin-bottom:6px" data-type="variable" data-cat="${c.category}" data-id="${c.id||''}">
+      <input type="text" value="${c.label}" class="ch-label" style="padding:8px;border-radius:8px;border:1px solid #E8E8EE;font-size:12px"/>
+      <div style="position:relative"><input type="number" value="${c.amount||0}" class="ch-amount" style="padding:8px;border-radius:8px;border:1px solid #E8E8EE;font-size:12px;text-align:right;width:100%"/>${isPercent?'<span style="position:absolute;right:8px;top:8px;font-size:12px;color:#8A8A99">%</span>':''}</div>
+      <button onclick="this.parentElement.remove();updateChargeTotals()" style="background:none;border:none;color:#E24B4A;cursor:pointer;font-size:16px">✕</button>
+    </div>`;
+  });
+  // Use existing cleaner value
+  if(!vars.find(f=>f.category==='menage')&&apt&&apt.cleaner){
+    varsHtml=varsHtml.replace(/value="0"/,'value="'+(apt.cleaner||0)+'"');
+  }
+  varsDiv.innerHTML=varsHtml;
+  updateChargeTotals();
+}
+
+function addChargeRow(type){
+  const container=document.getElementById(type==='fixe'?'ch-fixes-list':'ch-vars-list');
+  const cat='custom_'+Date.now();
+  const html=`<div style="display:grid;grid-template-columns:1fr 100px 30px;gap:6px;align-items:center;margin-bottom:6px" data-type="${type}" data-cat="${cat}" data-id="">
+    <input type="text" value="" class="ch-label" placeholder="Nom de la charge" style="padding:8px;border-radius:8px;border:1px solid #E8E8EE;font-size:12px"/>
+    <input type="number" value="0" class="ch-amount" style="padding:8px;border-radius:8px;border:1px solid #E8E8EE;font-size:12px;text-align:right"/>
+    <button onclick="this.parentElement.remove();updateChargeTotals()" style="background:none;border:none;color:#E24B4A;cursor:pointer;font-size:16px">✕</button>
+  </div>`;
+  container.insertAdjacentHTML('beforeend',html);
+}
+
+function updateChargeTotals(){
+  let total=0;
+  document.querySelectorAll('#ch-fixes-list [data-type=fixe] .ch-amount').forEach(el=>{total+=+(el.value||0);});
+  document.getElementById('ch-total-fixes').textContent=total+' €';
+}
+
+async function saveAllCharges(){
+  const aptId=document.getElementById('ch-appart').value;
+  // Delete existing charges for this appart
+  await sbFetch(`charges?user_id=eq.${currentUser.user.id}&appartement_id=eq.${aptId}`,{method:'DELETE'});
+  
+  const rows=document.querySelectorAll('#ch-fixes-list > div, #ch-vars-list > div');
+  const charges=[];
+  rows.forEach(row=>{
+    const label=row.querySelector('.ch-label')?.value?.trim();
+    const amount=+(row.querySelector('.ch-amount')?.value||0);
+    const type=row.dataset.type;
+    const cat=row.dataset.cat;
+    if(label&&amount>0){
+      charges.push({user_id:currentUser.user.id,appartement_id:aptId,category:cat,label,amount,type,per:type==='fixe'?'mois':'reservation'});
+    }
+  });
+  
+  if(charges.length){
+    await sbFetch('charges',{method:'POST',body:JSON.stringify(charges)});
+  }
+  await loadCharges();
+  closeChargesModal();
+  renderFinances();
+  showToast('✓ Charges enregistrées');
+}
+
+// CSV IMPORT
+function openImportCSV(){
+  document.getElementById('modal-import').classList.add('open');
+  document.getElementById('import-preview').style.display='none';
+  document.getElementById('import-upload').style.display='block';
+  document.getElementById('csv-file').value='';
+  importBuffer=[];
+}
+function closeImportCSV(){document.getElementById('modal-import').classList.remove('open');}
+
+function handleCSVUpload(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    let text=e.target.result;
+    // Try to detect separator
+    const sep=text.includes(';')?';':',';
+    const lines=text.split('\n').filter(l=>l.trim());
+    if(lines.length<2){showToast('Fichier vide ou invalide');return;}
+    
+    // Detect columns (date, label, amount)
+    const header=lines[0].toLowerCase();
+    let dateIdx=-1,labelIdx=-1,amountIdx=-1;
+    const cols=lines[0].split(sep).map(c=>c.trim().replace(/"/g,'').toLowerCase());
+    cols.forEach((c,i)=>{
+      if(c.includes('date')&&dateIdx===-1)dateIdx=i;
+      if((c.includes('libel')||c.includes('label')||c.includes('description')||c.includes('nom'))&&labelIdx===-1)labelIdx=i;
+      if((c.includes('montant')||c.includes('amount')||c.includes('debit')||c.includes('credit')||c.includes('valeur'))&&amountIdx===-1)amountIdx=i;
+    });
+    
+    // Fallback: assume date=0, label=1, amount=2
+    if(dateIdx===-1)dateIdx=0;
+    if(labelIdx===-1)labelIdx=1;
+    if(amountIdx===-1)amountIdx=cols.length-1;
+    
+    importBuffer=[];
+    for(let i=1;i<lines.length;i++){
+      const vals=lines[i].split(sep).map(v=>v.trim().replace(/"/g,''));
+      if(vals.length<3)continue;
+      const rawDate=vals[dateIdx]||'';
+      const label=vals[labelIdx]||'';
+      const rawAmount=vals[amountIdx]||'0';
+      const amount=parseFloat(rawAmount.replace(/\s/g,'').replace(',','.'));
+      if(isNaN(amount)||!label)continue;
+      
+      // Parse date
+      let date='';
+      if(rawDate.includes('/')){const p=rawDate.split('/');date=p.length===3?`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`:rawDate;}
+      else if(rawDate.includes('-')){date=rawDate;}
+      else{date=rawDate;}
+      
+      // Auto-categorize
+      const cat=autoCategorizerLabel(label);
+      const aptId=autoAssignAppart(label);
+      
+      importBuffer.push({date,label,amount,category:cat,appartement_id:aptId,mois:date.slice(0,7)});
+    }
+    
+    renderImportPreview();
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+function autoCategorizerLabel(label){
+  const upper=label.toUpperCase();
+  // Check custom rules first
+  for(const rule of catRules){
+    if(upper.includes(rule.keyword.toUpperCase()))return rule.category;
+  }
+  // Check auto categories
+  for(const[kw,cat] of Object.entries(AUTO_CATEGORIES)){
+    if(upper.includes(kw))return cat;
+  }
+  return 'autre';
+}
+
+function autoAssignAppart(label){
+  const upper=label.toUpperCase();
+  // Check custom rules
+  for(const rule of catRules){
+    if(upper.includes(rule.keyword.toUpperCase())&&rule.appartement_id)return rule.appartement_id;
+  }
+  return null;
+}
+
+function renderImportPreview(){
+  document.getElementById('import-upload').style.display='none';
+  document.getElementById('import-preview').style.display='block';
+  document.getElementById('import-count').textContent=importBuffer.length+' transactions détectées';
+  
+  const catColors={loyer:'#FCEBEB;color:#A32D2D',charges_locatives:'#FCEBEB;color:#A32D2D',energie:'#FCEBEB;color:#A32D2D',internet:'#FCEBEB;color:#A32D2D',assurance:'#FCEBEB;color:#A32D2D',menage:'#FAEEDA;color:#854F0B',linge:'#FAEEDA;color:#854F0B',produits:'#FAEEDA;color:#854F0B',revenu:'#E1F5EE;color:#085041',autre:'#F0F0F5;color:#8A8A99'};
+  const catLabels={loyer:'Loyer',charges_locatives:'Charges',energie:'Énergie',internet:'Internet',assurance:'Assurance',menage:'Ménage',linge:'Linge',produits:'Produits',revenu:'Revenu',commission_plateforme:'Commission',autre:'Autre'};
+  
+  let html=`<table style="width:100%;font-size:12px"><thead><tr><th style="padding:6px;text-align:left">Date</th><th style="text-align:left">Libellé</th><th style="text-align:right">Montant</th><th>Catégorie</th><th>Appart</th></tr></thead><tbody>`;
+  importBuffer.slice(0,50).forEach((t,i)=>{
+    const col=catColors[t.category]||catColors.autre;
+    html+=`<tr style="border-bottom:0.5px solid #E8E8EE">
+      <td style="padding:6px">${t.date}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.label}</td>
+      <td style="text-align:right;font-weight:500;color:${t.amount>=0?'#1D9E75':'#E24B4A'}">${t.amount>=0?'+':''}${t.amount}€</td>
+      <td><select onchange="importBuffer[${i}].category=this.value" style="padding:3px 6px;border-radius:6px;border:1px solid #E8E8EE;font-size:11px;background:${col.split(';')[0]}">
+        ${Object.entries(catLabels).map(([k,v])=>`<option value="${k}" ${t.category===k?'selected':''}>${v}</option>`).join('')}
+      </select></td>
+      <td><select onchange="importBuffer[${i}].appartement_id=this.value||null" style="padding:3px 6px;border-radius:6px;border:1px solid #E8E8EE;font-size:11px">
+        <option value="">—</option>
+        ${apparts.map(a=>`<option value="${a.id}" ${t.appartement_id===a.id?'selected':''}>${a.name}</option>`).join('')}
+      </select></td>
+    </tr>`;
+  });
+  html+=`</tbody></table>`;
+  document.getElementById('import-table').innerHTML=html;
+}
+
+async function saveImportedTransactions(){
+  if(!importBuffer.length){showToast('Aucune transaction');return;}
+  const toSave=importBuffer.map(t=>({
+    user_id:currentUser.user.id,
+    appartement_id:t.appartement_id,
+    date:t.date,
+    label:t.label,
+    amount:t.amount,
+    category:t.category,
+    source:'import_csv',
+    mois:t.mois
+  }));
+  try{
+    await sbFetch('transactions',{method:'POST',body:JSON.stringify(toSave)});
+    await loadTransactions();
+    closeImportCSV();
+    renderFinances();
+    showToast('✓ '+toSave.length+' transactions importées');
+  }catch(e){showToast('Erreur import');}
+}
+
+// RULES
+function openRulesModal(){
+  document.getElementById('modal-rules').classList.add('open');
+  document.getElementById('rule-appart').innerHTML='<option value="">Tous</option>'+apparts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+  renderRulesList();
+}
+function closeRulesModal(){document.getElementById('modal-rules').classList.remove('open');}
+
+function renderRulesList(){
+  const list=document.getElementById('rules-list');
+  if(!catRules.length){list.innerHTML='<div style="color:#8A8A99;font-size:12px;padding:0.5rem">Aucune règle. Ajoutez-en ci-dessous.</div>';return;}
+  list.innerHTML=catRules.map(r=>{
+    const apt=apparts.find(a=>a.id===r.appartement_id);
+    return`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid #E8E8EE;font-size:12px">
+      <span style="font-weight:500;flex:1">"${r.keyword}"</span>
+      <span style="padding:2px 8px;border-radius:100px;background:#EEEDFE;color:#3C3489;font-size:11px">${r.category}</span>
+      ${apt?`<span style="font-size:11px;color:#8A8A99">${apt.name}</span>`:''}
+      <button onclick="deleteRule('${r.id}')" style="background:none;border:none;color:#E24B4A;cursor:pointer">✕</button>
+    </div>`;
+  }).join('');
+}
+
+async function addRule(){
+  const keyword=document.getElementById('rule-keyword').value.trim();
+  const category=document.getElementById('rule-category').value;
+  const aptId=document.getElementById('rule-appart').value||null;
+  if(!keyword){showToast('Entrez un mot-clé');return;}
+  const body={user_id:currentUser.user.id,keyword,category,appartement_id:aptId};
+  await sbFetch('categorisation_rules',{method:'POST',body:JSON.stringify(body)});
+  await loadCatRules();
+  document.getElementById('rule-keyword').value='';
+  renderRulesList();
+  showToast('✓ Règle ajoutée');
+}
+
+async function deleteRule(id){
+  await sbFetch(`categorisation_rules?id=eq.${id}`,{method:'DELETE'});
+  catRules=catRules.filter(r=>r.id!==id);
+  renderRulesList();
+}
+
+// FINANCES RENDERING
+function initFinMois(){
+  const sel=document.getElementById('fin-mois');if(!sel)return;
+  const now=new Date();
+  sel.innerHTML='';
+  for(let i=0;i<6;i++){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const val=d.toISOString().slice(0,7);
+    const label=d.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+    sel.innerHTML+=`<option value="${val}">${label.charAt(0).toUpperCase()+label.slice(1)}</option>`;
+  }
+}
+
+function renderFinances(){
+  const mois=document.getElementById('fin-mois')?.value||new Date().toISOString().slice(0,7);
+  const isConcierge=currentMode==='concierge';
+  
+  if(!apparts.length||!chargesData.length){
+    document.getElementById('fin-empty').style.display='block';
+    document.getElementById('fin-kpis').innerHTML='';
+    document.getElementById('fin-pl-list').innerHTML='';
+    document.getElementById('fin-global').innerHTML='';
+    return;
+  }
+  document.getElementById('fin-empty').style.display='none';
+  
+  let totalRev=0,totalCharges=0,totalNet=0;
+  let plCards='';
+  
+  const aptsToShow=isConcierge?apparts.filter(a=>a.proprietaire_id):apparts;
+  
+  aptsToShow.forEach(a=>{
+    const aptCharges=chargesData.filter(c=>c.appartement_id===a.id);
+    const aptTx=transactionsData.filter(t=>t.appartement_id===a.id&&t.mois===mois);
+    const aptRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(mois));
+    const nbRes=aptRes.length||aptTx.filter(t=>t.category==='revenu').length||0;
+    
+    // Revenus
+    const revTx=aptTx.filter(t=>t.amount>0||t.category==='revenu');
+    const revFromTx=revTx.reduce((s,t)=>s+Math.abs(t.amount),0);
+    const revFromRes=aptRes.reduce((s,r)=>s+(r.price_total||0),0);
+    const rev=revFromTx||revFromRes;
+    
+    // Charges fixes
+    const fixes=aptCharges.filter(c=>c.type==='fixe');
+    const totalFixes=fixes.reduce((s,c)=>s+(c.amount||0),0);
+    
+    // Charges variables
+    const vars=aptCharges.filter(c=>c.type==='variable'&&c.category!=='commission_plateforme');
+    const commPct=aptCharges.find(c=>c.category==='commission_plateforme')?.amount||0;
+    const totalVarsPerRes=vars.reduce((s,c)=>s+(c.amount||0),0);
+    const totalVars=totalVarsPerRes*(nbRes||1);
+    const commAmount=Math.round(rev*commPct/100);
+    
+    // Conciergerie commission
+    const proprio=isConcierge?proprietaires.find(p=>p.id===a.proprietaire_id):null;
+    const concCommPct=proprio?.commission||0;
+    const concComm=Math.round(rev*concCommPct/100);
+    
+    const charges_total=totalFixes+totalVars+commAmount;
+    const net=rev-charges_total;
+    const netProprio=isConcierge?net-concComm:net;
+    const marge=rev>0?Math.round(net/rev*100):0;
+    
+    totalRev+=rev;totalCharges+=charges_total;totalNet+=isConcierge?concComm:net;
+    
+    plCards+=`<div class="card" style="margin-bottom:1rem">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
+        <div style="font-size:18px">${a.emoji||'🏠'}</div>
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:600">${a.name}</div>
+          <div style="font-size:12px;color:#8A8A99">${new Date(mois+'-01').toLocaleDateString('fr-FR',{month:'long',year:'numeric'})} · ${a.city||''}</div>
+        </div>
+        <span style="padding:4px 12px;border-radius:100px;font-size:12px;font-weight:500;background:${net>=0?'#E1F5EE;color:#085041':'#FCEBEB;color:#A32D2D'}">${net>=0?'Rentable ✓':'Déficitaire ⚠'}</span>
+      </div>
+      
+      <div style="margin-bottom:0.75rem">
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:0.5px solid #E8E8EE">
+          <span style="color:#1D9E75;font-weight:500">↑ Revenus (${nbRes} résa${nbRes>1?'s':''})</span>
+          <span style="font-weight:600;color:#1D9E75">+${rev} €</span>
+        </div>
+      </div>
+      
+      ${fixes.length?`<div style="margin-bottom:0.5rem">${fixes.map(c=>`
+        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px">
+          <span style="color:#E24B4A">↓ ${c.label}</span>
+          <span style="color:#E24B4A">-${c.amount} €</span>
+        </div>`).join('')}
+        <div style="display:flex;justify-content:space-between;padding:6px 8px;background:#FEF8F8;border-radius:6px;font-size:12px;font-weight:500;margin-top:4px">
+          <span>Total fixes</span><span style="color:#E24B4A">-${totalFixes} €</span>
+        </div>
+      </div>`:''}
+      
+      ${vars.length||commPct?`<div style="margin-bottom:0.5rem">${vars.map(c=>`
+        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px">
+          <span style="color:#BA7517">↓ ${c.label} (${nbRes||1}x${c.amount}€)</span>
+          <span style="color:#BA7517">-${c.amount*(nbRes||1)} €</span>
+        </div>`).join('')}
+        ${commPct?`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px">
+          <span style="color:#BA7517">↓ Commission ${commPct}%</span>
+          <span style="color:#BA7517">-${commAmount} €</span>
+        </div>`:''}
+        <div style="display:flex;justify-content:space-between;padding:6px 8px;background:#FFF8F0;border-radius:6px;font-size:12px;font-weight:500;margin-top:4px">
+          <span>Total variables</span><span style="color:#BA7517">-${totalVars+commAmount} €</span>
+        </div>
+      </div>`:''}
+      
+      ${isConcierge&&proprio?`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;margin-bottom:0.5rem">
+        <span style="color:#6B3FA0">↓ Commission conciergerie ${concCommPct}% (${proprio.name})</span>
+        <span style="color:#6B3FA0">-${concComm} €</span>
+      </div>`:''}
+      
+      <div style="background:${net>=0?'linear-gradient(135deg,#E1F5EE,white);border:0.5px solid #5DCAA5':'linear-gradient(135deg,#FCEBEB,white);border:0.5px solid #F09595'};border-radius:10px;padding:1rem;text-align:center;margin-top:0.75rem">
+        <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.5px;color:${net>=0?'#085041':'#A32D2D'}">Résultat net</div>
+        <div style="font-size:28px;font-weight:600;color:${net>=0?'#1D9E75':'#E24B4A'};margin:4px 0">${net>=0?'+':''}${net} €</div>
+        <div style="font-size:12px;color:${net>=0?'#085041':'#A32D2D'}">Marge : ${marge}%</div>
+        ${isConcierge&&proprio?`<div style="margin-top:8px;font-size:12px;color:#6B3FA0">Revenu conciergerie : <b>+${concComm} €</b> · Net propriétaire : <b>${netProprio} €</b></div>`:''}
+      </div>
+    </div>`;
+  });
+  
+  // KPIs
+  const margeGlobale=totalRev>0?Math.round(totalNet/totalRev*100):0;
+  document.getElementById('fin-kpis').innerHTML=`
+    <div class="kpi"><div class="kpi-label">Revenus bruts</div><div class="kpi-value" style="color:#1D9E75">${totalRev} €</div></div>
+    <div class="kpi"><div class="kpi-label">Total charges</div><div class="kpi-value" style="color:#E24B4A">${totalCharges} €</div></div>
+    <div class="kpi"><div class="kpi-label">${isConcierge?'Mes commissions':'Résultat net'}</div><div class="kpi-value" style="color:${totalNet>=0?'#1D9E75':'#E24B4A'}">${totalNet>=0?'+':''}${totalNet} €</div></div>
+    <div class="kpi"><div class="kpi-label">Marge nette</div><div class="kpi-value" style="color:${margeGlobale>=15?'#1D9E75':margeGlobale>=0?'#BA7517':'#E24B4A'}">${margeGlobale}%</div></div>`;
+  
+  // P&L cards
+  document.getElementById('fin-pl-list').innerHTML=plCards;
+  
+  // Global table
+  let globalHtml=`<div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;margin:1rem 0 0.5rem">Vue globale</div>
+  <div class="card"><div class="table-wrap"><table>
+    <thead><tr><th>Appartement</th><th style="text-align:right">Revenus</th><th style="text-align:right">Charges</th><th style="text-align:right">Net</th><th style="text-align:right">Marge</th><th style="text-align:right">Statut</th></tr></thead><tbody>`;
+  
+  aptsToShow.forEach(a=>{
+    const aptCharges=chargesData.filter(c=>c.appartement_id===a.id);
+    const aptRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(mois));
+    const aptTx=transactionsData.filter(t=>t.appartement_id===a.id&&t.mois===mois);
+    const nbRes=aptRes.length||aptTx.filter(t=>t.category==='revenu').length||0;
+    const rev=aptTx.filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0)||aptRes.reduce((s,r)=>s+(r.price_total||0),0);
+    const totalFixes=aptCharges.filter(c=>c.type==='fixe').reduce((s,c)=>s+(c.amount||0),0);
+    const totalVarsUnit=aptCharges.filter(c=>c.type==='variable'&&c.category!=='commission_plateforme').reduce((s,c)=>s+(c.amount||0),0);
+    const commPct=aptCharges.find(c=>c.category==='commission_plateforme')?.amount||0;
+    const charges=totalFixes+totalVarsUnit*(nbRes||1)+Math.round(rev*commPct/100);
+    const net=rev-charges;
+    const marge=rev>0?Math.round(net/rev*100):0;
+    globalHtml+=`<tr style="${net<0?'background:#FEF8F8':''}">
+      <td><div class="apt-name"><div class="apt-emoji">${a.emoji||'🏠'}</div>${a.name}</div></td>
+      <td style="text-align:right;color:#1D9E75;font-weight:500">${rev}€</td>
+      <td style="text-align:right;color:#E24B4A">${charges}€</td>
+      <td style="text-align:right;font-weight:600;color:${net>=0?'#1D9E75':'#E24B4A'}">${net>=0?'+':''}${net}€</td>
+      <td style="text-align:right;font-weight:500;color:${marge>=15?'#1D9E75':marge>=0?'#BA7517':'#E24B4A'}">${marge}%</td>
+      <td style="text-align:right"><span style="font-size:11px;padding:2px 8px;border-radius:100px;background:${net>=0?'#E1F5EE;color:#085041':'#FCEBEB;color:#A32D2D'}">${net>=0?'✓':'⚠'}</span></td>
+    </tr>`;
+  });
+  globalHtml+=`</tbody></table></div></div>`;
+  document.getElementById('fin-global').innerHTML=globalHtml;
+  
+  // Button for rules
+  const sub=document.getElementById('finances-sub');
+  if(sub)sub.innerHTML=`Rentabilité nette · <a href="#" onclick="openRulesModal();return false" style="color:#6B3FA0">🏷 Règles de catégorisation</a>`;
 }
 
 // STRIPE & TARIFS
