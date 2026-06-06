@@ -93,23 +93,22 @@ async function fetchTicketmaster(city, countryCode, radius) {
 async function fetchOpenAgenda(city) {
   try {
     const now = new Date().toISOString().split('T')[0];
-    const end = new Date(Date.now() + 180 * 86400000).toISOString().split('T')[0];
 
     const params = new URLSearchParams({
       limit: '50',
       'refine': `location_city:${city}`,
-      'where': `date_range >= "${now}"`,
-      'order_by': 'date_range ASC'
+      'where': `firstdate_begin >= "${now}"`,
+      'order_by': 'firstdate_begin ASC'
     });
 
     const res = await fetch(`${OA_API}?${params}`);
     const data = await res.json();
 
     return (data.results || []).map(r => {
-      const title = r.title_fr || r.title || r.longdescription_fr || '';
-      const dateStr = r.firstdate_begin || r.date_range?.start || '';
+      const title = r.title_fr || r.title || r.description_fr || '';
+      const dateStr = r.firstdate_begin || '';
       const date = dateStr ? dateStr.split('T')[0] : '';
-      const keywords = r.keywords_fr || '';
+      const keywords = (Array.isArray(r.keywords_fr) ? r.keywords_fr.join(' ') : r.keywords_fr) || '';
 
       // Detect segment from keywords
       let segment = 'Misc';
