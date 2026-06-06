@@ -1,1 +1,1934 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RentiQ — Stop guessing. Start earning.</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;color:#1A1A2E;background:#F5F4FF;font-size:14px}
+#loading{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#F5F4FF;flex-direction:column;gap:1rem}
+.loading-logo{font-size:32px;font-weight:700}
+.loading-logo span{background:linear-gradient(90deg,#6B3FA0,#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.spinner{width:32px;height:32px;border:3px solid #E8E8EE;border-top-color:#6B3FA0;border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#auth-screen{display:none;align-items:center;justify-content:center;min-height:100vh;padding:2rem;background:#F5F4FF}
+.auth-card{background:white;border-radius:14px;padding:2rem;width:100%;max-width:380px;border:1px solid #E8E8EE}
+.auth-logo{font-size:26px;font-weight:700;margin-bottom:2px}
+.auth-logo span{background:linear-gradient(90deg,#6B3FA0,#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.auth-tagline{font-size:13px;color:#8A8A99;margin-bottom:1.5rem;font-style:italic}
+.auth-tabs{display:flex;margin-bottom:1.5rem;border-bottom:1px solid #E8E8EE}
+.auth-tab{padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:none;color:#8A8A99;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit}
+.auth-tab.active{color:#6B3FA0;border-bottom-color:#6B3FA0}
+.form-group{margin-bottom:1rem}
+.form-group label{display:block;font-size:11px;color:#8A8A99;margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+.form-group input,.form-group select{width:100%;padding:9px 12px;border-radius:8px;border:1px solid #E8E8EE;background:white;color:#1A1A2E;font-size:14px;font-family:inherit}
+.form-group input:focus{outline:none;border-color:#6B3FA0}
+.btn-full{width:100%;padding:11px;border-radius:8px;background:linear-gradient(135deg,#6B3FA0,#9333EA);color:white;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:0.5rem}
+.auth-error{margin-top:0.75rem;padding:0.75rem;background:#FEE2E2;border-radius:8px;font-size:12px;color:#DC2626;display:none}
+.auth-success{margin-top:0.75rem;padding:0.75rem;background:#E0F2E9;border-radius:8px;font-size:12px;color:#059669;display:none}
+.app{display:none;flex-direction:column;min-height:100vh}
+.beta-banner{background:linear-gradient(90deg,#6B3FA0,#FF6B6B);color:white;text-align:center;padding:10px 20px;font-size:13px;font-weight:600}
+.app-body{display:flex;flex:1}
+.sidebar{width:250px;background:white;border-right:1px solid #EEEEF5;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sidebar-brand{padding:1.5rem 1.25rem 1rem}
+.brand-logo{font-size:24px;font-weight:700}
+.brand-logo span{background:linear-gradient(90deg,#6B3FA0,#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.brand-tagline{font-size:11px;color:#8A8A99;margin-top:3px;font-style:italic}
+.sidebar-sep{height:1px;background:#EEEEF5;margin:0 1.25rem 0.75rem}
+.nav-section-label{font-size:10px;font-weight:700;color:#B0A8C8;text-transform:uppercase;letter-spacing:1px;padding:0.75rem 1.25rem 0.35rem}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 1rem;margin:1px 0.75rem;border-radius:10px;color:rgba(255,255,255,0.5);cursor:pointer;font-size:13px;font-weight:500;border:none;background:none;font-family:inherit;width:calc(100% - 1.5rem);text-align:left;transition:all .12s}
+.nav-item:hover{background:rgba(107,63,160,0.15);color:white}
+.nav-item.active{background:rgba(107,63,160,0.25);color:white;font-weight:600}
+.nav-emoji{font-size:18px;width:24px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:#FF6B6B;color:white;font-size:10px;padding:2px 7px;border-radius:100px;font-weight:700}
+.nav-badge-new{margin-left:auto;background:linear-gradient(135deg,#6B3FA0,#9333EA);color:white;font-size:10px;padding:2px 8px;border-radius:100px;font-weight:700}
+.smoobu-badge{margin-left:auto;background:#E0F2E9;color:#059669;font-size:10px;padding:2px 8px;border-radius:100px;font-weight:700}
+.sidebar-footer{margin-top:auto;padding:0.75rem 1rem;border-top:1px solid #EEEEF5}
+.user-row{display:flex;align-items:center;gap:8px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6B3FA0,#FF6B6B);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:white;flex-shrink:0}
+.user-name{font-size:13px;font-weight:600;color:white}
+.user-plan{font-size:11px;color:#9B72CF;font-weight:600}
+.btn-logout{margin-left:auto;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.3);font-size:18px}
+.main{flex:1;overflow-y:auto;background:#F5F4FF}
+.page{display:none;padding:2rem}
+.page.active{display:block}
+.page-title{font-size:28px;font-weight:700}
+.page-sub{font-size:13px;color:#8A8A99;margin-top:4px}
+.page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;gap:1rem;flex-wrap:wrap}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #E8E8EE;background:white;color:#1A1A2E;font-family:inherit;display:inline-flex;align-items:center;gap:6px;transition:all .12s}
+.btn:hover{border-color:#6B3FA0;color:#6B3FA0}
+.btn-purple{background:linear-gradient(135deg,#6B3FA0,#9333EA);color:white;border:none}
+.btn-purple:hover{opacity:0.9;color:white}
+.btn-ai{background:linear-gradient(135deg,#7C3AED,#9333EA);color:white;border:none}
+.btn-green{background:linear-gradient(135deg,#059669,#10B981);color:white;border:none}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn:disabled{opacity:0.5;cursor:not-allowed}
+.card{background:white;border-radius:14px;padding:1.25rem;margin-bottom:1rem;border:1px solid #EEEEF5}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;gap:0.5rem;flex-wrap:wrap}
+.card-title{font-size:15px;font-weight:700}
+.grid-2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:1rem;margin-bottom:1rem}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:1.25rem}
+.kpi{background:white;border-radius:12px;padding:1rem;border:1px solid #EEEEF5}
+.kpi-label{font-size:10px;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;font-weight:700;margin-bottom:6px}
+.kpi-value{font-size:26px;font-weight:700;line-height:1}
+.kpi-delta{margin-top:6px;font-size:12px;font-weight:600}
+.kpi-ai{border-color:#C4B5FD;background:linear-gradient(135deg,#F5F0FF,white)}
+.kpi-ai .kpi-value{color:#6B3FA0}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:480px}
+th{text-align:left;padding:8px 10px;color:#8A8A99;font-size:10px;text-transform:uppercase;letter-spacing:0.8px;font-weight:700;border-bottom:1px solid #EEEEF5;white-space:nowrap}
+td{padding:11px 10px;border-bottom:1px solid #EEEEF5;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAFF}
+.apt-name{font-weight:600;display:flex;align-items:center;gap:8px}
+.apt-emoji{font-size:18px;width:32px;height:32px;background:#F5F4FF;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tag{display:inline-block;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:700}
+.tag-ok{background:#E0F2E9;color:#059669}
+.tag-warn{background:#FEF3C7;color:#D97706}
+.tag-bad{background:#FEE2E2;color:#DC2626}
+.tag-info{background:#F0EBF9;color:#6B3FA0}
+.tag-ai{background:linear-gradient(135deg,#F0EBF9,#FCE7F3);color:#6B3FA0}
+.tag-smoobu{background:#E0F2E9;color:#059669}
+.price-main{font-size:15px;font-weight:700}
+.price-floor{font-size:11px;color:#DC2626;font-weight:500}
+.price-ai{font-size:13px;font-weight:700;color:#6B3FA0}
+.price-comp{font-size:11px;color:#8A8A99}
+.toggle{width:34px;height:19px;border-radius:100px;border:none;cursor:pointer;position:relative;transition:background .15s;flex-shrink:0}
+.toggle.on{background:linear-gradient(90deg,#6B3FA0,#9333EA)}
+.toggle.off{background:#D1D1D8}
+.toggle::after{content:'';position:absolute;top:3px;width:13px;height:13px;border-radius:50%;background:white;transition:left .15s}
+.toggle.on::after{left:18px}
+.toggle.off::after{left:3px}
+.ai-bubble{background:linear-gradient(135deg,#F5F0FF,#FDF2FF);border:1px solid #C4B5FD;border-radius:12px;padding:1rem;margin-top:0.75rem}
+.ai-bubble-head{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#6B3FA0;margin-bottom:8px}
+.ai-dot{width:7px;height:7px;border-radius:50%;background:#6B3FA0;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.ai-bubble-text{font-size:13px;color:#3A3A50;line-height:1.65}
+.typing{display:flex;gap:5px;align-items:center;padding:4px 0}
+.typing span{width:7px;height:7px;border-radius:50%;background:#9B72CF;animation:bounce 1s infinite}
+.typing span:nth-child(2){animation-delay:.15s}
+.typing span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.event-card{background:white;border-radius:12px;padding:1rem;border:1px solid #EEEEF5;margin-bottom:0.75rem}
+.event-card.hot{border-color:#FCD34D;background:linear-gradient(135deg,#FFFBEB,white)}
+.event-card.hot .ev-boost{color:#D97706}
+.ev-row{display:flex;align-items:center;gap:10px}
+.ev-emoji{font-size:24px;flex-shrink:0}
+.ev-info{flex:1;min-width:0}
+.ev-name{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev-meta{font-size:12px;color:#8A8A99;margin-top:2px}
+.ev-boost{font-size:16px;font-weight:700;text-align:right;flex-shrink:0}
+.ev-boost-lbl{font-size:10px;color:#8A8A99;text-align:right}
+.city-section{margin-bottom:1.5rem}
+.city-header{display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;padding-bottom:0.5rem;border-bottom:2px solid #F0EBF9}
+.city-name{font-size:18px;font-weight:700}
+.city-apts{font-size:12px;color:#8A8A99}
+.city-count{background:#F0EBF9;color:#6B3FA0;font-size:11px;font-weight:700;padding:2px 8px;border-radius:100px}
+.events-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:0.75rem}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,26,46,0.45);z-index:100;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal{background:white;border-radius:16px;padding:1.5rem;width:100%;max-width:440px;border:1px solid #EEEEF5;max-height:90vh;overflow-y:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
+.modal-title{font-size:17px;font-weight:700}
+.modal-close{background:none;border:none;cursor:pointer;color:#8A8A99;font-size:20px}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#1A1A2E;color:white;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.setting-row{display:flex;justify-content:space-between;align-items:center;padding:0.85rem 0;border-bottom:1px solid #EEEEF5}
+.setting-row:last-child{border-bottom:none}
+.setting-label{font-size:13px;font-weight:600}
+.setting-desc{font-size:12px;color:#8A8A99;margin-top:2px}
+.settings-section-title{font-size:10px;font-weight:700;color:#B0A8C8;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.5rem;padding-bottom:0.5rem;border-bottom:1px solid #EEEEF5}
+.smoobu-connect-box{background:linear-gradient(135deg,#F5F0FF,#ECFDF5);border:1px solid #C4B5FD;border-radius:14px;padding:1.5rem;margin-bottom:1rem}
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block}
+.status-dot.connected{background:#10B981}
+.status-dot.disconnected{background:#D1D1D8}
+</style>
+</head>
+<body>
 
+<div id="loading">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
+    <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" style="width:36px">
+      <defs><linearGradient id="lg-load" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6B3FA0"/><stop offset="100%" stop-color="#FF6B6B"/></linearGradient></defs>
+      <rect width="36" height="36" rx="9" fill="url(#lg-load)"/>
+      <text x="3" y="26" font-family="Inter,system-ui,sans-serif" font-size="20" font-weight="700" fill="white">RiQ</text>
+    </svg>
+    <div class="loading-logo">Rent<span>iQ</span></div>
+  </div>
+  <div class="spinner"></div>
+</div>
+
+<div id="auth-screen" style="background:linear-gradient(135deg,#1a0a2e 0%,#2d1b4e 30%,#1e3a5f 60%,#0a2540 100%);display:none;min-height:100vh;padding:0">
+  <div style="display:flex;min-height:100vh;width:100%">
+    <div style="flex:1.2;display:flex;align-items:center;justify-content:center">
+      <div style="padding:0 4rem;max-width:85%">
+        <div style="font-size:14px;color:rgba(255,255,255,0.4);letter-spacing:3px;text-transform:uppercase;margin-bottom:2rem">Smart rental management</div>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:1rem">
+          <svg viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" style="width:80px;flex-shrink:0">
+            <defs><linearGradient id="lg-auth" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6B3FA0"/><stop offset="100%" stop-color="#FF6B6B"/></linearGradient></defs>
+            <rect width="56" height="56" rx="14" fill="url(#lg-auth)"/>
+            <text x="5" y="40" font-family="Inter,system-ui,sans-serif" font-size="30" font-weight="700" fill="white">RiQ</text>
+          </svg>
+          <div style="font-size:72px;font-weight:700;color:white">Rent<span style="background:linear-gradient(90deg,#9B72CF,#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent">iQ</span></div>
+        </div>
+        <div style="font-size:32px;color:rgba(255,255,255,0.75);line-height:1.5;margin-bottom:1.5rem">Stop guessing.<br>Start earning.</div>
+        <div style="font-size:15px;color:rgba(255,255,255,0.45);line-height:1.7;margin-bottom:2rem;max-width:500px">L&rsquo;outil de gestion intelligent pour les locations courte dur&eacute;e. EVA analyse votre march&eacute;, d&eacute;tecte les &eacute;v&eacute;nements et optimise vos prix automatiquement.</div>
+        <div style="display:flex;gap:2rem;margin-bottom:2.5rem">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+            <div style="width:48px;height:48px;border-radius:12px;background:rgba(155,114,207,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;color:#9B72CF">&#9733;</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.45);text-align:center">EVA<br>pricing IA</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+            <div style="width:48px;height:48px;border-radius:12px;background:rgba(255,107,107,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;color:#FF6B6B">&#9733;</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.45);text-align:center">&Eacute;v&eacute;nements<br>automatiques</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+            <div style="width:48px;height:48px;border-radius:12px;background:rgba(93,202,165,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;color:#5DCAA5">&#9733;</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.45);text-align:center">Rentabilit&eacute;<br>en temps r&eacute;el</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+            <div style="width:48px;height:48px;border-radius:12px;background:rgba(245,158,11,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;color:#F59E0B">&#9733;</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.45);text-align:center">Import<br>Smoobu</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;background:rgba(255,255,255,0.05);border-radius:10px;border:0.5px solid rgba(255,255,255,0.08);width:fit-content">
+          <div style="display:flex">
+            <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#6B3FA0,#FF6B6B);border:2px solid #1a0a2e"></div>
+            <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#9B72CF,#FF8E53);border:2px solid #1a0a2e;margin-left:-8px"></div>
+            <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#5DCAA5,#0EA5E9);border:2px solid #1a0a2e;margin-left:-8px"></div>
+          </div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.5)">Rejoignez les premiers beta testeurs</div>
+        </div>
+      </div>
+    </div>
+    <div style="flex:0.8;display:flex;align-items:center;justify-content:center;padding:3rem">
+  <div class="auth-card" style="background:rgba(255,255,255,0.97);backdrop-filter:blur(20px);border-radius:20px;width:100%;max-width:460px;padding:2.5rem;border:1px solid rgba(255,255,255,0.15)">
+    <div style="text-align:center;margin-bottom:0.25rem">
+      <div class="auth-logo">Rent<span>iQ</span></div>
+    </div>
+    <div class="auth-tagline" style="text-align:center">Connectez-vous à votre espace</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Connexion</button>
+      <button class="auth-tab" onclick="switchTab('register')">Créer un compte</button>
+    </div>
+    <div id="login-form">
+      <div class="form-group"><label>Email</label><input type="email" id="l-email" placeholder="vous@exemple.fr"/></div>
+      <div class="form-group">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <label style="margin-bottom:0">Mot de passe</label>
+          <button onclick="showForgotPassword()" style="background:none;border:none;font-size:12px;color:#6B3FA0;cursor:pointer;font-family:inherit;padding:0">Mot de passe oublié ?</button>
+        </div>
+        <input type="password" id="l-pwd" placeholder="••••••••"/>
+      </div>
+      <button class="btn-full" id="btn-login" onclick="doLogin()">🚀 Se connecter</button>
+      <div class="auth-error" id="login-error"></div>
+    </div>
+    <div id="forgot-form" style="display:none">
+      <div class="form-group"><label>Votre email</label><input type="email" id="forgot-email" placeholder="vous@exemple.fr"/></div>
+      <button class="btn-full" id="btn-forgot" onclick="doForgotPassword()">📧 Envoyer le lien</button>
+      <div class="auth-error" id="forgot-error"></div>
+      <div class="auth-success" id="forgot-success"></div>
+      <button onclick="showLogin()" style="width:100%;margin-top:.75rem;background:none;border:none;font-size:13px;color:#8A8A99;cursor:pointer;font-family:inherit">← Retour à la connexion</button>
+    </div>
+    <div id="register-form" style="display:none">
+      <div class="form-group"><label>Nom complet</label><input type="text" id="r-name" placeholder="Marie Martin"/></div>
+      <div class="form-group"><label>Email</label><input type="email" id="r-email" placeholder="vous@exemple.fr"/></div>
+      <div class="form-group"><label>Activez vos modules</label>
+        <div style="display:grid;gap:8px;margin-top:4px">
+          <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #E8E8EE;border-radius:10px;cursor:pointer;font-size:13px;font-weight:400;text-transform:none;letter-spacing:0">
+            <input type="checkbox" id="r-mod-solo" checked style="width:18px;height:18px;accent-color:#6B3FA0"/>
+            <div><div style="font-weight:600">🏠 Gestion sous-location</div><div style="font-size:11px;color:#8A8A99">Gérer mes propres appartements</div></div>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #E8E8EE;border-radius:10px;cursor:pointer;font-size:13px;font-weight:400;text-transform:none;letter-spacing:0">
+            <input type="checkbox" id="r-mod-concierge" style="width:18px;height:18px;accent-color:#6B3FA0"/>
+            <div><div style="font-weight:600">🏢 Conciergerie</div><div style="font-size:11px;color:#8A8A99">Gérer les biens de mes clients</div></div>
+          </label>
+        </div>
+      </div>
+      <div class="form-group"><label>Mot de passe</label><input type="password" id="r-pwd" placeholder="min. 6 caractères"/></div>
+      <button class="btn-full" id="btn-register" onclick="doRegister()">✨ Créer mon compte</button>
+      <div class="auth-error" id="register-error"></div>
+      <div class="auth-success" id="register-success"></div>
+    </div>
+    <div style="margin-top:1.25rem;padding:0.75rem;background:rgba(107,63,160,0.06);border-radius:8px;font-size:11px;color:#6B3FA0;text-align:center;border:1px solid rgba(107,63,160,0.1)">
+      &#128274; Connexion sécurisée · Données chiffrées
+    </div>
+    <div style="margin-top:0.75rem;font-size:11px;color:#B0B0B0;text-align:center">En vous connectant, vous acceptez nos <a href="#" style="color:#6B3FA0;text-decoration:none">CGU</a> et <a href="#" style="color:#6B3FA0;text-decoration:none">Politique de confidentialité</a></div>
+  </div>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:0;left:0;right:0;text-align:center;padding:1rem;font-size:12px;color:rgba(255,255,255,0.25)">&copy; 2026 RentiQ &middot; Powered by EVA &middot; Made in France &#127467;&#127479;</div>
+</div>
+
+<div class="app" id="app">
+  <div class="beta-banner" style="background:linear-gradient(90deg,#1A1A2E,#2d1b4e,#1A1A2E)">🚀 <strong>Beta RentiQ</strong> — EVA Pricing + Smoobu + Événements Ticketmaster</div>
+  <div class="app-body">
+    <div class="sidebar" style="background:#1A1A2E;border-right:1px solid rgba(255,255,255,0.08)">
+      <div class="sidebar-brand">
+        <div style="display:flex;align-items:center;gap:8px">
+          <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="width:28px;flex-shrink:0">
+            <defs><linearGradient id="lg-side" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6B3FA0"/><stop offset="100%" stop-color="#FF6B6B"/></linearGradient></defs>
+            <rect width="32" height="32" rx="8" fill="url(#lg-side)"/>
+            <text x="2.5" y="23" font-family="Inter,system-ui,sans-serif" font-size="18" font-weight="700" fill="white">RiQ</text>
+          </svg>
+          <div class="brand-logo" style="color:white">Rent<span style="background:linear-gradient(90deg,#9B72CF,#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent">iQ</span></div>
+        </div>
+        <div class="brand-tagline" style="color:rgba(255,255,255,0.35);margin-left:36px">Stop guessing. Start earning.</div>
+      </div>
+      <div id="mode-switcher" style="display:none;margin:0 .75rem .5rem;background:rgba(255,255,255,0.08);border-radius:10px;padding:3px;display:flex">
+        <button id="mode-btn-solo" onclick="switchMode('solo')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:rgba(107,63,160,0.5);color:white;transition:all .15s">🏠 Gestion</button>
+        <button id="mode-btn-concierge" onclick="switchMode('concierge')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:transparent;color:rgba(255,255,255,0.4);transition:all .15s">🏢 Conciergerie</button>
+      </div>
+      <div class="sidebar-sep" style="background:rgba(255,255,255,0.08)"></div>
+      <div id="nav-solo">
+      <div class="nav-section-label">Mon Business</div>
+      <button class="nav-item active" onclick="goTo('cockpit',this)"><span class="nav-emoji">📊</span>Le Cockpit</button>
+      <button class="nav-item" onclick="goTo('parc',this)"><span class="nav-emoji">🏠</span>Le Parc <span class="nav-badge" id="parc-badge">0</span></button>
+      <button class="nav-item" onclick="goTo('reservations',this)"><span class="nav-emoji">📋</span>Réservations</button>
+      <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji">🤖</span>EVA Pricing <span class="nav-badge-new">NEW</span></button>
+      <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji">🎯</span>Événements <span class="nav-badge-new" id="events-badge" style="display:none">0</span></button>
+      <button class="nav-item" onclick="goTo('squad',this)"><span class="nav-emoji">👥</span>La Squad</button>
+      <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Intégrations</div>
+      <button class="nav-item" onclick="goTo('smoobu',this)"><span class="nav-emoji">🔗</span>Smoobu <span class="smoobu-badge" id="smoobu-nav-badge" style="display:none">✓</span></button>
+      <div class="nav-section-label">Réseau RentiQr</div>
+      <button class="nav-item" onclick="goTo('clean',this)"><span class="nav-emoji">🧹</span>RentiQr Clean</button>
+      <button class="nav-item" onclick="goTo('annuaire',this)"><span class="nav-emoji">🟡</span>L'Annuaire</button>
+      </div>
+      <div id="nav-concierge" style="display:none">
+      <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Conciergerie</div>
+      <button class="nav-item" onclick="goTo('cockpit-c',this)"><span class="nav-emoji">📊</span>Dashboard</button>
+      <button class="nav-item" onclick="goTo('proprietaires',this)"><span class="nav-emoji">👤</span>Propriétaires</button>
+      <button class="nav-item" onclick="goTo('parc-c',this)"><span class="nav-emoji">🏠</span>Parc géré</button>
+      <button class="nav-item" onclick="goTo('rapports',this)"><span class="nav-emoji">📊</span>Rapports mensuels</button>
+      <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji">🤖</span>EVA Pricing</button>
+      <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji">🎯</span>Événements</button>
+      <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Intégrations</div>
+      <button class="nav-item" onclick="goTo('smoobu',this)"><span class="nav-emoji">🔗</span>Smoobu</button>
+      </div>
+      <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Compte</div>
+      <button class="nav-item" onclick="goTo('tarifs',this)"><span class="nav-emoji">💳</span>Tarifs &amp; Abonnement</button>
+      <button class="nav-item" onclick="goTo('settings',this)"><span class="nav-emoji">⚙️</span>Paramètres</button>
+      <div class="sidebar-footer" style="border-top:1px solid rgba(255,255,255,0.08)">
+        <div class="user-row">
+          <div class="user-avatar" id="s-avatar">?</div>
+          <div><div class="user-name" id="s-name">…</div><div class="user-plan" id="s-plan">…</div></div>
+          <button class="btn-logout" onclick="doLogout()">↩</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="main">
+
+      <!-- COCKPIT -->
+      <div class="page active" id="page-cockpit">
+        <div class="page-header">
+          <div><div class="page-title">Le Cockpit 📊</div><div class="page-sub" id="cockpit-date"></div></div>
+          <div class="actions">
+            <button class="btn" onclick="goTo('events',document.querySelectorAll('.nav-item')[4])">🎯 Événements</button>
+            <button class="btn btn-ai" onclick="goTo('pricing',document.querySelectorAll('.nav-item')[3])">🤖 EVA</button>
+          </div>
+        </div>
+        <div id="cockpit-dash"></div>
+      </div>
+
+      <!-- LE PARC -->
+      <div class="page" id="page-parc">
+        <div class="page-header">
+          <div><div class="page-title">Le Parc 🏠</div><div class="page-sub" id="parc-sub"></div></div>
+          <div class="actions">
+            <button class="btn btn-green" onclick="syncSmoobu()" id="btn-sync" style="display:none">🔄 Sync Smoobu</button>
+            <button class="btn btn-purple" onclick="openAddModal()">+ Ajouter</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap"><table id="parc-table"></table></div>
+          <div id="parc-empty" style="text-align:center;padding:2rem;color:#8A8A99;display:none">
+            <div style="font-size:36px;margin-bottom:1rem">🏠</div>
+            <div style="font-weight:600;margin-bottom:6px">Aucun appartement</div>
+            <button class="btn btn-purple" onclick="openAddModal()" style="margin-top:0.5rem">+ Ajouter</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESERVATIONS -->
+      <div class="page" id="page-reservations">
+        <div class="page-header">
+          <div><div class="page-title">Réservations 📋</div><div class="page-sub" id="res-sub"></div></div>
+          <div class="actions"><button class="btn btn-purple" onclick="openAddResModal()">+ Ajouter</button></div>
+        </div>
+        <div class="card">
+          <div class="table-wrap"><table id="res-table"></table></div>
+          <div id="res-empty" style="text-align:center;padding:2rem;color:#8A8A99;display:none">
+            <div style="font-size:36px;margin-bottom:1rem">📋</div>
+            <div style="font-weight:600;margin-bottom:6px">Aucune réservation</div>
+            <button class="btn btn-green" onclick="goTo('smoobu',document.querySelectorAll('.nav-item')[6])">🔗 Connecter Smoobu</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- IA PRICING -->
+      <div class="page" id="page-pricing">
+        <div class="page-header">
+          <div><div class="page-title">EVA Pricing 🤖</div><div class="page-sub">EVA analyse votre parc</div></div>
+          <div class="actions"><button class="btn btn-ai" onclick="runGlobal()" id="btn-global">🤖 Analyse globale</button></div>
+        </div>
+        <div id="global-result"></div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Recommandations</div><span class="tag tag-ai">🤖 IA active</span></div>
+          <div class="table-wrap"><table id="pricing-table"></table></div>
+        </div>
+      </div>
+
+      <!-- EVENEMENTS -->
+      <div class="page" id="page-events">
+        <div class="page-header">
+          <div><div class="page-title">Événements 🎯</div><div class="page-sub" id="events-sub">Détectés automatiquement selon vos villes</div></div>
+          <div class="actions">
+            <button class="btn btn-ai" onclick="loadEvents(true)" id="btn-refresh-events">🔄 Actualiser</button>
+          </div>
+        </div>
+        <div id="events-loading" style="text-align:center;padding:3rem;display:none">
+          <div class="spinner" style="margin:0 auto 1rem"></div>
+          <div style="font-size:13px;color:#8A8A99">Recherche des événements dans vos villes…</div>
+        </div>
+        <div id="events-empty" style="text-align:center;padding:3rem;display:none">
+          <div style="font-size:40px;margin-bottom:1rem">🎯</div>
+          <div style="font-weight:600;font-size:16px;margin-bottom:6px">Ajoutez des appartements</div>
+          <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">Les événements s'affichent automatiquement selon les villes de vos appartements</div>
+          <button class="btn btn-purple" onclick="openAddModal()">+ Ajouter un appartement</button>
+        </div>
+        <div id="events-container"></div>
+      </div>
+
+      <!-- COCKPIT CONCIERGERIE -->
+      <div class="page" id="page-cockpit-c">
+        <div class="page-header">
+          <div><div class="page-title">Dashboard Conciergerie 🏢</div><div class="page-sub" id="cockpit-c-date"></div></div>
+          <div class="actions">
+            <button class="btn btn-purple" onclick="openAddProprioModal()">+ Propriétaire</button>
+            <button class="btn btn-ai" onclick="goTo('rapports',document.querySelector('[onclick*=rapports]'))">📊 Rapports</button>
+          </div>
+        </div>
+        <div id="cockpit-c-content"></div>
+      </div>
+
+      <!-- PARC CONCIERGERIE -->
+      <div class="page" id="page-parc-c">
+        <div class="page-header">
+          <div><div class="page-title">Parc géré 🏠</div><div class="page-sub" id="parc-c-sub"></div></div>
+        </div>
+        <div id="parc-c-content"></div>
+      </div>
+
+      <!-- PROPRIETAIRES -->
+      <div class="page" id="page-proprietaires">
+        <div class="page-header">
+          <div><div class="page-title">Propriétaires 👤</div><div class="page-sub" id="proprios-sub">Gérez les portefeuilles de vos clients</div></div>
+          <div class="actions"><button class="btn btn-purple" onclick="openAddProprioModal()">+ Ajouter un propriétaire</button></div>
+        </div>
+        <div class="kpi-grid" id="proprios-kpis"></div>
+        <div id="proprios-list"></div>
+        <div id="proprios-empty" style="text-align:center;padding:3rem;display:none">
+          <div style="font-size:48px;margin-bottom:1rem">👤</div>
+          <div style="font-weight:600;font-size:16px;margin-bottom:6px">Aucun propriétaire</div>
+          <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">Ajoutez vos premiers clients propriétaires</div>
+          <button class="btn btn-purple" onclick="openAddProprioModal()">+ Ajouter un propriétaire</button>
+        </div>
+      </div>
+
+      <!-- RAPPORTS -->
+      <div class="page" id="page-rapports">
+        <div class="page-header">
+          <div><div class="page-title">Rapports mensuels 📊</div><div class="page-sub">Générez les rapports pour vos propriétaires</div></div>
+          <div class="actions">
+            <select id="rapport-mois" style="padding:8px 12px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit" onchange="renderRapports()"></select>
+            <button class="btn btn-purple" onclick="genererRapports()">📊 Générer les rapports</button>
+          </div>
+        </div>
+        <div id="rapports-list"></div>
+        <div id="rapports-empty" style="text-align:center;padding:3rem;display:none">
+          <div style="font-size:48px;margin-bottom:1rem">📊</div>
+          <div style="font-weight:600;font-size:16px;margin-bottom:6px">Aucun rapport</div>
+          <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">Ajoutez des propriétaires et des réservations puis générez les rapports</div>
+        </div>
+      </div>
+
+      <!-- SQUAD -->
+      <div class="page" id="page-squad">
+        <div class="page-header"><div><div class="page-title">La Squad 👥</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem">
+          <div style="font-size:40px;margin-bottom:1rem">👥</div>
+          <div style="font-weight:600;font-size:16px">Gestion de l'équipe ménage</div>
+          <div style="font-size:13px;color:#8A8A99;margin-top:6px">Bientôt disponible</div>
+        </div>
+      </div>
+
+      <!-- SMOOBU -->
+      <div class="page" id="page-smoobu">
+        <div class="page-header"><div><div class="page-title">Intégration Smoobu 🔗</div><div class="page-sub">Importez vos données Airbnb & Booking automatiquement</div></div></div>
+        <div class="smoobu-connect-box">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem">
+            <div style="font-size:36px">🔗</div>
+            <div>
+              <div style="font-size:16px;font-weight:700">Connecter Smoobu</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+                <div class="status-dot disconnected" id="status-dot"></div>
+                <span id="status-label" style="font-size:13px;font-weight:600">Non connecté</span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Clé API Smoobu</label>
+            <input type="text" id="smoobu-key" placeholder="Collez votre clé API ici…" style="font-family:monospace;font-size:12px"/>
+            <div style="font-size:11px;color:#8A8A99;margin-top:4px">Smoobu → Paramètres → Avancé → Clés API</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-green" onclick="testSmoobu()" id="btn-test">🔌 Tester</button>
+            <button class="btn btn-purple" onclick="saveSmoobuKey()" id="btn-save-smoobu" style="display:none">💾 Sauvegarder & Sync</button>
+          </div>
+          <div class="auth-error" id="smoobu-error"></div>
+          <div class="auth-success" id="smoobu-success"></div>
+        </div>
+        <div id="smoobu-data" style="display:none">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Données Smoobu</div><button class="btn btn-green btn-sm" onclick="syncSmoobu()">🔄 Resync</button></div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem">
+              <div class="kpi"><div class="kpi-label">Appartements</div><div class="kpi-value" id="sm-apts">0</div></div>
+              <div class="kpi"><div class="kpi-label">Réservations</div><div class="kpi-value" id="sm-bookings">0</div></div>
+              <div class="kpi"><div class="kpi-label">Revenus</div><div class="kpi-value" id="sm-revenue">0€</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Appartements Smoobu</div></div>
+            <div class="table-wrap"><table id="smoobu-apts-table"></table></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">📖 Comment trouver votre clé API ?</div></div>
+          <div style="font-size:13px;line-height:2">
+            1️⃣ Connectez-vous sur <strong>smoobu.com</strong><br>
+            2️⃣ Allez dans <strong>Paramètres → Avancé → Clés API</strong><br>
+            3️⃣ Cliquez <strong>"Créer une clé API"</strong><br>
+            4️⃣ Copiez-la et collez-la ci-dessus
+          </div>
+        </div>
+      </div>
+
+      <!-- CLEAN -->
+      <div class="page" id="page-clean">
+        <div class="page-header"><div><div class="page-title">RentiQr Clean 🧹</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem">
+          <div style="font-size:48px;margin-bottom:1rem">🧹</div>
+          <div style="font-size:18px;font-weight:700;margin-bottom:8px">Réseau RentiQr Clean</div>
+          <button class="btn btn-purple">Bientôt disponible</button>
+        </div>
+      </div>
+
+      <!-- ANNUAIRE -->
+      <div class="page" id="page-annuaire">
+        <div class="page-header"><div><div class="page-title">L'Annuaire 🟡</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem">
+          <div style="font-size:48px;margin-bottom:1rem">🟡</div>
+          <div style="font-size:18px;font-weight:700;margin-bottom:8px">Annuaire des partenaires</div>
+          <button class="btn btn-purple">Bientôt disponible</button>
+        </div>
+      </div>
+
+      <!-- TARIFS -->
+      <div class="page" id="page-tarifs">
+        <div class="page-header"><div><div class="page-title">Tarifs &amp; Abonnement 💳</div><div class="page-sub" id="tarifs-sub">14 jours d'essai gratuit — sans carte bancaire</div></div></div>
+        <div id="tarifs-content"></div>
+        <div id="tarifs-success" style="display:none">
+          <div class="card" style="text-align:center;padding:3rem;border-color:#5DCAA5;background:#ECFDF5">
+            <div style="font-size:48px;margin-bottom:1rem">🎉</div>
+            <div style="font-size:20px;font-weight:700;margin-bottom:8px;color:#059669">Paiement réussi !</div>
+            <div style="font-size:13px;color:#8A8A99;margin-bottom:1.5rem">Votre abonnement est actif. Bienvenue dans RentiQ Pro !</div>
+            <button class="btn btn-purple" onclick="goTo('cockpit',document.querySelectorAll('.nav-item')[0])">Aller au Cockpit →</button>
+          </div>
+        </div>
+      </div>
+      <!-- SETTINGS -->
+      <div class="page" id="page-settings">
+        <div class="page-header"><div><div class="page-title">Paramètres ⚙️</div></div></div>
+        <div class="card">
+          <div class="settings-section-title">Mon compte</div>
+          <div class="setting-row"><div><div class="setting-label">Nom</div></div><input type="text" id="set-name" style="width:180px;padding:6px 10px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit"/></div>
+          <div class="setting-row"><div><div class="setting-label">Email</div></div><span id="set-email" style="font-size:13px;color:#8A8A99"></span></div>
+          <div style="margin-top:1rem" class="settings-section-title">Modules actifs</div>
+          <div class="setting-row"><div><div class="setting-label">🏠 Gestion sous-location</div><div class="setting-desc">Gérer vos propres appartements</div></div><button class="toggle" id="toggle-mod-solo" onclick="toggleModule('solo')"></button></div>
+          <div class="setting-row"><div><div class="setting-label">🏢 Conciergerie</div><div class="setting-desc">Gérer les biens de vos clients</div></div><button class="toggle" id="toggle-mod-concierge" onclick="toggleModule('concierge')"></button></div>
+          <div style="margin-top:1rem" class="settings-section-title">EVA Pricing</div>
+          <div class="setting-row"><div><div class="setting-label">Mode automatique</div><div class="setting-desc">EVA ajuste sans confirmation</div></div><button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button></div>
+          <div class="setting-row"><div><div class="setting-label">Alertes événements</div><div class="setting-desc">Notifier lors d'un événement détecté</div></div><button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button></div>
+          <div style="margin-top:1rem" class="settings-section-title">Abonnement</div>
+          <div class="setting-row"><div><div class="setting-label" id="set-plan">Plan Starter</div><div class="setting-desc">Appartements illimités · EVA · Smoobu · Événements</div></div><button class="btn btn-purple btn-sm">Upgrader →</button></div>
+          <button class="btn btn-purple" onclick="saveProfile()" style="margin-top:1rem">✓ Sauvegarder</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL APPART -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title" id="modal-title">Ajouter un appartement</div><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="form-group"><label>Nom</label><input type="text" id="m-name" placeholder="Studio Bastille"/></div>
+    <div class="form-group"><label>Ville ★</label><input type="text" id="m-city" placeholder="Paris, Lyon, Bordeaux…"/></div>
+    <div class="form-group"><label>Quartier / Adresse</label><input type="text" id="m-zone" placeholder="11e arrondissement"/></div>
+    <div class="form-group"><label>Emoji</label><select id="m-emoji"><option>🏠</option><option>🛋️</option><option>🌸</option><option>⭐</option><option>🏡</option><option>🌇</option><option>🌃</option></select></div>
+    <div class="form-group"><label>Loyer mensuel (€)</label><input type="number" id="m-rent" placeholder="900"/></div>
+    <div class="form-group"><label>Coût ménage / nuit (€)</label><input type="number" id="m-clean" placeholder="25"/></div>
+    <div class="form-group"><label>Prix / nuit (€)</label><input type="number" id="m-price" placeholder="95"/></div>
+    <div class="form-group"><label>Concurrent (€/nuit)</label><input type="number" id="m-comp" placeholder="105"/></div>
+    <div style="display:flex;gap:8px;margin-top:1.25rem">
+      <button class="btn" onclick="closeModal()" style="flex:1">Annuler</button>
+      <button class="btn btn-purple" onclick="saveAppart()" id="btn-save-appart" style="flex:2">✓ Enregistrer</button>
+    </div>
+    <div class="auth-error" id="modal-error"></div>
+  </div>
+</div>
+
+<!-- MODAL RESERVATION -->
+<div class="modal-overlay" id="modal-res">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">Ajouter une réservation</div><button class="modal-close" onclick="closeResModal()">✕</button></div>
+    <div class="form-group"><label>Appartement</label><select id="mr-apt"></select></div>
+    <div class="form-group"><label>Arrivée</label><input type="date" id="mr-from"/></div>
+    <div class="form-group"><label>Départ</label><input type="date" id="mr-to"/></div>
+    <div class="form-group"><label>Prix total (€)</label><input type="number" id="mr-price" placeholder="350"/></div>
+    <div class="form-group"><label>Plateforme</label>
+      <select id="mr-platform"><option value="airbnb">🏠 Airbnb</option><option value="booking">🏨 Booking</option><option value="direct">✉️ Direct</option><option value="other">📌 Autre</option></select>
+    </div>
+    <div class="form-group"><label>Voyageur</label><input type="text" id="mr-guest" placeholder="Jean Dupont"/></div>
+    <div style="display:flex;gap:8px;margin-top:1.25rem">
+      <button class="btn" onclick="closeResModal()" style="flex:1">Annuler</button>
+      <button class="btn btn-purple" onclick="saveReservation()" style="flex:2">✓ Enregistrer</button>
+    </div>
+    <div class="auth-error" id="modal-res-error"></div>
+  </div>
+</div>
+
+
+<!-- ONBOARDING -->
+<div id="onboarding-overlay" style="display:none;position:fixed;inset:0;background:rgba(26,26,46,0.6);z-index:200;align-items:center;justify-content:center;padding:1rem">
+  <div style="background:white;border-radius:20px;padding:2rem;width:100%;max-width:480px;border:1px solid #EEEEF5">
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div class="brand-logo" style="font-size:24px;font-weight:700;justify-content:center;display:flex">Rent<span style="background:linear-gradient(90deg,#6B3FA0,#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent">iQ</span></div>
+      <div style="font-size:11px;color:#8A8A99;font-style:italic">Stop guessing. Start earning.</div>
+    </div>
+    <!-- Step 1 -->
+    <div id="onb-step-1">
+      <div style="text-align:center;margin-bottom:1.5rem">
+        <div style="font-size:48px;margin-bottom:.75rem">🏠</div>
+        <div style="font-size:20px;font-weight:700;margin-bottom:6px">Bienvenue sur RentiQ !</div>
+        <div style="font-size:13px;color:#8A8A99;line-height:1.6">On va configurer votre compte en 3 étapes rapides pour que vous puissiez gérer vos appartements comme un pro.</div>
+      </div>
+      <div style="display:grid;gap:10px;margin-bottom:1.5rem">
+        <div style="display:flex;align-items:center;gap:12px;padding:.75rem;background:#F5F4FF;border-radius:10px">
+          <div style="width:32px;height:32px;background:#6B3FA0;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0">1</div>
+          <div><div style="font-size:13px;font-weight:600">Ajoutez votre premier appartement</div><div style="font-size:12px;color:#8A8A99">Nom, ville, prix — 1 minute</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:.75rem;background:#F5F4FF;border-radius:10px">
+          <div style="width:32px;height:32px;background:#6B3FA0;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0">2</div>
+          <div><div style="font-size:13px;font-weight:600">Connectez Smoobu (optionnel)</div><div style="font-size:12px;color:#8A8A99">Import automatique de vos données</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:.75rem;background:#F5F4FF;border-radius:10px">
+          <div style="width:32px;height:32px;background:#6B3FA0;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0">3</div>
+          <div><div style="font-size:13px;font-weight:600">Activez EVA</div><div style="font-size:12px;color:#8A8A99">L'IA optimise vos prix automatiquement</div></div>
+        </div>
+      </div>
+      <button class="btn-full" onclick="onbNext(2)">C'est parti ! →</button>
+    </div>
+    <!-- Step 2 -->
+    <div id="onb-step-2" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+        <div style="font-size:13px;color:#8A8A99">Étape 1/2</div>
+        <div style="display:flex;gap:6px"><div style="width:24px;height:4px;border-radius:100px;background:#6B3FA0"></div><div style="width:24px;height:4px;border-radius:100px;background:#E8E8EE"></div></div>
+      </div>
+      <div style="text-align:center;margin-bottom:1.25rem">
+        <div style="font-size:32px;margin-bottom:.5rem">🏠</div>
+        <div style="font-size:18px;font-weight:700;margin-bottom:4px">Votre premier appartement</div>
+        <div style="font-size:13px;color:#8A8A99">Ces infos permettent à EVA de calculer votre plancher de rentabilité</div>
+      </div>
+      <div class="form-group"><label>Nom de l'appartement</label><input type="text" id="onb-name" placeholder="Studio Bastille"/></div>
+      <div class="form-group"><label>Ville ★</label><input type="text" id="onb-city" placeholder="Paris, Lyon, Bordeaux…"/></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="form-group"><label>Loyer mensuel (€)</label><input type="number" id="onb-rent" placeholder="900"/></div>
+        <div class="form-group"><label>Prix / nuit (€)</label><input type="number" id="onb-price" placeholder="95"/></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:.5rem">
+        <button class="btn" onclick="onbSkip()" style="flex:1">Passer</button>
+        <button class="btn btn-purple" onclick="onbSaveAppart()" style="flex:2">Enregistrer →</button>
+      </div>
+    </div>
+    <!-- Step 3 -->
+    <div id="onb-step-3" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+        <div style="font-size:13px;color:#8A8A99">Étape 2/2</div>
+        <div style="display:flex;gap:6px"><div style="width:24px;height:4px;border-radius:100px;background:#6B3FA0"></div><div style="width:24px;height:4px;border-radius:100px;background:#6B3FA0"></div></div>
+      </div>
+      <div style="text-align:center;margin-bottom:1.25rem">
+        <div style="font-size:32px;margin-bottom:.5rem">🔗</div>
+        <div style="font-size:18px;font-weight:700;margin-bottom:4px">Connectez Smoobu</div>
+        <div style="font-size:13px;color:#8A8A99">Importez automatiquement vos réservations Airbnb & Booking</div>
+      </div>
+      <div class="form-group">
+        <label>Clé API Smoobu (optionnel)</label>
+        <input type="text" id="onb-smoobu" placeholder="Smoobu → Paramètres → Avancé → Clés API" style="font-size:12px"/>
+      </div>
+      <div style="background:#F5F4FF;border-radius:8px;padding:.75rem;font-size:12px;color:#6B3FA0;margin-bottom:1rem">
+        💡 Vous pouvez connecter Smoobu plus tard dans Intégrations → Smoobu
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="onbFinish()" style="flex:1">Plus tard</button>
+        <button class="btn btn-green" onclick="onbConnectSmoobu()" style="flex:2">🔗 Connecter & Terminer</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- MODAL PROPRIETAIRE -->
+<div class="modal-overlay" id="modal-proprio">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title" id="modal-proprio-title">Ajouter un propriétaire</div><button class="modal-close" onclick="closeProprioModal()">✕</button></div>
+    <div class="form-group"><label>Nom complet ★</label><input type="text" id="mp-name" placeholder="Jean Dupont"/></div>
+    <div class="form-group"><label>Email</label><input type="email" id="mp-email" placeholder="jean@exemple.fr"/></div>
+    <div class="form-group"><label>Téléphone</label><input type="text" id="mp-phone" placeholder="06 12 34 56 78"/></div>
+    <div class="form-group"><label>Commission (%)</label><input type="number" id="mp-commission" placeholder="20" value="20"/></div>
+    <div class="form-group"><label>IBAN (pour les versements)</label><input type="text" id="mp-iban" placeholder="FR76 1234…"/></div>
+    <div class="form-group"><label>Notes</label><input type="text" id="mp-notes" placeholder="Contrat signé le…"/></div>
+    <div style="display:flex;gap:8px;margin-top:1.25rem">
+      <button class="btn" onclick="closeProprioModal()" style="flex:1">Annuler</button>
+      <button class="btn btn-purple" onclick="saveProprietaire()" id="btn-save-proprio" style="flex:2">✓ Enregistrer</button>
+    </div>
+    <div class="auth-error" id="modal-proprio-error"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL='https://gtffekgqglpxjjligffi.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0ZmZla2dxZ2xweGpqbGlnZmZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyNjUxODMsImV4cCI6MjA5NTg0MTE4M30.8SHvalTRdUD4dXjcKP8s13yXhtg3NDrjQCBXDlu-jyE';
+const SMOOBU_FN='/api/smoobu';
+const EVENTS_FN='/api/events';
+const STRIPE_FN='/api/stripe';
+let currentUser=null,currentProfile=null,apparts=[],reservations=[],editId=null,smoobuKey=null,eventsCache={};
+
+const sbFetch=(path,opts={})=>fetch(`${SB_URL}/rest/v1/${path}`,{headers:{'apikey':SB_KEY,'Authorization':`Bearer ${currentUser?.access_token||SB_KEY}`,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})},method:opts.method||'GET',body:opts.body});
+const authFetch=(path,body)=>fetch(`${SB_URL}/auth/v1/${path}`,{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify(body)});
+const smoobuCall=(action,params={})=>fetch(SMOOBU_FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,apiKey:smoobuKey,params})}).then(r=>r.json());
+const eventsCall=(city)=>fetch(EVENTS_FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({city,countryCode:'FR',radius:20})}).then(r=>r.json());
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+function showErr(id,msg){const el=document.getElementById(id);if(!el)return;el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',5000)}
+function showOk(id,msg){const el=document.getElementById(id);if(!el)return;el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',5000)}
+
+function extractCity(zone,city){
+  if(city&&city.trim())return city.trim();
+  if(!zone)return null;
+  const known=['Paris','Lyon','Marseille','Bordeaux','Toulouse','Nice','Nantes','Strasbourg','Montpellier','Lille','Rennes','Grenoble','Rouen','Toulon','Saint-Etienne','Dijon','Angers','Nîmes','Villeurbanne','Le Mans'];
+  for(const c of known){if(zone.toLowerCase().includes(c.toLowerCase()))return c;}
+  return zone.split(' ')[0];
+}
+
+function switchTab(t){
+  document.querySelectorAll('.auth-tab').forEach((b,i)=>b.classList.toggle('active',i===(t==='login'?0:1)));
+  document.getElementById('login-form').style.display=t==='login'?'block':'none';
+  document.getElementById('register-form').style.display=t==='register'?'block':'none';
+}
+
+async function doLogin(){
+  const email=document.getElementById('l-email').value.trim();const pwd=document.getElementById('l-pwd').value;
+  if(!email||!pwd){showErr('login-error','Remplissez tous les champs');return}
+  const btn=document.getElementById('btn-login');btn.disabled=true;btn.textContent='Connexion…';
+  try{
+    const res=await authFetch('token?grant_type=password',{email,password:pwd});
+    const data=await res.json();
+    if(data.error||data.error_description){showErr('login-error',data.error_description||data.error);btn.disabled=false;btn.textContent='🚀 Se connecter';return}
+    currentUser=data;try{localStorage.setItem('sb_session',JSON.stringify(data));}catch(e){}
+    await loadApp();
+  }catch(e){showErr('login-error','Erreur réseau');btn.disabled=false;btn.textContent='🚀 Se connecter';}
+}
+
+async function doRegister(){
+  const name=document.getElementById('r-name').value.trim();const email=document.getElementById('r-email').value.trim();const pwd=document.getElementById('r-pwd').value;
+  const hasSolo=document.getElementById('r-mod-solo').checked;
+  const hasConcierge=document.getElementById('r-mod-concierge').checked;
+  const modules=[];if(hasSolo)modules.push('solo');if(hasConcierge)modules.push('concierge');
+  const type=hasConcierge?'concierge':'solo';
+  if(!name||!email||!pwd){showErr('register-error','Remplissez tous les champs');return}
+  if(pwd.length<6){showErr('register-error','6 caractères minimum');return}
+  const btn=document.getElementById('btn-register');btn.disabled=true;btn.textContent='Création…';
+  try{
+    const res=await authFetch('signup',{email,password:pwd,data:{name,type,modules:modules.join(',')}});
+    const data=await res.json();
+    if(data.error){showErr('register-error',data.error);btn.disabled=false;btn.textContent='✨ Créer mon compte';return}
+    showOk('register-success','✓ Compte créé ! Connectez-vous.');
+    btn.disabled=false;btn.textContent='✨ Créer mon compte';setTimeout(()=>switchTab('login'),2000);
+  }catch(e){showErr('register-error','Erreur réseau');btn.disabled=false;btn.textContent='✨ Créer mon compte';}
+}
+
+function doLogout(){
+  try{localStorage.removeItem('sb_session');}catch(e){}
+  currentUser=null;currentProfile=null;apparts=[];reservations=[];eventsCache={};
+  document.getElementById('app').style.display='none';
+  document.getElementById('auth-screen').style.display='flex';
+}
+
+async function loadApp(){
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('loading').style.display='flex';
+  try{
+    const pRes=await sbFetch(`profiles?id=eq.${currentUser.user.id}&select=*`);
+    const pData=await pRes.json();
+    currentProfile=(pData&&pData.length>0)?pData[0]:{id:currentUser.user.id,name:currentUser.user.email.split('@')[0],email:currentUser.user.email,type:'solo',plan:'Starter'};
+    const aRes=await sbFetch(`appartements?user_id=eq.${currentUser.user.id}&select=*&order=created_at.asc`);
+    apparts=await aRes.json()||[];
+    try{const rRes=await sbFetch(`reservations?user_id=eq.${currentUser.user.id}&select=*&order=date_from.desc`);reservations=await rRes.json()||[];}catch(e){reservations=[];}
+    document.getElementById('loading').style.display='none';
+    document.getElementById('app').style.display='flex';
+    renderSidebar();renderAll();
+    document.getElementById('cockpit-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    document.getElementById('set-name').value=currentProfile.name||'';
+    document.getElementById('set-email').textContent=currentProfile.email||'';
+    document.getElementById('set-plan').textContent='Plan '+(currentProfile.plan||'Starter');
+    if(smoobuKey)updateSmoobuUI(true);
+    if(apparts.length)loadEvents(false);
+    renderTarifs();
+    checkPaymentReturn();
+    await loadProprietaires();
+    applyModules();
+    if(userModules.includes('concierge')){renderProprietaires();initRapportMois();renderRapports();renderCockpitConcierge();renderParcConcierge();}
+    checkOnboarding();
+  }catch(e){document.getElementById('loading').style.display='none';document.getElementById('auth-screen').style.display='flex';}
+}
+
+function renderSidebar(){
+  document.getElementById('s-name').textContent=(currentProfile.name||'User').split(' ')[0];
+  document.getElementById('s-avatar').textContent=(currentProfile.name||'U').charAt(0).toUpperCase();
+  document.getElementById('s-plan').textContent='Plan '+(currentProfile.plan||'Starter');
+  document.getElementById('parc-badge').textContent=apparts.length;
+}
+
+function floor(a){return Math.round((a.rent||0)/30+(a.cleaner||0))}
+
+function renderAll(){
+  renderKPIs();renderCockpitTable();renderParcTable();renderResTable();renderPricingTable();
+  document.getElementById('parc-badge').textContent=apparts.length;
+  document.getElementById('parc-sub').textContent=apparts.length+' appartement'+(apparts.length>1?'s':'');
+  document.getElementById('res-sub').textContent=reservations.length+' réservation'+(reservations.length>1?'s':'');
+  if(smoobuKey){document.getElementById('btn-sync').style.display='inline-flex';}
+}
+
+let cockpitTodos=[];
+function initTodos(apts){
+  cockpitTodos=[];
+  apts.forEach(a=>{
+    const fl=floor(a);const city=a.city||extractCity(a.zone,null)||'';
+    const cityEvs=eventsCache[city]||[];const hotEvs=cityEvs.filter(e=>e.hot);
+    if(!a.booked)cockpitTodos.push({id:'libre-'+a.id,text:`Trouver une réservation — ${a.name} libre ce soir`,done:false,urgency:'urgent'});
+    if(hotEvs.length>0&&a.price<(a.ai_rec||0))cockpitTodos.push({id:'ev-'+a.id,text:`Appliquer boost ${hotEvs[0].name.slice(0,30)}… — ${a.name}`,done:false,urgency:'today'});
+    if((a.price||0)<fl)cockpitTodos.push({id:'floor-'+a.id,text:`Corriger prix sous plancher — ${a.name} (${a.price}€ < ${fl}€)`,done:false,urgency:'urgent'});
+    const monthRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(new Date().toISOString().slice(0,7)));
+    const occ=a.booked?Math.round(monthRes.length/30*100)||65:Math.round(monthRes.length/30*100)||20;
+    if(occ<50)cockpitTodos.push({id:'occ-'+a.id,text:`Améliorer taux occupation ${a.name} — ${occ}% ce mois (objectif 65%)`,done:false,urgency:'soon'});
+  });
+  if(!cockpitTodos.length&&apts.length===0)cockpitTodos.push({id:'empty',text:'Ajoutez votre premier appartement pour commencer',done:false,urgency:'today'});
+}
+
+function genAlerts(apts){
+  const alerts=[];
+  apts.forEach(a=>{
+    const fl=floor(a);const city=a.city||extractCity(a.zone,null)||'';
+    const cityEvs=eventsCache[city]||[];const hotEvs=cityEvs.filter(e=>e.hot);
+    if(!a.booked)alerts.push({type:'urgent',icon:'ti-moon',title:`${a.name} — libre ce soir`,desc:`Prix ${a.price||0}€ vs concurrent ${a.comp||0}€. Baissez pour remplir ou activez EVA.`,action:'Ajuster'});
+    if(hotEvs.length>0)alerts.push({type:'warning',icon:'ti-sparkles',title:`Événement détecté — ${a.name} (${city})`,desc:`${hotEvs[0].name} · EVA suggère ${a.ai_rec||Math.round((a.price||0)*1.08)}€ (+${(a.ai_rec||Math.round((a.price||0)*1.08))-(a.price||0)}€).`,action:'Appliquer'});
+    if((a.price||0)<fl)alerts.push({type:'urgent',icon:'ti-alert-triangle',title:`Prix sous plancher — ${a.name}`,desc:`${a.price||0}€/nuit < plancher ${fl}€. Perte sur chaque nuit vendue.`,action:'Corriger'});
+  });
+  return alerts.slice(0,5);
+}
+
+function renderCockpit(){
+  const dash=document.getElementById('cockpit-dash');if(!dash)return;
+  const apts=apparts;
+  const booked=apts.filter(a=>a.booked);
+  const free=apts.filter(a=>!a.booked);
+  const month=new Date().toISOString().slice(0,7);
+  const monthRes=reservations.filter(r=>r.date_from&&r.date_from.startsWith(month));
+  const monthRev=monthRes.reduce((s,r)=>s+(r.price_total||0),0);
+  const hotCount=Object.values(eventsCache).flat().filter(e=>e.hot).length;
+  const total=apts.length||1;
+  initTodos(apts);
+  const alerts=genAlerts(apts);
+
+  let h='';
+
+  // KPIs
+  h+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:1.25rem">
+    <div class="kpi"><div class="kpi-label">Ce soir</div><div class="kpi-value" style="color:${free.length>0?'#D85A30':'#1D9E75'}">${booked.length}/${apts.length}</div><div class="kpi-delta" style="color:${free.length>0?'#D85A30':'#1D9E75'}">${free.length>0?free.length+' libre'+(free.length>1?'s':''):'Tout loué ✓'}</div></div>
+    <div class="kpi"><div class="kpi-label">Revenus mois</div><div class="kpi-value">${monthRev}€</div><div class="kpi-delta" style="color:#059669">${monthRes.length} résa${monthRes.length>1?'s':''}</div></div>
+    <div class="kpi"><div class="kpi-label">Occupation</div><div class="kpi-value" style="color:${Math.round(booked.length/total*100)<50?'#D85A30':'#1D9E75'}">${Math.round(booked.length/total*100)}%</div><div class="kpi-delta" style="color:#8A8A99">objectif 65%</div></div>
+    ${hotCount>0?`<div class="kpi" style="border-color:#FCD34D;background:#FFFBEB"><div class="kpi-label">Événements</div><div class="kpi-value" style="color:#BA7517">${hotCount}</div><div class="kpi-delta" style="color:#BA7517">🔥 boost dispo</div></div>`:''}
+  </div>`;
+
+  // To-do prioritaire
+  if(cockpitTodos.length){
+    h+=`<div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Actions prioritaires</div>
+    <div style="background:white;border-radius:12px;border:0.5px solid #EEEEF5;padding:.5rem;margin-bottom:1rem">`;
+    cockpitTodos.slice(0,5).forEach(t=>{
+      const col=t.urgency==='urgent'?'#993C1D':t.urgency==='today'?'#854F0B':'#534AB7';
+      const bg=t.urgency==='urgent'?'#FAECE7':t.urgency==='today'?'#FAEEDA':'#EEEDFE';
+      const lbl=t.urgency==='urgent'?'Urgent':t.urgency==='today'?"Aujourd'hui":'Bientôt';
+      h+=`<div style="display:flex;align-items:center;gap:10px;padding:.6rem .5rem;border-bottom:0.5px solid #EEEEF5" id="todo-${t.id}">
+        <div onclick="toggleCockpitTodo('${t.id}')" style="width:18px;height:18px;border-radius:5px;border:0.5px solid #D1D1D8;flex-shrink:0;cursor:pointer;background:${t.done?'#1D9E75':'white'};display:flex;align-items:center;justify-content:center">
+          ${t.done?'<i class="ti ti-check" style="font-size:11px;color:white" aria-hidden="true"></i>':''}
+        </div>
+        <div style="flex:1;font-size:13px;${t.done?'text-decoration:line-through;color:#8A8A99':''}">${t.text}</div>
+        <span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:100px;background:${bg};color:${col};flex-shrink:0">${lbl}</span>
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+
+  // Alertes
+  if(alerts.length){
+    h+=`<div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Alertes intelligentes</div>`;
+    alerts.forEach(a=>{
+      const col=a.type==='urgent'?'#993C1D':a.type==='warning'?'#854F0B':'#534AB7';
+      const bg=a.type==='urgent'?'#FAECE7':a.type==='warning'?'#FAEEDA':'#EEEDFE';
+      const brd=a.type==='urgent'?'#D85A30':a.type==='warning'?'#BA7517':'#534AB7';
+      h+=`<div style="display:flex;align-items:flex-start;gap:10px;padding:.75rem 1rem;border-radius:10px;border:0.5px solid #EEEEF5;border-left:3px solid ${brd};background:white;margin-bottom:7px">
+        <div style="width:30px;height:30px;border-radius:8px;background:${bg};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <i class="ti ${a.icon}" style="font-size:15px;color:${col}" aria-hidden="true"></i>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:500;margin-bottom:2px">${a.title}</div>
+          <div style="font-size:12px;color:#8A8A99;line-height:1.4">${a.desc}</div>
+        </div>
+        <button onclick="goTo('pricing',document.querySelectorAll('.nav-item')[3])" style="flex-shrink:0;padding:5px 10px;border-radius:8px;font-size:11px;font-weight:500;border:0.5px solid ${brd};background:${bg};color:${col};cursor:pointer;font-family:inherit">${a.action} →</button>
+      </div>`;
+    });
+  }
+
+  // Etat apparts
+  h+=`<div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem;margin-top:1rem">État de chaque appartement</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-bottom:1.25rem">`;
+  if(!apts.length){
+    h+=`<div style="text-align:center;padding:2rem;color:#8A8A99;grid-column:1/-1;background:white;border-radius:12px;border:0.5px solid #EEEEF5">
+      <div style="font-size:32px;margin-bottom:8px">🏠</div>
+      <div style="font-weight:500;margin-bottom:8px">Aucun appartement</div>
+      <button class="btn btn-purple btn-sm" onclick="openAddModal()">+ Ajouter</button>
+    </div>`;
+  }
+  apts.forEach(a=>{
+    const fl=floor(a);const safe=a.price>=fl;
+    const city=a.city||extractCity(a.zone,null)||'';
+    const cityEvs=eventsCache[city]||[];const hotEvs=cityEvs.filter(e=>e.hot);
+    const brdColor=!a.booked?'#F0997B':hotEvs.length?'#AFA9EC':'#5DCAA5';
+    const statusBg=!a.booked?'#FAECE7':hotEvs.length?'#EEEDFE':'#E1F5EE';
+    const statusCol=!a.booked?'#993C1D':hotEvs.length?'#3C3489':'#0F6E56';
+    const statusLbl=a.booked?'Loué':'Libre';
+    const occMonth=Math.round(reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(new Date().toISOString().slice(0,7))).length/30*100)||0;
+    h+=`<div style="background:white;border-radius:12px;border:0.5px solid ${brdColor};padding:1rem;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${brdColor}"></div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div>
+          <div style="font-size:13px;font-weight:500">${a.emoji||'🏠'} ${a.name}</div>
+          <div style="font-size:11px;color:#8A8A99">${city}</div>
+        </div>
+        <span style="font-size:10px;font-weight:500;padding:2px 8px;border-radius:100px;background:${statusBg};color:${statusCol}">${statusLbl}</span>
+      </div>
+      <div style="font-size:20px;font-weight:500;margin-bottom:4px">${a.price||0}€<span style="font-size:12px;font-weight:400;color:#8A8A99">/nuit</span></div>
+      <div style="font-size:11px;color:#8A8A99;display:flex;gap:8px;margin-bottom:8px">
+        <span style="color:${safe?'#1D9E75':'#D85A30'}">plancher ${fl}€</span>
+        <span>reco ${a.ai_rec||Math.round((a.price||0)*1.08)}€</span>
+      </div>
+      ${hotEvs.length>0?`<div style="font-size:11px;padding:4px 8px;border-radius:6px;background:#FAEEDA;color:#854F0B">🔥 ${hotEvs[0].name.slice(0,28)}…</div>`:''}
+      ${!safe?`<div style="font-size:11px;padding:4px 8px;border-radius:6px;background:#FAECE7;color:#993C1D">⚠ Prix sous plancher</div>`:''}
+    </div>`;
+  });
+  h+=`</div>`;
+
+  // Taux occupation
+  if(apts.length){
+    h+=`<div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Taux d'occupation ce mois</div>
+    <div style="background:white;border-radius:12px;border:0.5px solid #EEEEF5;padding:1rem;margin-bottom:1.25rem">`;
+    apts.forEach(a=>{
+      const monthRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(new Date().toISOString().slice(0,7)));
+      const pct=Math.min(Math.round((monthRes.length/8)*100),100)||0;
+      const col=pct>=65?'#1D9E75':pct>=50?'#BA7517':'#D85A30';
+      h+=`<div style="display:flex;align-items:center;gap:10px;padding:.5rem 0;border-bottom:0.5px solid #EEEEF5">
+        <div style="font-size:13px;font-weight:500;width:140px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.name}</div>
+        <div style="flex:1;height:6px;background:#F0F0F0;border-radius:100px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${col};border-radius:100px"></div></div>
+        <div style="font-size:12px;font-weight:500;width:36px;text-align:right;color:${col}">${pct}%</div>
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+
+  // EVA — brief
+  const hotAlerts=genAlerts(apts).filter(a=>a.type==='urgent');
+  if(hotAlerts.length){
+    h+=`<div style="background:#F5F0FF;border:0.5px solid #C4B5FD;border-radius:12px;padding:1rem">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem;font-size:13px;font-weight:500;color:#6B3FA0">
+        <div style="width:7px;height:7px;border-radius:50%;background:#6B3FA0;animation:pulse 1.5s infinite"></div>
+        EVA — actions immédiates
+      </div>
+      <div style="font-size:13px;color:#3A3A50;line-height:1.65">`;
+    hotAlerts.slice(0,3).forEach((a,i)=>{
+      h+=`<div style="display:flex;gap:8px;margin-bottom:6px;align-items:flex-start">
+        <span style="font-size:11px;font-weight:500;background:white;border:0.5px solid #C4B5FD;border-radius:100px;padding:1px 7px;flex-shrink:0;margin-top:2px;color:#6B3FA0">${i+1}</span>
+        <span>${a.desc}</span>
+      </div>`;
+    });
+    h+=`</div></div>`;
+  }
+
+  dash.innerHTML=h;
+}
+
+function toggleCockpitTodo(id){
+  cockpitTodos=cockpitTodos.map(t=>t.id===id?{...t,done:!t.done}:t);
+  renderCockpit();
+}
+
+function renderKPIs(){renderCockpit();}
+function renderCockpitTable(){renderCockpit();}
+function renderCockpitEvents(){renderCockpit();}
+
+function renderParcTable(){
+  const e=document.getElementById('parc-empty');const t=document.getElementById('parc-table');
+  if(!apparts.length){e.style.display='block';t.innerHTML='';return}e.style.display='none';
+  t.innerHTML=`<thead><tr><th>Appartement</th><th>Ville</th><th>Plancher</th><th>Prix/nuit</th><th>Statut</th><th>Marge</th><th>Actions</th></tr></thead><tbody>`+
+  apparts.map(a=>{const fl=floor(a);const safe=a.price>=fl;const city=a.city||extractCity(a.zone,null)||'—';return`<tr>
+    <td><div class="apt-name"><div class="apt-emoji">${a.emoji||'🏠'}</div><div><div>${a.name}</div><div style="font-size:11px;color:#8A8A99">${a.zone||''}</div></div></div></td>
+    <td style="font-weight:600;color:#6B3FA0">${city}</td>
+    <td><div class="price-floor">${fl}€</div></td>
+    <td><div class="price-main">${a.price||0}€</div><div class="price-comp">Conc: ${a.comp||0}€</div></td>
+    <td><span class="tag ${a.booked?'tag-ok':'tag-warn'}">${a.booked?'Loué':'Libre'}</span></td>
+    <td><span class="tag ${safe?'tag-ok':'tag-bad'}">${safe?'✓':'⚠'}</span></td>
+    <td style="white-space:nowrap">
+      <button class="btn btn-sm" onclick="openEdit('${a.id}')" style="margin-right:4px">✏️</button>
+      <button class="btn btn-sm" onclick="toggleBooked('${a.id}',${!a.booked})">${a.booked?'🔓':'🔒'}</button>
+      <button class="btn btn-sm" onclick="deleteAppart('${a.id}')" style="margin-left:4px;color:#DC2626">🗑</button>
+    </td>
+  </tr>`;}).join('')+`</tbody>`;
+}
+
+function renderResTable(){
+  const e=document.getElementById('res-empty');const t=document.getElementById('res-table');
+  if(!reservations.length){e.style.display='block';t.innerHTML='';return}e.style.display='none';
+  const pi={airbnb:'🏠',booking:'🏨',direct:'✉️',other:'📌'};
+  t.innerHTML=`<thead><tr><th>Appartement</th><th>Voyageur</th><th>Arrivée</th><th>Départ</th><th>Nuits</th><th>Revenus</th><th>Plat.</th></tr></thead><tbody>`+
+  reservations.slice(0,50).map(r=>{
+    const apt=apparts.find(a=>a.id===r.appartement_id)||{name:r.apartment_name||'—',emoji:'🏠'};
+    const nights=r.nights||0;const pn=nights>0?Math.round((r.price_total||0)/nights):0;
+    return`<tr><td><div class="apt-name"><div class="apt-emoji">${apt.emoji||'🏠'}</div>${apt.name}</div></td>
+    <td>${r.guest_name||'—'}</td><td>${r.date_from||'—'}</td><td>${r.date_to||'—'}</td>
+    <td style="text-align:center">${nights}</td>
+    <td><div style="font-weight:700">${r.price_total||0}€</div><div style="font-size:11px;color:#8A8A99">${pn}€/nuit</div></td>
+    <td>${pi[r.platform||'other']}</td></tr>`;}).join('')+`</tbody>`;
+}
+
+function renderPricingTable(){
+  if(!apparts.length){document.getElementById('pricing-table').innerHTML=`<tr><td colspan="6" style="text-align:center;padding:2rem;color:#8A8A99">Ajoutez des appartements.</td></tr>`;return}
+  document.getElementById('pricing-table').innerHTML=`<thead><tr><th>Appartement</th><th>Prix actuel</th><th>Reco EVA</th><th>Événements</th><th>Mode</th><th>Actions</th></tr></thead><tbody>`+
+  apparts.map(a=>{
+    const rec=a.ai_rec||Math.round((a.price||0)*1.08);const diff=rec-(a.price||0);
+    const city=a.city||extractCity(a.zone,null)||'';
+    const cityEvents=eventsCache[city]||[];const hotEvents=cityEvents.filter(e=>e.hot);
+    const evTag=hotEvents.length>0?`<span class="tag tag-warn">🔥 ${hotEvents.length} chaud${hotEvents.length>1?'s':''}</span>`:'<span class="tag" style="background:#F0F0F5;color:#8A8A99">Normal</span>';
+    return`<tr>
+    <td><div class="apt-name"><div class="apt-emoji">${a.emoji||'🏠'}</div><div>${a.name}<div style="font-size:11px;color:#8A8A99">${city}</div></div></div></td>
+    <td><div class="price-main">${a.price||0}€</div><div class="price-floor">Plancher: ${floor(a)}€</div></td>
+    <td><div class="price-ai">🤖 ${rec}€ <span style="font-size:11px;color:${diff>=0?'#059669':'#DC2626'}">(${diff>=0?'+':''}${diff}€)</span></div></td>
+    <td>${evTag}</td>
+    <td><div style="display:flex;align-items:center;gap:6px"><button class="toggle ${a.auto_pricing?'on':'off'}" onclick="toggleAutoPricing('${a.id}',${!a.auto_pricing})"></button><span style="font-size:12px;color:#8A8A99">${a.auto_pricing?'Auto':'Manuel'}</span></div></td>
+    <td style="white-space:nowrap"><button class="btn btn-sm" onclick="applyAI('${a.id}',${rec})" style="margin-right:4px">✓</button><button class="btn btn-sm btn-ai" onclick="askAI('${a.id}')">🤖</button></td>
+  </tr><tr id="ai-row-${a.id}" style="display:none"><td colspan="6" style="padding:0 10px 12px"><div id="ai-bubble-${a.id}"></div></td></tr>`;}).join('')+`</tbody>`;
+}
+
+// EVENTS
+async function loadEvents(force){
+  if(!apparts.length){
+    document.getElementById('events-empty').style.display='block';
+    document.getElementById('events-container').innerHTML='';
+    return;
+  }
+  document.getElementById('events-empty').style.display='none';
+  document.getElementById('events-loading').style.display='block';
+  document.getElementById('events-container').innerHTML='';
+
+  // Grouper les apparts par ville
+  const citiesMap={};
+  apparts.forEach(a=>{
+    const city=a.city||extractCity(a.zone,null);
+    if(!city)return;
+    const cityNorm=city.charAt(0).toUpperCase()+city.slice(1).toLowerCase();
+    if(!citiesMap[cityNorm])citiesMap[cityNorm]=[];
+    citiesMap[cityNorm].push(a);
+  });
+
+  const cities=Object.keys(citiesMap);
+  if(!cities.length){
+    document.getElementById('events-loading').style.display='none';
+    document.getElementById('events-empty').style.display='block';
+    return;
+  }
+
+  // Charger les événements pour chaque ville
+  for(const city of cities){
+    if(!force&&eventsCache[city])continue;
+    try{
+      const data=await eventsCall(city);
+      eventsCache[city]=data.events||[];
+    }catch(e){eventsCache[city]=[];}
+  }
+
+  document.getElementById('events-loading').style.display='none';
+  renderEventsPage(citiesMap);
+  renderCockpitEvents();
+  renderKPIs();
+
+  // Badge événements chauds
+  const totalHot=Object.values(eventsCache).flat().filter(e=>e.hot).length;
+  const badge=document.getElementById('events-badge');
+  if(totalHot>0){badge.textContent='🔥 '+totalHot;badge.style.display='inline-block';}
+  else badge.style.display='none';
+}
+
+function renderEventsPage(citiesMap){
+  const container=document.getElementById('events-container');
+  const cities=Object.keys(citiesMap);
+  let html='';
+  let totalEvents=0;
+
+  for(const city of cities){
+    const cityEvents=eventsCache[city]||[];
+    const apts=citiesMap[city];
+    totalEvents+=cityEvents.length;
+    const hotCount=cityEvents.filter(e=>e.hot).length;
+
+    html+=`<div class="city-section">
+      <div class="city-header">
+        <div class="city-name">📍 ${city}</div>
+        <div class="city-apts">${apts.map(a=>a.emoji||'🏠'+' '+a.name).join(', ')}</div>
+        ${hotCount>0?`<span class="city-count">🔥 ${hotCount} chaud${hotCount>1?'s':''}</span>`:''}
+        ${cityEvents.length>0?`<span class="city-count">${cityEvents.length} événement${cityEvents.length>1?'s':''}</span>`:''}
+      </div>`;
+
+    if(!cityEvents.length){
+      html+=`<div style="color:#8A8A99;font-size:13px;padding:1rem;background:white;border-radius:12px;border:1px solid #EEEEF5">Aucun événement trouvé pour ${city} dans les 90 prochains jours.</div>`;
+    } else {
+      html+=`<div class="events-grid">`;
+      cityEvents.slice(0,12).forEach(e=>{
+        html+=`<div class="event-card ${e.hot?'hot':''}">
+          <div class="ev-row">
+            <div class="ev-emoji">${e.emoji}</div>
+            <div class="ev-info">
+              <div class="ev-name">${e.name}</div>
+              <div class="ev-meta">${e.date_label}${e.venue?' · '+e.venue:''}</div>
+              <div style="margin-top:4px">
+                <span class="tag ${e.hot?'tag-warn':'tag-info'}">${e.hot?'🔥 Chaud':e.segment||'Événement'}</span>
+              </div>
+            </div>
+            <div>
+              <div class="ev-boost" style="color:${e.hot?'#D97706':'#6B3FA0'}">+${e.boost}%</div>
+              <div class="ev-boost-lbl">prix</div>
+            </div>
+          </div>
+        </div>`;
+      });
+      html+=`</div>`;
+    }
+    html+=`</div>`;
+  }
+
+  document.getElementById('events-sub').textContent=`${totalEvents} événements détectés dans ${cities.length} ville${cities.length>1?'s':''}`;
+  container.innerHTML=html;
+}
+
+function refreshEvents(){loadEvents(true);}
+
+// SMOOBU
+function updateSmoobuUI(connected){
+  const dot=document.getElementById('status-dot');const label=document.getElementById('status-label');
+  const badge=document.getElementById('smoobu-nav-badge');const saveBtn=document.getElementById('btn-save-smoobu');
+  if(connected){dot.className='status-dot connected';label.textContent='Connecté ✓';if(badge)badge.style.display='inline-block';if(saveBtn)saveBtn.style.display='inline-flex';document.getElementById('smoobu-data').style.display='block';}
+}
+
+async function testSmoobu(){
+  const key=document.getElementById('smoobu-key').value.trim();if(!key){showErr('smoobu-error','Entrez votre clé API');return}
+  const btn=document.getElementById('btn-test');btn.disabled=true;btn.textContent='Test…';smoobuKey=key;
+  try{const data=await smoobuCall('testConnection');if(data.success){showOk('smoobu-success','✓ Connexion réussie !');updateSmoobuUI(true);}else{showErr('smoobu-error','Clé invalide');smoobuKey=null;}}
+  catch(e){showErr('smoobu-error','Erreur');smoobuKey=null;}
+  btn.disabled=false;btn.textContent='🔌 Tester';
+}
+
+async function saveSmoobuKey(){
+  const key=document.getElementById('smoobu-key').value.trim();if(!key)return;
+  smoobuKey=key;try{localStorage.setItem('smoobu_key',key);}catch(e){}
+  await syncSmoobu();
+}
+
+async function syncSmoobu(){
+  if(!smoobuKey)return;showToast('🔄 Sync Smoobu…');
+  try{
+    const aptsData=await smoobuCall('getApartments');const smoobuApts=aptsData._embedded?.apartments||aptsData.apartments||[];
+    for(const sa of smoobuApts){
+      if(!apparts.find(a=>a.smoobu_id===String(sa.id))){
+        const city=sa.city||sa.location||'';
+        const body={user_id:currentUser.user.id,name:sa.name||'Appart Smoobu',city:city,zone:'',emoji:'🏠',rent:0,cleaner:25,price:sa.price||100,comp:0,ai_rec:Math.round((sa.price||100)*1.08),booked:false,auto_pricing:true,has_event:false,smoobu_id:String(sa.id)};
+        const res=await sbFetch('appartements',{method:'POST',body:JSON.stringify(body)});const c=await res.json();
+        if(Array.isArray(c)&&c[0])apparts.push(c[0]);
+      }
+    }
+    const bkData=await smoobuCall('getBookings');const bookings=bkData.bookings||bkData._embedded?.bookings||[];
+    const real=bookings.filter(b=>!b['is-blocked-booking']);
+    let rev=0;real.forEach(b=>rev+=b.price||0);
+    document.getElementById('sm-apts').textContent=smoobuApts.length;
+    document.getElementById('sm-bookings').textContent=real.length;
+    document.getElementById('sm-revenue').textContent=Math.round(rev)+'€';
+    renderSmoobuApts(smoobuApts);
+    renderAll();
+    if(apparts.length)loadEvents(true);
+    showToast(`✓ ${smoobuApts.length} apparts, ${real.length} réservations`);
+  }catch(e){showToast('⚠️ Erreur sync');}
+}
+
+function renderSmoobuApts(apts){
+  const t=document.getElementById('smoobu-apts-table');
+  if(!apts||!apts.length){t.innerHTML='<tr><td style="padding:1rem;color:#8A8A99">Aucun appartement</td></tr>';return}
+  t.innerHTML=`<thead><tr><th>Nom</th><th>Ville</th><th>Prix base</th></tr></thead><tbody>`+
+  apts.map(a=>`<tr><td><div class="apt-name"><div class="apt-emoji">🏠</div>${a.name||'—'}</div></td><td>${a.city||'—'}</td><td>${a.price||'—'}€</td></tr>`).join('')+`</tbody>`;
+}
+
+function goTo(page,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(page==='events'&&apparts.length&&!Object.keys(eventsCache).length)loadEvents(false);
+  if(page==='cockpit-c')renderCockpitConcierge();
+  if(page==='parc-c')renderParcConcierge();
+  if(page==='proprietaires')renderProprietaires();
+  if(page==='rapports'){initRapportMois();renderRapports();}
+}
+
+function openAddModal(){editId=null;['m-name','m-city','m-zone','m-rent','m-clean','m-price','m-comp'].forEach(id=>document.getElementById(id).value='');document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
+function openEdit(id){const a=apparts.find(x=>x.id===id);if(!a)return;editId=id;document.getElementById('m-name').value=a.name||'';document.getElementById('m-city').value=a.city||'';document.getElementById('m-zone').value=a.zone||'';document.getElementById('m-emoji').value=a.emoji||'🏠';document.getElementById('m-rent').value=a.rent||'';document.getElementById('m-clean').value=a.cleaner||'';document.getElementById('m-price').value=a.price||'';document.getElementById('m-comp').value=a.comp||'';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
+function closeModal(){document.getElementById('modal').classList.remove('open')}
+function openAddResModal(){document.getElementById('mr-apt').innerHTML=apparts.map(a=>`<option value="${a.id}">${a.emoji||'🏠'} ${a.name}</option>`).join('');document.getElementById('modal-res').classList.add('open');}
+function closeResModal(){document.getElementById('modal-res').classList.remove('open')}
+
+async function saveAppart(){
+  const name=document.getElementById('m-name').value.trim();const city=document.getElementById('m-city').value.trim();
+  if(!name){showErr('modal-error','Nom obligatoire');return}
+  if(!city){showErr('modal-error','Ville obligatoire — nécessaire pour les événements');return}
+  const btn=document.getElementById('btn-save-appart');btn.disabled=true;btn.textContent='…';
+  const price=+document.getElementById('m-price').value||0;
+  const body={user_id:currentUser.user.id,name,city,zone:document.getElementById('m-zone').value||'',emoji:document.getElementById('m-emoji').value||'🏠',rent:+document.getElementById('m-rent').value||0,cleaner:+document.getElementById('m-clean').value||0,price,comp:+document.getElementById('m-comp').value||0,ai_rec:Math.round(price*1.08),booked:false,auto_pricing:true,has_event:false};
+  try{
+    if(editId){await sbFetch(`appartements?id=eq.${editId}`,{method:'PATCH',body:JSON.stringify(body)});const i=apparts.findIndex(a=>a.id===editId);if(i>=0)apparts[i]={...apparts[i],...body};showToast('✓ Modifié');}
+    else{const res=await sbFetch('appartements',{method:'POST',body:JSON.stringify(body)});const c=await res.json();apparts.push(Array.isArray(c)&&c[0]?c[0]:{...body,id:Date.now().toString()});showToast('✓ Ajouté');}
+    closeModal();renderAll();
+    // Charger les événements pour la nouvelle ville
+    const cityNorm=city.charAt(0).toUpperCase()+city.slice(1).toLowerCase();
+    if(!eventsCache[cityNorm])loadEvents(false);
+  }catch(e){showErr('modal-error','Erreur');}
+  btn.disabled=false;btn.textContent='✓ Enregistrer';
+}
+
+async function saveReservation(){
+  const aptId=document.getElementById('mr-apt').value;const from=document.getElementById('mr-from').value;const to=document.getElementById('mr-to').value;
+  if(!from||!to){showErr('modal-res-error','Dates obligatoires');return}
+  const nights=Math.round((new Date(to)-new Date(from))/(1000*60*60*24));
+  const body={user_id:currentUser.user.id,appartement_id:aptId,guest_name:document.getElementById('mr-guest').value,date_from:from,date_to:to,price_total:+document.getElementById('mr-price').value||0,platform:document.getElementById('mr-platform').value,status:'confirmed',nights};
+  try{const res=await sbFetch('reservations',{method:'POST',body:JSON.stringify(body)});const c=await res.json();reservations.unshift(Array.isArray(c)&&c[0]?c[0]:{...body,id:Date.now().toString()});closeResModal();renderAll();showToast('✓ Réservation ajoutée');}
+  catch(e){showErr('modal-res-error','Erreur');}
+}
+
+async function toggleBooked(id,val){await sbFetch(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({booked:val})});const a=apparts.find(x=>x.id===id);if(a)a.booked=val;renderAll();}
+async function toggleAutoPricing(id,val){await sbFetch(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({auto_pricing:val})});const a=apparts.find(x=>x.id===id);if(a)a.auto_pricing=val;renderPricingTable();}
+async function applyAI(id,rec){await sbFetch(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({price:rec})});const a=apparts.find(x=>x.id===id);if(a)a.price=rec;renderAll();showToast('✓ Prix appliqué : '+rec+'€');}
+async function deleteAppart(id){if(!confirm('Supprimer ?'))return;await sbFetch(`appartements?id=eq.${id}`,{method:'DELETE'});apparts=apparts.filter(a=>a.id!==id);renderAll();}
+async function saveProfile(){const name=document.getElementById('set-name').value.trim();await sbFetch(`profiles?id=eq.${currentProfile.id}`,{method:'PATCH',body:JSON.stringify({name})});currentProfile.name=name;renderSidebar();showToast('✓ Sauvegardé');}
+
+async function runGlobal(){
+  const btn=document.getElementById('btn-global');const zone=document.getElementById('global-result');
+  btn.disabled=true;btn.textContent='⏳…';
+  zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head"><div class="ai-dot"></div> EVA analyse…</div><div class="ai-bubble-text"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
+  if(!apparts.length){zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">🤖</div><div class="ai-bubble-text">Ajoutez des appartements d'abord.</div></div>`;btn.disabled=false;btn.innerHTML='🤖 Analyse globale';return;}
+  const evCtx=Object.entries(eventsCache).map(([city,evs])=>{const hot=evs.filter(e=>e.hot);return hot.length?`${city}: ${hot.map(e=>e.name+' (+'+e.boost+'%)').join(', ')}`:null;}).filter(Boolean).join(' | ');
+  const ctx=apparts.map(a=>`${a.name} (${a.city||a.zone||'?'}): prix=${a.price}€, plancher=${floor(a)}€, ${a.booked?'loué':'libre'}`).join('\n');
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:600,system:"Tu es EVA, IA pricing RentiQ France. Analyses précises, chiffrées, actionnables. Français, emojis, 5-6 phrases.",messages:[{role:"user",content:`Parc:\n${ctx}\n${evCtx?'Événements chauds: '+evCtx:''}\nBriefing et recommandations ?`}]})});
+    const data=await res.json();const text=data.content?.find(b=>b.type==='text')?.text||"Indisponible.";
+    zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">🤖 EVA — Analyse globale</div><div class="ai-bubble-text">${text.replace(/\n/g,'<br/>')}</div></div>`;
+  }catch(e){zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">⚠️</div><div class="ai-bubble-text">IA indisponible.</div></div>`;}
+  btn.disabled=false;btn.innerHTML='🤖 Analyse globale';
+}
+
+async function askAI(id){
+  const a=apparts.find(x=>x.id===id);if(!a)return;
+  document.getElementById('ai-row-'+id).style.display='table-row';
+  document.getElementById('ai-bubble-'+id).innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head"><div class="ai-dot"></div> Analyse…</div><div class="ai-bubble-text"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
+  const city=a.city||extractCity(a.zone,null)||'';
+  const cityEvents=eventsCache[city]||[];const hotEvs=cityEvents.filter(e=>e.hot);
+  const evCtx=hotEvs.length?` Événements chauds à ${city}: ${hotEvs.slice(0,3).map(e=>e.name+' le '+e.date_label+' (+'+e.boost+'%)').join(', ')}.`:'';
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,system:"EVA, l'IA de RentiQ. 3-4 phrases, chiffres, emojis.",messages:[{role:"user",content:`${a.name} (${city}): prix=${a.price}€, reco=${a.ai_rec||Math.round(a.price*1.08)}€, plancher=${floor(a)}€, ${a.booked?'loué':'libre'}.${evCtx} Prix optimal ce soir ?`}]})});
+    const data=await res.json();const text=data.content?.find(b=>b.type==='text')?.text||"Indisponible.";
+    document.getElementById('ai-bubble-'+id).innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head">🤖 ${a.name}</div><div class="ai-bubble-text">${text.replace(/\n/g,'<br/>')}</div></div>`;
+  }catch(e){document.getElementById('ai-bubble-'+id).innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head">⚠️</div><div class="ai-bubble-text">Indisponible.</div></div>`;}
+}
+
+
+
+// ONBOARDING
+function checkOnboarding(){
+  const seen=localStorage.getItem('onb_seen_'+currentUser?.user?.id);
+  if(!seen&&apparts.length===0){
+    document.getElementById('onboarding-overlay').style.display='flex';
+  }
+}
+function onbNext(step){
+  document.querySelectorAll('[id^=onb-step-]').forEach(el=>el.style.display='none');
+  document.getElementById('onb-step-'+step).style.display='block';
+}
+function onbSkip(){onbNext(3);}
+async function onbSaveAppart(){
+  const name=document.getElementById('onb-name').value.trim();
+  const city=document.getElementById('onb-city').value.trim();
+  const price=+document.getElementById('onb-price').value||100;
+  const rent=+document.getElementById('onb-rent').value||900;
+  if(!name||!city){showToast('Nom et ville obligatoires');return}
+  const body={user_id:currentUser.user.id,name,city,zone:'',emoji:'🏠',rent,cleaner:25,price,comp:Math.round(price*1.05),ai_rec:Math.round(price*1.08),booked:false,auto_pricing:true,has_event:false};
+  try{
+    const res=await sbFetch('appartements',{method:'POST',body:JSON.stringify(body)});
+    const c=await res.json();
+    apparts.push(Array.isArray(c)&&c[0]?c[0]:{...body,id:Date.now().toString()});
+    renderAll();showToast('🏠 Appartement ajouté !');
+    onbNext(3);
+  }catch(e){showToast('Erreur — réessayez');}
+}
+async function onbConnectSmoobu(){
+  const key=document.getElementById('onb-smoobu').value.trim();
+  if(key){smoobuKey=key;try{localStorage.setItem('smoobu_key',key);}catch(e){}syncSmoobu();}
+  onbFinish();
+}
+function onbFinish(){
+  try{localStorage.setItem('onb_seen_'+currentUser?.user?.id,'1');}catch(e){}
+  document.getElementById('onboarding-overlay').style.display='none';
+  renderAll();
+  goTo('cockpit',document.querySelectorAll('.nav-item')[0]);
+  showToast('✓ Compte configuré ! Bienvenue sur RentiQ 🎉');
+}
+
+// MOT DE PASSE OUBLIÉ
+function showForgotPassword(){
+  document.getElementById('login-form').style.display='none';
+  document.getElementById('forgot-form').style.display='block';
+}
+function showLogin(){
+  document.getElementById('forgot-form').style.display='none';
+  document.getElementById('login-form').style.display='block';
+}
+async function doForgotPassword(){
+  const email=document.getElementById('forgot-email').value.trim();
+  if(!email){showErr('forgot-error','Entrez votre email');return}
+  const btn=document.getElementById('btn-forgot');btn.disabled=true;btn.textContent='Envoi...';
+  try{
+    const res=await fetch(`${SB_URL}/auth/v1/recover`,{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email})});
+    if(res.ok){showOk('forgot-success','✓ Email envoyé ! Vérifiez votre boîte mail.');}
+    else{showErr('forgot-error','Email introuvable');}
+  }catch(e){showErr('forgot-error','Erreur réseau');}
+  btn.disabled=false;btn.textContent='📧 Envoyer le lien';
+}
+
+
+// MODULES
+let userModules=['solo'];
+let currentMode='solo';
+let proprietaires=[];
+let rapportsData=[];
+let editProprioId=null;
+
+function getModules(){
+  const mods=currentProfile?.modules||currentProfile?.type||'solo';
+  if(typeof mods==='string'){
+    if(mods.includes(','))return mods.split(',');
+    return [mods];
+  }
+  if(Array.isArray(mods))return mods;
+  return['solo'];
+}
+
+function applyModules(){
+  userModules=getModules();
+  // Show switcher only if both modules active
+  const switcher=document.getElementById('mode-switcher');
+  const hasBoth=userModules.includes('solo')&&userModules.includes('concierge');
+  if(switcher)switcher.style.display=hasBoth?'flex':'none';
+  // If only concierge, auto switch
+  if(userModules.includes('concierge')&&!userModules.includes('solo'))switchMode('concierge');
+  else if(!userModules.includes('concierge')&&userModules.includes('solo'))switchMode('solo');
+  // Update settings toggles
+  const tSolo=document.getElementById('toggle-mod-solo');
+  const tConc=document.getElementById('toggle-mod-concierge');
+  if(tSolo){tSolo.className='toggle '+(userModules.includes('solo')?'on':'off');}
+  if(tConc){tConc.className='toggle '+(userModules.includes('concierge')?'on':'off');}
+}
+
+function switchMode(mode){
+  currentMode=mode;
+  const navSolo=document.getElementById('nav-solo');
+  const navConc=document.getElementById('nav-concierge');
+  const btnSolo=document.getElementById('mode-btn-solo');
+  const btnConc=document.getElementById('mode-btn-concierge');
+  if(mode==='solo'){
+    if(navSolo)navSolo.style.display='block';
+    if(navConc)navConc.style.display='none';
+    if(btnSolo){btnSolo.style.background='rgba(107,63,160,0.5)';btnSolo.style.color='white';}
+    if(btnConc){btnConc.style.background='transparent';btnConc.style.color='rgba(255,255,255,0.4)';}
+    goTo('cockpit',document.querySelector('#nav-solo .nav-item'));
+  } else {
+    if(navSolo)navSolo.style.display='none';
+    if(navConc)navConc.style.display='block';
+    if(btnConc){btnConc.style.background='rgba(107,63,160,0.5)';btnConc.style.color='white';}
+    if(btnSolo){btnSolo.style.background='transparent';btnSolo.style.color='rgba(255,255,255,0.4)';}
+    goTo('cockpit-c',document.querySelector('#nav-concierge .nav-item'));
+    renderCockpitConcierge();
+    renderParcConcierge();
+  }
+}
+
+function renderCockpitConcierge(){
+  const el=document.getElementById('cockpit-c-content');if(!el)return;
+  document.getElementById('cockpit-c-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const totalAppts=apparts.filter(a=>a.proprietaire_id).length;
+  const mois=new Date().toISOString().slice(0,7);
+  const monthRes=reservations.filter(r=>r.date_from&&r.date_from.startsWith(mois));
+  const totalRev=monthRes.reduce((s,r)=>s+(r.price_total||0),0);
+  const totalComm=proprietaires.reduce((s,p)=>{
+    const pAppts=apparts.filter(a=>a.proprietaire_id===p.id);
+    const pRes=monthRes.filter(r=>pAppts.some(a=>a.id===r.appartement_id));
+    return s+Math.round(pRes.reduce((s2,r)=>s2+(r.price_total||0),0)*(p.commission||20)/100);
+  },0);
+  const hotEvents=Object.values(eventsCache).flat().filter(e=>e.hot).length;
+
+  let h='';
+
+  // KPIs
+  h+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:1.25rem">
+    <div class="kpi"><div class="kpi-label">Propriétaires</div><div class="kpi-value" style="color:#6B3FA0">${proprietaires.length}</div><div class="kpi-delta" style="color:#6B3FA0">clients actifs</div></div>
+    <div class="kpi"><div class="kpi-label">Apparts gérés</div><div class="kpi-value">${totalAppts}</div><div class="kpi-delta" style="color:#059669">en gestion</div></div>
+    <div class="kpi"><div class="kpi-label">Revenus mois</div><div class="kpi-value">${totalRev}€</div><div class="kpi-delta" style="color:#059669">brut total</div></div>
+    <div class="kpi"><div class="kpi-label">Mes commissions</div><div class="kpi-value" style="color:#BA7517">${totalComm}€</div><div class="kpi-delta" style="color:#BA7517">ce mois</div></div>
+    ${hotEvents>0?`<div class="kpi" style="border-color:#FCD34D;background:#FFFBEB"><div class="kpi-label">Événements</div><div class="kpi-value" style="color:#BA7517">${hotEvents}</div><div class="kpi-delta" style="color:#BA7517">\ud83d\udd25 boost dispo</div></div>`:''}
+  </div>`;
+
+  // Alertes conciergerie
+  h+=`<div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Actions prioritaires</div>`;
+  let alerts=[];
+  proprietaires.forEach(p=>{
+    const pAppts=apparts.filter(a=>a.proprietaire_id===p.id);
+    if(!pAppts.length)alerts.push({type:'warning',text:`${p.name} — aucun appartement assigné`,action:'Assigner',onclick:`openAssignApparts('${p.id}')`});
+    pAppts.forEach(a=>{
+      if(!a.booked)alerts.push({type:'urgent',text:`${a.name} (${p.name}) — libre ce soir`,action:'Voir le parc',onclick:"goTo('parc-c')"});
+    });
+    const pRes=monthRes.filter(r=>pAppts.some(a=>a.id===r.appartement_id));
+    if(pAppts.length>0&&pRes.length===0)alerts.push({type:'warning',text:`${p.name} — 0 réservations ce mois`,action:'Analyser',onclick:"goTo('rapports')"});
+  });
+  if(!alerts.length)alerts.push({type:'success',text:'Tout est en ordre ! Aucune action urgente.',action:''});
+
+  alerts.slice(0,5).forEach(a=>{
+    const col=a.type==='urgent'?'#993C1D':a.type==='warning'?'#854F0B':'#0F6E56';
+    const bg=a.type==='urgent'?'#FAECE7':a.type==='warning'?'#FAEEDA':'#E1F5EE';
+    const brd=a.type==='urgent'?'#D85A30':a.type==='warning'?'#BA7517':'#1D9E75';
+    h+=`<div style="display:flex;align-items:center;gap:10px;padding:.75rem 1rem;border-radius:10px;border:0.5px solid #EEEEF5;border-left:3px solid ${brd};background:white;margin-bottom:6px">
+      <div style="flex:1;font-size:13px;color:${col};font-weight:500">${a.text}</div>
+      ${a.action?`<button onclick="${a.onclick}" class="btn btn-sm" style="background:${bg};border-color:${brd};color:${col}">${a.action}</button>`:''}
+    </div>`;
+  });
+
+  // Liste propriétaires avec mini-rapports
+  h+=`<div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem;margin-top:1.25rem">Vos propriétaires</div>`;
+  if(!proprietaires.length){
+    h+=`<div style="text-align:center;padding:2rem;background:white;border-radius:12px;border:0.5px solid #EEEEF5">
+      <div style="font-size:32px;margin-bottom:8px">👤</div>
+      <div style="font-weight:500;margin-bottom:8px">Aucun propriétaire</div>
+      <button class="btn btn-purple btn-sm" onclick="openAddProprioModal()">+ Ajouter un propriétaire</button>
+    </div>`;
+  } else {
+    h+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px">`;
+    proprietaires.forEach(p=>{
+      const pAppts=apparts.filter(a=>a.proprietaire_id===p.id);
+      const pRes=monthRes.filter(r=>pAppts.some(a=>a.id===r.appartement_id));
+      const rev=pRes.reduce((s,r)=>s+(r.price_total||0),0);
+      const comm=Math.round(rev*(p.commission||20)/100);
+      const net=rev-comm;
+      const freeApts=pAppts.filter(a=>!a.booked).length;
+      h+=`<div style="background:white;border-radius:12px;border:0.5px solid #EEEEF5;padding:1rem;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${freeApts>0?'#D85A30':'#1D9E75'}"></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#6B3FA0,#FF6B6B);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:white;flex-shrink:0">${(p.name||'?').charAt(0).toUpperCase()}</div>
+          <div>
+            <div style="font-size:14px;font-weight:700">${p.name}</div>
+            <div style="font-size:11px;color:#8A8A99">${pAppts.length} appart${pAppts.length>1?'s':''} · ${p.commission||20}% comm.</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px">
+          <div style="background:#F5F4FF;border-radius:8px;padding:6px;text-align:center">
+            <div style="font-size:16px;font-weight:700">${rev}€</div>
+            <div style="font-size:10px;color:#8A8A99">Brut</div>
+          </div>
+          <div style="background:#FAEEDA;border-radius:8px;padding:6px;text-align:center">
+            <div style="font-size:16px;font-weight:700;color:#BA7517">${comm}€</div>
+            <div style="font-size:10px;color:#8A8A99">Comm.</div>
+          </div>
+          <div style="background:#E1F5EE;border-radius:8px;padding:6px;text-align:center">
+            <div style="font-size:16px;font-weight:700;color:#059669">${net}€</div>
+            <div style="font-size:10px;color:#8A8A99">Net</div>
+          </div>
+        </div>
+        ${freeApts>0?`<div style="font-size:11px;padding:4px 8px;border-radius:6px;background:#FAECE7;color:#993C1D">${freeApts} appart${freeApts>1?'s':''} libre${freeApts>1?'s':''} ce soir</div>`:`<div style="font-size:11px;padding:4px 8px;border-radius:6px;background:#E1F5EE;color:#059669">Tout loué \u2713</div>`}
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+
+  el.innerHTML=h;
+}
+
+function renderParcConcierge(){
+  const el=document.getElementById('parc-c-content');if(!el)return;
+  const managed=apparts.filter(a=>a.proprietaire_id);
+  document.getElementById('parc-c-sub').textContent=managed.length+' appartement'+(managed.length>1?'s':'')+' en gestion';
+
+  if(!managed.length){
+    el.innerHTML=`<div style="text-align:center;padding:3rem;background:white;border-radius:14px;border:0.5px solid #EEEEF5">
+      <div style="font-size:40px;margin-bottom:1rem">🏠</div>
+      <div style="font-weight:600;font-size:16px;margin-bottom:6px">Aucun appartement en gestion</div>
+      <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">Ajoutez des propriétaires puis assignez-leur des appartements</div>
+      <button class="btn btn-purple" onclick="goTo('proprietaires',document.querySelector('[onclick*=proprietaires]'))">👤 Gérer les propriétaires</button>
+    </div>`;
+    return;
+  }
+
+  let h=`<div class="card"><div class="table-wrap"><table>
+    <thead><tr><th>Appartement</th><th>Propriétaire</th><th>Ville</th><th>Prix/nuit</th><th>Commission</th><th>Statut</th><th>Net proprio</th></tr></thead><tbody>`;
+
+  managed.forEach(a=>{
+    const p=proprietaires.find(x=>x.id===a.proprietaire_id);
+    const commPct=p?.commission||20;
+    const netPrice=Math.round((a.price||0)*(100-commPct)/100);
+    h+=`<tr>
+      <td><div class="apt-name"><div class="apt-emoji">${a.emoji||'\ud83c\udfe0'}</div><div><div>${a.name}</div><div style="font-size:11px;color:#8A8A99">${a.zone||''}</div></div></div></td>
+      <td style="font-weight:600;color:#6B3FA0">${p?.name||'—'}</td>
+      <td style="font-size:12px;color:#8A8A99">${a.city||'—'}</td>
+      <td class="price-main">${a.price||0}€</td>
+      <td><span class="tag tag-warn">${commPct}%</span></td>
+      <td><span class="tag ${a.booked?'tag-ok':'tag-bad'}">${a.booked?'Loué':'Libre'}</span></td>
+      <td style="font-weight:600;color:#059669">${netPrice}€</td>
+    </tr>`;
+  });
+
+  h+=`</tbody></table></div></div>`;
+  el.innerHTML=h;
+}
+
+async function toggleModule(mod){
+  if(userModules.includes(mod)){
+    userModules=userModules.filter(m=>m!==mod);
+    if(userModules.length===0)userModules=['solo'];
+  } else {
+    userModules.push(mod);
+  }
+  const type=userModules.includes('concierge')?'concierge':'solo';
+  currentProfile.modules=userModules.join(',');
+  currentProfile.type=type;
+  await sbFetch(`profiles?id=eq.${currentProfile.id}`,{method:'PATCH',body:JSON.stringify({type,modules:'{'+userModules.join(',')+'}'})});
+  applyModules();
+  renderSidebar();
+  showToast('✓ Module '+(userModules.includes(mod)?'activé':'désactivé'));
+}
+
+// PROPRIETAIRES
+async function loadProprietaires(){
+  try{
+    const res=await sbFetch(`proprietaires?user_id=eq.${currentUser.user.id}&select=*&order=created_at.asc`);
+    proprietaires=await res.json()||[];
+  }catch(e){proprietaires=[];}
+}
+
+function renderProprietaires(){
+  const list=document.getElementById('proprios-list');
+  const empty=document.getElementById('proprios-empty');
+  const kpis=document.getElementById('proprios-kpis');
+  if(!list)return;
+  if(!proprietaires.length){empty.style.display='block';list.innerHTML='';kpis.innerHTML='';return;}
+  empty.style.display='none';
+
+  const totalAppts=proprietaires.reduce((s,p)=>s+apparts.filter(a=>a.proprietaire_id===p.id).length,0);
+  const avgComm=proprietaires.length?Math.round(proprietaires.reduce((s,p)=>s+(p.commission||20),0)/proprietaires.length):0;
+
+  kpis.innerHTML=`
+    <div class="kpi"><div class="kpi-label">Propriétaires</div><div class="kpi-value">${proprietaires.length}</div><div class="kpi-delta" style="color:#6B3FA0">clients actifs</div></div>
+    <div class="kpi"><div class="kpi-label">Apparts gérés</div><div class="kpi-value">${totalAppts}</div><div class="kpi-delta" style="color:#059669">en gestion</div></div>
+    <div class="kpi"><div class="kpi-label">Commission moy.</div><div class="kpi-value">${avgComm}%</div><div class="kpi-delta" style="color:#8A8A99">sur revenus bruts</div></div>`;
+
+  list.innerHTML=proprietaires.map(p=>{
+    const pApparts=apparts.filter(a=>a.proprietaire_id===p.id);
+    const pRes=reservations.filter(r=>pApparts.some(a=>a.id===r.appartement_id));
+    const rev=pRes.reduce((s,r)=>s+(r.price_total||0),0);
+    const comm=Math.round(rev*(p.commission||20)/100);
+    const net=rev-comm;
+    return`<div class="card" style="margin-bottom:.75rem">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#6B3FA0,#FF6B6B);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:white;flex-shrink:0">${(p.name||'?').charAt(0).toUpperCase()}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:15px;font-weight:700">${p.name}</div>
+          <div style="font-size:12px;color:#8A8A99;margin-top:2px">${p.email||'—'} ${p.phone?' · '+p.phone:''}</div>
+          <div style="display:flex;gap:12px;margin-top:8px;font-size:12px;color:#8A8A99;flex-wrap:wrap">
+            <span>🏠 <strong style="color:#1A1A2E">${pApparts.length}</strong> appart${pApparts.length>1?'s':''}</span>
+            <span>💰 <strong style="color:#1A1A2E">${rev}€</strong> revenus</span>
+            <span>📊 <strong style="color:#6B3FA0">${p.commission||20}%</strong> commission</span>
+            <span>💸 <strong style="color:#059669">${net}€</strong> net proprio</span>
+          </div>
+          ${pApparts.length?`<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">${pApparts.map(a=>`<span class="tag tag-info">${a.emoji||'🏠'} ${a.name}</span>`).join('')}</div>`:'<div style="margin-top:8px;font-size:12px;color:#BA7517">⚠ Aucun appartement assigné</div>'}
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button class="btn btn-sm" onclick="openEditProprio('${p.id}')">✏️</button>
+          <button class="btn btn-sm" onclick="openAssignApparts('${p.id}')">🏠+</button>
+          <button class="btn btn-sm" onclick="deleteProprio('${p.id}')" style="color:#DC2626">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('proprios-sub').textContent=proprietaires.length+' propriétaire'+(proprietaires.length>1?'s':'');
+}
+
+function openAddProprioModal(){
+  editProprioId=null;
+  document.getElementById('modal-proprio-title').textContent='Ajouter un propriétaire';
+  ['mp-name','mp-email','mp-phone','mp-iban','mp-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('mp-commission').value='20';
+  document.getElementById('modal-proprio-error').style.display='none';
+  document.getElementById('modal-proprio').classList.add('open');
+}
+
+function openEditProprio(id){
+  const p=proprietaires.find(x=>x.id===id);if(!p)return;
+  editProprioId=id;
+  document.getElementById('modal-proprio-title').textContent='Modifier '+p.name;
+  document.getElementById('mp-name').value=p.name||'';
+  document.getElementById('mp-email').value=p.email||'';
+  document.getElementById('mp-phone').value=p.phone||'';
+  document.getElementById('mp-commission').value=p.commission||20;
+  document.getElementById('mp-iban').value=p.iban||'';
+  document.getElementById('mp-notes').value=p.notes||'';
+  document.getElementById('modal-proprio-error').style.display='none';
+  document.getElementById('modal-proprio').classList.add('open');
+}
+
+function closeProprioModal(){document.getElementById('modal-proprio').classList.remove('open')}
+
+async function saveProprietaire(){
+  const name=document.getElementById('mp-name').value.trim();
+  if(!name){showErr('modal-proprio-error','Nom obligatoire');return}
+  const btn=document.getElementById('btn-save-proprio');btn.disabled=true;btn.textContent='…';
+  const body={
+    user_id:currentUser.user.id,
+    name,
+    email:document.getElementById('mp-email').value.trim(),
+    phone:document.getElementById('mp-phone').value.trim(),
+    commission:+document.getElementById('mp-commission').value||20,
+    iban:document.getElementById('mp-iban').value.trim(),
+    notes:document.getElementById('mp-notes').value.trim()
+  };
+  try{
+    if(editProprioId){
+      await sbFetch(`proprietaires?id=eq.${editProprioId}`,{method:'PATCH',body:JSON.stringify(body)});
+      const i=proprietaires.findIndex(p=>p.id===editProprioId);
+      if(i>=0)proprietaires[i]={...proprietaires[i],...body};
+      showToast('✓ Propriétaire modifié');
+    } else {
+      const res=await sbFetch('proprietaires',{method:'POST',body:JSON.stringify(body)});
+      const c=await res.json();
+      proprietaires.push(Array.isArray(c)&&c[0]?c[0]:{...body,id:Date.now().toString()});
+      showToast('✓ Propriétaire ajouté');
+    }
+    closeProprioModal();renderProprietaires();
+  }catch(e){showErr('modal-proprio-error','Erreur');}
+  btn.disabled=false;btn.textContent='✓ Enregistrer';
+}
+
+async function deleteProprio(id){
+  if(!confirm('Supprimer ce propriétaire ?'))return;
+  await sbFetch(`proprietaires?id=eq.${id}`,{method:'DELETE'});
+  proprietaires=proprietaires.filter(p=>p.id!==id);
+  apparts.filter(a=>a.proprietaire_id===id).forEach(a=>a.proprietaire_id=null);
+  renderProprietaires();showToast('🗑 Propriétaire supprimé');
+}
+
+function openAssignApparts(proprioId){
+  const p=proprietaires.find(x=>x.id===proprioId);if(!p)return;
+  const assigned=apparts.filter(a=>a.proprietaire_id===proprioId);
+  const unassigned=apparts.filter(a=>!a.proprietaire_id||a.proprietaire_id===proprioId);
+  let html=`<div style="font-weight:700;margin-bottom:1rem">Assigner des appartements à ${p.name}</div>`;
+  if(!apparts.length){html+='<div style="color:#8A8A99;font-size:13px">Aucun appartement. Ajoutez-en dans Le Parc.</div>';}
+  else{
+    apparts.forEach(a=>{
+      const isAssigned=a.proprietaire_id===proprioId;
+      const otherProprio=!isAssigned&&a.proprietaire_id?proprietaires.find(p=>p.id===a.proprietaire_id):null;
+      html+=`<label style="display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;cursor:pointer;border:1px solid #E8E8EE;margin-bottom:6px${otherProprio?';opacity:0.5':''}">
+        <input type="checkbox" ${isAssigned?'checked':''} ${otherProprio?'disabled':''} onchange="assignAppart('${a.id}','${proprioId}',this.checked)" style="width:18px;height:18px;accent-color:#6B3FA0"/>
+        <span style="font-size:14px">${a.emoji||'🏠'}</span>
+        <div><div style="font-size:13px;font-weight:500">${a.name}</div><div style="font-size:11px;color:#8A8A99">${a.city||a.zone||''}${otherProprio?' · Assigné à '+otherProprio.name:''}</div></div>
+      </label>`;
+    });
+  }
+  html+=`<button class="btn btn-purple" onclick="closeAssignModal()" style="width:100%;margin-top:1rem;justify-content:center">✓ Terminé</button>`;
+  document.getElementById('modal-proprio-title').textContent='Assigner les appartements';
+  document.querySelector('#modal-proprio .modal').innerHTML=`<div class="modal-head"><div class="modal-title">Assigner à ${p.name}</div><button class="modal-close" onclick="closeAssignModal()">✕</button></div>${html}`;
+  document.getElementById('modal-proprio').classList.add('open');
+}
+
+function closeAssignModal(){
+  document.getElementById('modal-proprio').classList.remove('open');
+  // Restore modal content
+  document.querySelector('#modal-proprio .modal').innerHTML=`
+    <div class="modal-head"><div class="modal-title" id="modal-proprio-title">Ajouter un propriétaire</div><button class="modal-close" onclick="closeProprioModal()">✕</button></div>
+    <div class="form-group"><label>Nom complet ★</label><input type="text" id="mp-name" placeholder="Jean Dupont"/></div>
+    <div class="form-group"><label>Email</label><input type="email" id="mp-email" placeholder="jean@exemple.fr"/></div>
+    <div class="form-group"><label>Téléphone</label><input type="text" id="mp-phone" placeholder="06 12 34 56 78"/></div>
+    <div class="form-group"><label>Commission (%)</label><input type="number" id="mp-commission" placeholder="20" value="20"/></div>
+    <div class="form-group"><label>IBAN</label><input type="text" id="mp-iban" placeholder="FR76 1234…"/></div>
+    <div class="form-group"><label>Notes</label><input type="text" id="mp-notes" placeholder="Contrat signé le…"/></div>
+    <div style="display:flex;gap:8px;margin-top:1.25rem">
+      <button class="btn" onclick="closeProprioModal()" style="flex:1">Annuler</button>
+      <button class="btn btn-purple" onclick="saveProprietaire()" id="btn-save-proprio" style="flex:2">✓ Enregistrer</button>
+    </div>
+    <div class="auth-error" id="modal-proprio-error"></div>`;
+  renderProprietaires();
+}
+
+async function assignAppart(aptId,proprioId,assign){
+  const val=assign?proprioId:null;
+  await sbFetch(`appartements?id=eq.${aptId}`,{method:'PATCH',body:JSON.stringify({proprietaire_id:val})});
+  const a=apparts.find(x=>x.id===aptId);
+  if(a)a.proprietaire_id=val;
+  showToast(assign?'✓ Appartement assigné':'Appartement retiré');
+}
+
+// RAPPORTS MENSUELS
+function initRapportMois(){
+  const sel=document.getElementById('rapport-mois');if(!sel)return;
+  const now=new Date();
+  sel.innerHTML='';
+  for(let i=0;i<6;i++){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const val=d.toISOString().slice(0,7);
+    const label=d.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+    sel.innerHTML+=`<option value="${val}">${label.charAt(0).toUpperCase()+label.slice(1)}</option>`;
+  }
+}
+
+function renderRapports(){
+  const list=document.getElementById('rapports-list');
+  const empty=document.getElementById('rapports-empty');
+  if(!list)return;
+  if(!proprietaires.length){empty.style.display='block';list.innerHTML='';return;}
+  empty.style.display='none';
+
+  const mois=document.getElementById('rapport-mois')?.value||new Date().toISOString().slice(0,7);
+  const moisLabel=new Date(mois+'-01').toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+
+  let html='';
+  proprietaires.forEach(p=>{
+    const pApparts=apparts.filter(a=>a.proprietaire_id===p.id);
+    const pRes=reservations.filter(r=>{
+      const apt=pApparts.find(a=>a.id===r.appartement_id);
+      return apt&&r.date_from&&r.date_from.startsWith(mois);
+    });
+    const revBrut=pRes.reduce((s,r)=>s+(r.price_total||0),0);
+    const nuits=pRes.reduce((s,r)=>s+(r.nights||0),0);
+    const comm=Math.round(revBrut*(p.commission||20)/100);
+    const net=revBrut-comm;
+    const nbJours=new Date(+mois.split('-')[0],+mois.split('-')[1],0).getDate();
+    const occMax=pApparts.length*nbJours;
+    const occ=occMax>0?Math.round(nuits/occMax*100):0;
+
+    html+=`<div class="card" style="margin-bottom:.75rem">
+      <div class="card-head">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#6B3FA0,#FF6B6B);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:white;flex-shrink:0">${(p.name||'?').charAt(0).toUpperCase()}</div>
+          <div>
+            <div style="font-size:15px;font-weight:700">${p.name}</div>
+            <div style="font-size:12px;color:#8A8A99">${moisLabel} · ${pApparts.length} appart${pApparts.length>1?'s':''}</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;margin-bottom:1rem">
+        <div style="background:#F5F4FF;border-radius:10px;padding:.75rem;text-align:center">
+          <div style="font-size:20px;font-weight:700">${revBrut}€</div>
+          <div style="font-size:11px;color:#8A8A99">Revenus bruts</div>
+        </div>
+        <div style="background:#FAEEDA;border-radius:10px;padding:.75rem;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:#BA7517">${comm}€</div>
+          <div style="font-size:11px;color:#8A8A99">Commission ${p.commission||20}%</div>
+        </div>
+        <div style="background:#E1F5EE;border-radius:10px;padding:.75rem;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:#059669">${net}€</div>
+          <div style="font-size:11px;color:#8A8A99">Net propriétaire</div>
+        </div>
+        <div style="background:#F5F4FF;border-radius:10px;padding:.75rem;text-align:center">
+          <div style="font-size:20px;font-weight:700">${pRes.length}</div>
+          <div style="font-size:11px;color:#8A8A99">Réservations</div>
+        </div>
+        <div style="background:#F5F4FF;border-radius:10px;padding:.75rem;text-align:center">
+          <div style="font-size:20px;font-weight:700">${nuits}</div>
+          <div style="font-size:11px;color:#8A8A99">Nuits vendues</div>
+        </div>
+        <div style="background:#F5F4FF;border-radius:10px;padding:.75rem;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:${occ>=60?'#059669':occ>=40?'#BA7517':'#D85A30'}">${occ}%</div>
+          <div style="font-size:11px;color:#8A8A99">Occupation</div>
+        </div>
+      </div>
+      ${pApparts.length?`<div style="font-size:12px;color:#8A8A99;margin-bottom:6px">Détail par appartement</div>
+      <table style="min-width:auto"><thead><tr><th>Appartement</th><th>Résa</th><th>Nuits</th><th>Revenus</th></tr></thead><tbody>
+      ${pApparts.map(a=>{
+        const aRes=pRes.filter(r=>r.appartement_id===a.id);
+        const aRev=aRes.reduce((s,r)=>s+(r.price_total||0),0);
+        const aN=aRes.reduce((s,r)=>s+(r.nights||0),0);
+        return`<tr><td><div class="apt-name"><div class="apt-emoji" style="width:24px;height:24px;font-size:14px">${a.emoji||'🏠'}</div>${a.name}</div></td><td>${aRes.length}</td><td>${aN}</td><td style="font-weight:600">${aRev}€</td></tr>`;
+      }).join('')}
+      </tbody></table>`:'<div style="font-size:12px;color:#BA7517">⚠ Aucun appartement assigné</div>'}
+    </div>`;
+  });
+
+  list.innerHTML=html;
+}
+
+async function genererRapports(){
+  const mois=document.getElementById('rapport-mois')?.value||new Date().toISOString().slice(0,7);
+  for(const p of proprietaires){
+    const pApparts=apparts.filter(a=>a.proprietaire_id===p.id);
+    const pRes=reservations.filter(r=>pApparts.some(a=>a.id===r.appartement_id)&&r.date_from&&r.date_from.startsWith(mois));
+    const revBrut=pRes.reduce((s,r)=>s+(r.price_total||0),0);
+    const nuits=pRes.reduce((s,r)=>s+(r.nights||0),0);
+    const comm=Math.round(revBrut*(p.commission||20)/100);
+    const net=revBrut-comm;
+    const nbJours=new Date(+mois.split('-')[0],+mois.split('-')[1],0).getDate();
+    const occMax=pApparts.length*nbJours;
+    const occ=occMax>0?Math.round(nuits/occMax*100):0;
+    try{
+      await sbFetch('rapports',{method:'POST',body:JSON.stringify({
+        user_id:currentUser.user.id,proprietaire_id:p.id,mois,
+        revenus_brut:revBrut,commission_pct:p.commission||20,
+        commission_montant:comm,net_proprietaire:net,
+        nb_reservations:pRes.length,nb_nuits:nuits,taux_occupation:occ
+      })});
+    }catch(e){}
+  }
+  renderRapports();
+  showToast('✓ Rapports générés pour '+proprietaires.length+' propriétaire'+(proprietaires.length>1?'s':''));
+}
+
+// STRIPE & TARIFS
+function renderTarifs(){
+  const content=document.getElementById('tarifs-content');if(!content)return;
+  const plan=currentProfile?.plan||'Starter';
+  const isStarter=plan==='Starter';const isPro=plan==='Pro';
+  content.innerHTML=`
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-bottom:1.5rem">
+    <div style="background:white;border-radius:14px;border:0.5px solid #EEEEF5;padding:1.5rem">
+      <div style="font-size:12px;font-weight:600;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Starter</div>
+      <div style="font-size:36px;font-weight:700;margin-bottom:4px">29€<span style="font-size:14px;font-weight:400;color:#8A8A99">/mois</span></div>
+      <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">14 jours offerts</div>
+      <div style="font-size:13px;line-height:2;margin-bottom:1.25rem;color:#3A3A50">
+        ✓ Jusqu'à 5 appartements<br>✓ EVA IA<br>✓ Intégration Smoobu<br>✓ Événements Ticketmaster<br>✗ Mode conciergerie
+      </div>
+      <button onclick="startCheckout('starter')" class="btn btn-purple" style="width:100%;justify-content:center;padding:10px" ${isStarter?'disabled':''}>${isStarter?'Plan actuel':"Commencer l'essai gratuit"}</button>
+    </div>
+    <div style="background:white;border-radius:14px;border:2px solid #6B3FA0;padding:1.5rem;position:relative">
+      <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#6B3FA0;color:white;font-size:11px;font-weight:600;padding:3px 12px;border-radius:100px">Recommandé</div>
+      <div style="font-size:12px;font-weight:600;color:#6B3FA0;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Pro</div>
+      <div style="font-size:36px;font-weight:700;margin-bottom:4px">79€<span style="font-size:14px;font-weight:400;color:#8A8A99">/mois</span></div>
+      <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">14 jours offerts</div>
+      <div style="font-size:13px;line-height:2;margin-bottom:1.25rem;color:#3A3A50">
+        ✓ Appartements illimités<br>✓ EVA IA avancé<br>✓ Intégration Smoobu<br>✓ Événements Ticketmaster<br>✓ Mode conciergerie multi-clients
+      </div>
+      <button onclick="startCheckout('pro')" class="btn btn-purple" style="width:100%;justify-content:center;padding:10px" ${isPro?'disabled':''}>${isPro?'Plan actuel':"Commencer l'essai gratuit"}</button>
+    </div>
+    <div style="background:white;border-radius:14px;border:0.5px solid #EEEEF5;padding:1.5rem">
+      <div style="font-size:12px;font-weight:600;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Enterprise</div>
+      <div style="font-size:36px;font-weight:700;margin-bottom:4px">Sur devis</div>
+      <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">Pour les grandes conciergeries</div>
+      <div style="font-size:13px;line-height:2;margin-bottom:1.25rem;color:#3A3A50">
+        ✓ Multi-comptes<br>✓ API dédiée<br>✓ Support prioritaire<br>✓ Onboarding personnalisé<br>✓ Dashboard custom
+      </div>
+      <button onclick="window.location.href='mailto:contact@rentiq.fr'" class="btn" style="width:100%;justify-content:center;padding:10px">Nous contacter</button>
+    </div>
+  </div>
+  <div style="background:#F5F4FF;border-radius:12px;padding:1rem;font-size:13px;color:#6B3FA0;text-align:center">
+    🔒 Paiement sécurisé par Stripe · Annulation à tout moment · Aucun engagement
+  </div>`;
+}
+
+async function startCheckout(plan){
+  const btn=event.target;btn.disabled=true;btn.textContent='Chargement...';
+  try{
+    const res=await fetch(STRIPE_FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'createCheckout',plan,email:currentProfile?.email||''})});
+    const data=await res.json();
+    if(data.url){window.location.href=data.url;}
+    else{showToast('Erreur : '+(data.error||'Réessayez'));btn.disabled=false;btn.textContent="Commencer l'essai gratuit";}
+  }catch(e){showToast('Erreur de connexion');btn.disabled=false;btn.textContent="Commencer l'essai gratuit";}
+}
+
+function checkPaymentReturn(){
+  const params=new URLSearchParams(window.location.search);
+  if(params.get('payment')==='success'){
+    const plan=params.get('plan')||'starter';
+    if(currentProfile)currentProfile.plan=plan.charAt(0).toUpperCase()+plan.slice(1);
+    renderSidebar();
+    goTo('tarifs',document.querySelector('[onclick*=tarifs]'));
+    document.getElementById('tarifs-success').style.display='block';
+    document.getElementById('tarifs-content').style.display='none';
+    showToast('🎉 Abonnement activé !');
+    window.history.replaceState({},'',window.location.pathname);
+  }
+  if(params.get('payment')==='cancelled'){
+    showToast('Paiement annulé — vous pouvez réessayer quand vous voulez.');
+    window.history.replaceState({},'',window.location.pathname);
+  }
+}
+
+// Init
+(async function(){
+  document.getElementById('loading').style.display='none';
+  document.getElementById('auth-screen').style.display='flex';
+  try{
+    const storedKey=localStorage.getItem('smoobu_key');if(storedKey)smoobuKey=storedKey;
+    const stored=localStorage.getItem('sb_session');
+    if(stored){
+      currentUser=JSON.parse(stored);
+      document.getElementById('auth-screen').style.display='none';
+      document.getElementById('loading').style.display='flex';
+      await loadApp();
+    }
+  }catch(e){
+    try{localStorage.removeItem('sb_session');}catch(e2){}
+    document.getElementById('loading').style.display='none';
+    document.getElementById('auth-screen').style.display='flex';
+  }
+})();
+</script>
+</body>
+</html>
