@@ -1085,7 +1085,24 @@ async function loadEvents(force){
     if(!force&&eventsCache[city])continue;
     try{
       const data=await eventsCall(city);
-      eventsCache[city]=data.events||[];
+      const raw=Array.isArray(data)?data:data.events||[];
+      eventsCache[city]=raw.map(e=>{
+        const seg=(e.segment||'').toLowerCase();
+        const genre=(e.genre||'').toLowerCase();
+        let emoji='🎯';let boost=5;let hot=false;
+        if(seg==='music'||genre.includes('rock')||genre.includes('pop')||genre.includes('hip')){emoji='🎸';boost=15;hot=true;}
+        else if(seg==='sports'||genre.includes('football')||genre.includes('rugby')||genre.includes('tennis')){emoji='⚽';boost=20;hot=true;}
+        else if(seg==='arts'||genre.includes('theatre')||genre.includes('comedy')){emoji='🎭';boost=8;}
+        else if(genre.includes('festival')){emoji='🎪';boost=18;hot=true;}
+        else if(genre.includes('marathon')||genre.includes('running')){emoji='🏃';boost=10;hot=true;}
+        else if(genre.includes('conference')||genre.includes('business')){emoji='💼';boost=12;hot=true;}
+        const d=e.date?new Date(e.date):null;
+        const date_label=d?d.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}):'';
+        const daysUntil=d?Math.round((d-new Date())/86400000):999;
+        if(daysUntil<=14)hot=true;
+        if(daysUntil<=7){boost=Math.round(boost*1.5);}
+        return{...e,emoji,boost,hot,date_label,people:0};
+      });
     }catch(e){eventsCache[city]=[];}
   }
 
@@ -1122,7 +1139,7 @@ function renderEventsPage(citiesMap){
       </div>`;
 
     if(!cityEvents.length){
-      html+=`<div style="color:#8A8A99;font-size:13px;padding:1rem;background:white;border-radius:12px;border:1px solid #EEEEF5">Aucun événement trouvé pour ${city} dans les 90 prochains jours.</div>`;
+      html+=`<div style="color:#8A8A99;font-size:13px;padding:1rem;background:white;border-radius:12px;border:1px solid #EEEEF5">Aucun événement trouvé pour ${city} dans les 6 prochains mois.</div>`;
     } else {
       html+=`<div class="events-grid">`;
       cityEvents.slice(0,12).forEach(e=>{
