@@ -1,5 +1,5 @@
 const STRIPE_SECRET = 'sk_test_51TdYAi2KSiLvAG7LYgmnMjP9AaaNgKFQZ9Qnapy3CNjIZpJCpkJcR4UrRj8EwLojxw2HNYIZfgt0xTIZOiNYF77l00sUqeKgKy';
-const SITE_URL = 'https://effervescent-puppy-a152df.netlify.app';
+const SITE_URL = 'https://sublyfe.valdeloire-tc.workers.dev';
 
 const PLANS = {
   starter: { name: 'Starter', price: 2900, interval: 'month' },
