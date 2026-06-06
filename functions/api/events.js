@@ -25,16 +25,20 @@ export async function onRequestPost(context) {
       return new Response(JSON.stringify({ error: 'Ville manquante' }), { status: 400, headers });
     }
 
+    const now = new Date();
+    const end = new Date(Date.now() + 180 * 86400000);
+    const fmt = d => d.toISOString().split('.')[0] + 'Z';
+
     const params = new URLSearchParams({
       apikey: TM_KEY,
       city: city,
       countryCode: countryCode || 'FR',
-      radius: radius || 20,
+      radius: String(radius || 30),
       unit: 'km',
-      size: 20,
+      size: '50',
       sort: 'date,asc',
-      startDateTime: new Date().toISOString().replace(/\.\d{3}/, ''),
-      endDateTime: new Date(Date.now() + 90 * 86400000).toISOString().replace(/\.\d{3}/, '')
+      startDateTime: fmt(now),
+      endDateTime: fmt(end)
     });
 
     const res = await fetch(`${TM_API}?${params}`);
