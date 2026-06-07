@@ -1207,12 +1207,14 @@ async function loadEvents(force){
         const seg=(e.segment||'').toLowerCase();
         const genre=(e.genre||'').toLowerCase();
         let emoji='🎯';let boost=5;let hot=false;
-        if(seg==='music'||genre.includes('rock')||genre.includes('pop')||genre.includes('hip')){emoji='🎸';boost=15;hot=true;}
-        else if(seg==='sports'||genre.includes('football')||genre.includes('rugby')||genre.includes('tennis')){emoji='⚽';boost=20;hot=true;}
-        else if(seg==='arts'||genre.includes('theatre')||genre.includes('comedy')){emoji='🎭';boost=8;}
-        else if(genre.includes('festival')){emoji='🎪';boost=18;hot=true;}
-        else if(genre.includes('marathon')||genre.includes('running')){emoji='🏃';boost=10;hot=true;}
-        else if(genre.includes('conference')||genre.includes('business')){emoji='💼';boost=12;hot=true;}
+        if(seg==='sports'||genre.includes('football')||genre.includes('rugby')||genre.includes('tennis')||genre.includes('olympic')){emoji='⚽';boost=12;hot=true;}
+        else if(genre.includes('festival')||genre.includes('fête')||genre.includes('fete')){emoji='🎪';boost=10;hot=true;}
+        else if(seg==='music'||genre.includes('rock')||genre.includes('pop')||genre.includes('hip')||genre.includes('concert')){emoji='🎸';boost=8;hot=true;}
+        else if(genre.includes('salon')||genre.includes('foire')||genre.includes('conference')||genre.includes('congrès')||genre.includes('business')){emoji='💼';boost=8;hot=true;}
+        else if(genre.includes('marathon')||genre.includes('running')||genre.includes('course')){emoji='🏃';boost=6;hot=true;}
+        else if(seg==='arts'||genre.includes('theatre')||genre.includes('spectacle')||genre.includes('danse')){emoji='🎭';boost=3;}
+        else if(genre.includes('comedy')||genre.includes('comédie')||genre.includes('humour')){emoji='😂';boost=2;}
+        else if(genre.includes('exposition')||genre.includes('expo')||genre.includes('marché')||genre.includes('brocante')){emoji='🖼';boost=2;}
         const d=e.date?new Date(e.date):null;
         const date_label=d?d.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}):'';
         const daysUntil=d?Math.round((d-new Date())/86400000):999;
@@ -1354,8 +1356,11 @@ function goTo(page,btn){
   if(page==='rapports'){initRapportMois();renderRapports();}
 }
 
-function openAddModal(){editId=null;['m-name','m-city','m-zone','m-rent','m-clean','m-price','m-comp','m-address','m-lat','m-lng'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('m-address-preview').style.display='none';document.getElementById('m-address-results').style.display='none';document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
-function openEdit(id){const a=apparts.find(x=>x.id===id);if(!a)return;editId=id;document.getElementById('m-name').value=a.name||'';document.getElementById('m-city').value=a.city||'';document.getElementById('m-zone').value=a.zone||'';document.getElementById('m-address').value=a.address||'';document.getElementById('m-lat').value=a.latitude||'';document.getElementById('m-lng').value=a.longitude||'';const prev=document.getElementById('m-address-preview');if(a.address){prev.textContent='📍 '+a.address;prev.style.display='block';}else{prev.style.display='none';}document.getElementById('m-emoji').value=a.emoji||'🏠';document.getElementById('m-rent').value=a.rent||'';document.getElementById('m-clean').value=a.cleaner||'';document.getElementById('m-price').value=a.price||'';document.getElementById('m-comp').value=a.comp||'';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
+function openAddModal(){editId=null;['m-name','m-city','m-zone','m-rent','m-clean','m-price','m-comp','m-address','m-lat','m-lng'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('m-address-preview').style.display='none';document.getElementById('m-address-results').style.display='none';document.getElementById('m-degressif-toggle').className='toggle off';document.getElementById('m-degressif-config').style.display='none';document.getElementById('m-deg-start').value='14';document.getElementById('m-deg-step').value='5';document.getElementById('m-deg-min').value='';document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
+function openEdit(id){const a=apparts.find(x=>x.id===id);if(!a)return;editId=id;document.getElementById('m-name').value=a.name||'';document.getElementById('m-city').value=a.city||'';document.getElementById('m-zone').value=a.zone||'';document.getElementById('m-address').value=a.address||'';document.getElementById('m-lat').value=a.latitude||'';document.getElementById('m-lng').value=a.longitude||'';const prev=document.getElementById('m-address-preview');if(a.address){prev.textContent='📍 '+a.address;prev.style.display='block';}else{prev.style.display='none';}
+  const degToggle=document.getElementById('m-degressif-toggle');const degConfig=document.getElementById('m-degressif-config');
+  if(a.auto_degressif){degToggle.className='toggle on';degConfig.style.display='block';document.getElementById('m-deg-start').value=a.degressif_start||14;document.getElementById('m-deg-step').value=a.degressif_step||5;document.getElementById('m-deg-min').value=a.degressif_min||'';updateDegPreview();}
+  else{degToggle.className='toggle off';degConfig.style.display='none';}document.getElementById('m-emoji').value=a.emoji||'🏠';document.getElementById('m-rent').value=a.rent||'';document.getElementById('m-clean').value=a.cleaner||'';document.getElementById('m-price').value=a.price||'';document.getElementById('m-comp').value=a.comp||'';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
 function closeModal(){document.getElementById('modal').classList.remove('open')}
 function openAddResModal(){document.getElementById('mr-apt').innerHTML=apparts.map(a=>`<option value="${a.id}">${a.emoji||'🏠'} ${a.name}</option>`).join('');document.getElementById('modal-res').classList.add('open');}
 function closeResModal(){document.getElementById('modal-res').classList.remove('open')}
@@ -1366,7 +1371,7 @@ async function saveAppart(){
   if(!city){showErr('modal-error','Ville obligatoire — nécessaire pour les événements');return}
   const btn=document.getElementById('btn-save-appart');btn.disabled=true;btn.textContent='…';
   const price=+document.getElementById('m-price').value||0;
-  const body={user_id:currentUser.user.id,name,city,zone:document.getElementById('m-zone').value||'',address:document.getElementById('m-address').value||'',latitude:+document.getElementById('m-lat').value||null,longitude:+document.getElementById('m-lng').value||null,emoji:document.getElementById('m-emoji').value||'🏠',rent:+document.getElementById('m-rent').value||0,cleaner:+document.getElementById('m-clean').value||0,price,comp:+document.getElementById('m-comp').value||0,ai_rec:Math.round(price*1.08),booked:false,auto_pricing:true,has_event:false};
+  const degOn=document.getElementById('m-degressif-toggle').classList.contains('on');const body={user_id:currentUser.user.id,name,city,zone:document.getElementById('m-zone').value||'',address:document.getElementById('m-address').value||'',latitude:+document.getElementById('m-lat').value||null,longitude:+document.getElementById('m-lng').value||null,emoji:document.getElementById('m-emoji').value||'🏠',rent:+document.getElementById('m-rent').value||0,cleaner:+document.getElementById('m-clean').value||0,price,comp:+document.getElementById('m-comp').value||0,ai_rec:Math.round(price*1.08),booked:false,auto_pricing:true,has_event:false,auto_degressif:degOn,degressif_start:degOn?+document.getElementById('m-deg-start').value:14,degressif_step:degOn?+document.getElementById('m-deg-step').value:5,degressif_min:degOn?+document.getElementById('m-deg-min').value||0:0};
   try{
     if(editId){await sbFetch(`appartements?id=eq.${editId}`,{method:'PATCH',body:JSON.stringify(body)});const i=apparts.findIndex(a=>a.id===editId);if(i>=0)apparts[i]={...apparts[i],...body};showToast('✓ Modifié');}
     else{const res=await sbFetch('appartements',{method:'POST',body:JSON.stringify(body)});const c=await res.json();apparts.push(Array.isArray(c)&&c[0]?c[0]:{...body,id:Date.now().toString()});showToast('✓ Ajouté');}
@@ -1401,7 +1406,38 @@ async function runGlobal(){
   const evCtx=Object.entries(eventsCache).map(([city,evs])=>{const hot=evs.filter(e=>e.hot);return hot.length?`${city}: ${hot.map(e=>e.name+' (+'+e.boost+'%)').join(', ')}`:null;}).filter(Boolean).join(' | ');
   const ctx=apparts.map(a=>`${a.name} (${a.city||a.zone||'?'}): prix=${a.price}€, plancher=${floor(a)}€, ${a.booked?'loué':'libre'}`).join('\n');
   try{
-    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:600,system:"Tu es EVA, IA pricing RentyQ France. Analyses précises, chiffrées, actionnables. Français, emojis, 5-6 phrases.",messages:[{role:"user",content:`Parc:\n${ctx}\n${evCtx?'Événements chauds: '+evCtx:''}\nBriefing et recommandations ?`}]})});
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:600,system:`Tu es EVA, l'IA pricing de RentyQ. Tu es une experte en location courte durée en France.
+
+PHILOSOPHIE FONDAMENTALE :
+- Objectif : 92-95% d'occupation. Une nuit vide coûte plus cher qu'une nuit à prix réduit.
+- Les augmentations de prix sont RAISONNABLES et JUSTIFIÉES. Jamais d'augmentation agressive.
+- Prix trop élevé = nuit vide = perte d'argent (le loyer et les charges courent quand même).
+
+SCORING DES ÉVÉNEMENTS :
+- Sport international (JO, Coupe du monde, Roland-Garros) : +15-20% max
+- Concert géant (+30 000 pers.) : +10-15%
+- Salon pro majeur (Vivatech, Maison&Objet) : +10-15%
+- Festival multi-jours : +8-12%
+- Spectacle, expo, théâtre : +3-5% seulement
+- Comique solo, petit événement : pas de changement
+
+SAISONNALITÉ :
+- Été (juin-août) + vacances scolaires : hausse modérée +5-10%
+- Ponts, jours fériés, Noël/Nouvel An : +10-15%
+- Basse saison (jan-mars, nov) : prix attractif pour REMPLIR
+
+STRATÉGIE PAR OCCUPATION :
+- Occ < 50% : URGENCE → baisser les prix significativement, remplir est la priorité
+- Occ 50-75% : optimiser → prix légèrement sous le marché
+- Occ 75-90% : équilibre → prix marché
+- Occ > 90% : augmentation légère possible
+
+RÈGLE ABSOLUE :
+- Ne JAMAIS recommander un prix sous le plancher de rentabilité
+- Le plancher = (loyer mensuel / 30) + coût ménage
+- Si le prix actuel est correct et l'occupation bonne, dis-le (pas de changement inutile)
+
+Réponds en français, avec emojis, 5-6 phrases maximum. Donne des CHIFFRES PRÉCIS.`,messages:[{role:"user",content:`Parc (${apparts.length} apparts):\n${ctx}\n${evCtx?'\nÉvénements détectés:\n'+evCtx:''}\nDate: ${new Date().toLocaleDateString('fr-FR')}\nSaison: ${['hiver','hiver','printemps','printemps','printemps','été','été','été','automne','automne','automne','hiver'][new Date().getMonth()]}\nMois: ${new Date().toLocaleDateString('fr-FR',{month:'long'})}\n\nBriefing global et recommandations de prix pour chaque appart. Priorité : remplir les nuits vides.`}]})});
     const data=await res.json();const text=data.content?.find(b=>b.type==='text')?.text||"Indisponible.";
     zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">🤖 EVA — Analyse globale</div><div class="ai-bubble-text">${text.replace(/\n/g,'<br/>')}</div></div>`;
   }catch(e){zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">⚠️</div><div class="ai-bubble-text">IA indisponible.</div></div>`;}
@@ -1416,7 +1452,16 @@ async function askAI(id){
   const cityEvents=eventsCache[city]||[];const hotEvs=cityEvents.filter(e=>e.hot);
   const evCtx=hotEvs.length?` Événements chauds à ${city}: ${hotEvs.slice(0,3).map(e=>e.name+' le '+e.date_label+' (+'+e.boost+'%)').join(', ')}.`:'';
   try{
-    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,system:"EVA, l'IA de RentyQ. 3-4 phrases, chiffres, emojis.",messages:[{role:"user",content:`${a.name} (${city}): prix=${a.price}€, reco=${a.ai_rec||Math.round(a.price*1.08)}€, plancher=${floor(a)}€, ${a.booked?'loué':'libre'}.${evCtx} Prix optimal ce soir ?`}]})});
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,system:`EVA, IA pricing RentyQ. Objectif : 92-95% d'occupation. Une nuit vide coûte plus cher qu'une nuit bradée. Augmentations RAISONNABLES uniquement. Événement majeur (sport, concert géant) = +10-15% max. Événement mineur = +3-5% ou rien. Basse saison = baisser pour remplir. Occupation faible = baisser le prix. Ne jamais descendre sous le plancher. 3-4 phrases, chiffres précis, emojis.`,messages:[{role:"user",content:`${a.name} à ${city}${a.address?' ('+a.address+')':''}:
+- Prix actuel: ${a.price}€/nuit
+- Plancher rentabilité: ${floor(a)}€
+- Concurrent moyen: ${a.comp||'?'}€
+- Statut: ${a.booked?'LOUÉ':'LIBRE ce soir'}
+- Loyer mensuel: ${a.rent||0}€
+${evCtx?'\nÉvénements à proximité:\n'+evCtx:'\nAucun événement détecté à proximité.'}
+Date: ${new Date().toLocaleDateString('fr-FR')} (${['hiver','hiver','printemps','printemps','printemps','été','été','été','automne','automne','automne','hiver'][new Date().getMonth()]})
+
+Quel prix recommandes-tu ce soir et pour les 7 prochains jours ? Objectif : remplir au maximum.`}]})});
     const data=await res.json();const text=data.content?.find(b=>b.type==='text')?.text||"Indisponible.";
     document.getElementById('ai-bubble-'+id).innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head">🤖 ${a.name}</div><div class="ai-bubble-text">${text.replace(/\n/g,'<br/>')}</div></div>`;
   }catch(e){document.getElementById('ai-bubble-'+id).innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head">⚠️</div><div class="ai-bubble-text">Indisponible.</div></div>`;}
@@ -1666,7 +1711,7 @@ function renderParcConcierge(){
       <td><div class="apt-name"><div class="apt-emoji">${a.emoji||'\ud83c\udfe0'}</div><div><div>${a.name}</div><div style="font-size:11px;color:#8A8A99">${a.zone||''}</div></div></div></td>
       <td style="font-weight:600;color:#6B3FA0">${p?.name||'—'}</td>
       <td style="font-size:12px;color:#8A8A99">${a.city||'—'}</td>
-      <td class="price-main">${a.price||0}€</td>
+      <td class="price-main">${getCurrentDegPrice(a)}€${a.auto_degressif&&!a.booked&&getCurrentDegPrice(a)<a.price?'<div style="font-size:10px;color:#6B3FA0">⏰ dégressif</div>':''}</td>
       <td><span class="tag tag-warn">${commPct}%</span></td>
       <td><span class="tag ${a.booked?'tag-ok':'tag-bad'}">${a.booked?'Loué':'Libre'}</span></td>
       <td style="font-weight:600;color:#059669">${netPrice}€</td>
@@ -1977,6 +2022,55 @@ async function genererRapports(){
 }
 
 
+
+
+// DEGRESSIVE PRICING
+function toggleDegressif(){
+  const toggle=document.getElementById('m-degressif-toggle');
+  const config=document.getElementById('m-degressif-config');
+  const isOn=toggle.classList.contains('on');
+  if(isOn){toggle.className='toggle off';config.style.display='none';}
+  else{toggle.className='toggle on';config.style.display='block';updateDegPreview();}
+}
+
+function updateDegPreview(){
+  const price=+document.getElementById('m-price').value||90;
+  const start=+document.getElementById('m-deg-start').value||14;
+  const step=+document.getElementById('m-deg-step').value||5;
+  const minPrice=+document.getElementById('m-deg-min').value||Math.round((+document.getElementById('m-rent').value||0)/30+(+document.getElementById('m-clean').value||0));
+  if(!document.getElementById('m-deg-min').value)document.getElementById('m-deg-min').value=minPrice;
+  
+  let html='<div style="font-weight:500;margin-bottom:6px">📉 Courbe de prix pour ce soir :</div><div style="display:flex;flex-wrap:wrap;gap:4px">';
+  for(let h=start;h<=22;h++){
+    const reduction=(h-start)*step;
+    const p=Math.max(price-reduction,minPrice);
+    const isNow=new Date().getHours()===h;
+    const pct=Math.round((1-p/price)*100);
+    html+=`<div style="padding:4px 8px;border-radius:6px;font-size:11px;${isNow?'background:#6B3FA0;color:white;font-weight:600':'background:white;border:0.5px solid #E8E8EE'}">${h}h → ${p}€${pct>0?' <span style="opacity:0.7">(-'+pct+'%)</span>':''}</div>`;
+    if(p<=minPrice)break;
+  }
+  html+='</div>';
+  document.getElementById('m-deg-preview').innerHTML=html;
+}
+
+// Update preview when price/rent/clean changes
+['m-price','m-rent','m-clean','m-deg-start','m-deg-step','m-deg-min'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el)el.addEventListener('input',()=>{
+    if(document.getElementById('m-degressif-toggle').classList.contains('on'))updateDegPreview();
+  });
+});
+
+function getCurrentDegPrice(a){
+  if(!a.auto_degressif||a.booked)return a.price||0;
+  const now=new Date().getHours();
+  const start=a.degressif_start||14;
+  if(now<start)return a.price||0;
+  const step=a.degressif_step||5;
+  const minP=a.degressif_min||Math.round((a.rent||0)/30+(a.cleaner||0));
+  const reduction=(now-start)*step;
+  return Math.max((a.price||0)-reduction,minP);
+}
 
 // ADDRESS AUTOCOMPLETE & MAP
 let addressTimer=null;
@@ -2700,3 +2794,4 @@ function checkPaymentReturn(){
 </script>
 </body>
 </html>
+
