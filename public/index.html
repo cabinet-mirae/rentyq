@@ -633,6 +633,23 @@ tr:hover td{background:#FAFAFF}
     <div class="form-group"><label>Coût ménage / nuit (€)</label><input type="number" id="m-clean" placeholder="25"/></div>
     <div class="form-group"><label>Prix / nuit (€)</label><input type="number" id="m-price" placeholder="95"/></div>
     <div class="form-group"><label>Concurrent (€/nuit)</label><input type="number" id="m-comp" placeholder="105"/></div>
+    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid #E8E8EE">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem">
+        <div>
+          <div style="font-size:13px;font-weight:600">⏰ Prix dégressif last-minute</div>
+          <div style="font-size:11px;color:#8A8A99">Baisse auto si pas loué dans la journée</div>
+        </div>
+        <button type="button" class="toggle off" id="m-degressif-toggle" onclick="toggleDegressif()"></button>
+      </div>
+      <div id="m-degressif-config" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:0.75rem">
+          <div class="form-group" style="margin-bottom:0"><label style="font-size:11px">Début (heure)</label><input type="number" id="m-deg-start" value="14" min="10" max="20" style="padding:8px;border-radius:8px;border:1px solid #E8E8EE;width:100%;font-size:13px" oninput="updateDegPreview()"/></div>
+          <div class="form-group" style="margin-bottom:0"><label style="font-size:11px">Palier (€/h)</label><input type="number" id="m-deg-step" value="5" min="1" max="20" style="padding:8px;border-radius:8px;border:1px solid #E8E8EE;width:100%;font-size:13px" oninput="updateDegPreview()"/></div>
+          <div class="form-group" style="margin-bottom:0"><label style="font-size:11px">Prix min (€)</label><input type="number" id="m-deg-min" value="0" min="0" style="padding:8px;border-radius:8px;border:1px solid #E8E8EE;width:100%;font-size:13px" oninput="updateDegPreview()"/></div>
+        </div>
+        <div id="m-deg-preview" style="background:#F8F7FF;border-radius:8px;padding:0.75rem;font-size:12px;color:#6B3FA0"></div>
+      </div>
+    </div>
     <div style="display:flex;gap:8px;margin-top:1.25rem">
       <button class="btn" onclick="closeModal()" style="flex:1">Annuler</button>
       <button class="btn btn-purple" onclick="saveAppart()" id="btn-save-appart" style="flex:2">✓ Enregistrer</button>
