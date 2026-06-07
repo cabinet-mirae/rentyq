@@ -2061,48 +2061,6 @@ Quel prix recommandes-tu ce soir et pour les 7 prochains jours ? Objectif : remp
   }catch(e){document.getElementById('ai-bubble-'+id).innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head">⚠️</div><div class="ai-bubble-text">Indisponible.</div></div>`;}
 }
 
-
-
-// ONBOARDING
-function checkOnboarding(){
-  const seen=localStorage.getItem('onb_seen_'+currentUser?.user?.id);
-  if(!seen&&apparts.length===0){
-    document.getElementById('onboarding-overlay').style.display='flex';
-  }
-}
-function onbNext(step){
-  document.querySelectorAll('[id^=onb-step-]').forEach(el=>el.style.display='none');
-  document.getElementById('onb-step-'+step).style.display='block';
-}
-function onbSkip(){onbNext(3);}
-async function onbSaveAppart(){
-  const name=document.getElementById('onb-name').value.trim();
-  const city=document.getElementById('onb-city').value.trim();
-  const price=+document.getElementById('onb-price').value||100;
-  const rent=+document.getElementById('onb-rent').value||900;
-  if(!name||!city){showToast('Nom et ville obligatoires');return}
-  const body={user_id:currentUser.user.id,name,city,zone:'',emoji:'🏠',rent,cleaner:25,price,comp:Math.round(price*1.05),ai_rec:Math.round(price*1.08),booked:false,auto_pricing:true,has_event:false};
-  try{
-    const res=await sbFetch('appartements',{method:'POST',body:JSON.stringify(body)});
-    const c=await res.json();
-    apparts.push(Array.isArray(c)&&c[0]?c[0]:{...body,id:Date.now().toString()});
-    renderAll();showToast('🏠 Appartement ajouté !');
-    onbNext(3);
-  }catch(e){showToast('Erreur — réessayez');}
-}
-async function onbConnectSmoobu(){
-  const key=document.getElementById('onb-smoobu').value.trim();
-  if(key){smoobuKey=key;try{localStorage.setItem('smoobu_key',key);}catch(e){}syncSmoobu();}
-  onbFinish();
-}
-function onbFinish(){
-  try{localStorage.setItem('onb_seen_'+currentUser?.user?.id,'1');}catch(e){}
-  document.getElementById('onboarding-overlay').style.display='none';
-  renderAll();
-  goTo('cockpit',document.querySelectorAll('.nav-item')[0]);
-  showToast('✓ Compte configuré ! Bienvenue sur RentyQ 🎉');
-}
-
 // MOT DE PASSE OUBLIÉ
 function showForgotPassword(){
   document.getElementById('login-form').style.display='none';
