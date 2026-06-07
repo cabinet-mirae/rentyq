@@ -145,6 +145,8 @@ tr:hover td{background:#FAFAFF}
 .status-dot.connected{background:#10B981}
 .status-dot.disconnected{background:#D1D1D8}
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 </head>
 <body>
 
@@ -344,13 +346,18 @@ tr:hover td{background:#FAFAFF}
             <button class="btn btn-purple" onclick="openAddModal()">+ Ajouter</button>
           </div>
         </div>
-        <div class="card">
-          <div class="table-wrap"><table id="parc-table"></table></div>
-          <div id="parc-empty" style="text-align:center;padding:2rem;color:#8A8A99;display:none">
-            <div style="font-size:36px;margin-bottom:1rem">🏠</div>
-            <div style="font-weight:600;margin-bottom:6px">Aucun appartement</div>
-            <button class="btn btn-purple" onclick="openAddModal()" style="margin-top:0.5rem">+ Ajouter</button>
+        <div id="parc-list-view">
+          <div class="card">
+            <div class="table-wrap"><table id="parc-table"></table></div>
+            <div id="parc-empty" style="text-align:center;padding:2rem;color:#8A8A99;display:none">
+              <div style="font-size:36px;margin-bottom:1rem">🏠</div>
+              <div style="font-weight:600;margin-bottom:6px">Aucun appartement</div>
+              <button class="btn btn-purple" onclick="openAddModal()" style="margin-top:0.5rem">+ Ajouter</button>
+            </div>
           </div>
+        </div>
+        <div id="parc-map-view" style="display:none">
+          <div id="parc-map" style="height:500px;border-radius:12px;border:1px solid #E8E8EE;overflow:hidden"></div>
         </div>
       </div>
 
@@ -608,8 +615,15 @@ tr:hover td{background:#FAFAFF}
   <div class="modal">
     <div class="modal-head"><div class="modal-title" id="modal-title">Ajouter un appartement</div><button class="modal-close" onclick="closeModal()">✕</button></div>
     <div class="form-group"><label>Nom</label><input type="text" id="m-name" placeholder="Studio Bastille"/></div>
-    <div class="form-group"><label>Ville ★</label><input type="text" id="m-city" placeholder="Paris, Lyon, Bordeaux…"/></div>
-    <div class="form-group"><label>Quartier / Adresse</label><input type="text" id="m-zone" placeholder="11e arrondissement"/></div>
+    <div class="form-group"><label>Adresse complète ★</label>
+      <input type="text" id="m-address" placeholder="12 rue de la Paix, Paris" autocomplete="off" oninput="searchAddress(this.value)"/>
+      <div id="m-address-results" style="display:none;position:absolute;z-index:100;background:white;border:1px solid #E8E8EE;border-radius:8px;max-height:200px;overflow-y:auto;width:calc(100% - 2rem);box-shadow:0 4px 12px rgba(0,0,0,0.1)"></div>
+      <input type="hidden" id="m-city"/>
+      <input type="hidden" id="m-zone"/>
+      <input type="hidden" id="m-lat"/>
+      <input type="hidden" id="m-lng"/>
+    </div>
+    <div id="m-address-preview" style="display:none;padding:8px;background:#F5F4FF;border-radius:8px;margin-bottom:0.75rem;font-size:12px;color:#6B3FA0"></div>
     <div class="form-group"><label>Emoji</label><select id="m-emoji"><option>🏠</option><option>🛋️</option><option>🌸</option><option>⭐</option><option>🏡</option><option>🌇</option><option>🌃</option></select></div>
     <div class="form-group"><label>Loyer mensuel (€)</label><input type="number" id="m-rent" placeholder="900"/></div>
     <div class="form-group"><label>Coût ménage / nuit (€)</label><input type="number" id="m-clean" placeholder="25"/></div>
@@ -1336,8 +1350,8 @@ function goTo(page,btn){
   if(page==='rapports'){initRapportMois();renderRapports();}
 }
 
-function openAddModal(){editId=null;['m-name','m-city','m-zone','m-rent','m-clean','m-price','m-comp'].forEach(id=>document.getElementById(id).value='');document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
-function openEdit(id){const a=apparts.find(x=>x.id===id);if(!a)return;editId=id;document.getElementById('m-name').value=a.name||'';document.getElementById('m-city').value=a.city||'';document.getElementById('m-zone').value=a.zone||'';document.getElementById('m-emoji').value=a.emoji||'🏠';document.getElementById('m-rent').value=a.rent||'';document.getElementById('m-clean').value=a.cleaner||'';document.getElementById('m-price').value=a.price||'';document.getElementById('m-comp').value=a.comp||'';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
+function openAddModal(){editId=null;['m-name','m-city','m-zone','m-rent','m-clean','m-price','m-comp','m-address','m-lat','m-lng'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('m-address-preview').style.display='none';document.getElementById('m-address-results').style.display='none';document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
+function openEdit(id){const a=apparts.find(x=>x.id===id);if(!a)return;editId=id;document.getElementById('m-name').value=a.name||'';document.getElementById('m-city').value=a.city||'';document.getElementById('m-zone').value=a.zone||'';document.getElementById('m-address').value=a.address||'';document.getElementById('m-lat').value=a.latitude||'';document.getElementById('m-lng').value=a.longitude||'';const prev=document.getElementById('m-address-preview');if(a.address){prev.textContent='📍 '+a.address;prev.style.display='block';}else{prev.style.display='none';}document.getElementById('m-emoji').value=a.emoji||'🏠';document.getElementById('m-rent').value=a.rent||'';document.getElementById('m-clean').value=a.cleaner||'';document.getElementById('m-price').value=a.price||'';document.getElementById('m-comp').value=a.comp||'';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
 function closeModal(){document.getElementById('modal').classList.remove('open')}
 function openAddResModal(){document.getElementById('mr-apt').innerHTML=apparts.map(a=>`<option value="${a.id}">${a.emoji||'🏠'} ${a.name}</option>`).join('');document.getElementById('modal-res').classList.add('open');}
 function closeResModal(){document.getElementById('modal-res').classList.remove('open')}
@@ -1348,7 +1362,7 @@ async function saveAppart(){
   if(!city){showErr('modal-error','Ville obligatoire — nécessaire pour les événements');return}
   const btn=document.getElementById('btn-save-appart');btn.disabled=true;btn.textContent='…';
   const price=+document.getElementById('m-price').value||0;
-  const body={user_id:currentUser.user.id,name,city,zone:document.getElementById('m-zone').value||'',emoji:document.getElementById('m-emoji').value||'🏠',rent:+document.getElementById('m-rent').value||0,cleaner:+document.getElementById('m-clean').value||0,price,comp:+document.getElementById('m-comp').value||0,ai_rec:Math.round(price*1.08),booked:false,auto_pricing:true,has_event:false};
+  const body={user_id:currentUser.user.id,name,city,zone:document.getElementById('m-zone').value||'',address:document.getElementById('m-address').value||'',latitude:+document.getElementById('m-lat').value||null,longitude:+document.getElementById('m-lng').value||null,emoji:document.getElementById('m-emoji').value||'🏠',rent:+document.getElementById('m-rent').value||0,cleaner:+document.getElementById('m-clean').value||0,price,comp:+document.getElementById('m-comp').value||0,ai_rec:Math.round(price*1.08),booked:false,auto_pricing:true,has_event:false};
   try{
     if(editId){await sbFetch(`appartements?id=eq.${editId}`,{method:'PATCH',body:JSON.stringify(body)});const i=apparts.findIndex(a=>a.id===editId);if(i>=0)apparts[i]={...apparts[i],...body};showToast('✓ Modifié');}
     else{const res=await sbFetch('appartements',{method:'POST',body:JSON.stringify(body)});const c=await res.json();apparts.push(Array.isArray(c)&&c[0]?c[0]:{...body,id:Date.now().toString()});showToast('✓ Ajouté');}
@@ -1958,6 +1972,140 @@ async function genererRapports(){
   showToast('✓ Rapports générés pour '+proprietaires.length+' propriétaire'+(proprietaires.length>1?'s':''));
 }
 
+
+
+// ADDRESS AUTOCOMPLETE & MAP
+let addressTimer=null;
+let parcMap=null;
+
+async function searchAddress(query){
+  clearTimeout(addressTimer);
+  const results=document.getElementById('m-address-results');
+  if(query.length<3){results.style.display='none';return;}
+  addressTimer=setTimeout(async()=>{
+    try{
+      const res=await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=5`);
+      const data=await res.json();
+      if(!data.features||!data.features.length){results.style.display='none';return;}
+      results.innerHTML=data.features.map((f,i)=>`
+        <div onclick="selectAddress(${i})" style="padding:10px 12px;cursor:pointer;border-bottom:0.5px solid #E8E8EE;font-size:13px;display:flex;align-items:flex-start;gap:8px;transition:background .1s" onmouseover="this.style.background='#F5F4FF'" onmouseout="this.style.background='white'">
+          <span style="color:#6B3FA0;flex-shrink:0;margin-top:2px">📍</span>
+          <div>
+            <div style="font-weight:500">${f.properties.label}</div>
+            <div style="font-size:11px;color:#8A8A99">${f.properties.city} · ${f.properties.postcode}</div>
+          </div>
+        </div>`).join('');
+      results.style.display='block';
+      window._addressResults=data.features;
+    }catch(e){results.style.display='none';}
+  },300);
+}
+
+function selectAddress(idx){
+  const f=window._addressResults[idx];
+  if(!f)return;
+  const props=f.properties;
+  const coords=f.geometry.coordinates;
+  document.getElementById('m-address').value=props.label;
+  document.getElementById('m-city').value=props.city||'';
+  document.getElementById('m-zone').value=props.district||props.locality||'';
+  document.getElementById('m-lat').value=coords[1];
+  document.getElementById('m-lng').value=coords[0];
+  document.getElementById('m-address-results').style.display='none';
+  const prev=document.getElementById('m-address-preview');
+  prev.innerHTML=`📍 ${props.label}<br><span style="font-size:11px;color:#8A8A99">GPS: ${coords[1].toFixed(5)}, ${coords[0].toFixed(5)} · ${props.city} (${props.postcode})</span>`;
+  prev.style.display='block';
+}
+
+// Close address dropdown on click outside
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#m-address')&&!e.target.closest('#m-address-results')){
+    const r=document.getElementById('m-address-results');
+    if(r)r.style.display='none';
+  }
+});
+
+// MAP VIEW
+function switchParcView(view){
+  const listView=document.getElementById('parc-list-view');
+  const mapView=document.getElementById('parc-map-view');
+  const btnList=document.getElementById('parc-view-list');
+  const btnMap=document.getElementById('parc-view-map');
+  if(view==='map'){
+    if(listView)listView.style.display='none';
+    if(mapView)mapView.style.display='block';
+    if(btnMap){btnMap.style.background='#6B3FA0';btnMap.style.color='white';}
+    if(btnList){btnList.style.background='transparent';btnList.style.color='#8A8A99';}
+    setTimeout(()=>renderParcMap(),100);
+  } else {
+    if(listView)listView.style.display='block';
+    if(mapView)mapView.style.display='none';
+    if(btnList){btnList.style.background='#6B3FA0';btnList.style.color='white';}
+    if(btnMap){btnMap.style.background='transparent';btnMap.style.color='#8A8A99';}
+  }
+}
+
+function renderParcMap(){
+  const container=document.getElementById('parc-map');
+  if(!container)return;
+  
+  const geoApparts=apparts.filter(a=>a.latitude&&a.longitude);
+  
+  if(!geoApparts.length){
+    container.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#8A8A99;font-size:14px;flex-direction:column;gap:8px"><div style="font-size:32px">📍</div><div>Aucun appartement géolocalisé</div><div style="font-size:12px">Ajoutez une adresse à vos appartements pour les voir sur la carte</div></div>';
+    return;
+  }
+  
+  // Init or reset map
+  if(parcMap){parcMap.remove();parcMap=null;}
+  
+  parcMap=L.map('parc-map').setView([geoApparts[0].latitude,geoApparts[0].longitude],12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© OpenStreetMap',
+    maxZoom:18
+  }).addTo(parcMap);
+  
+  const bounds=[];
+  
+  geoApparts.forEach(a=>{
+    const lat=+a.latitude;
+    const lng=+a.longitude;
+    bounds.push([lat,lng]);
+    
+    const statusColor=a.booked?'#1D9E75':'#E24B4A';
+    const statusText=a.booked?'Loué':'Libre';
+    
+    const icon=L.divIcon({
+      className:'',
+      html:`<div style="background:${statusColor};color:white;padding:6px 10px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;gap:4px;border:2px solid white">
+        <span>${a.emoji||'🏠'}</span> ${a.price||0}€
+      </div>`,
+      iconSize:[0,0],
+      iconAnchor:[40,20]
+    });
+    
+    const marker=L.marker([lat,lng],{icon}).addTo(parcMap);
+    
+    marker.bindPopup(`
+      <div style="min-width:200px;font-family:Inter,system-ui,sans-serif">
+        <div style="font-size:15px;font-weight:600;margin-bottom:4px">${a.emoji||'🏠'} ${a.name}</div>
+        <div style="font-size:12px;color:#8A8A99;margin-bottom:8px">${a.address||a.city||''}</div>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <span style="padding:3px 8px;border-radius:100px;font-size:11px;font-weight:500;background:${a.booked?'#E1F5EE;color:#085041':'#FCEBEB;color:#A32D2D'}">${statusText}</span>
+          <span style="font-size:13px;font-weight:600">${a.price||0}€/nuit</span>
+        </div>
+        <div style="font-size:11px;color:#8A8A99">
+          Loyer: ${a.rent||0}€ · Plancher: ${Math.round((a.rent||0)/30+(a.cleaner||0))}€
+        </div>
+        <button onclick="openEdit('${a.id}')" style="margin-top:8px;padding:6px 12px;border-radius:6px;background:#6B3FA0;color:white;border:none;font-size:12px;cursor:pointer;width:100%;font-family:inherit">✏️ Modifier</button>
+      </div>
+    `,{maxWidth:250});
+  });
+  
+  if(bounds.length>1){
+    parcMap.fitBounds(bounds,{padding:[40,40]});
+  }
+}
 
 // FINANCES MODULE
 let chargesData=[];
