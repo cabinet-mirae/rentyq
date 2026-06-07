@@ -803,9 +803,13 @@ tr:hover td{background:#FAFAFF}
           <label class="onb2-label">Nom de l'appartement</label>
           <input class="onb2-input" id="onb2-apt-name" placeholder="ex : Studio Bastille, T2 Lyon Centre…" autocomplete="off"/>
         </div>
-        <div class="onb2-field">
-          <label class="onb2-label">Ville</label>
-          <input class="onb2-input" id="onb2-apt-city" placeholder="Paris, Lyon, Bordeaux…"/>
+        <div class="onb2-field" style="position:relative">
+          <label class="onb2-label">Adresse complète</label>
+          <input class="onb2-input" id="onb2-apt-address" placeholder="12 rue de la Paix, Paris…" autocomplete="off" oninput="onb2SearchAddr(this.value)"/>
+          <div id="onb2-addr-results" style="display:none;position:absolute;z-index:200;background:white;border:1px solid #E8E8EE;border-radius:10px;width:100%;margin-top:2px;box-shadow:0 4px 12px rgba(0,0,0,0.1);max-height:180px;overflow-y:auto"></div>
+          <input type="hidden" id="onb2-apt-city"/>
+          <input type="hidden" id="onb2-apt-lat"/>
+          <input type="hidden" id="onb2-apt-lng"/>
         </div>
         <div class="onb2-row">
           <div class="onb2-field">
@@ -936,18 +940,43 @@ function onb2GoTo(step){
   btn.disabled=false;
 }
 
+let _onb2AT=null;
+async function onb2SearchAddr(q){
+  clearTimeout(_onb2AT);
+  const b=document.getElementById('onb2-addr-results');
+  if(!q||q.length<3){b.style.display='none';return;}
+  _onb2AT=setTimeout(async()=>{
+    try{
+      const r=await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=4`);
+      const d=await r.json();
+      if(!d.features?.length){b.style.display='none';return;}
+      b.style.display='block';
+      b.innerHTML=d.features.map((f,i)=>`<div onclick="onb2Pick(${i})" style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid #F0F0F5" onmouseover="this.style.background='#F5F4FF'" onmouseout="this.style.background='white'">📍 ${f.properties.label}<div style="font-size:11px;color:#8A8A99">${f.properties.city||''}</div></div>`).join('');
+      window._onb2A=d.features;
+    }catch(e){b.style.display='none';}
+  },300);
+}
+function onb2Pick(i){
+  const f=window._onb2A?.[i];if(!f)return;
+  document.getElementById('onb2-apt-address').value=f.properties.label;
+  document.getElementById('onb2-apt-city').value=f.properties.city||f.properties.municipality||'';
+  document.getElementById('onb2-apt-lat').value=f.geometry.coordinates[1];
+  document.getElementById('onb2-apt-lng').value=f.geometry.coordinates[0];
+  document.getElementById('onb2-addr-results').style.display='none';
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#onb2-apt-address')&&!e.target.closest('#onb2-addr-results')){
+    const b=document.getElementById('onb2-addr-results');if(b)b.style.display='none';
+  }
+});
 function onb2Next(){
   if(onb2Step===1){
     // Validate étape 1
     const name=document.getElementById('onb2-apt-name').value.trim();
-    const city=document.getElementById('onb2-apt-city').value.trim();
+    const addr=document.getElementById('onb2-apt-address').value.trim();
     const err=document.getElementById('onb2-err1');
-    if(!name||!city){
-      err.textContent='Le nom et la ville sont obligatoires.';
-      err.classList.add('show');
-      setTimeout(()=>err.classList.remove('show'),3000);
-      return;
-    }
+    if(!name){err.textContent="Le nom de l'appartement est obligatoire.";err.classList.add('show');setTimeout(()=>err.classList.remove('show'),3000);return;}
+    if(!addr){err.textContent="Entrez une adresse et sélectionnez-la dans la liste.";err.classList.add('show');setTimeout(()=>err.classList.remove('show'),3000);return;}
     onb2GoTo(2);
   }else if(onb2Step===2){
     onb2GoTo(3);
@@ -1005,15 +1034,18 @@ async function onb2Finish(){
 
   // 1. Sauvegarder l'appartement si rempli
   const aptName=document.getElementById('onb2-apt-name').value.trim();
+  const aptAddr=document.getElementById('onb2-apt-address').value.trim();
   const aptCity=document.getElementById('onb2-apt-city').value.trim();
+  const aptLat=+document.getElementById('onb2-apt-lat').value||null;
+  const aptLng=+document.getElementById('onb2-apt-lng').value||null;
   const aptPrice=+document.getElementById('onb2-apt-price').value||95;
   const aptRent=+document.getElementById('onb2-apt-rent').value||900;
 
-  if(aptName&&aptCity&&apparts.length===0){
+  if(aptName&&(aptAddr||aptCity)&&apparts.length===0){
     try{
       const body={
         user_id:currentUser.user.id,
-        name:aptName,city:aptCity,zone:'',emoji:'🏠',
+        name:aptName,city:aptCity,zone:'',address:aptAddr,latitude:aptLat,longitude:aptLng,emoji:'🏠',
         rent:aptRent,cleaner:25,
         price:aptPrice,
         comp:Math.round(aptPrice*1.05),
@@ -3646,3 +3678,4 @@ function checkPaymentReturn(){
 </script>
 </body>
 </html>
+
