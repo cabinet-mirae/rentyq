@@ -704,84 +704,360 @@ tr:hover td{background:#FAFAFF}
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════
+     ONBOARDING RENTYQ v2 — Overlay wizard 3 étapes
+     Injecter avant </body> dans index.html
+     Remplace l'ancien #onboarding-overlay
+════════════════════════════════════════════════════ -->
 
-<!-- ONBOARDING -->
-<div id="onboarding-overlay" style="display:none;position:fixed;inset:0;background:rgba(26,26,46,0.6);z-index:200;align-items:center;justify-content:center;padding:1rem">
-  <div style="background:white;border-radius:20px;padding:2rem;width:100%;max-width:480px;border:1px solid #EEEEF5">
-    <div style="text-align:center;margin-bottom:1.5rem">
-      <div class="brand-logo" style="font-size:24px;font-weight:700;justify-content:center;display:flex">Rent<span style="background:linear-gradient(90deg,#6B3FA0,#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent">yQ</span></div>
-      <div style="font-size:11px;color:#8A8A99;font-style:italic">Stop guessing. Start earning.</div>
+<style>
+/* ── OVERLAY ── */
+#onb2{position:fixed;inset:0;background:rgba(15,15,30,0.72);z-index:500;display:none;align-items:flex-end;justify-content:center;padding:0;backdrop-filter:blur(3px)}
+#onb2.open{display:flex}
+#onb2-sheet{background:white;border-radius:24px 24px 0 0;width:100%;max-width:520px;padding:0 0 max(24px,env(safe-area-inset-bottom));overflow:hidden;animation:onbUp .3s cubic-bezier(.22,1,.36,1)}
+@keyframes onbUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
+/* ── PROGRESS BAR ── */
+#onb2-bar{height:4px;background:#F0EFF8;position:relative}
+#onb2-fill{height:100%;background:linear-gradient(90deg,#6B3FA0,#9B72CF);border-radius:0 2px 2px 0;transition:width .4s cubic-bezier(.22,1,.36,1)}
+
+/* ── HEADER ── */
+#onb2-head{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between}
+.onb2-step-label{font-size:11px;font-weight:700;color:#9B72CF;text-transform:uppercase;letter-spacing:0.8px}
+#onb2-skip{background:none;border:none;font-size:13px;color:#B0B0C0;cursor:pointer;font-family:inherit;padding:4px 8px;border-radius:6px}
+#onb2-skip:hover{color:#6B3FA0;background:#F5F4FF}
+
+/* ── BODY ── */
+#onb2-body{padding:16px 24px 20px}
+.onb2-icon{font-size:40px;margin-bottom:12px;display:block}
+.onb2-title{font-size:20px;font-weight:700;color:#1A1A2E;margin-bottom:6px;line-height:1.2}
+.onb2-sub{font-size:14px;color:#6B7280;line-height:1.6;margin-bottom:20px}
+
+/* ── FIELDS ── */
+.onb2-field{margin-bottom:14px}
+.onb2-label{font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;display:block}
+.onb2-input{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid #E8E8EE;font-size:15px;font-family:inherit;color:#1A1A2E;outline:none;transition:border-color .15s;background:white}
+.onb2-input:focus{border-color:#6B3FA0}
+.onb2-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.onb2-hint{font-size:12px;color:#9CA3AF;margin-top:5px;line-height:1.5}
+
+/* ── OPTION CARDS (étape 2) ── */
+.onb2-options{display:flex;flex-direction:column;gap:10px;margin-bottom:4px}
+.onb2-option{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;border:1.5px solid #E8E8EE;cursor:pointer;transition:all .15s;background:white}
+.onb2-option:hover{border-color:#9B72CF;background:#FAF9FF}
+.onb2-option.selected{border-color:#6B3FA0;background:#F5F4FF}
+.onb2-option-icon{font-size:24px;flex-shrink:0}
+.onb2-option-body{flex:1}
+.onb2-option-title{font-size:14px;font-weight:600;color:#1A1A2E;margin-bottom:2px}
+.onb2-option-sub{font-size:12px;color:#6B7280}
+.onb2-option-check{width:20px;height:20px;border-radius:50%;border:2px solid #E8E8EE;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.onb2-option.selected .onb2-option-check{background:#6B3FA0;border-color:#6B3FA0;color:white;font-size:11px}
+
+/* ── EVA TOGGLE (étape 3) ── */
+.onb2-eva-card{background:linear-gradient(135deg,#F5F4FF,#EDE8FF);border-radius:14px;padding:16px;margin-bottom:14px;display:flex;align-items:center;gap:14px}
+.onb2-eva-icon{width:44px;height:44px;background:linear-gradient(135deg,#6B3FA0,#9B72CF);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.onb2-eva-body{flex:1}
+.onb2-eva-title{font-size:14px;font-weight:600;color:#1A1A2E;margin-bottom:2px}
+.onb2-eva-sub{font-size:12px;color:#6B7280}
+.onb2-toggle{width:44px;height:26px;background:#E8E8EE;border-radius:100px;border:none;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.onb2-toggle::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;background:white;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+.onb2-toggle.on{background:#6B3FA0}
+.onb2-toggle.on::after{transform:translateX(18px)}
+.onb2-smoobu-box{background:#F5F4FF;border-radius:12px;padding:14px}
+.onb2-smoobu-title{font-size:13px;font-weight:600;color:#6B3FA0;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.onb2-smoobu-sub{font-size:12px;color:#8A8A99;margin-bottom:10px}
+
+/* ── FOOTER ── */
+#onb2-footer{padding:0 24px}
+.onb2-btn-main{width:100%;padding:14px;border-radius:12px;background:linear-gradient(135deg,#6B3FA0,#9333EA);color:white;border:none;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .15s;letter-spacing:0.2px}
+.onb2-btn-main:active{opacity:0.9}
+.onb2-btn-main:disabled{opacity:0.5;cursor:not-allowed}
+.onb2-btn-back{background:none;border:none;font-size:13px;color:#B0B0C0;cursor:pointer;font-family:inherit;margin-top:12px;width:100%;text-align:center;padding:4px}
+.onb2-btn-back:hover{color:#6B3FA0}
+.onb2-err{background:#FCEBEB;color:#A32D2D;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:12px;display:none}
+.onb2-err.show{display:block}
+</style>
+
+<!-- OVERLAY -->
+<div id="onb2">
+  <div id="onb2-sheet">
+    <!-- Progress -->
+    <div id="onb2-bar"><div id="onb2-fill" style="width:33%"></div></div>
+
+    <!-- Header -->
+    <div id="onb2-head">
+      <div class="onb2-step-label" id="onb2-step-lbl">Étape 1 sur 3</div>
+      <button id="onb2-skip" onclick="onb2Skip()">Passer →</button>
     </div>
-    <!-- Step 1 -->
-    <div id="onb-step-1">
-      <div style="text-align:center;margin-bottom:1.5rem">
-        <div style="font-size:48px;margin-bottom:.75rem">🏠</div>
-        <div style="font-size:20px;font-weight:700;margin-bottom:6px">Bienvenue sur RentyQ !</div>
-        <div style="font-size:13px;color:#8A8A99;line-height:1.6">On va configurer votre compte en 3 étapes rapides pour que vous puissiez gérer vos appartements comme un pro.</div>
-      </div>
-      <div style="display:grid;gap:10px;margin-bottom:1.5rem">
-        <div style="display:flex;align-items:center;gap:12px;padding:.75rem;background:#F5F4FF;border-radius:10px">
-          <div style="width:32px;height:32px;background:#6B3FA0;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0">1</div>
-          <div><div style="font-size:13px;font-weight:600">Ajoutez votre premier appartement</div><div style="font-size:12px;color:#8A8A99">Nom, ville, prix — 1 minute</div></div>
+
+    <!-- Body -->
+    <div id="onb2-body">
+
+      <!-- ── ÉTAPE 1 : Premier appartement ── -->
+      <div id="onb2-s1">
+        <span class="onb2-icon">🏠</span>
+        <div class="onb2-title">Ajoutez votre premier bien</div>
+        <div class="onb2-sub">Juste le nom, la ville et votre prix habituel. Vous pourrez tout modifier après.</div>
+        <div class="onb2-err" id="onb2-err1"></div>
+        <div class="onb2-field">
+          <label class="onb2-label">Nom de l'appartement</label>
+          <input class="onb2-input" id="onb2-apt-name" placeholder="ex : Studio Bastille, T2 Lyon Centre…" autocomplete="off"/>
         </div>
-        <div style="display:flex;align-items:center;gap:12px;padding:.75rem;background:#F5F4FF;border-radius:10px">
-          <div style="width:32px;height:32px;background:#6B3FA0;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0">2</div>
-          <div><div style="font-size:13px;font-weight:600">Connectez Smoobu (optionnel)</div><div style="font-size:12px;color:#8A8A99">Import automatique de vos données</div></div>
+        <div class="onb2-field">
+          <label class="onb2-label">Ville</label>
+          <input class="onb2-input" id="onb2-apt-city" placeholder="Paris, Lyon, Bordeaux…"/>
         </div>
-        <div style="display:flex;align-items:center;gap:12px;padding:.75rem;background:#F5F4FF;border-radius:10px">
-          <div style="width:32px;height:32px;background:#6B3FA0;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0">3</div>
-          <div><div style="font-size:13px;font-weight:600">Activez EVA</div><div style="font-size:12px;color:#8A8A99">L'IA optimise vos prix automatiquement</div></div>
+        <div class="onb2-row">
+          <div class="onb2-field">
+            <label class="onb2-label">Prix / nuit (€)</label>
+            <input class="onb2-input" id="onb2-apt-price" type="number" placeholder="95" min="10" max="2000"/>
+          </div>
+          <div class="onb2-field">
+            <label class="onb2-label">Loyer mensuel (€)</label>
+            <input class="onb2-input" id="onb2-apt-rent" type="number" placeholder="900" min="0"/>
+          </div>
+        </div>
+        <div class="onb2-hint">💡 Le loyer sert à calculer votre rentabilité nette automatiquement.</div>
+      </div>
+
+      <!-- ── ÉTAPE 2 : Type d'usage ── -->
+      <div id="onb2-s2" style="display:none">
+        <span class="onb2-icon">🎯</span>
+        <div class="onb2-title">Comment utilisez-vous RentyQ ?</div>
+        <div class="onb2-sub">On adapte votre tableau de bord selon votre activité.</div>
+        <div class="onb2-options">
+          <div class="onb2-option selected" id="onb2-opt-solo" onclick="onb2SelectMode('solo')">
+            <div class="onb2-option-icon">🏠</div>
+            <div class="onb2-option-body">
+              <div class="onb2-option-title">Je gère mes propres biens</div>
+              <div class="onb2-option-sub">Sous-location, coliving, investissement locatif</div>
+            </div>
+            <div class="onb2-option-check" id="onb2-chk-solo">✓</div>
+          </div>
+          <div class="onb2-option" id="onb2-opt-concierge" onclick="onb2SelectMode('concierge')">
+            <div class="onb2-option-icon">🏢</div>
+            <div class="onb2-option-body">
+              <div class="onb2-option-title">Je gère les biens de clients</div>
+              <div class="onb2-option-sub">Conciergerie, gestion locative pour tiers</div>
+            </div>
+            <div class="onb2-option-check" id="onb2-chk-concierge"></div>
+          </div>
+          <div class="onb2-option" id="onb2-opt-both" onclick="onb2SelectMode('both')">
+            <div class="onb2-option-icon">⚡</div>
+            <div class="onb2-option-body">
+              <div class="onb2-option-title">Les deux</div>
+              <div class="onb2-option-sub">Mes biens + ceux de mes clients</div>
+            </div>
+            <div class="onb2-option-check" id="onb2-chk-both"></div>
+          </div>
         </div>
       </div>
-      <button class="btn-full" onclick="onbNext(2)">C'est parti ! →</button>
+
+      <!-- ── ÉTAPE 3 : EVA + Smoobu ── -->
+      <div id="onb2-s3" style="display:none">
+        <span class="onb2-icon">🤖</span>
+        <div class="onb2-title">Activez EVA, votre IA pricing</div>
+        <div class="onb2-sub">EVA analyse les événements locaux et ajuste vos prix pour maximiser vos revenus.</div>
+
+        <!-- EVA toggle -->
+        <div class="onb2-eva-card">
+          <div class="onb2-eva-icon">🤖</div>
+          <div class="onb2-eva-body">
+            <div class="onb2-eva-title">EVA Pricing</div>
+            <div class="onb2-eva-sub" id="onb2-eva-mode-label">Mode automatique activé</div>
+          </div>
+          <button class="onb2-toggle on" id="onb2-eva-toggle" onclick="onb2ToggleEva()"></button>
+        </div>
+
+        <!-- Mode EVA -->
+        <div style="display:flex;gap:8px;margin-bottom:16px">
+          <div id="onb2-mode-auto" onclick="onb2SetEvaMode('auto')" style="flex:1;padding:10px;border-radius:10px;border:1.5px solid #6B3FA0;background:#F5F4FF;cursor:pointer;text-align:center">
+            <div style="font-size:13px;font-weight:600;color:#6B3FA0">⚡ Auto</div>
+            <div style="font-size:11px;color:#8A8A99;margin-top:2px">EVA ajuste sans vous demander</div>
+          </div>
+          <div id="onb2-mode-suggest" onclick="onb2SetEvaMode('suggest')" style="flex:1;padding:10px;border-radius:10px;border:1.5px solid #E8E8EE;cursor:pointer;text-align:center">
+            <div style="font-size:13px;font-weight:600;color:#6B7280">💬 Suggestion</div>
+            <div style="font-size:11px;color:#8A8A99;margin-top:2px">EVA propose, vous validez</div>
+          </div>
+        </div>
+
+        <!-- Smoobu optionnel -->
+        <div class="onb2-smoobu-box">
+          <div class="onb2-smoobu-title">🔗 Connecter Smoobu <span style="font-weight:400;color:#B0B0C0;font-size:11px">(optionnel)</span></div>
+          <div class="onb2-smoobu-sub">Importez vos réservations Airbnb & Booking automatiquement. Vous pourrez aussi le faire plus tard.</div>
+          <input class="onb2-input" id="onb2-smoobu-key" placeholder="Clé API Smoobu → Paramètres → Avancé" style="font-size:13px;font-family:monospace"/>
+        </div>
+      </div>
+
+    </div><!-- /body -->
+
+    <!-- Footer -->
+    <div id="onb2-footer">
+      <button class="onb2-btn-main" id="onb2-btn-next" onclick="onb2Next()">Continuer →</button>
+      <button class="onb2-btn-back" id="onb2-btn-back" style="display:none" onclick="onb2Back()">← Retour</button>
     </div>
-    <!-- Step 2 -->
-    <div id="onb-step-2" style="display:none">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
-        <div style="font-size:13px;color:#8A8A99">Étape 1/2</div>
-        <div style="display:flex;gap:6px"><div style="width:24px;height:4px;border-radius:100px;background:#6B3FA0"></div><div style="width:24px;height:4px;border-radius:100px;background:#E8E8EE"></div></div>
-      </div>
-      <div style="text-align:center;margin-bottom:1.25rem">
-        <div style="font-size:32px;margin-bottom:.5rem">🏠</div>
-        <div style="font-size:18px;font-weight:700;margin-bottom:4px">Votre premier appartement</div>
-        <div style="font-size:13px;color:#8A8A99">Ces infos permettent à EVA de calculer votre plancher de rentabilité</div>
-      </div>
-      <div class="form-group"><label>Nom de l'appartement</label><input type="text" id="onb-name" placeholder="Studio Bastille"/></div>
-      <div class="form-group"><label>Ville ★</label><input type="text" id="onb-city" placeholder="Paris, Lyon, Bordeaux…"/></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div class="form-group"><label>Loyer mensuel (€)</label><input type="number" id="onb-rent" placeholder="900"/></div>
-        <div class="form-group"><label>Prix / nuit (€)</label><input type="number" id="onb-price" placeholder="95"/></div>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:.5rem">
-        <button class="btn" onclick="onbSkip()" style="flex:1">Passer</button>
-        <button class="btn btn-purple" onclick="onbSaveAppart()" style="flex:2">Enregistrer →</button>
-      </div>
-    </div>
-    <!-- Step 3 -->
-    <div id="onb-step-3" style="display:none">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
-        <div style="font-size:13px;color:#8A8A99">Étape 2/2</div>
-        <div style="display:flex;gap:6px"><div style="width:24px;height:4px;border-radius:100px;background:#6B3FA0"></div><div style="width:24px;height:4px;border-radius:100px;background:#6B3FA0"></div></div>
-      </div>
-      <div style="text-align:center;margin-bottom:1.25rem">
-        <div style="font-size:32px;margin-bottom:.5rem">🔗</div>
-        <div style="font-size:18px;font-weight:700;margin-bottom:4px">Connectez Smoobu</div>
-        <div style="font-size:13px;color:#8A8A99">Importez automatiquement vos réservations Airbnb & Booking</div>
-      </div>
-      <div class="form-group">
-        <label>Clé API Smoobu (optionnel)</label>
-        <input type="text" id="onb-smoobu" placeholder="Smoobu → Paramètres → Avancé → Clés API" style="font-size:12px"/>
-      </div>
-      <div style="background:#F5F4FF;border-radius:8px;padding:.75rem;font-size:12px;color:#6B3FA0;margin-bottom:1rem">
-        💡 Vous pouvez connecter Smoobu plus tard dans Intégrations → Smoobu
-      </div>
-      <div style="display:flex;gap:8px">
-        <button class="btn" onclick="onbFinish()" style="flex:1">Plus tard</button>
-        <button class="btn btn-green" onclick="onbConnectSmoobu()" style="flex:2">🔗 Connecter & Terminer</button>
-      </div>
-    </div>
+
   </div>
 </div>
+
+<script>
+// ── ONBOARDING v2 STATE ──────────────────────────────────────────────────────
+let onb2Step=1;
+let onb2Mode='solo';
+let onb2EvaOn=true;
+let onb2EvaMode='auto';
+
+const ONB2_STEPS={
+  1:{label:'Étape 1 sur 3',fill:'33%',skip:true},
+  2:{label:'Étape 2 sur 3',fill:'66%',skip:true},
+  3:{label:'Étape 3 sur 3',fill:'100%',skip:false}
+};
+
+function onb2Open(){
+  const seen=localStorage.getItem('onb2_seen_'+(currentUser?.user?.id||''));
+  if(seen||apparts.length>0)return;
+  document.getElementById('onb2').classList.add('open');
+  onb2GoTo(1);
+}
+
+function onb2GoTo(step){
+  onb2Step=step;
+  const cfg=ONB2_STEPS[step];
+  document.getElementById('onb2-fill').style.width=cfg.fill;
+  document.getElementById('onb2-step-lbl').textContent=cfg.label;
+  document.getElementById('onb2-skip').style.display=cfg.skip?'block':'none';
+  document.getElementById('onb2-btn-back').style.display=step>1?'block':'none';
+  [1,2,3].forEach(i=>{
+    document.getElementById('onb2-s'+i).style.display=i===step?'block':'none';
+  });
+  // Button label
+  const btn=document.getElementById('onb2-btn-next');
+  btn.textContent=step===3?'✨ Lancer RentyQ !':'Continuer →';
+  btn.disabled=false;
+}
+
+function onb2Next(){
+  if(onb2Step===1){
+    // Validate étape 1
+    const name=document.getElementById('onb2-apt-name').value.trim();
+    const city=document.getElementById('onb2-apt-city').value.trim();
+    const err=document.getElementById('onb2-err1');
+    if(!name||!city){
+      err.textContent='Le nom et la ville sont obligatoires.';
+      err.classList.add('show');
+      setTimeout(()=>err.classList.remove('show'),3000);
+      return;
+    }
+    onb2GoTo(2);
+  }else if(onb2Step===2){
+    onb2GoTo(3);
+  }else{
+    onb2Finish();
+  }
+}
+
+function onb2Back(){
+  if(onb2Step>1)onb2GoTo(onb2Step-1);
+}
+
+function onb2Skip(){
+  onb2Finish();
+}
+
+function onb2SelectMode(mode){
+  onb2Mode=mode;
+  ['solo','concierge','both'].forEach(m=>{
+    const opt=document.getElementById('onb2-opt-'+m);
+    const chk=document.getElementById('onb2-chk-'+m);
+    if(opt)opt.classList.toggle('selected',m===mode);
+    if(chk)chk.textContent=m===mode?'✓':'';
+  });
+}
+
+function onb2ToggleEva(){
+  onb2EvaOn=!onb2EvaOn;
+  const tog=document.getElementById('onb2-eva-toggle');
+  tog.classList.toggle('on',onb2EvaOn);
+  document.getElementById('onb2-eva-mode-label').textContent=onb2EvaOn?'Mode '+onb2EvaMode+' activé':'EVA désactivée';
+}
+
+function onb2SetEvaMode(mode){
+  onb2EvaMode=mode;
+  const auto=document.getElementById('onb2-mode-auto');
+  const sug=document.getElementById('onb2-mode-suggest');
+  if(mode==='auto'){
+    auto.style.border='1.5px solid #6B3FA0';auto.style.background='#F5F4FF';
+    auto.querySelector('div').style.color='#6B3FA0';
+    sug.style.border='1.5px solid #E8E8EE';sug.style.background='white';
+    sug.querySelector('div').style.color='#6B7280';
+  }else{
+    sug.style.border='1.5px solid #6B3FA0';sug.style.background='#F5F4FF';
+    sug.querySelector('div').style.color='#6B3FA0';
+    auto.style.border='1.5px solid #E8E8EE';auto.style.background='white';
+    auto.querySelector('div').style.color='#6B7280';
+  }
+  if(onb2EvaOn)document.getElementById('onb2-eva-mode-label').textContent='Mode '+mode+' activé';
+}
+
+async function onb2Finish(){
+  const btn=document.getElementById('onb2-btn-next');
+  btn.disabled=true;btn.textContent='Configuration…';
+
+  // 1. Sauvegarder l'appartement si rempli
+  const aptName=document.getElementById('onb2-apt-name').value.trim();
+  const aptCity=document.getElementById('onb2-apt-city').value.trim();
+  const aptPrice=+document.getElementById('onb2-apt-price').value||95;
+  const aptRent=+document.getElementById('onb2-apt-rent').value||900;
+
+  if(aptName&&aptCity&&apparts.length===0){
+    try{
+      const body={
+        user_id:currentUser.user.id,
+        name:aptName,city:aptCity,zone:'',emoji:'🏠',
+        rent:aptRent,cleaner:25,
+        price:aptPrice,
+        comp:Math.round(aptPrice*1.05),
+        ai_rec:Math.round(aptPrice*1.08),
+        booked:false,auto_pricing:onb2EvaOn,has_event:false
+      };
+      const res=await sbFetch('appartements',{method:'POST',body:JSON.stringify(body)});
+      const c=await res.json();
+      apparts.push(Array.isArray(c)&&c[0]?c[0]:{...body,id:Date.now().toString()});
+    }catch(e){}
+  }
+
+  // 2. Sauvegarder le mode dans le profil
+  const modules=onb2Mode==='both'?'solo,concierge':onb2Mode;
+  try{
+    await sbFetch(`profiles?id=eq.${currentUser.user.id}`,{
+      method:'PATCH',
+      body:JSON.stringify({type:onb2Mode==='concierge'?'concierge':'solo',modules:'{'+modules+'}'})
+    });
+    if(currentProfile)currentProfile.modules=modules;
+  }catch(e){}
+
+  // 3. Connecter Smoobu si clé fournie
+  const smoobuInput=document.getElementById('onb2-smoobu-key').value.trim();
+  if(smoobuInput){
+    smoobuKey=smoobuInput;
+    try{localStorage.setItem('smoobu_key',smoobuInput);}catch(e){}
+    syncSmoobu();
+  }
+
+  // 4. Marquer comme vu
+  try{localStorage.setItem('onb2_seen_'+currentUser.user.id,'1');}catch(e){}
+
+  // 5. Fermer et lancer l'app
+  document.getElementById('onb2').classList.remove('open');
+  applyModules();
+  renderAll();
+  goTo('cockpit',document.querySelectorAll('.nav-item')[0]);
+  showToast('✅ Bienvenue sur RentyQ ! EVA est prête 🤖');
+}
+// ── FIN ONBOARDING v2 ────────────────────────────────────────────────────────
+</script>
+
+
 <!-- MODAL PROPRIETAIRE -->
 <div class="modal-overlay" id="modal-proprio">
   <div class="modal">
@@ -1026,7 +1302,7 @@ async function loadApp(){
     await loadCharges();await loadTransactions();await loadCatRules();await loadCleaners();await loadMissions();
     applyModules();
     if(userModules.includes('concierge')){renderProprietaires();initRapportMois();renderRapports();renderCockpitConcierge();renderParcConcierge();}
-    checkOnboarding();
+     onb2Open();
   }catch(e){document.getElementById('loading').style.display='none';document.getElementById('auth-screen').style.display='flex';}
 }
 
