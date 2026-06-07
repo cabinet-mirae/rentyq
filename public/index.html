@@ -476,7 +476,6 @@ tr:hover td{background:#FAFAFF}
           <div><div class="page-title">Finances 💰</div><div class="page-sub" id="finances-sub">Rentabilité nette de vos appartements</div></div>
           <div class="actions">
             <select id="fin-mois" style="padding:8px 12px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit" onchange="renderFinances()"></select>
-            <button class="btn btn-ai" onclick="renderPrevisionnel()">📈 Prévisionnel</button>
             <button class="btn" onclick="openImportCSV()">📥 Import CSV</button>
             <button class="btn btn-purple" onclick="openChargesModal()">⚙ Charges</button>
           </div>
@@ -490,9 +489,6 @@ tr:hover td{background:#FAFAFF}
 
         <!-- Vue globale -->
         <div id="fin-global"></div>
-
-        <!-- Prévisionnel -->
-        <div id="fin-previsionnel" style="display:none"></div>
 
         <!-- Empty state -->
         <div id="fin-empty" style="text-align:center;padding:3rem;display:none">
@@ -3559,203 +3555,6 @@ function renderFinances(){
   if(sub)sub.innerHTML=`Rentabilité nette · <a href="#" onclick="openRulesModal();return false" style="color:#6B3FA0">🏷 Règles de catégorisation</a>`;
 }
 
-// PREVISIONNEL v2
-function renderPrevisionnel(){
-  const el=document.getElementById('fin-previsionnel');
-  if(el.style.display==='block'){el.style.display='none';return;}
-  el.style.display='block';
-
-  if(!apparts.length){el.innerHTML='<div class="card" style="text-align:center;padding:2rem;color:#8A8A99">Ajoutez des appartements pour voir les projections.</div>';return;}
-
-  const now=new Date();
-  const moisActuel=now.toISOString().slice(0,7);
-  const months=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
-
-  // Calculer données actuelles
-  let totalFixesMensuel=0;
-  let totalVarParRes=0;
-  let prixMoyenNuit=0;
-  let commPctMoy=0;
-  let nbApparts=apparts.length;
-
-  apparts.forEach(a=>{
-    const ac=chargesData.filter(c=>c.appartement_id===a.id);
-    totalFixesMensuel+=ac.filter(c=>c.type==='fixe').reduce((s,c)=>s+(c.amount||0),0);
-    totalVarParRes+=ac.filter(c=>c.type==='variable'&&c.category!=='commission_plateforme').reduce((s,c)=>s+(c.amount||0),0);
-    commPctMoy+=ac.find(c=>c.category==='commission_plateforme')?.amount||0;
-    prixMoyenNuit+=a.price||0;
-  });
-
-  prixMoyenNuit=nbApparts?Math.round(prixMoyenNuit/nbApparts):90;
-  commPctMoy=nbApparts?Math.round(commPctMoy/nbApparts):3;
-
-  // Calculer taux occupation actuel
-  const moisRes=reservations.filter(r=>r.date_from&&r.date_from.startsWith(moisActuel));
-  const nuitsVendues=moisRes.reduce((s,r)=>s+(r.nights||0),0);
-  const nuitsDispos=nbApparts*30;
-  const occActuel=nuitsDispos>0?Math.round(nuitsVendues/nuitsDispos*100):50;
-
-  // Saisonnalité
-  const saisonCoeff=[0.7,0.7,0.8,0.85,0.9,1.0,1.1,1.1,0.95,0.85,0.75,0.8];
-
-  // 3 scénarios
-  const scenarios=[
-    {name:'Pessimiste',emoji:'😰',occBase:Math.max(occActuel-15,20),color:'#E24B4A',bg:'#FCEBEB'},
-    {name:'Réaliste',emoji:'📊',occBase:occActuel,color:'#6B3FA0',bg:'#F5F4FF'},
-    {name:'Optimiste',emoji:'🚀',occBase:Math.min(occActuel+15,95),color:'#1D9E75',bg:'#E1F5EE'}
-  ];
-
-  // Calculs sur 12 mois
-  scenarios.forEach(sc=>{
-    sc.months=[];
-    sc.totalRev=0;sc.totalCharges=0;sc.totalNet=0;
-    for(let i=0;i<12;i++){
-      const d=new Date(now.getFullYear(),now.getMonth()+i,1);
-      const mIdx=d.getMonth();
-      const occ=Math.min(Math.round(sc.occBase*saisonCoeff[mIdx]),98);
-      const nuits=Math.round(nbApparts*30*occ/100);
-      const nbRes=Math.round(nuits/3);
-      const rev=nuits*prixMoyenNuit;
-      const charges=totalFixesMensuel+totalVarParRes*nbRes+Math.round(rev*commPctMoy/100);
-      const net=rev-charges;
-      sc.months.push({mois:months[mIdx],occ,nuits,rev,charges,net});
-      sc.totalRev+=rev;sc.totalCharges+=charges;sc.totalNet+=net;
-    }
-  });
-
-  // Point mort
-  const chargesFixes=totalFixesMensuel;
-  const revParNuit=prixMoyenNuit*(1-commPctMoy/100);
-  const varParNuit=totalVarParRes/3;
-  const margeParNuit=revParNuit-varParNuit;
-  const nuitsPointMort=margeParNuit>0?Math.ceil(chargesFixes/margeParNuit):999;
-  const occPointMort=nuitsDispos>0?Math.round(nuitsPointMort/nuitsDispos*100):0;
-
-  // Barres graphiques max
-  const maxRev=Math.max(...scenarios[2].months.map(m=>m.rev),1);
-
-  let html='';
-
-  // Titre
-  html+=`<div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;margin:1.5rem 0 0.75rem">📈 Prévisionnel 12 mois</div>`;
-
-  // Point mort
-  html+=`<div class="card" style="display:flex;align-items:center;gap:16px;padding:1rem 1.25rem;margin-bottom:1rem;border-left:3px solid ${occPointMort<=occActuel?'#1D9E75':'#E24B4A'}">
-    <div style="font-size:32px">${occPointMort<=occActuel?'✅':'⚠️'}</div>
-    <div style="flex:1">
-      <div style="font-size:14px;font-weight:600">Point mort : ${nuitsPointMort} nuits/mois (${occPointMort}% occupation)</div>
-      <div style="font-size:12px;color:#8A8A99;margin-top:2px">Votre occupation actuelle : ${occActuel}% · ${occPointMort<=occActuel?'Vous êtes au-dessus du point mort ✓':'Vous êtes en dessous — il faut remplir plus'}</div>
-    </div>
-    <div style="text-align:right">
-      <div style="font-size:22px;font-weight:700;color:${occPointMort<=occActuel?'#1D9E75':'#E24B4A'}">${occPointMort}%</div>
-      <div style="font-size:10px;color:#8A8A99">seuil</div>
-    </div>
-  </div>`;
-
-  // KPIs 3/6/12 mois — scénario réaliste
-  const sc=scenarios[1];
-  const rev3=sc.months.slice(0,3).reduce((s,m)=>s+m.rev,0);
-  const net3=sc.months.slice(0,3).reduce((s,m)=>s+m.net,0);
-  const rev6=sc.months.slice(0,6).reduce((s,m)=>s+m.rev,0);
-  const net6=sc.months.slice(0,6).reduce((s,m)=>s+m.net,0);
-
-  html+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:1rem">
-    <div class="kpi"><div class="kpi-label">Revenus 3 mois</div><div class="kpi-value" style="color:#1D9E75">${Math.round(rev3)}€</div><div class="kpi-delta" style="color:#1D9E75">net : ${net3>=0?'+':''}${Math.round(net3)}€</div></div>
-    <div class="kpi"><div class="kpi-label">Revenus 6 mois</div><div class="kpi-value" style="color:#1D9E75">${Math.round(rev6)}€</div><div class="kpi-delta" style="color:#1D9E75">net : ${net6>=0?'+':''}${Math.round(net6)}€</div></div>
-    <div class="kpi"><div class="kpi-label">Revenus 12 mois</div><div class="kpi-value" style="color:#1D9E75">${Math.round(sc.totalRev)}€</div><div class="kpi-delta" style="color:#1D9E75">net : ${sc.totalNet>=0?'+':''}${Math.round(sc.totalNet)}€</div></div>
-    <div class="kpi"><div class="kpi-label">Occ. moyenne</div><div class="kpi-value" style="color:#6B3FA0">${Math.round(sc.months.reduce((s,m)=>s+m.occ,0)/12)}%</div><div class="kpi-delta" style="color:#8A8A99">sur 12 mois</div></div>
-  </div>`;
-
-  // Graphe barres — 3 scénarios
-  html+=`<div class="card" style="margin-bottom:1rem">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
-      <div style="font-size:14px;font-weight:600">Projections mensuelles</div>
-      <div style="display:flex;gap:12px;font-size:11px">
-        ${scenarios.map(s=>`<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:${s.color}"></span>${s.name}</span>`).join('')}
-      </div>
-    </div>
-    <div style="display:flex;align-items:flex-end;gap:3px;height:180px;padding-bottom:20px;position:relative">
-      ${sc.months.map((m,i)=>{
-        const pess=scenarios[0].months[i];
-        const opti=scenarios[2].months[i];
-        const hP=Math.max(Math.round(pess.rev/maxRev*140),4);
-        const hR=Math.max(Math.round(m.rev/maxRev*140),4);
-        const hO=Math.max(Math.round(opti.rev/maxRev*140),4);
-        return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px">
-          <div style="display:flex;gap:1px;align-items:flex-end;width:100%">
-            <div style="flex:1;background:${scenarios[0].color};opacity:0.3;height:${hP}px;border-radius:2px 2px 0 0"></div>
-            <div style="flex:1;background:${scenarios[1].color};height:${hR}px;border-radius:2px 2px 0 0"></div>
-            <div style="flex:1;background:${scenarios[2].color};opacity:0.3;height:${hO}px;border-radius:2px 2px 0 0"></div>
-          </div>
-          <div style="font-size:8px;color:#8A8A99;margin-top:2px">${m.mois}</div>
-        </div>`;
-      }).join('')}
-    </div>
-  </div>`;
-
-  // Tableau comparatif
-  html+=`<div class="card">
-    <div style="font-size:14px;font-weight:600;margin-bottom:1rem">Comparaison des scénarios sur 12 mois</div>
-    <div class="table-wrap"><table>
-      <thead><tr><th>Scénario</th><th>Occ. moy.</th><th style="text-align:right">Revenus</th><th style="text-align:right">Charges</th><th style="text-align:right">Résultat net</th><th style="text-align:right">Marge</th></tr></thead>
-      <tbody>
-      ${scenarios.map(s=>{
-        const avgOcc=Math.round(s.months.reduce((a,m)=>a+m.occ,0)/12);
-        const marge=s.totalRev>0?Math.round(s.totalNet/s.totalRev*100):0;
-        return`<tr>
-          <td style="font-weight:600">${s.emoji} ${s.name}</td>
-          <td>${avgOcc}%</td>
-          <td style="text-align:right;color:#1D9E75;font-weight:500">${Math.round(s.totalRev)}€</td>
-          <td style="text-align:right;color:#E24B4A">${Math.round(s.totalCharges)}€</td>
-          <td style="text-align:right;font-weight:700;color:${s.totalNet>=0?'#1D9E75':'#E24B4A'}">${s.totalNet>=0?'+':''}${Math.round(s.totalNet)}€</td>
-          <td style="text-align:right"><span class="tag ${marge>=15?'tag-ok':marge>=0?'tag-warn':'tag-bad'}">${marge}%</span></td>
-        </tr>`;
-      }).join('')}
-      </tbody>
-    </table></div>
-  </div>`;
-
-  // Détail mensuel réaliste
-  html+=`<div class="card">
-    <div style="font-size:14px;font-weight:600;margin-bottom:1rem">Détail mensuel — scénario réaliste</div>
-    <div class="table-wrap"><table>
-      <thead><tr><th>Mois</th><th>Occ.</th><th>Nuits</th><th style="text-align:right">Revenus</th><th style="text-align:right">Charges</th><th style="text-align:right">Net</th></tr></thead>
-      <tbody>
-      ${sc.months.map((m,i)=>{
-        const d=new Date(now.getFullYear(),now.getMonth()+i,1);
-        const label=d.toLocaleDateString('fr-FR',{month:'short',year:'numeric'});
-        return`<tr ${i===0?'style="background:#F5F4FF;font-weight:500"':''}>
-          <td>${label}</td>
-          <td><span style="color:${m.occ>=65?'#1D9E75':m.occ>=50?'#BA7517':'#E24B4A'}">${m.occ}%</span></td>
-          <td>${m.nuits}</td>
-          <td style="text-align:right;color:#1D9E75">${Math.round(m.rev)}€</td>
-          <td style="text-align:right;color:#E24B4A">${Math.round(m.charges)}€</td>
-          <td style="text-align:right;font-weight:600;color:${m.net>=0?'#1D9E75':'#E24B4A'}">${m.net>=0?'+':''}${Math.round(m.net)}€</td>
-        </tr>`;
-      }).join('')}
-      <tr style="border-top:2px solid #6B3FA0;font-weight:700;background:#F5F4FF">
-        <td>TOTAL</td><td></td><td>${sc.months.reduce((s,m)=>s+m.nuits,0)}</td>
-        <td style="text-align:right;color:#1D9E75">${Math.round(sc.totalRev)}€</td>
-        <td style="text-align:right;color:#E24B4A">${Math.round(sc.totalCharges)}€</td>
-        <td style="text-align:right;color:${sc.totalNet>=0?'#1D9E75':'#E24B4A'}">${sc.totalNet>=0?'+':''}${Math.round(sc.totalNet)}€</td>
-      </tr>
-      </tbody>
-    </table></div>
-  </div>`;
-
-  // Hypothèses
-  html+=`<div style="background:#F8F7FF;border-radius:10px;padding:1rem;margin-bottom:1rem;font-size:12px;color:#8A8A99;line-height:1.8">
-    <strong style="color:#6B3FA0">Hypothèses du calcul :</strong><br>
-    📊 Occupation actuelle : ${occActuel}% · Prix moyen : ${prixMoyenNuit}€/nuit · ${nbApparts} appartement${nbApparts>1?'s':''}<br>
-    💰 Charges fixes : ${totalFixesMensuel}€/mois · Variables : ${totalVarParRes}€/résa · Commission : ${commPctMoy}%<br>
-    📅 Saisonnalité appliquée (été +10%, hiver -30%, printemps/automne ajusté)<br>
-    ⚠ Projections indicatives — les résultats réels dépendent de votre stratégie de prix et de la demande.
-  </div>`;
-
-  el.innerHTML=html;
-  el.scrollIntoView({behavior:'smooth',block:'start'});
-}
-
 // STRIPE & TARIFS
 function renderTarifs(){
   const content=document.getElementById('tarifs-content');if(!content)return;
@@ -3847,5 +3646,4 @@ function checkPaymentReturn(){
 </script>
 </body>
 </html>
-
 
