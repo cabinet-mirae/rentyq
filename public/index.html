@@ -342,6 +342,10 @@ tr:hover td{background:#FAFAFF}
         <div class="page-header">
           <div><div class="page-title">Le Parc 🏠</div><div class="page-sub" id="parc-sub"></div></div>
           <div class="actions">
+            <div style="display:flex;background:#F0F0F5;border-radius:8px;padding:2px;margin-right:8px">
+              <button id="parc-view-list" onclick="switchParcView('list')" style="padding:6px 12px;border-radius:6px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:#6B3FA0;color:white">📋 Liste</button>
+              <button id="parc-view-map" onclick="switchParcView('map')" style="padding:6px 12px;border-radius:6px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8A8A99">🗺 Carte</button>
+            </div>
             <button class="btn btn-green" onclick="syncSmoobu()" id="btn-sync" style="display:none">🔄 Sync Smoobu</button>
             <button class="btn btn-purple" onclick="openAddModal()">+ Ajouter</button>
           </div>
