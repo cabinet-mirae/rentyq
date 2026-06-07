@@ -37,7 +37,7 @@ export async function onRequestPost(context) {
           currency: 'eur',
           unit_amount: PLANS[plan].price,
           recurring: { interval: PLANS[plan].interval },
-          product_data: { name: `RentiQ ${PLANS[plan].name}` }
+          product_data: { name: `RentyQ ${PLANS[plan].name}` }
         });
 
         if (priceRes.error) {
@@ -53,7 +53,7 @@ export async function onRequestPost(context) {
           allow_promotion_codes: true,
           subscription_data: {
             trial_period_days: 14,
-            metadata: { plan, site: 'rentiq' }
+            metadata: { plan, site: 'rentyq' }
           }
         };
 
