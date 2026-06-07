@@ -351,17 +351,19 @@ tr:hover td{background:#FAFAFF}
           </div>
         </div>
         <div id="parc-list-view">
-          <div class="card">
-            <div class="table-wrap"><table id="parc-table"></table></div>
-            <div id="parc-empty" style="text-align:center;padding:2rem;color:#8A8A99;display:none">
-              <div style="font-size:36px;margin-bottom:1rem">🏠</div>
-              <div style="font-weight:600;margin-bottom:6px">Aucun appartement</div>
-              <button class="btn btn-purple" onclick="openAddModal()" style="margin-top:0.5rem">+ Ajouter</button>
-            </div>
+          <div id="parc-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px"></div>
+          <div id="parc-empty" style="text-align:center;padding:3rem;display:none">
+            <div style="font-size:48px;margin-bottom:1rem">🏠</div>
+            <div style="font-weight:600;font-size:16px;margin-bottom:6px">Aucun appartement</div>
+            <div style="font-size:13px;color:#8A8A99;margin-bottom:1rem">Ajoutez votre premier bien pour commencer</div>
+            <button class="btn btn-purple" onclick="openAddModal()">+ Ajouter un appartement</button>
           </div>
         </div>
         <div id="parc-map-view" style="display:none">
           <div id="parc-map" style="height:500px;border-radius:12px;border:1px solid #E8E8EE;overflow:hidden"></div>
+        </div>
+        <div id="parc-detail-view" style="display:none">
+          <div id="parc-detail"></div>
         </div>
       </div>
 
@@ -1222,23 +1224,234 @@ function renderCockpitTable(){renderCockpit();}
 function renderCockpitEvents(){renderCockpit();}
 
 function renderParcTable(){
-  const e=document.getElementById('parc-empty');const t=document.getElementById('parc-table');
-  if(!apparts.length){e.style.display='block';t.innerHTML='';return}e.style.display='none';
-  t.innerHTML=`<thead><tr><th>Appartement</th><th>Ville</th><th>Plancher</th><th>Prix/nuit</th><th>Statut</th><th>Marge</th><th>Actions</th></tr></thead><tbody>`+
-  apparts.map(a=>{const fl=floor(a);const safe=a.price>=fl;const city=a.city||extractCity(a.zone,null)||'—';return`<tr>
-    <td><div class="apt-name"><div class="apt-emoji">${a.emoji||'🏠'}</div><div><div>${a.name}</div><div style="font-size:11px;color:#8A8A99">${a.zone||''}</div></div></div></td>
-    <td style="font-weight:600;color:#6B3FA0">${city}</td>
-    <td><div class="price-floor">${fl}€</div></td>
-    <td><div class="price-main">${a.price||0}€</div><div class="price-comp">Conc: ${a.comp||0}€</div></td>
-    <td><span class="tag ${a.booked?'tag-ok':'tag-warn'}">${a.booked?'Loué':'Libre'}</span></td>
-    <td><span class="tag ${safe?'tag-ok':'tag-bad'}">${safe?'✓':'⚠'}</span></td>
-    <td style="white-space:nowrap">
-      <button class="btn btn-sm" onclick="openEdit('${a.id}')" style="margin-right:4px">✏️</button>
-      <button class="btn btn-sm" onclick="toggleBooked('${a.id}',${!a.booked})">${a.booked?'🔓':'🔒'}</button>
-      <button class="btn btn-sm" onclick="deleteAppart('${a.id}')" style="margin-left:4px;color:#DC2626">🗑</button>
-    </td>
-  </tr>`;}).join('')+`</tbody>`;
+  const cards=document.getElementById('parc-cards');
+  const empty=document.getElementById('parc-empty');
+  if(!cards)return;
+  if(!apparts.length){empty.style.display='block';cards.innerHTML='';return;}
+  empty.style.display='none';
+
+  const mois=new Date().toISOString().slice(0,7);
+
+  cards.innerHTML=apparts.map(a=>{
+    const aptCharges=chargesData.filter(c=>c.appartement_id===a.id);
+    const aptRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(mois));
+    const rev=aptRes.reduce((s,r)=>s+(r.price_total||0),0);
+    const totalFixes=aptCharges.filter(c=>c.type==='fixe').reduce((s,c)=>s+(c.amount||0),0);
+    const totalVars=aptCharges.filter(c=>c.type==='variable'&&c.category!=='commission_plateforme').reduce((s,c)=>s+(c.amount||0),0)*(aptRes.length||1);
+    const commPct=aptCharges.find(c=>c.category==='commission_plateforme')?.amount||0;
+    const net=rev-totalFixes-totalVars-Math.round(rev*commPct/100);
+    const occ=Math.min(Math.round((aptRes.length/8)*100),100)||0;
+    const note=a.note||'—';
+    const city=a.city||'';
+    const cityEvs=eventsCache[city]||[];
+    const hotEvs=cityEvs.filter(e=>e.hot);
+    const pendingMissions=missionsData.filter(m=>m.appartement_id===a.id&&m.status==='en_attente').length;
+    const freeTonight=!a.booked;
+
+    let alertText='';let alertBg='#E1F5EE;color:#085041';
+    let actions=0;
+    if(freeTonight){actions++;alertText='⚠ Libre ce soir';alertBg='#FCEBEB;color:#A32D2D';}
+    if(occ<50){actions++;if(!alertText)alertText='⚠ Occupation faible ('+occ+'%)';}
+    if(note!=='—'&&note<4.0){actions++;if(!alertText)alertText='⚠ Note basse ('+note+')';}
+    if(hotEvs.length&&!alertText){alertText='🔥 '+hotEvs[0].name.slice(0,25)+'…';alertBg='#FAEEDA;color:#854F0B';}
+    if(pendingMissions>0&&!alertText){alertText='🧹 '+pendingMissions+' ménage en attente';alertBg='#FAEEDA;color:#854F0B';}
+    if(!alertText){alertText='✓ Tout est en ordre';alertBg='#E1F5EE;color:#085041';}
+    if(actions>1)alertText='⚠ '+actions+' actions urgentes';
+
+    const barColor=freeTonight?'#E24B4A':'#1D9E75';
+    const borderColor=freeTonight?'#F09595':actions>0?'#FAC775':'#E8E8EE';
+
+    return`<div onclick="showApartDetail('${a.id}')" style="background:white;border-radius:12px;border:0.5px solid ${borderColor};padding:1rem;cursor:pointer;position:relative;overflow:hidden;transition:transform .1s,box-shadow .1s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${barColor}"></div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+        <div>
+          <div style="font-size:14px;font-weight:500">${a.emoji||'🏠'} ${a.name}</div>
+          <div style="font-size:11px;color:#8A8A99">${city}</div>
+        </div>
+        <span style="font-size:10px;padding:2px 8px;border-radius:100px;background:${freeTonight?'#FCEBEB;color:#A32D2D':'#E1F5EE;color:#085041'};font-weight:500">${freeTonight?'Libre':'Loué'}</span>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:10px">
+        <div style="flex:1;background:#F8F7FF;border-radius:8px;padding:6px;text-align:center">
+          <div style="font-size:15px;font-weight:500;color:${note!=='—'&&note<4.0?'#E24B4A':'#1A1A2E'}">${note}</div>
+          <div style="font-size:9px;color:#8A8A99">★ Airbnb</div>
+        </div>
+        <div style="flex:1;background:#F8F7FF;border-radius:8px;padding:6px;text-align:center">
+          <div style="font-size:15px;font-weight:500;color:${occ>=65?'#1D9E75':occ>=40?'#BA7517':'#E24B4A'}">${occ}%</div>
+          <div style="font-size:9px;color:#8A8A99">Occup.</div>
+        </div>
+        <div style="flex:1;background:#F8F7FF;border-radius:8px;padding:6px;text-align:center">
+          <div style="font-size:15px;font-weight:500;color:${net>=0?'#1D9E75':'#E24B4A'}">${net>=0?'+':''}${net}€</div>
+          <div style="font-size:9px;color:#8A8A99">Net</div>
+        </div>
+      </div>
+      <div style="font-size:18px;font-weight:500;margin-bottom:6px">${getCurrentDegPrice(a)}€<span style="font-size:11px;font-weight:400;color:#8A8A99">/nuit</span></div>
+      <div style="font-size:11px;padding:4px 8px;border-radius:6px;background:${alertBg}">${alertText}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('parc-sub').textContent=apparts.length+' appartement'+(apparts.length>1?'s':'');
 }
+
+function showApartDetail(id){
+  const a=apparts.find(x=>x.id===id);if(!a)return;
+  document.getElementById('parc-list-view').style.display='none';
+  document.getElementById('parc-map-view').style.display='none';
+  document.getElementById('parc-detail-view').style.display='block';
+
+  const mois=new Date().toISOString().slice(0,7);
+  const city=a.city||'';
+  const cityEvs=eventsCache[city]||[];
+  const hotEvs=cityEvs.filter(e=>e.hot);
+  const aptRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(mois));
+  const rev=aptRes.reduce((s,r)=>s+(r.price_total||0),0);
+  const aptCharges=chargesData.filter(c=>c.appartement_id===a.id);
+  const totalFixes=aptCharges.filter(c=>c.type==='fixe').reduce((s,c)=>s+(c.amount||0),0);
+  const totalVars=aptCharges.filter(c=>c.type==='variable'&&c.category!=='commission_plateforme').reduce((s,c)=>s+(c.amount||0),0)*(aptRes.length||1);
+  const commPct=aptCharges.find(c=>c.category==='commission_plateforme')?.amount||0;
+  const net=rev-totalFixes-totalVars-Math.round(rev*commPct/100);
+  const occ=Math.min(Math.round((aptRes.length/8)*100),100)||0;
+  const note=a.note||'—';
+  const fl=floor(a);
+  const freeTonight=!a.booked;
+  const aptMissions=missionsData.filter(m=>m.appartement_id===a.id);
+  const pendingM=aptMissions.filter(m=>m.status==='en_attente'||m.status==='acceptee');
+
+  // Revenue bars for 12 months
+  let revBars='';
+  const months=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+  const now=new Date();
+  for(let i=11;i>=0;i--){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const m=d.toISOString().slice(0,7);
+    const mRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(m));
+    const mRev=mRes.reduce((s,r)=>s+(r.price_total||0),0);
+    const maxH=80;const h=Math.max(Math.min(mRev/200*maxH,maxH),4);
+    const col=mRev>totalFixes?'#5DCAA5':mRev>0?'#FAC775':'#F09595';
+    const isCurrent=i===0;
+    revBars+=`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+      <div style="font-size:8px;color:#8A8A99">${mRev>0?mRev+'€':''}</div>
+      <div style="width:100%;background:${col};border-radius:3px 3px 0 0;height:${h}px"></div>
+      <div style="font-size:8px;${isCurrent?'font-weight:500;color:#1A1A2E':'color:#8A8A99'}">${months[d.getMonth()]}</div>
+    </div>`;
+  }
+
+  // Next 7 nights
+  let nightsHtml='';
+  const jours=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  for(let i=0;i<7;i++){
+    const d=new Date(Date.now()+i*86400000);
+    const ds=d.toISOString().split('T')[0];
+    const hasRes=reservations.some(r=>r.appartement_id===a.id&&r.date_from<=ds&&r.date_to>=ds);
+    const dayEv=hotEvs.find(e=>e.date===ds);
+    let bg='#FCEBEB';let col='#A32D2D';let status='libre';let price=a.price||0;
+    if(hasRes){bg='#E1F5EE';col='#085041';status='loué';}
+    else if(dayEv){bg='#FAEEDA';col='#854F0B';status='🔥 evt';price=Math.round(price*(1+(dayEv.boost||5)/100));}
+    nightsHtml+=`<div style="flex:1;text-align:center;padding:6px 2px;border-radius:6px;background:${bg}">
+      <div style="font-size:8px;color:${col}">${jours[d.getDay()]}</div>
+      <div style="font-size:13px;font-weight:500;color:${col}">${price}€</div>
+      <div style="font-size:8px;color:${col}">${status}</div>
+    </div>`;
+  }
+
+  // Actions
+  let actionsHtml='';
+  if(freeTonight)actionsHtml+=`<div style="background:#FCEBEB;padding:8px 10px;font-size:12px;color:#A32D2D;border-left:3px solid #E24B4A;border-radius:0 8px 8px 0;margin-bottom:4px"><b>⚠ Libre ce soir</b> — baisser le prix pour remplir</div>`;
+  if(note!=='—'&&note<4.0)actionsHtml+=`<div style="background:#FCEBEB;padding:8px 10px;font-size:12px;color:#A32D2D;border-left:3px solid #E24B4A;border-radius:0 8px 8px 0;margin-bottom:4px"><b>⚠ Note ${note}/5</b> — revoir le ménage ou l'annonce</div>`;
+  if(occ<50)actionsHtml+=`<div style="background:#FAEEDA;padding:8px 10px;font-size:12px;color:#854F0B;border-left:3px solid #BA7517;border-radius:0 8px 8px 0;margin-bottom:4px"><b>📊 Occupation ${occ}%</b> — optimiser le prix pour remplir</div>`;
+  if(hotEvs.length)actionsHtml+=`<div style="background:#FAEEDA;padding:8px 10px;font-size:12px;color:#854F0B;border-left:3px solid #BA7517;border-radius:0 8px 8px 0;margin-bottom:4px"><b>🔥 ${hotEvs[0].name.slice(0,30)}</b> — hausser le prix (+${hotEvs[0].boost}%)</div>`;
+  if(!actionsHtml)actionsHtml='<div style="background:#E1F5EE;padding:8px 10px;font-size:12px;color:#085041;border-radius:8px">✓ Aucune action urgente — tout est en ordre</div>';
+
+  // CleanyQ
+  let cleanHtml='';
+  const assignedCleaners=cleanersData.filter(c=>aptMissions.some(m=>m.cleaner_id===c.id));
+  if(pendingM.length){
+    pendingM.forEach(m=>{
+      const cl=cleanersData.find(c=>c.id===m.cleaner_id);
+      cleanHtml+=`<div style="background:#F8F7FF;border-radius:8px;padding:8px 10px;font-size:12px;display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#0EA5E9,#5DCAA5);display:flex;align-items:center;justify-content:center;font-weight:500;font-size:11px;color:white">${cl?(cl.name||'?').charAt(0):'?'}</div>
+        <div style="flex:1"><div style="font-weight:500">${cl?cl.name:'Non assigné'}</div><div style="font-size:11px;color:#8A8A99">${m.date} · ${m.heure}</div></div>
+        <span style="padding:2px 8px;border-radius:100px;font-size:10px;background:${m.status==='acceptee'?'#E1F5EE;color:#085041':'#FAEEDA;color:#854F0B'}">${m.status==='acceptee'?'✓ Confirmé':'⏳ En attente'}</span>
+      </div>`;
+    });
+  } else {
+    cleanHtml=`<div style="background:#FCEBEB;padding:8px 10px;font-size:12px;color:#A32D2D;border-left:3px solid #E24B4A;border-radius:0 8px 8px 0">
+      <b>⚠ Pas de mission de ménage</b> prévue
+      <button onclick="openMissionModal()" style="margin-left:8px;padding:3px 8px;border-radius:6px;background:#E24B4A;color:white;border:none;font-size:11px;cursor:pointer">+ Créer</button>
+    </div>`;
+  }
+
+  // Events
+  let evsHtml='';
+  if(hotEvs.length){
+    hotEvs.slice(0,4).forEach(e=>{
+      evsHtml+=`<div style="background:#F8F7FF;border-radius:6px;padding:6px 10px;font-size:11px;display:flex;align-items:center;gap:6px;margin-bottom:4px">
+        <span>${e.emoji||'🎯'}</span><span style="flex:1">${e.name.slice(0,35)}</span><span style="font-size:11px;color:#8A8A99">${e.date_label}</span><span style="font-weight:500;color:#BA7517">+${e.boost}%</span>
+      </div>`;
+    });
+  } else {
+    evsHtml='<div style="font-size:12px;color:#8A8A99;padding:0.5rem">Aucun événement détecté à proximité</div>';
+  }
+
+  document.getElementById('parc-detail').innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.25rem">
+      <button onclick="closeApartDetail()" style="background:none;border:none;font-size:20px;color:#8A8A99;cursor:pointer;padding:4px">←</button>
+      <div style="font-size:22px">${a.emoji||'🏠'}</div>
+      <div style="flex:1">
+        <div style="font-size:20px;font-weight:500">${a.name}</div>
+        <div style="font-size:12px;color:#8A8A99">${a.address||city}</div>
+      </div>
+      <span style="padding:5px 14px;border-radius:100px;font-size:12px;font-weight:500;background:${freeTonight?'#FCEBEB;color:#A32D2D':'#E1F5EE;color:#085041'}">${freeTonight?'Libre ce soir':'Loué'}</span>
+      <button onclick="openEdit('${a.id}')" style="padding:6px 14px;border-radius:8px;border:0.5px solid #E8E8EE;background:white;font-size:12px;cursor:pointer;font-family:inherit">✏️ Modifier</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:1.25rem">
+      <div style="background:#F8F7FF;border-radius:8px;padding:0.6rem;text-align:center">
+        <div style="font-size:9px;color:#8A8A99">Prix/nuit</div><div style="font-size:18px;font-weight:500">${getCurrentDegPrice(a)}€</div>
+      </div>
+      <div style="background:#F8F7FF;border-radius:8px;padding:0.6rem;text-align:center">
+        <div style="font-size:9px;color:#8A8A99">★ Airbnb</div><div style="font-size:18px;font-weight:500;color:${note!=='—'&&note<4.0?'#E24B4A':'#1A1A2E'}">${note}</div>
+      </div>
+      <div style="background:#F8F7FF;border-radius:8px;padding:0.6rem;text-align:center">
+        <div style="font-size:9px;color:#8A8A99">Occupation</div><div style="font-size:18px;font-weight:500;color:${occ>=65?'#1D9E75':occ>=40?'#BA7517':'#E24B4A'}">${occ}%</div>
+      </div>
+      <div style="background:#F8F7FF;border-radius:8px;padding:0.6rem;text-align:center">
+        <div style="font-size:9px;color:#8A8A99">Net/mois</div><div style="font-size:18px;font-weight:500;color:${net>=0?'#1D9E75':'#E24B4A'}">${net>=0?'+':''}${net}€</div>
+      </div>
+      <div style="background:#F8F7FF;border-radius:8px;padding:0.6rem;text-align:center">
+        <div style="font-size:9px;color:#8A8A99">Plancher</div><div style="font-size:18px;font-weight:500">${fl}€</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+      <div>
+        <div style="font-size:10px;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.4rem">Revenus 12 derniers mois</div>
+        <div style="background:#F8F7FF;border-radius:8px;padding:0.75rem;display:flex;align-items:flex-end;gap:3px;height:120px">${revBars}</div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.4rem">7 prochaines nuits</div>
+        <div style="background:#F8F7FF;border-radius:8px;padding:0.75rem"><div style="display:flex;gap:4px">${nightsHtml}</div></div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+      <div>
+        <div style="font-size:10px;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.4rem">Actions à faire</div>
+        ${actionsHtml}
+      </div>
+      <div>
+        <div style="font-size:10px;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.4rem">Ménage — CleanyQ</div>
+        ${cleanHtml}
+        <div style="font-size:10px;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;margin:0.75rem 0 0.4rem">Événements proches</div>
+        ${evsHtml}
+      </div>
+    </div>`;
+}
+
+function closeApartDetail(){
+  document.getElementById('parc-detail-view').style.display='none';
+  document.getElementById('parc-list-view').style.display='block';
+}
+
 
 function renderResTable(){
   const e=document.getElementById('res-empty');const t=document.getElementById('res-table');
@@ -2529,8 +2742,10 @@ document.addEventListener('click',e=>{
 function switchParcView(view){
   const listView=document.getElementById('parc-list-view');
   const mapView=document.getElementById('parc-map-view');
+  const detailView=document.getElementById('parc-detail-view');
   const btnList=document.getElementById('parc-view-list');
   const btnMap=document.getElementById('parc-view-map');
+  if(detailView)detailView.style.display='none';
   if(view==='map'){
     if(listView)listView.style.display='none';
     if(mapView)mapView.style.display='block';
@@ -2544,6 +2759,7 @@ function switchParcView(view){
     if(btnMap){btnMap.style.background='transparent';btnMap.style.color='#8A8A99';}
   }
 }
+
 
 function renderParcMap(){
   const container=document.getElementById('parc-map');
