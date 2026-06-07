@@ -1294,7 +1294,7 @@ async function doRegister(){
   if(pwd.length<6){showErr('register-error','6 caractères minimum');return}
   const btn=document.getElementById('btn-register');btn.disabled=true;btn.textContent='Création…';
   try{
-    const res=await authFetch('signup',{email,password:pwd,data:{name,type,modules:modules.join(',')}});
+    const res=await authFetch('signup',{email,password:pwd,data:{name,type}});;
     const data=await res.json();
     if(data.error){showErr('register-error',data.error);btn.disabled=false;btn.textContent='✨ Créer mon compte';return}
     showOk('register-success','✓ Compte créé ! Connectez-vous.');
