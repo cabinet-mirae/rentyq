@@ -295,8 +295,8 @@ tr:hover td{background:#FAFAFF}
       <button class="nav-item" onclick="goTo('squad',this)"><span class="nav-emoji">👥</span>La Squad</button>
       <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Intégrations</div>
       <button class="nav-item" onclick="goTo('smoobu',this)"><span class="nav-emoji">🔗</span>Smoobu <span class="smoobu-badge" id="smoobu-nav-badge" style="display:none">✓</span></button>
-      <div class="nav-section-label">Réseau RentyQr</div>
-      <button class="nav-item" onclick="goTo('clean',this)"><span class="nav-emoji">🧹</span>RentyQr Clean</button>
+      <div class="nav-section-label">CleanyQ</div>
+      <button class="nav-item" onclick="goTo('clean',this)"><span class="nav-emoji">🧹</span>CleanyQ</button>
       <button class="nav-item" onclick="goTo('annuaire',this)"><span class="nav-emoji">🟡</span>L'Annuaire</button>
       </div>
       <div id="nav-concierge" style="display:none">
@@ -560,11 +560,30 @@ tr:hover td{background:#FAFAFF}
 
       <!-- CLEAN -->
       <div class="page" id="page-clean">
-        <div class="page-header"><div><div class="page-title">RentyQr Clean 🧹</div></div></div>
-        <div class="card" style="text-align:center;padding:3rem">
+        <div class="page-header">
+          <div>
+            <div class="page-title">CleanyQ 🧹</div>
+            <div class="page-sub">Le ménage est clinique. · 0% de commission</div>
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="openMissionModal()">📋 Nouvelle mission</button>
+            <button class="btn btn-purple" onclick="openCleanerModal()">+ Ajouter un cleaner</button>
+          </div>
+        </div>
+
+        <div class="kpi-grid" id="cleanyq-kpis"></div>
+
+        <div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.5rem">Ma Squad</div>
+        <div id="cleanyq-squad"></div>
+
+        <div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;margin:1.25rem 0 0.5rem">Missions de ménage</div>
+        <div id="cleanyq-missions"></div>
+
+        <div id="cleanyq-empty" style="text-align:center;padding:3rem;display:none">
           <div style="font-size:48px;margin-bottom:1rem">🧹</div>
-          <div style="font-size:18px;font-weight:700;margin-bottom:8px">Réseau RentyQr Clean</div>
-          <button class="btn btn-purple">Bientôt disponible</button>
+          <div style="font-weight:600;font-size:16px;margin-bottom:6px">CleanyQ — Le ménage est clinique.</div>
+          <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem;max-width:400px;margin-left:auto;margin-right:auto">Ajoutez vos premières cleaners dans votre Squad pour automatiser la gestion du ménage. 0% de commission — vos cleaners gardent 100% de leurs revenus.</div>
+          <button class="btn btn-purple" onclick="openCleanerModal()">+ Ajouter une cleaner</button>
         </div>
       </div>
 
@@ -841,6 +860,65 @@ tr:hover td{background:#FAFAFF}
   </div>
 </div>
 
+<!-- MODAL CLEANER -->
+<div class="modal-overlay" id="modal-cleaner">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-head"><div class="modal-title" id="modal-cleaner-title">Ajouter une cleaner</div><button class="modal-close" onclick="closeCleanerModal()">✕</button></div>
+    <div class="form-group"><label>Nom complet ★</label><input type="text" id="cl-name" placeholder="Fatima Benali"/></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="form-group"><label>Téléphone</label><input type="text" id="cl-phone" placeholder="06 12 34 56 78"/></div>
+      <div class="form-group"><label>Email</label><input type="email" id="cl-email" placeholder="fatima@email.com"/></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="form-group"><label>Ville</label><input type="text" id="cl-city" placeholder="Orléans"/></div>
+      <div class="form-group"><label>Rayon (km)</label><input type="number" id="cl-radius" value="10" placeholder="10"/></div>
+    </div>
+    <div style="font-size:12px;font-weight:600;color:#8A8A99;margin:0.75rem 0 0.5rem">Tarifs par type de logement</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <div class="form-group"><label style="font-size:11px">Studio/T1 (€)</label><input type="number" id="cl-tarif1" value="30"/></div>
+      <div class="form-group"><label style="font-size:11px">T2/T3 (€)</label><input type="number" id="cl-tarif2" value="40"/></div>
+      <div class="form-group"><label style="font-size:11px">T4+ (€)</label><input type="number" id="cl-tarif3" value="55"/></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;background:#F8F7FF;border-radius:8px;margin-bottom:0.5rem">
+      <div><div style="font-size:13px;font-weight:600">Auto-accept</div><div style="font-size:11px;color:#8A8A99">Accepte automatiquement les missions</div></div>
+      <button type="button" class="toggle off" id="cl-auto" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:1rem">
+      <button class="btn" onclick="closeCleanerModal()" style="flex:1">Annuler</button>
+      <button class="btn btn-purple" onclick="saveCleaner()" style="flex:2">✓ Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL MISSION -->
+<div class="modal-overlay" id="modal-mission">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-head"><div class="modal-title">📋 Nouvelle mission de ménage</div><button class="modal-close" onclick="closeMissionModal()">✕</button></div>
+    <div class="form-group"><label>Appartement ★</label>
+      <select id="mi-appart" style="padding:8px 12px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit;width:100%"></select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="form-group"><label>Date ★</label><input type="date" id="mi-date"/></div>
+      <div class="form-group"><label>Heure</label><input type="time" id="mi-heure" value="14:00"/></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="form-group"><label>Durée (min)</label><input type="number" id="mi-duree" value="120"/></div>
+      <div class="form-group"><label>Tarif (€)</label><input type="number" id="mi-tarif" value="35"/></div>
+    </div>
+    <div class="form-group"><label>Assigner à (Squad)</label>
+      <select id="mi-cleaner" style="padding:8px 12px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit;width:100%">
+        <option value="">— Auto (envoyé à la Squad) —</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Checklist</label><input type="text" id="mi-checklist" placeholder="Draps, sdb, cuisine, aspirateur, poubelles"/></div>
+    <div class="form-group"><label>Notes</label><input type="text" id="mi-notes" placeholder="Code porte : 4521B"/></div>
+    <div style="display:flex;gap:8px;margin-top:1rem">
+      <button class="btn" onclick="closeMissionModal()" style="flex:1">Annuler</button>
+      <button class="btn btn-purple" onclick="saveMission()" style="flex:2">📋 Créer la mission</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -934,7 +1012,7 @@ async function loadApp(){
     renderTarifs();
     checkPaymentReturn();
     await loadProprietaires();
-    await loadCharges();await loadTransactions();await loadCatRules();
+    await loadCharges();await loadTransactions();await loadCatRules();await loadCleaners();await loadMissions();
     applyModules();
     if(userModules.includes('concierge')){renderProprietaires();initRapportMois();renderRapports();renderCockpitConcierge();renderParcConcierge();}
     checkOnboarding();
@@ -1368,6 +1446,7 @@ function goTo(page,btn){
   if(page==='events'&&apparts.length&&!Object.keys(eventsCache).length)loadEvents(false);
   if(page==='cockpit-c')renderCockpitConcierge();
   if(page==='finances'){initFinMois();renderFinances();}
+  if(page==='clean')renderCleanyQ();
   if(page==='parc-c')renderParcConcierge();
   if(page==='proprietaires')renderProprietaires();
   if(page==='rapports'){initRapportMois();renderRapports();}
@@ -2040,6 +2119,232 @@ async function genererRapports(){
 
 
 
+
+
+// CLEANYQ
+let cleanersData=[];
+let missionsData=[];
+let editCleanerId=null;
+
+async function loadCleaners(){
+  try{
+    const res=await sbFetch(`cleaners?user_id=eq.${currentUser.user.id}&select=*&order=score.desc`);
+    cleanersData=await res.json()||[];
+  }catch(e){cleanersData=[];}
+}
+
+async function loadMissions(){
+  try{
+    const res=await sbFetch(`cleaning_missions?user_id=eq.${currentUser.user.id}&select=*&order=date.desc`);
+    missionsData=await res.json()||[];
+  }catch(e){missionsData=[];}
+}
+
+function renderCleanyQ(){
+  const kpis=document.getElementById('cleanyq-kpis');
+  const squad=document.getElementById('cleanyq-squad');
+  const missions=document.getElementById('cleanyq-missions');
+  const empty=document.getElementById('cleanyq-empty');
+  if(!kpis)return;
+
+  if(!cleanersData.length&&!missionsData.length){
+    empty.style.display='block';kpis.innerHTML='';squad.innerHTML='';missions.innerHTML='';return;
+  }
+  empty.style.display='none';
+
+  const pending=missionsData.filter(m=>m.status==='en_attente').length;
+  const done=missionsData.filter(m=>m.status==='terminee').length;
+  const avgScore=cleanersData.length?Math.round(cleanersData.reduce((s,c)=>s+(c.score||0),0)/cleanersData.length):0;
+
+  kpis.innerHTML=`
+    <div class="kpi"><div class="kpi-label">Squad</div><div class="kpi-value" style="color:#6B3FA0">${cleanersData.length}</div><div class="kpi-delta" style="color:#6B3FA0">cleaners</div></div>
+    <div class="kpi"><div class="kpi-label">En attente</div><div class="kpi-value" style="color:${pending>0?'#E24B4A':'#1D9E75'}">${pending}</div><div class="kpi-delta" style="color:#8A8A99">missions</div></div>
+    <div class="kpi"><div class="kpi-label">Terminées</div><div class="kpi-value" style="color:#1D9E75">${done}</div><div class="kpi-delta" style="color:#1D9E75">ce mois</div></div>
+    <div class="kpi"><div class="kpi-label">Score moyen</div><div class="kpi-value" style="color:${avgScore>=80?'#1D9E75':avgScore>=60?'#BA7517':'#E24B4A'}">${avgScore}</div><div class="kpi-delta" style="color:#8A8A99">/100</div></div>`;
+
+  // Squad
+  if(cleanersData.length){
+    squad.innerHTML=cleanersData.map(c=>{
+      const badge=c.score>=90?'⭐ Gold':c.score>=75?'✅ Vérifié':c.score>=60?'🟡 En progression':'🔴 Attention';
+      const badgeBg=c.score>=90?'#FAEEDA;color:#854F0B':c.score>=75?'#E1F5EE;color:#085041':c.score>=60?'#FFF8E1;color:#854F0B':'#FCEBEB;color:#A32D2D';
+      const nbMissions=missionsData.filter(m=>m.cleaner_id===c.id).length;
+      return`<div class="card" style="margin-bottom:0.5rem">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#0EA5E9,#5DCAA5);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:white;flex-shrink:0">${(c.name||'?').charAt(0).toUpperCase()}</div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="font-size:14px;font-weight:600">${c.name}</div>
+              <span style="font-size:10px;padding:2px 8px;border-radius:100px;background:${badgeBg}">${badge}</span>
+              ${c.auto_accept?'<span style="font-size:10px;padding:2px 8px;border-radius:100px;background:#E1F5EE;color:#085041">⚡ Auto</span>':''}
+            </div>
+            <div style="font-size:12px;color:#8A8A99;margin-top:2px">${c.city||''} · ${c.radius_km||10}km · ${c.phone||''}</div>
+            <div style="display:flex;gap:12px;margin-top:6px;font-size:11px;color:#8A8A99">
+              <span>T1: <b style="color:#1A1A2E">${c.tarif_t1||30}€</b></span>
+              <span>T2: <b style="color:#1A1A2E">${c.tarif_t2||40}€</b></span>
+              <span>T3+: <b style="color:#1A1A2E">${c.tarif_t3||55}€</b></span>
+              <span>📋 <b style="color:#1A1A2E">${nbMissions}</b> missions</span>
+              <span>Score: <b style="color:${c.score>=80?'#1D9E75':'#BA7517'}">${c.score||0}/100</b></span>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;flex-shrink:0">
+            <button class="btn btn-sm" onclick="editCleaner('${c.id}')">✏️</button>
+            <button class="btn btn-sm" onclick="deleteCleaner('${c.id}')" style="color:#E24B4A">🗑</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    squad.innerHTML='<div style="color:#8A8A99;font-size:13px;padding:1rem">Aucune cleaner dans votre Squad</div>';
+  }
+
+  // Missions
+  const statusLabels={en_attente:'⏳ En attente',acceptee:'✅ Acceptée',en_cours:'🧹 En cours',terminee:'✓ Terminée',annulee:'✗ Annulée'};
+  const statusColors={en_attente:'#FAEEDA;color:#854F0B',acceptee:'#E1F5EE;color:#085041',en_cours:'#EEEDFE;color:#3C3489',terminee:'#E1F5EE;color:#085041',annulee:'#FCEBEB;color:#A32D2D'};
+
+  if(missionsData.length){
+    missions.innerHTML=`<div class="card"><div class="table-wrap"><table>
+      <thead><tr><th>Date</th><th>Appartement</th><th>Cleaner</th><th>Heure</th><th>Tarif</th><th>Statut</th><th>Actions</th></tr></thead>
+      <tbody>${missionsData.slice(0,20).map(m=>{
+        const apt=apparts.find(a=>a.id===m.appartement_id);
+        const cl=cleanersData.find(c=>c.id===m.cleaner_id);
+        const st=m.status||'en_attente';
+        return`<tr>
+          <td style="font-size:12px">${m.date||'—'}</td>
+          <td style="font-weight:500">${apt?apt.emoji+' '+apt.name:'—'}</td>
+          <td>${cl?cl.name:'<span style="color:#BA7517">Non assigné</span>'}</td>
+          <td style="font-size:12px">${m.heure||'14:00'}</td>
+          <td style="font-weight:500">${m.tarif||0}€</td>
+          <td><span style="font-size:11px;padding:2px 8px;border-radius:100px;background:${statusColors[st]||statusColors.en_attente}">${statusLabels[st]||st}</span></td>
+          <td>
+            ${st==='en_attente'?`<button class="btn btn-sm" onclick="updateMissionStatus('${m.id}','acceptee')">✓</button>`:''}
+            ${st==='acceptee'?`<button class="btn btn-sm" onclick="updateMissionStatus('${m.id}','terminee')">✓ Fait</button>`:''}
+            ${st!=='terminee'&&st!=='annulee'?`<button class="btn btn-sm" onclick="updateMissionStatus('${m.id}','annulee')" style="color:#E24B4A">✗</button>`:''}
+          </td>
+        </tr>`;
+      }).join('')}</tbody></table></div></div>`;
+  } else {
+    missions.innerHTML='<div style="color:#8A8A99;font-size:13px;padding:1rem">Aucune mission. Créez-en une avec le bouton "Nouvelle mission".</div>';
+  }
+}
+
+// CLEANER CRUD
+function openCleanerModal(){
+  editCleanerId=null;
+  document.getElementById('modal-cleaner-title').textContent='Ajouter une cleaner';
+  ['cl-name','cl-phone','cl-email','cl-city'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cl-radius').value='10';
+  document.getElementById('cl-tarif1').value='30';
+  document.getElementById('cl-tarif2').value='40';
+  document.getElementById('cl-tarif3').value='55';
+  document.getElementById('cl-auto').className='toggle off';
+  document.getElementById('modal-cleaner').classList.add('open');
+}
+
+function closeCleanerModal(){document.getElementById('modal-cleaner').classList.remove('open');}
+
+function editCleaner(id){
+  const c=cleanersData.find(x=>x.id===id);if(!c)return;
+  editCleanerId=id;
+  document.getElementById('modal-cleaner-title').textContent='Modifier '+c.name;
+  document.getElementById('cl-name').value=c.name||'';
+  document.getElementById('cl-phone').value=c.phone||'';
+  document.getElementById('cl-email').value=c.email||'';
+  document.getElementById('cl-city').value=c.city||'';
+  document.getElementById('cl-radius').value=c.radius_km||10;
+  document.getElementById('cl-tarif1').value=c.tarif_t1||30;
+  document.getElementById('cl-tarif2').value=c.tarif_t2||40;
+  document.getElementById('cl-tarif3').value=c.tarif_t3||55;
+  document.getElementById('cl-auto').className='toggle '+(c.auto_accept?'on':'off');
+  document.getElementById('modal-cleaner').classList.add('open');
+}
+
+async function saveCleaner(){
+  const name=document.getElementById('cl-name').value.trim();
+  if(!name){showToast('Nom obligatoire');return;}
+  const body={
+    user_id:currentUser.user.id,name,
+    phone:document.getElementById('cl-phone').value.trim(),
+    email:document.getElementById('cl-email').value.trim(),
+    city:document.getElementById('cl-city').value.trim(),
+    radius_km:+document.getElementById('cl-radius').value||10,
+    tarif_t1:+document.getElementById('cl-tarif1').value||30,
+    tarif_t2:+document.getElementById('cl-tarif2').value||40,
+    tarif_t3:+document.getElementById('cl-tarif3').value||55,
+    auto_accept:document.getElementById('cl-auto').classList.contains('on')
+  };
+  try{
+    if(editCleanerId){
+      await sbFetch(`cleaners?id=eq.${editCleanerId}`,{method:'PATCH',body:JSON.stringify(body)});
+      const i=cleanersData.findIndex(c=>c.id===editCleanerId);
+      if(i>=0)cleanersData[i]={...cleanersData[i],...body};
+      showToast('✓ Cleaner modifiée');
+    } else {
+      const res=await sbFetch('cleaners',{method:'POST',body:JSON.stringify(body)});
+      const c=await res.json();
+      cleanersData.push(Array.isArray(c)&&c[0]?c[0]:{...body,id:Date.now().toString(),score:70,nb_missions:0});
+      showToast('✓ Cleaner ajoutée à la Squad');
+    }
+    closeCleanerModal();renderCleanyQ();
+  }catch(e){showToast('Erreur');}
+}
+
+async function deleteCleaner(id){
+  if(!confirm('Retirer cette cleaner de votre Squad ?'))return;
+  await sbFetch(`cleaners?id=eq.${id}`,{method:'DELETE'});
+  cleanersData=cleanersData.filter(c=>c.id!==id);
+  renderCleanyQ();showToast('Cleaner retirée');
+}
+
+// MISSIONS
+function openMissionModal(){
+  const sel=document.getElementById('mi-appart');
+  sel.innerHTML=apparts.map(a=>`<option value="${a.id}">${a.emoji||'🏠'} ${a.name}</option>`).join('');
+  const clSel=document.getElementById('mi-cleaner');
+  clSel.innerHTML='<option value="">— Auto (envoyé à la Squad) —</option>'+cleanersData.map(c=>`<option value="${c.id}">${c.name} (${c.score}/100)</option>`).join('');
+  document.getElementById('mi-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('mi-heure').value='14:00';
+  document.getElementById('mi-duree').value='120';
+  document.getElementById('mi-tarif').value='35';
+  document.getElementById('mi-checklist').value='Draps, sdb, cuisine, aspirateur, poubelles';
+  document.getElementById('mi-notes').value='';
+  document.getElementById('modal-mission').classList.add('open');
+}
+
+function closeMissionModal(){document.getElementById('modal-mission').classList.remove('open');}
+
+async function saveMission(){
+  const aptId=document.getElementById('mi-appart').value;
+  const date=document.getElementById('mi-date').value;
+  if(!aptId||!date){showToast('Appartement et date obligatoires');return;}
+  const cleanerId=document.getElementById('mi-cleaner').value||null;
+  const body={
+    user_id:currentUser.user.id,
+    appartement_id:aptId,
+    cleaner_id:cleanerId,
+    date,
+    heure:document.getElementById('mi-heure').value||'14:00',
+    duree_min:+document.getElementById('mi-duree').value||120,
+    tarif:+document.getElementById('mi-tarif').value||35,
+    status:cleanerId?'acceptee':'en_attente',
+    checklist:document.getElementById('mi-checklist').value,
+    notes:document.getElementById('mi-notes').value
+  };
+  try{
+    const res=await sbFetch('cleaning_missions',{method:'POST',body:JSON.stringify(body)});
+    const m=await res.json();
+    missionsData.unshift(Array.isArray(m)&&m[0]?m[0]:{...body,id:Date.now().toString()});
+    closeMissionModal();renderCleanyQ();
+    showToast('✓ Mission créée'+(cleanerId?' et assignée':''));
+  }catch(e){showToast('Erreur');}
+}
+
+async function updateMissionStatus(id,status){
+  await sbFetch(`cleaning_missions?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({status})});
+  const m=missionsData.find(x=>x.id===id);
+  if(m)m.status=status;
+  renderCleanyQ();
+  showToast(status==='terminee'?'✓ Mission terminée':status==='annulee'?'Mission annulée':'✓ Mission mise à jour');
+}
 
 // DEGRESSIVE PRICING
 function toggleDegressif(){
@@ -2747,9 +3052,9 @@ function renderTarifs(){
       <button onclick="startCheckout('pro')" class="btn btn-purple" style="width:100%;justify-content:center;padding:10px" ${isPro?'disabled':''}>${isPro?'Plan actuel':"Commencer l'essai gratuit"}</button>
     </div>
     <div style="background:white;border-radius:14px;border:0.5px solid #EEEEF5;padding:1.5rem">
-      <div style="font-size:12px;font-weight:600;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Enterprise</div>
+      <div style="font-size:12px;font-weight:600;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Premium</div>
       <div style="font-size:36px;font-weight:700;margin-bottom:4px">Sur devis</div>
-      <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">Pour les grandes conciergeries</div>
+      <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">Sur mesure pour les grandes conciergeries</div>
       <div style="font-size:13px;line-height:2;margin-bottom:1.25rem;color:#3A3A50">
         ✓ Multi-comptes<br>✓ API dédiée<br>✓ Support prioritaire<br>✓ Onboarding personnalisé<br>✓ Dashboard custom
       </div>
@@ -2811,4 +3116,3 @@ function checkPaymentReturn(){
 </script>
 </body>
 </html>
-
