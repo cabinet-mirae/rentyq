@@ -573,17 +573,22 @@ tr:hover td{background:#FAFAFF}
 
         <div class="kpi-grid" id="cleanyq-kpis"></div>
 
-        <div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.5rem">Ma Squad</div>
-        <div id="cleanyq-squad"></div>
-
-        <div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;margin:1.25rem 0 0.5rem">Missions de ménage</div>
-        <div id="cleanyq-missions"></div>
-
         <div id="cleanyq-empty" style="text-align:center;padding:3rem;display:none">
           <div style="font-size:48px;margin-bottom:1rem">🧹</div>
           <div style="font-weight:600;font-size:16px;margin-bottom:6px">CleanyQ — Le ménage est clinique.</div>
           <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem;max-width:400px;margin-left:auto;margin-right:auto">Ajoutez vos premières cleaners dans votre Squad pour automatiser la gestion du ménage. 0% de commission — vos cleaners gardent 100% de leurs revenus.</div>
           <button class="btn btn-purple" onclick="openCleanerModal()">+ Ajouter une cleaner</button>
+        </div>
+
+        <div id="cleanyq-split" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:start">
+          <div>
+            <div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.5rem">📋 Missions de ménage</div>
+            <div id="cleanyq-missions"></div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.5rem">👥 Ma Squad — Cleaners disponibles</div>
+            <div id="cleanyq-squad"></div>
+          </div>
         </div>
       </div>
 
@@ -872,6 +877,10 @@ tr:hover td{background:#FAFAFF}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <div class="form-group"><label>Ville</label><input type="text" id="cl-city" placeholder="Orléans"/></div>
       <div class="form-group"><label>Rayon (km)</label><input type="number" id="cl-radius" value="10" placeholder="10"/></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="form-group"><label>SIRET (si micro-entreprise)</label><input type="text" id="cl-siret" placeholder="123 456 789 00012"/></div>
+      <div class="form-group"><label>Disponibilités</label><input type="text" id="cl-dispo" value="Lun-Ven" placeholder="Lun-Ven, Sam matin"/></div>
     </div>
     <div style="font-size:12px;font-weight:600;color:#8A8A99;margin:0.75rem 0 0.5rem">Tarifs par type de logement</div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
@@ -2145,86 +2154,151 @@ function renderCleanyQ(){
   const squad=document.getElementById('cleanyq-squad');
   const missions=document.getElementById('cleanyq-missions');
   const empty=document.getElementById('cleanyq-empty');
+  const split=document.getElementById('cleanyq-split');
   if(!kpis)return;
 
   if(!cleanersData.length&&!missionsData.length){
-    empty.style.display='block';kpis.innerHTML='';squad.innerHTML='';missions.innerHTML='';return;
+    empty.style.display='block';if(split)split.style.display='none';kpis.innerHTML='';return;
   }
-  empty.style.display='none';
+  empty.style.display='none';if(split)split.style.display='grid';
 
   const pending=missionsData.filter(m=>m.status==='en_attente').length;
+  const accepted=missionsData.filter(m=>m.status==='acceptee').length;
   const done=missionsData.filter(m=>m.status==='terminee').length;
   const avgScore=cleanersData.length?Math.round(cleanersData.reduce((s,c)=>s+(c.score||0),0)/cleanersData.length):0;
 
   kpis.innerHTML=`
     <div class="kpi"><div class="kpi-label">Squad</div><div class="kpi-value" style="color:#6B3FA0">${cleanersData.length}</div><div class="kpi-delta" style="color:#6B3FA0">cleaners</div></div>
-    <div class="kpi"><div class="kpi-label">En attente</div><div class="kpi-value" style="color:${pending>0?'#E24B4A':'#1D9E75'}">${pending}</div><div class="kpi-delta" style="color:#8A8A99">missions</div></div>
+    <div class="kpi"><div class="kpi-label">En attente</div><div class="kpi-value" style="color:${pending>0?'#E24B4A':'#1D9E75'}">${pending}</div><div class="kpi-delta" style="color:${pending>0?'#E24B4A':'#8A8A99'}">${pending>0?'à traiter':'tout assigné ✓'}</div></div>
+    <div class="kpi"><div class="kpi-label">Acceptées</div><div class="kpi-value" style="color:#BA7517">${accepted}</div><div class="kpi-delta" style="color:#8A8A99">en cours</div></div>
     <div class="kpi"><div class="kpi-label">Terminées</div><div class="kpi-value" style="color:#1D9E75">${done}</div><div class="kpi-delta" style="color:#1D9E75">ce mois</div></div>
-    <div class="kpi"><div class="kpi-label">Score moyen</div><div class="kpi-value" style="color:${avgScore>=80?'#1D9E75':avgScore>=60?'#BA7517':'#E24B4A'}">${avgScore}</div><div class="kpi-delta" style="color:#8A8A99">/100</div></div>`;
+    <div class="kpi"><div class="kpi-label">Score Squad</div><div class="kpi-value" style="color:${avgScore>=80?'#1D9E75':avgScore>=60?'#BA7517':'#E24B4A'}">${avgScore}</div><div class="kpi-delta" style="color:#8A8A99">/100</div></div>`;
 
-  // Squad
-  if(cleanersData.length){
-    squad.innerHTML=cleanersData.map(c=>{
-      const badge=c.score>=90?'⭐ Gold':c.score>=75?'✅ Vérifié':c.score>=60?'🟡 En progression':'🔴 Attention';
-      const badgeBg=c.score>=90?'#FAEEDA;color:#854F0B':c.score>=75?'#E1F5EE;color:#085041':c.score>=60?'#FFF8E1;color:#854F0B':'#FCEBEB;color:#A32D2D';
-      const nbMissions=missionsData.filter(m=>m.cleaner_id===c.id).length;
-      return`<div class="card" style="margin-bottom:0.5rem">
-        <div style="display:flex;align-items:center;gap:12px">
-          <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#0EA5E9,#5DCAA5);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:white;flex-shrink:0">${(c.name||'?').charAt(0).toUpperCase()}</div>
-          <div style="flex:1;min-width:0">
-            <div style="display:flex;align-items:center;gap:8px">
-              <div style="font-size:14px;font-weight:600">${c.name}</div>
-              <span style="font-size:10px;padding:2px 8px;border-radius:100px;background:${badgeBg}">${badge}</span>
-              ${c.auto_accept?'<span style="font-size:10px;padding:2px 8px;border-radius:100px;background:#E1F5EE;color:#085041">⚡ Auto</span>':''}
-            </div>
-            <div style="font-size:12px;color:#8A8A99;margin-top:2px">${c.city||''} · ${c.radius_km||10}km · ${c.phone||''}</div>
-            <div style="display:flex;gap:12px;margin-top:6px;font-size:11px;color:#8A8A99">
-              <span>T1: <b style="color:#1A1A2E">${c.tarif_t1||30}€</b></span>
-              <span>T2: <b style="color:#1A1A2E">${c.tarif_t2||40}€</b></span>
-              <span>T3+: <b style="color:#1A1A2E">${c.tarif_t3||55}€</b></span>
-              <span>📋 <b style="color:#1A1A2E">${nbMissions}</b> missions</span>
-              <span>Score: <b style="color:${c.score>=80?'#1D9E75':'#BA7517'}">${c.score||0}/100</b></span>
-            </div>
-          </div>
-          <div style="display:flex;gap:6px;flex-shrink:0">
-            <button class="btn btn-sm" onclick="editCleaner('${c.id}')">✏️</button>
-            <button class="btn btn-sm" onclick="deleteCleaner('${c.id}')" style="color:#E24B4A">🗑</button>
-          </div>
-        </div>
-      </div>`;
-    }).join('');
-  } else {
-    squad.innerHTML='<div style="color:#8A8A99;font-size:13px;padding:1rem">Aucune cleaner dans votre Squad</div>';
-  }
-
-  // Missions
+  // MISSIONS — grouped by date
   const statusLabels={en_attente:'⏳ En attente',acceptee:'✅ Acceptée',en_cours:'🧹 En cours',terminee:'✓ Terminée',annulee:'✗ Annulée'};
   const statusColors={en_attente:'#FAEEDA;color:#854F0B',acceptee:'#E1F5EE;color:#085041',en_cours:'#EEEDFE;color:#3C3489',terminee:'#E1F5EE;color:#085041',annulee:'#FCEBEB;color:#A32D2D'};
+  const today=new Date().toISOString().split('T')[0];
+  const tomorrow=new Date(Date.now()+86400000).toISOString().split('T')[0];
 
-  if(missionsData.length){
-    missions.innerHTML=`<div class="card"><div class="table-wrap"><table>
-      <thead><tr><th>Date</th><th>Appartement</th><th>Cleaner</th><th>Heure</th><th>Tarif</th><th>Statut</th><th>Actions</th></tr></thead>
-      <tbody>${missionsData.slice(0,20).map(m=>{
+  let mHtml='';
+  const activeMissions=missionsData.filter(m=>m.status!=='annulee'&&m.status!=='terminee');
+  const pastMissions=missionsData.filter(m=>m.status==='terminee'||m.status==='annulee').slice(0,5);
+
+  if(!activeMissions.length&&!pastMissions.length){
+    mHtml='<div style="background:white;border-radius:12px;border:0.5px solid #E8E8EE;padding:2rem;text-align:center;color:#8A8A99;font-size:13px"><div style="font-size:24px;margin-bottom:8px">📋</div>Aucune mission en cours<br><button class="btn btn-purple btn-sm" onclick="openMissionModal()" style="margin-top:10px">+ Créer une mission</button></div>';
+  } else {
+    // Active missions
+    activeMissions.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+    let lastDate='';
+    activeMissions.forEach(m=>{
+      const dateLabel=m.date===today?"Aujourd\'hui":m.date===tomorrow?'Demain':new Date(m.date).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
+      if(m.date!==lastDate){
+        mHtml+=`<div style="font-size:11px;font-weight:600;color:#6B3FA0;margin:${lastDate?'1rem':'0'} 0 0.4rem;text-transform:uppercase;letter-spacing:0.5px">${dateLabel}</div>`;
+        lastDate=m.date;
+      }
+      const apt=apparts.find(a=>a.id===m.appartement_id);
+      const cl=cleanersData.find(c=>c.id===m.cleaner_id);
+      const st=m.status||'en_attente';
+      const isUrgent=st==='en_attente'&&m.date<=today;
+      mHtml+=`<div style="background:white;border-radius:10px;border:0.5px solid ${isUrgent?'#F09595':'#E8E8EE'};${isUrgent?'border-left:3px solid #E24B4A;':''}padding:0.75rem 1rem;margin-bottom:6px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="font-size:16px">${apt?.emoji||'🏠'}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:500">${apt?.name||'—'}</div>
+            <div style="font-size:11px;color:#8A8A99">${m.heure||'14:00'} · ${m.duree_min||120}min · ${m.tarif||0}€</div>
+          </div>
+          <div style="text-align:right">
+            <span style="font-size:10px;padding:2px 8px;border-radius:100px;background:${statusColors[st]}">${statusLabels[st]}</span>
+            <div style="font-size:11px;color:#8A8A99;margin-top:3px">${cl?cl.name:'Non assigné'}</div>
+          </div>
+        </div>
+        ${m.checklist?`<div style="font-size:11px;color:#8A8A99;margin-top:6px;padding-top:6px;border-top:0.5px solid #F0F0F5">📝 ${m.checklist}</div>`:''}
+        <div style="display:flex;gap:6px;margin-top:8px">
+          ${st==='en_attente'?`<button class="btn btn-sm" onclick="updateMissionStatus('${m.id}','acceptee')" style="font-size:11px">✓ Accepter</button>`:''}
+          ${st==='acceptee'?`<button class="btn btn-sm" onclick="updateMissionStatus('${m.id}','terminee')" style="font-size:11px;background:#E1F5EE;border-color:#5DCAA5;color:#085041">✓ Terminée</button>`:''}
+          ${st!=='terminee'?`<button class="btn btn-sm" onclick="updateMissionStatus('${m.id}','annulee')" style="font-size:11px;color:#E24B4A">✗ Annuler</button>`:''}
+        </div>
+      </div>`;
+    });
+
+    // Past missions
+    if(pastMissions.length){
+      mHtml+=`<div style="font-size:11px;font-weight:600;color:#8A8A99;margin:1rem 0 0.4rem;text-transform:uppercase;letter-spacing:0.5px">Historique récent</div>`;
+      pastMissions.forEach(m=>{
         const apt=apparts.find(a=>a.id===m.appartement_id);
         const cl=cleanersData.find(c=>c.id===m.cleaner_id);
-        const st=m.status||'en_attente';
-        return`<tr>
-          <td style="font-size:12px">${m.date||'—'}</td>
-          <td style="font-weight:500">${apt?apt.emoji+' '+apt.name:'—'}</td>
-          <td>${cl?cl.name:'<span style="color:#BA7517">Non assigné</span>'}</td>
-          <td style="font-size:12px">${m.heure||'14:00'}</td>
-          <td style="font-weight:500">${m.tarif||0}€</td>
-          <td><span style="font-size:11px;padding:2px 8px;border-radius:100px;background:${statusColors[st]||statusColors.en_attente}">${statusLabels[st]||st}</span></td>
-          <td>
-            ${st==='en_attente'?`<button class="btn btn-sm" onclick="updateMissionStatus('${m.id}','acceptee')">✓</button>`:''}
-            ${st==='acceptee'?`<button class="btn btn-sm" onclick="updateMissionStatus('${m.id}','terminee')">✓ Fait</button>`:''}
-            ${st!=='terminee'&&st!=='annulee'?`<button class="btn btn-sm" onclick="updateMissionStatus('${m.id}','annulee')" style="color:#E24B4A">✗</button>`:''}
-          </td>
-        </tr>`;
-      }).join('')}</tbody></table></div></div>`;
-  } else {
-    missions.innerHTML='<div style="color:#8A8A99;font-size:13px;padding:1rem">Aucune mission. Créez-en une avec le bouton "Nouvelle mission".</div>';
+        const st=m.status;
+        mHtml+=`<div style="background:white;border-radius:10px;border:0.5px solid #E8E8EE;padding:0.6rem 1rem;margin-bottom:4px;opacity:0.7">
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px">
+            <span>${apt?.emoji||'🏠'}</span>
+            <span style="flex:1">${apt?.name||'—'} · ${m.date}</span>
+            <span>${cl?.name||'—'}</span>
+            <span style="padding:2px 6px;border-radius:100px;font-size:10px;background:${statusColors[st]}">${statusLabels[st]}</span>
+          </div>
+        </div>`;
+      });
+    }
   }
+  missions.innerHTML=mHtml;
+
+  // CLEANERS — detailed cards
+  let cHtml='';
+  if(!cleanersData.length){
+    cHtml='<div style="background:white;border-radius:12px;border:0.5px solid #E8E8EE;padding:2rem;text-align:center;color:#8A8A99;font-size:13px"><div style="font-size:24px;margin-bottom:8px">👥</div>Aucune cleaner dans votre Squad<br><button class="btn btn-purple btn-sm" onclick="openCleanerModal()" style="margin-top:10px">+ Ajouter</button></div>';
+  } else {
+    cleanersData.forEach(c=>{
+      const badge=c.score>=90?'⭐ Gold':c.score>=75?'✅ Vérifié':c.score>=60?'🟡 En progression':'🔴 Attention';
+      const badgeBg=c.score>=90?'#FAEEDA;color:#854F0B':c.score>=75?'#E1F5EE;color:#085041':c.score>=60?'#FFF8E1;color:#854F0B':'#FCEBEB;color:#A32D2D';
+      const nbMissions=missionsData.filter(m=>m.cleaner_id===c.id&&m.status==='terminee').length;
+      const pendingMissions=missionsData.filter(m=>m.cleaner_id===c.id&&(m.status==='en_attente'||m.status==='acceptee')).length;
+
+      cHtml+=`<div style="background:white;border-radius:12px;border:0.5px solid #E8E8EE;padding:1rem;margin-bottom:8px">
+        <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px">
+          <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#0EA5E9,#5DCAA5);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:white;flex-shrink:0">${(c.name||'?').charAt(0).toUpperCase()}</div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+              <span style="font-size:14px;font-weight:600">${c.name}</span>
+              <span style="font-size:10px;padding:2px 8px;border-radius:100px;background:${badgeBg}">${badge}</span>
+              ${c.auto_accept?'<span style="font-size:10px;padding:2px 6px;border-radius:100px;background:#E1F5EE;color:#085041">⚡ Auto</span>':''}
+            </div>
+            <div style="font-size:11px;color:#8A8A99;margin-top:2px">Score: <b style="color:${c.score>=80?'#1D9E75':'#BA7517'}">${c.score||0}/100</b> · ${nbMissions} missions · ${pendingMissions} en cours</div>
+          </div>
+          <div style="display:flex;gap:4px;flex-shrink:0">
+            <button class="btn btn-sm" onclick="editCleaner('${c.id}')" style="font-size:11px">✏️</button>
+            <button class="btn btn-sm" onclick="deleteCleaner('${c.id}')" style="font-size:11px;color:#E24B4A">🗑</button>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;margin-bottom:8px">
+          <div style="padding:6px 8px;background:#F8F7FF;border-radius:6px">
+            <span style="color:#8A8A99">📍 Zone :</span> <b>${c.city||'—'}</b> · ${c.radius_km||10}km
+          </div>
+          <div style="padding:6px 8px;background:#F8F7FF;border-radius:6px">
+            <span style="color:#8A8A99">📅 Dispo :</span> <b>${c.disponibilites||'Lun-Ven'}</b>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:11px;margin-bottom:8px">
+          <div style="padding:6px 8px;background:#E1F5EE;border-radius:6px;text-align:center">
+            <div style="color:#8A8A99">Studio/T1</div><b style="color:#085041">${c.tarif_t1||30}€</b>
+          </div>
+          <div style="padding:6px 8px;background:#E1F5EE;border-radius:6px;text-align:center">
+            <div style="color:#8A8A99">T2/T3</div><b style="color:#085041">${c.tarif_t2||40}€</b>
+          </div>
+          <div style="padding:6px 8px;background:#E1F5EE;border-radius:6px;text-align:center">
+            <div style="color:#8A8A99">T4+</div><b style="color:#085041">${c.tarif_t3||55}€</b>
+          </div>
+        </div>
+
+        <div style="font-size:11px;color:#8A8A99;display:flex;flex-wrap:wrap;gap:8px">
+          ${c.phone?`<span>☎ ${c.phone}</span>`:''}
+          ${c.email?`<span>✉ ${c.email}</span>`:''}
+          ${c.siret?`<span>🏢 SIRET: ${c.siret}</span>`:''}
+        </div>
+      </div>`;
+    });
+  }
+  squad.innerHTML=cHtml;
 }
 
 // CLEANER CRUD
@@ -2237,6 +2311,8 @@ function openCleanerModal(){
   document.getElementById('cl-tarif2').value='40';
   document.getElementById('cl-tarif3').value='55';
   document.getElementById('cl-auto').className='toggle off';
+  document.getElementById('cl-siret').value='';
+  document.getElementById('cl-dispo').value='Lun-Ven';
   document.getElementById('modal-cleaner').classList.add('open');
 }
 
@@ -2255,6 +2331,8 @@ function editCleaner(id){
   document.getElementById('cl-tarif2').value=c.tarif_t2||40;
   document.getElementById('cl-tarif3').value=c.tarif_t3||55;
   document.getElementById('cl-auto').className='toggle '+(c.auto_accept?'on':'off');
+  document.getElementById('cl-siret').value=c.siret||'';
+  document.getElementById('cl-dispo').value=c.disponibilites||'Lun-Ven';
   document.getElementById('modal-cleaner').classList.add('open');
 }
 
@@ -2267,6 +2345,8 @@ async function saveCleaner(){
     email:document.getElementById('cl-email').value.trim(),
     city:document.getElementById('cl-city').value.trim(),
     radius_km:+document.getElementById('cl-radius').value||10,
+    siret:document.getElementById('cl-siret').value.trim(),
+    disponibilites:document.getElementById('cl-dispo').value.trim()||'Lun-Ven',
     tarif_t1:+document.getElementById('cl-tarif1').value||30,
     tarif_t2:+document.getElementById('cl-tarif2').value||40,
     tarif_t3:+document.getElementById('cl-tarif3').value||55,
