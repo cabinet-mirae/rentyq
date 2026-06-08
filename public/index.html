@@ -832,11 +832,115 @@ const ORLEANS_MARKET_ANCHORS=[
 
 function isOrleansApt(a){
   const t=scannerAddressText(a);
-  return /orleans|orl[eé]ans|45000|45100|45100/.test(t);
+  // Orléans intra-muros + communes de l'agglomération
+  return /orleans|orl[eé]ans|45000|45100|45101|45160/.test(t);
+}
+
+// Communes du Loiret proches d'Orléans (rayon ~20km)
+const ORLEANS_SUBURBS={
+  'saint-denis-en-val':{lat:47.8947,lng:1.9654,distKm:10,code:'45560'},
+  'olivet':{lat:47.8640,lng:1.9031,distKm:5,code:'45160'},
+  'fleury-les-aubrais':{lat:47.9314,lng:1.9078,distKm:4,code:'45400'},
+  'saran':{lat:47.9456,lng:1.8761,distKm:7,code:'45770'},
+  'la source':{lat:47.8501,lng:1.9142,distKm:8,code:'45100'},
+  'saint-jean-de-braye':{lat:47.9108,lng:1.9567,distKm:5,code:'45800'},
+  'saint-jean-le-blanc':{lat:47.8897,lng:1.9278,distKm:3,code:'45650'},
+  'ingré':{lat:47.9056,lng:1.8378,distKm:8,code:'45140'},
+  'checy':{lat:47.9097,lng:2.0264,distKm:12,code:'45430'},
+  'saint-pryvé-saint-mesmin':{lat:47.8753,lng:1.8886,distKm:4,code:'45750'},
+  'la chapelle-saint-mesmin':{lat:47.8989,lng:1.8589,distKm:5,code:'45380'},
+  'micy':{lat:47.9011,lng:1.8444,distKm:6,code:'45380'},
+  'boigny-sur-bionne':{lat:47.9144,lng:1.9919,distKm:9,code:'45760'},
+  'marigny-les-usages':{lat:47.9244,lng:2.0181,distKm:11,code:'45760'},
+  'semoy':{lat:47.9333,lng:1.9819,distKm:8,code:'45400'}
+};
+
+// Distance GPS entre 2 points (Haversine simple)
+function gpsDistKm(lat1,lng1,lat2,lng2){
+  const R=6371;
+  const dLat=(lat2-lat1)*Math.PI/180;
+  const dLng=(lng2-lng1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+// Détecte si un appart est dans la périphérie d'Orléans
+function getOrleansSuburbSignal(a){
+  const t=scannerAddressText(a).toLowerCase();
+  const lat=aptLat(a),lng=aptLng(a);
+  // 1. Match par nom de commune
+  for(const [name,info] of Object.entries(ORLEANS_SUBURBS)){
+    if(t.includes(name)||t.includes(info.code)){
+      return {isSuburb:true,name,distKm:info.distKm,lat:info.lat,lng:info.lng};
+    }
+  }
+  // 2. Match GPS : si dans 20km d'Orléans centre
+  if(lat&&lng){
+    const distKm=gpsDistKm(lat,lng,47.9025,1.9040);
+    if(distKm<=20&&distKm>0.5){
+      return {isSuburb:true,name:'périphérie Orléans',distKm:Math.round(distKm*10)/10,lat,lng};
+    }
+  }
+  return {isSuburb:false};
+}
+
+// Score pour communes périurbaines d'Orléans
+function orleansPeriSignal(a,pois,suburbInfo){
+  const distKm=suburbInfo.distKm||15;
+  const t=scannerAddressText(a).toLowerCase();
+  const count=(type,dist)=>pois.filter(p=>p.type===type&&p.distance<=dist).length;
+
+  // Base selon distance au centre d'Orléans
+  let minScore, distLabel;
+  if(distKm<=3){
+    minScore=62; distLabel='proche centre Orléans';
+  } else if(distKm<=6){
+    minScore=52; distLabel='agglomération Orléans';
+  } else if(distKm<=10){
+    minScore=42; distLabel='périphérie proche Orléans';
+  } else if(distKm<=15){
+    minScore=34; distLabel='périphérie Orléans';
+  } else {
+    minScore=26; distLabel='zone rurale Loiret';
+  }
+
+  // Bonus commerces/restos locaux
+  const localFood=count('food',600);
+  const localShops=count('shops',600);
+  const localTransport=count('transport',800);
+  let bonus=0;
+  let bonusLabels=[];
+
+  if(localFood>=3){bonus+=8;bonusLabels.push('restos/bars à pied');}
+  else if(localFood>=1){bonus+=4;bonusLabels.push('quelques restos');}
+
+  if(localShops>=3){bonus+=7;bonusLabels.push('commerces de proximité');}
+  else if(localShops>=1){bonus+=3;bonusLabels.push('commerces basiques');}
+
+  // Transport en commun local (tram, bus vers Orléans)
+  if(localTransport>=2){bonus+=10;bonusLabels.push('TC vers Orléans (<15min)');}
+  else if(localTransport>=1){bonus+=5;bonusLabels.push('arrêt TC à proximité');}
+
+  // Malus si vraiment rien dans 800m
+  const totalLocal=pois.filter(p=>p.distance<=800).length;
+  if(totalLocal<3&&localTransport===0){bonus-=8;bonusLabels.push('zone peu dense');}
+
+  const score=Math.min(18,Math.round((minScore+bonus)/7));
+  const finalMin=Math.max(18,Math.min(minScore+bonus,72));
+  const label=bonusLabels.length
+    ? `${suburbInfo.name} (${distKm}km) — ${bonusLabels.slice(0,2).join(', ')}`
+    : `${suburbInfo.name} — ${distLabel}`;
+  return {score,minScore:finalMin,label,signals:[],suburb:true,distKm,bonus};
 }
 
 function orleansMicroMarketSignal(a,pois=[]){
-  if(!isOrleansApt(a))return {score:0,minScore:0,label:'',signals:[]};
+  // Vérifier si c'est une commune périurbaine
+  const suburbInfo=getOrleansSuburbSignal(a);
+  if(!isOrleansApt(a)&&!suburbInfo.isSuburb)return {score:0,minScore:0,label:'',signals:[]};
+  // Traitement communes périphériques
+  if(!isOrleansApt(a)&&suburbInfo.isSuburb){
+    return orleansPeriSignal(a,pois,suburbInfo);
+  }
   const t=scannerAddressText(a);
   const lat=aptLat(a),lng=aptLng(a);
   const signals=[];
@@ -924,6 +1028,8 @@ function computeEvaScannerAnalysis(a,pois){
   else if(/paris/.test(t)&&sub.prestige>=14)locationScore=Math.max(locationScore,82);
   else if(/centre.?ville|hyper.?centre|cathedrale|gare/.test(t)&&sub.prestige>=10)locationScore=Math.max(locationScore,70);
   if(orleansSignal.minScore)locationScore=Math.max(locationScore,orleansSignal.minScore);
+  // Bonus GPS périphérique : ne pas pénaliser les biens suburbains avec des POIs locaux
+  if(orleansSignal.suburb&&orleansSignal.bonus>0)locationScore=Math.max(locationScore,orleansSignal.minScore);
   if(/orleans|orl[eé]ans|45000/.test(t)&&/martroi|cathedrale|sainte.?croix|rue de bourgogne|bourgogne|chatelet|halles|hyper.?centre/.test(t))locationScore=Math.max(locationScore,86);
   locationScore=Math.max(18,Math.min(100,locationScore));
 
