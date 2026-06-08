@@ -31,15 +31,15 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A1A2E;background:#F5F4FF;f
 .beta-banner{background:#534AB7;color:white;text-align:center;padding:10px 20px;font-size:13px;font-weight:600}
 .app-body{display:flex;flex:1}
 .sidebar{width:250px;background:white;border-right:1px solid #EEEEF5;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
-.sidebar-brand{padding:1.5rem 1.25rem 1rem}
+.sidebar-brand{padding:1.25rem 1rem 1rem}
 .brand-logo{font-size:24px;font-weight:700}
-.brand-logo span{background:#534AB7;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.brand-logo span{color:#534AB7}
 .brand-tagline{font-size:11px;color:#8A8A99;margin-top:3px;font-style:italic}
 .sidebar-sep{height:1px;background:#EEEEF5;margin:0 1.25rem 0.75rem}
-.nav-section-label{font-size:10px;font-weight:700;color:#B0A8C8;text-transform:uppercase;letter-spacing:1px;padding:0.75rem 1.25rem 0.35rem}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 1rem;margin:1px 0.75rem;border-radius:10px;color:rgba(255,255,255,0.5);cursor:pointer;font-size:13px;font-weight:500;border:none;background:none;font-family:inherit;width:calc(100% - 1.5rem);text-align:left;transition:all .12s}
-.nav-item:hover{background:rgba(107,63,160,0.15);color:white}
-.nav-item.active{background:rgba(107,63,160,0.25);color:white;font-weight:600}
+.nav-section-label{font-size:10px;font-weight:500;color:rgba(255,255,255,0.15);text-transform:uppercase;letter-spacing:1px;padding:0.75rem 1.25rem 0.35rem}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;margin:1px 8px;border-radius:6px;color:rgba(255,255,255,0.4);cursor:pointer;font-size:13px;font-weight:400;border:0.5px solid transparent;background:none;font-family:inherit;width:calc(100% - 16px);text-align:left;transition:all .12s}
+.nav-item:hover{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.7)}
+.nav-item.active{background:rgba(83,74,183,0.15);border:0.5px solid rgba(83,74,183,0.2);color:white;font-weight:500}
 .nav-emoji{font-size:16px;width:24px;text-align:center;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .nav-badge{margin-left:auto;background:#FF6B6B;color:white;font-size:10px;padding:2px 7px;border-radius:100px;font-weight:700}
 .nav-badge-new{margin-left:auto;background:rgba(83,74,183,0.25);color:#CECBF6;font-size:9px;padding:2px 7px;border-radius:4px;font-weight:500}
@@ -327,8 +327,8 @@ tr:hover td{background:#FAFAFF}
         <div class="brand-tagline" style="color:rgba(255,255,255,0.2);margin-left:36px;font-size:10px">Stop guessing. Start earning.</div>
       </div>
       <div id="mode-switcher" style="display:none;margin:0 .75rem .5rem;background:rgba(255,255,255,0.08);border-radius:10px;padding:3px;display:flex">
-        <button id="mode-btn-solo" onclick="switchMode('solo')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:rgba(107,63,160,0.5);color:white;transition:all .15s">🏠 Gestion</button>
-        <button id="mode-btn-concierge" onclick="switchMode('concierge')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:transparent;color:rgba(255,255,255,0.4);transition:all .15s">🏢 Conciergerie</button>
+        <button id="mode-btn-solo" onclick="switchMode('solo')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:rgba(83,74,183,0.3);color:white;transition:all .15s"><i class="ti ti-building" style="margin-right:3px;font-size:13px;vertical-align:-1px" aria-hidden="true"></i>Gestion</button>
+        <button id="mode-btn-concierge" onclick="switchMode('concierge')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:rgba(255,255,255,0.4);transition:all .15s"><i class="ti ti-users" style="margin-right:3px;font-size:13px;vertical-align:-1px" aria-hidden="true"></i>Conciergerie</button>
       </div>
       <div class="sidebar-sep" style="background:rgba(255,255,255,0.08)"></div>
       <div id="nav-solo">
@@ -337,6 +337,7 @@ tr:hover td{background:#FAFAFF}
       <button class="nav-item" onclick="goTo('calendrier',this)"><span class="nav-emoji"><i class="ti ti-calendar" aria-hidden="true"></i></span>Calendrier</button>
       <button class="nav-item" onclick="goTo('parc',this)"><span class="nav-emoji"><i class="ti ti-building" aria-hidden="true"></i></span>Le parc <span class="nav-badge" id="parc-badge">0</span></button>
       <button class="nav-item" onclick="goTo('reservations',this)"><span class="nav-emoji"><i class="ti ti-file-text" aria-hidden="true"></i></span>Réservations</button>
+      <div class="nav-section-label" style="color:rgba(255,255,255,0.15)">Intelligence</div>
       <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji"><i class="ti ti-sparkles" aria-hidden="true"></i></span>EVA pricing <span class="nav-badge-new">IA</span></button>
       <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji"><i class="ti ti-calendar-event" aria-hidden="true"></i></span>Événements <span class="nav-badge-new" id="events-badge" style="display:none">0</span></button>
       <button class="nav-item" onclick="goTo('finances',this)"><span class="nav-emoji"><i class="ti ti-wallet" aria-hidden="true"></i></span>Finances</button>
@@ -360,11 +361,11 @@ tr:hover td{background:#FAFAFF}
       <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Compte</div>
       <button class="nav-item" onclick="goTo('tarifs',this)"><span class="nav-emoji"><i class="ti ti-credit-card" aria-hidden="true"></i></span>Tarifs</button>
       <button class="nav-item" onclick="goTo('settings',this)"><span class="nav-emoji"><i class="ti ti-settings" aria-hidden="true"></i></span>Paramètres</button>
-      <div class="sidebar-footer" style="border-top:1px solid rgba(255,255,255,0.08)">
+      <div class="sidebar-footer" style="border-top:0.5px solid rgba(255,255,255,0.06)">
         <div class="user-row">
-          <div class="user-avatar" id="s-avatar">?</div>
-          <div><div class="user-name" id="s-name">…</div><div class="user-plan" id="s-plan">…</div></div>
-          <button class="btn-logout" onclick="doLogout()">↩</button>
+          <div class="user-avatar" id="s-avatar" style="border-radius:6px;background:rgba(83,74,183,0.25);color:#CECBF6;font-size:11px;width:28px;height:28px">?</div>
+          <div><div class="user-name" id="s-name" style="font-size:12px;color:rgba(255,255,255,0.7)">…</div><div class="user-plan" id="s-plan" style="font-size:10px;color:rgba(255,255,255,0.25)">…</div></div>
+          <button class="btn-logout" onclick="doLogout()" style="color:rgba(255,255,255,0.15)"><i class="ti ti-logout" style="font-size:16px" aria-hidden="true"></i></button>
         </div>
       </div>
     </div>
