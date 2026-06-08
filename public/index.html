@@ -204,106 +204,115 @@ tr:hover td{background:#FAFAFF}
   <div class="spinner"></div>
 </div>
 
-<div id="auth-screen" style="background:linear-gradient(135deg,#1a0a2e 0%,#2d1b4e 30%,#1e3a5f 60%,#0a2540 100%);display:none;min-height:100vh;padding:0">
-  <div style="display:flex;min-height:100vh;width:100%">
-    <div style="flex:1.6;display:flex;align-items:center;justify-content:center">
-      <div style="padding:0 3rem 0 5rem;max-width:90%">
-        <div style="font-size:14px;color:rgba(255,255,255,0.4);letter-spacing:3px;text-transform:uppercase;margin-bottom:2rem">Smart rental management</div>
-        <div style="display:flex;align-items:center;gap:16px;margin-bottom:1rem">
-          <svg viewBox="0 0 64 56" xmlns="http://www.w3.org/2000/svg" style="width:80px;flex-shrink:0">
+<div id="auth-screen" style="display:none;min-height:100vh;position:relative;overflow:hidden;background:#0a1628">
+  <!-- BG IMAGE -->
+  <div style="position:absolute;inset:0;background:url('bg-login.png') center/cover no-repeat"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,16,30,0.95) 0%,rgba(10,16,30,0.85) 28%,rgba(10,16,30,0.3) 55%,rgba(10,16,30,0.15) 100%)"></div>
+
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;min-height:100vh">
+    <!-- MAIN -->
+    <div style="flex:1;display:flex">
+
+      <!-- LEFT PANEL -->
+      <div style="width:420px;flex-shrink:0;padding:2.5rem 2.5rem 2rem 3rem;display:flex;flex-direction:column;justify-content:center">
+        <!-- Logo -->
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:2rem">
+          <svg viewBox="0 0 42 36" xmlns="http://www.w3.org/2000/svg" style="width:42px;flex-shrink:0">
             <defs><linearGradient id="lg-auth" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6B3FA0"/><stop offset="100%" stop-color="#FF6B6B"/></linearGradient></defs>
-            <rect width="64" height="56" rx="14" fill="url(#lg-auth)"/>
-            <text x="6" y="39" font-family="Inter,system-ui,sans-serif" font-size="28" font-weight="700" fill="white">RyQ</text>
+            <rect width="42" height="36" rx="9" fill="url(#lg-auth)"/>
+            <text x="4" y="26" font-family="Inter,system-ui,sans-serif" font-size="19" font-weight="700" fill="white">RyQ</text>
           </svg>
-          <div style="font-size:82px;font-weight:700;color:white">Rent<span style="background:linear-gradient(90deg,#9B72CF,#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent">yQ</span></div>
+          <div style="font-size:26px;font-weight:600;color:white;letter-spacing:-0.5px">RentyQ</div>
         </div>
-        <div style="font-size:36px;color:rgba(255,255,255,0.75);line-height:1.4;margin-bottom:1.5rem">Stop guessing.<br>Start earning.</div>
-        <div style="font-size:16px;color:rgba(255,255,255,0.45);line-height:1.7;margin-bottom:2rem;max-width:560px">L&rsquo;outil de gestion intelligent pour les locations courte dur&eacute;e. EVA analyse votre march&eacute;, d&eacute;tecte les &eacute;v&eacute;nements et optimise vos prix automatiquement.</div>
-        <div style="display:flex;gap:2rem;margin-bottom:2.5rem">
-          <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
-            <div style="width:48px;height:48px;border-radius:12px;background:rgba(155,114,207,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;color:#9B72CF">&#9733;</div>
-            <div style="font-size:11px;color:rgba(255,255,255,0.45);text-align:center">EVA<br>pricing IA</div>
+
+        <!-- Headline -->
+        <div style="font-size:32px;font-weight:600;color:white;line-height:1.3;margin-bottom:1rem">L&rsquo;intelligence locale<br>qui optimise <span style="color:#9B72CF">vos revenus.</span></div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.45);line-height:1.7;margin-bottom:1.75rem;max-width:360px">EVA analyse les &eacute;v&eacute;nements, la demande et le march&eacute; pour recommander le bon prix, au bon moment.</div>
+
+        <!-- FORM -->
+        <div id="login-form">
+          <div class="form-group" style="margin-bottom:12px">
+            <label style="color:rgba(255,255,255,0.6);font-size:12px;margin-bottom:4px;display:block;font-weight:500;text-transform:none;letter-spacing:0">Email</label>
+            <div style="position:relative"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.25);font-size:14px">&#9993;</span><input type="email" id="l-email" placeholder="votre@email.com" style="width:100%;padding:11px 12px 11px 36px;border-radius:10px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:inherit;outline:none" onfocus="this.style.borderColor='#6B3FA0'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'"/></div>
           </div>
-          <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
-            <div style="width:48px;height:48px;border-radius:12px;background:rgba(255,107,107,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;color:#FF6B6B">&#9733;</div>
-            <div style="font-size:11px;color:rgba(255,255,255,0.45);text-align:center">&Eacute;v&eacute;nements<br>automatiques</div>
+          <div class="form-group" style="margin-bottom:14px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px"><label style="color:rgba(255,255,255,0.6);font-size:12px;font-weight:500;text-transform:none;letter-spacing:0">Mot de passe</label><button onclick="showForgotPassword()" style="background:none;border:none;font-size:12px;color:#9B72CF;cursor:pointer;font-family:inherit;padding:0">Oubli&eacute; ?</button></div>
+            <div style="position:relative"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.25);font-size:14px">&#128274;</span><input type="password" id="l-pwd" placeholder="••••••••" style="width:100%;padding:11px 12px 11px 36px;border-radius:10px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:inherit;outline:none" onfocus="this.style.borderColor='#6B3FA0'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'"/></div>
           </div>
-          <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
-            <div style="width:48px;height:48px;border-radius:12px;background:rgba(93,202,165,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;color:#5DCAA5">&#9733;</div>
-            <div style="font-size:11px;color:rgba(255,255,255,0.45);text-align:center">Rentabilit&eacute;<br>en temps r&eacute;el</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,0.4);cursor:pointer"><input type="checkbox" style="accent-color:#6B3FA0"/>Se souvenir de moi</label>
           </div>
-          <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
-            <div style="width:48px;height:48px;border-radius:12px;background:rgba(245,158,11,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;color:#F59E0B">&#9733;</div>
-            <div style="font-size:11px;color:rgba(255,255,255,0.45);text-align:center">Sync Airbnb<br>Booking &amp; +</div>
-          </div>
+          <button id="btn-login" onclick="doLogin()" style="width:100%;padding:12px;border-radius:10px;background:#6B3FA0;color:white;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .15s" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">Se connecter</button>
+          <div class="auth-error" id="login-error" style="color:#FF6B6B;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.2);margin-top:10px"></div>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;background:rgba(255,255,255,0.05);border-radius:10px;border:0.5px solid rgba(255,255,255,0.08);width:fit-content">
-          <div style="display:flex">
-            <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#6B3FA0,#FF6B6B);border:2px solid #1a0a2e"></div>
-            <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#9B72CF,#FF8E53);border:2px solid #1a0a2e;margin-left:-8px"></div>
-            <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#5DCAA5,#0EA5E9);border:2px solid #1a0a2e;margin-left:-8px"></div>
-          </div>
-          <div style="font-size:13px;color:rgba(255,255,255,0.5)">Rejoignez les premiers beta testeurs</div>
+
+        <div id="forgot-form" style="display:none">
+          <div class="form-group"><label style="color:rgba(255,255,255,0.6);font-size:12px;margin-bottom:4px;display:block;font-weight:500">Votre email</label><input type="email" id="forgot-email" placeholder="vous@exemple.fr" style="width:100%;padding:11px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:inherit;outline:none"/></div>
+          <button id="btn-forgot" onclick="doForgotPassword()" style="width:100%;padding:12px;border-radius:10px;background:#6B3FA0;color:white;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px">Envoyer le lien</button>
+          <div class="auth-error" id="forgot-error" style="color:#FF6B6B;background:rgba(255,107,107,0.1);margin-top:10px"></div>
+          <div class="auth-success" id="forgot-success" style="color:#5DCAA5;background:rgba(93,202,165,0.1);margin-top:10px"></div>
+          <button onclick="showLogin()" style="width:100%;margin-top:10px;background:none;border:none;font-size:13px;color:rgba(255,255,255,0.4);cursor:pointer;font-family:inherit">&larr; Retour</button>
         </div>
-      </div>
-    </div>
-    <div style="flex:0.65;display:flex;align-items:center;justify-content:center;padding:2.5rem">
-  <div class="auth-card" style="background:rgba(255,255,255,0.97);backdrop-filter:blur(20px);border-radius:20px;width:100%;max-width:500px;padding:2.75rem;border:1px solid rgba(255,255,255,0.15)">
-    <div style="text-align:center;margin-bottom:0.25rem">
-      <div class="auth-logo">Rent<span>yQ</span></div>
-    </div>
-    <div class="auth-tagline" style="text-align:center">Connectez-vous à votre espace</div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" onclick="switchTab('login')">Connexion</button>
-      <button class="auth-tab" onclick="switchTab('register')">Créer un compte</button>
-    </div>
-    <div id="login-form">
-      <div class="form-group"><label>Email</label><input type="email" id="l-email" placeholder="vous@exemple.fr"/></div>
-      <div class="form-group">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <label style="margin-bottom:0">Mot de passe</label>
-          <button onclick="showForgotPassword()" style="background:none;border:none;font-size:12px;color:#6B3FA0;cursor:pointer;font-family:inherit;padding:0">Mot de passe oublié ?</button>
-        </div>
-        <input type="password" id="l-pwd" placeholder="••••••••"/>
-      </div>
-      <button class="btn-full" id="btn-login" onclick="doLogin()">🚀 Se connecter</button>
-      <div class="auth-error" id="login-error"></div>
-    </div>
-    <div id="forgot-form" style="display:none">
-      <div class="form-group"><label>Votre email</label><input type="email" id="forgot-email" placeholder="vous@exemple.fr"/></div>
-      <button class="btn-full" id="btn-forgot" onclick="doForgotPassword()">📧 Envoyer le lien</button>
-      <div class="auth-error" id="forgot-error"></div>
-      <div class="auth-success" id="forgot-success"></div>
-      <button onclick="showLogin()" style="width:100%;margin-top:.75rem;background:none;border:none;font-size:13px;color:#8A8A99;cursor:pointer;font-family:inherit">← Retour à la connexion</button>
-    </div>
-    <div id="register-form" style="display:none">
-      <div class="form-group"><label>Nom complet</label><input type="text" id="r-name" placeholder="Marie Martin"/></div>
-      <div class="form-group"><label>Email</label><input type="email" id="r-email" placeholder="vous@exemple.fr"/></div>
-      <div class="form-group"><label>Activez vos modules</label>
-        <div style="display:grid;gap:8px;margin-top:4px">
-          <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #E8E8EE;border-radius:10px;cursor:pointer;font-size:13px;font-weight:400;text-transform:none;letter-spacing:0">
-            <input type="checkbox" id="r-mod-solo" checked style="width:18px;height:18px;accent-color:#6B3FA0"/>
-            <div><div style="font-weight:600">🏠 Gestion sous-location</div><div style="font-size:11px;color:#8A8A99">Gérer mes propres appartements</div></div>
-          </label>
-          <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #E8E8EE;border-radius:10px;cursor:pointer;font-size:13px;font-weight:400;text-transform:none;letter-spacing:0">
-            <input type="checkbox" id="r-mod-concierge" style="width:18px;height:18px;accent-color:#6B3FA0"/>
-            <div><div style="font-weight:600">🏢 Conciergerie</div><div style="font-size:11px;color:#8A8A99">Gérer les biens de mes clients</div></div>
-          </label>
+
+        <!-- Separator -->
+        <div style="display:flex;align-items:center;gap:12px;margin:16px 0"><div style="flex:1;height:0.5px;background:rgba(255,255,255,0.1)"></div><span style="font-size:12px;color:rgba(255,255,255,0.3)">ou</span><div style="flex:1;height:0.5px;background:rgba(255,255,255,0.1)"></div></div>
+
+        <!-- Create account link -->
+        <div style="text-align:center;font-size:13px;color:rgba(255,255,255,0.4)">Pas encore de compte ? <button onclick="switchTab('register')" style="background:none;border:none;color:#9B72CF;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;text-decoration:underline">Cr&eacute;er un compte</button></div>
+
+        <div id="register-form" style="display:none;margin-top:16px">
+          <div class="form-group" style="margin-bottom:10px"><label style="color:rgba(255,255,255,0.6);font-size:12px;margin-bottom:4px;display:block;font-weight:500">Nom complet</label><input type="text" id="r-name" placeholder="Marie Martin" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:inherit;outline:none"/></div>
+          <div class="form-group" style="margin-bottom:10px"><label style="color:rgba(255,255,255,0.6);font-size:12px;margin-bottom:4px;display:block;font-weight:500">Email</label><input type="email" id="r-email" placeholder="vous@exemple.fr" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:inherit;outline:none"/></div>
+          <div class="form-group" style="margin-bottom:10px"><label style="color:rgba(255,255,255,0.6);font-size:12px;margin-bottom:4px;display:block;font-weight:500">Mot de passe</label><input type="password" id="r-pwd" placeholder="min. 6 caract&egrave;res" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:inherit;outline:none"/></div>
+          <div class="form-group" style="margin-bottom:14px;display:none"><input type="checkbox" id="r-mod-solo" checked/><input type="checkbox" id="r-mod-concierge"/></div>
+          <button id="btn-register" onclick="doRegister()" style="width:100%;padding:12px;border-radius:10px;background:#6B3FA0;color:white;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Cr&eacute;er mon compte</button>
+          <div class="auth-error" id="register-error" style="color:#FF6B6B;background:rgba(255,107,107,0.1);margin-top:10px"></div>
+          <div class="auth-success" id="register-success" style="color:#5DCAA5;background:rgba(93,202,165,0.1);margin-top:10px"></div>
+          <button onclick="switchTab('login')" style="width:100%;margin-top:10px;background:none;border:none;font-size:13px;color:rgba(255,255,255,0.4);cursor:pointer;font-family:inherit">&larr; D&eacute;j&agrave; un compte ? Se connecter</button>
         </div>
       </div>
-      <div class="form-group"><label>Mot de passe</label><input type="password" id="r-pwd" placeholder="min. 6 caractères"/></div>
-      <button class="btn-full" id="btn-register" onclick="doRegister()">✨ Créer mon compte</button>
-      <div class="auth-error" id="register-error"></div>
-      <div class="auth-success" id="register-success"></div>
+
+      <!-- RIGHT — Floating cards over image -->
+      <div style="flex:1;position:relative;pointer-events:none">
+        <!-- Price cards -->
+        <div style="position:absolute;top:15%;left:12%;background:rgba(255,255,255,0.12);backdrop-filter:blur(12px);border-radius:12px;padding:12px 18px;border:0.5px solid rgba(255,255,255,0.15)">
+          <div style="font-size:24px;font-weight:700;color:white">149 &euro;</div>
+          <div style="font-size:12px;color:#5DCAA5">+23% <span style="display:inline-block;width:20px;height:10px;border-bottom:1.5px solid #5DCAA5;border-right:1.5px solid #5DCAA5;transform:skewX(-15deg);margin-left:4px"></span></div>
+        </div>
+        <div style="position:absolute;top:38%;left:22%;background:rgba(255,255,255,0.12);backdrop-filter:blur(12px);border-radius:12px;padding:12px 18px;border:0.5px solid rgba(255,255,255,0.15)">
+          <div style="font-size:24px;font-weight:700;color:white">89 &euro;</div>
+          <div style="font-size:12px;color:#5DCAA5">+8%</div>
+        </div>
+        <div style="position:absolute;top:12%;right:15%;background:rgba(255,255,255,0.12);backdrop-filter:blur(12px);border-radius:12px;padding:12px 18px;border:0.5px solid rgba(255,255,255,0.15)">
+          <div style="font-size:24px;font-weight:700;color:white">119 &euro;</div>
+          <div style="font-size:12px;color:#5DCAA5">+18%</div>
+        </div>
+        <div style="position:absolute;bottom:25%;right:8%;background:rgba(255,255,255,0.12);backdrop-filter:blur(12px);border-radius:12px;padding:12px 18px;border:0.5px solid rgba(255,255,255,0.15)">
+          <div style="font-size:24px;font-weight:700;color:white">129 &euro;</div>
+          <div style="font-size:12px;color:#5DCAA5">+15%</div>
+        </div>
+        <!-- Event cards -->
+        <div style="position:absolute;top:8%;right:32%;background:rgba(107,63,160,0.35);backdrop-filter:blur(12px);border-radius:12px;padding:10px 16px;border:0.5px solid rgba(155,114,207,0.3);display:flex;align-items:center;gap:10px">
+          <div style="font-size:18px">&#127925;</div>
+          <div><div style="font-size:13px;font-weight:600;color:white">Concert Z&eacute;nith Orl&eacute;ans</div><div style="font-size:11px;color:rgba(255,255,255,0.5)">24 mai</div></div>
+        </div>
+        <div style="position:absolute;top:52%;left:35%;background:rgba(107,63,160,0.35);backdrop-filter:blur(12px);border-radius:12px;padding:10px 16px;border:0.5px solid rgba(155,114,207,0.3);display:flex;align-items:center;gap:10px">
+          <div style="font-size:18px">&#127915;</div>
+          <div><div style="font-size:13px;font-weight:600;color:white">Festival de Loire</div><div style="font-size:11px;color:rgba(255,255,255,0.5)">20 &ndash; 24 sept.</div></div>
+        </div>
+        <!-- Connection lines (SVG) -->
+        <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.15" xmlns="http://www.w3.org/2000/svg"><line x1="20%" y1="25%" x2="35%" y2="48%" stroke="#9B72CF" stroke-width="1"/><line x1="35%" y1="48%" x2="55%" y2="60%" stroke="#9B72CF" stroke-width="1"/><line x1="55%" y1="20%" x2="75%" y2="35%" stroke="#9B72CF" stroke-width="1"/><line x1="75%" y1="35%" x2="82%" y2="65%" stroke="#9B72CF" stroke-width="1"/><circle cx="20%" cy="25%" r="3" fill="#9B72CF"/><circle cx="35%" cy="48%" r="3" fill="#9B72CF"/><circle cx="55%" cy="20%" r="3" fill="#9B72CF"/><circle cx="75%" cy="35%" r="3" fill="#9B72CF"/><circle cx="82%" cy="65%" r="3" fill="#9B72CF"/></svg>
+      </div>
     </div>
-    <div style="margin-top:1.25rem;padding:0.75rem;background:rgba(107,63,160,0.06);border-radius:8px;font-size:11px;color:#6B3FA0;text-align:center;border:1px solid rgba(107,63,160,0.1)">
-      &#128274; Connexion sécurisée · Données chiffrées
+
+    <!-- BOTTOM BAR -->
+    <div style="border-top:0.5px solid rgba(255,255,255,0.08);padding:14px 3rem;display:flex;gap:2rem;justify-content:center;background:rgba(10,16,30,0.7);backdrop-filter:blur(10px)">
+      <div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:8px;background:rgba(155,114,207,0.15);display:flex;align-items:center;justify-content:center"><i class="ti ti-chart-line" style="font-size:16px;color:#AFA9EC" aria-hidden="true"></i></div><div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.7)">Demandes en temps r&eacute;el</div><div style="font-size:10px;color:rgba(255,255,255,0.3)">Des milliers de signaux chaque jour</div></div></div>
+      <div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:8px;background:rgba(255,107,107,0.15);display:flex;align-items:center;justify-content:center"><i class="ti ti-calendar-event" style="font-size:16px;color:#F09595" aria-hidden="true"></i></div><div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.7)">&Eacute;v&eacute;nements locaux</div><div style="font-size:10px;color:rgba(255,255,255,0.3)">Concerts, salons, festivals&hellip;</div></div></div>
+      <div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:8px;background:rgba(93,202,165,0.15);display:flex;align-items:center;justify-content:center"><i class="ti ti-sparkles" style="font-size:16px;color:#9FE1CB" aria-hidden="true"></i></div><div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.7)">Recommandations EVA</div><div style="font-size:10px;color:rgba(255,255,255,0.3)">Le bon prix, au bon moment</div></div></div>
+      <div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:8px;background:rgba(245,158,11,0.15);display:flex;align-items:center;justify-content:center"><i class="ti ti-trending-up" style="font-size:16px;color:#FAC775" aria-hidden="true"></i></div><div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.7)">Plus de revenus</div><div style="font-size:10px;color:rgba(255,255,255,0.3)">Maximisez occupation &amp; revenu/nuit</div></div></div>
     </div>
-    <div style="margin-top:0.75rem;font-size:11px;color:#B0B0B0;text-align:center">En vous connectant, vous acceptez nos <a href="#" style="color:#6B3FA0;text-decoration:none">CGU</a> et <a href="#" style="color:#6B3FA0;text-decoration:none">Politique de confidentialité</a></div>
   </div>
-    </div>
-  </div>
-  <div style="position:absolute;bottom:0;left:0;right:0;text-align:center;padding:1rem;font-size:12px;color:rgba(255,255,255,0.25)">&copy; 2026 RentyQ &middot; Powered by EVA &middot; Made in France &#127467;&#127479;</div>
 </div>
 
 <div class="app" id="app">
