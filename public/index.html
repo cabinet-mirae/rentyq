@@ -204,55 +204,45 @@ tr:hover td{background:#FAFAFF}
   <div class="spinner"></div>
 </div>
 
-<div id="auth-screen" style="display:none;min-height:100vh;position:relative;overflow:hidden">
-  <!-- FULL BG IMAGE — contains all the visual design -->
-  <div style="position:absolute;inset:0;background:url('bg-login-v2.png') center top/cover no-repeat"></div>
+<div id="auth-screen" style="display:none;min-height:100vh;position:relative;background:url('bg-login-v2.png') left top/cover no-repeat #0a0618">
 
-  <!-- LOGIN MODULE — positioned below the image text, no overlap -->
-  <div style="position:absolute;left:3.5%;bottom:10%;width:400px;z-index:2">
-    <div style="background:rgba(12,6,25,0.82);backdrop-filter:blur(28px);border:1.5px solid rgba(192,132,252,0.35);border-radius:18px;padding:2rem 2.25rem;box-shadow:0 8px 32px rgba(0,0,0,0.4)">
+  <!-- FORM — transparent, positioned exactly over the image's form area -->
+  <div style="position:absolute;left:4.5%;top:52%;width:28%;min-width:320px;max-width:420px">
 
-      <!-- LOGIN FORM -->
-      <div id="login-form">
-        <div style="margin-bottom:12px">
-          <label style="color:rgba(255,255,255,0.5);font-size:11px;margin-bottom:5px;display:block;font-weight:500">Email</label>
-          <input type="email" id="l-email" placeholder="votre@email.com" style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid rgba(155,114,207,0.25);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s" onfocus="this.style.borderColor='rgba(192,132,252,0.6)'" onblur="this.style.borderColor='rgba(155,114,207,0.25)'"/>
-        </div>
-        <div style="margin-bottom:14px">
-          <div style="display:flex;justify-content:space-between;margin-bottom:5px"><label style="color:rgba(255,255,255,0.5);font-size:11px;font-weight:500">Mot de passe</label><button onclick="showForgotPassword()" style="background:none;border:none;font-size:11px;color:#C084FC;cursor:pointer;font-family:inherit;padding:0">Oubli&eacute; ?</button></div>
-          <input type="password" id="l-pwd" placeholder="••••••••" style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid rgba(155,114,207,0.25);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s" onfocus="this.style.borderColor='rgba(192,132,252,0.6)'" onblur="this.style.borderColor='rgba(155,114,207,0.25)'"/>
-        </div>
-        <div style="display:flex;align-items:center;margin-bottom:16px"><label style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,0.35);cursor:pointer"><input type="checkbox" style="accent-color:#C084FC"/>Se souvenir de moi</label></div>
-        <button id="btn-login" onclick="doLogin()" style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,#9333EA,#C084FC);color:white;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(147,51,234,0.35);transition:opacity .15s" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">Se connecter</button>
-        <div class="auth-error" id="login-error" style="color:#F472B6;background:rgba(244,114,182,0.1);border:1px solid rgba(244,114,182,0.2);margin-top:10px;padding:8px;border-radius:8px;font-size:12px;display:none"></div>
+    <div id="login-form">
+      <div style="margin-bottom:14px">
+        <label style="color:rgba(255,255,255,0.6);font-size:13px;margin-bottom:6px;display:block">Email</label>
+        <input type="email" id="l-email" placeholder="votre@email.com" style="width:100%;padding:13px 16px;border-radius:10px;border:1px solid rgba(155,114,207,0.3);background:rgba(20,10,35,0.6);color:white;font-size:15px;font-family:inherit;outline:none;backdrop-filter:blur(8px)" onfocus="this.style.borderColor='rgba(192,132,252,0.7)'" onblur="this.style.borderColor='rgba(155,114,207,0.3)'"/>
       </div>
-
-      <!-- FORGOT FORM (hidden) -->
-      <div id="forgot-form" style="display:none">
-        <div style="margin-bottom:12px"><label style="color:rgba(255,255,255,0.5);font-size:11px;margin-bottom:5px;display:block;font-weight:500">Votre email</label><input type="email" id="forgot-email" placeholder="vous@exemple.fr" style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid rgba(155,114,207,0.25);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:inherit;outline:none"/></div>
-        <button id="btn-forgot" onclick="doForgotPassword()" style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,#9333EA,#C084FC);color:white;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Envoyer le lien</button>
-        <div class="auth-error" id="forgot-error" style="color:#F472B6;background:rgba(244,114,182,0.1);margin-top:10px;padding:8px;border-radius:8px;font-size:12px;display:none"></div>
-        <div class="auth-success" id="forgot-success" style="color:#5DCAA5;background:rgba(93,202,165,0.1);margin-top:10px;padding:8px;border-radius:8px;font-size:12px;display:none"></div>
-        <button onclick="showLogin()" style="width:100%;margin-top:10px;background:none;border:none;font-size:12px;color:rgba(255,255,255,0.35);cursor:pointer;font-family:inherit">&larr; Retour</button>
+      <div style="margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px"><label style="color:rgba(255,255,255,0.6);font-size:13px">Mot de passe</label><button onclick="showForgotPassword()" style="background:none;border:none;font-size:13px;color:#C084FC;cursor:pointer;font-family:inherit;padding:0">Mot de passe oubli&eacute; ?</button></div>
+        <input type="password" id="l-pwd" placeholder="••••••••" style="width:100%;padding:13px 16px;border-radius:10px;border:1px solid rgba(155,114,207,0.3);background:rgba(20,10,35,0.6);color:white;font-size:15px;font-family:inherit;outline:none;backdrop-filter:blur(8px)" onfocus="this.style.borderColor='rgba(192,132,252,0.7)'" onblur="this.style.borderColor='rgba(155,114,207,0.3)'"/>
       </div>
+      <div style="display:flex;align-items:center;margin-bottom:18px"><label style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,0.45);cursor:pointer"><input type="checkbox" style="accent-color:#C084FC;width:16px;height:16px"/>Se souvenir de moi</label></div>
+      <button id="btn-login" onclick="doLogin()" style="width:100%;padding:14px;border-radius:10px;background:linear-gradient(135deg,#9333EA,#C084FC);color:white;border:none;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 24px rgba(147,51,234,0.4)">Se connecter</button>
+      <div class="auth-error" id="login-error" style="color:#F472B6;background:rgba(244,114,182,0.15);border:1px solid rgba(244,114,182,0.2);margin-top:12px;padding:10px;border-radius:8px;font-size:13px;display:none"></div>
+    </div>
 
-      <!-- Separator -->
-      <div style="display:flex;align-items:center;gap:12px;margin:14px 0"><div style="flex:1;height:0.5px;background:rgba(255,255,255,0.08)"></div><span style="font-size:11px;color:rgba(255,255,255,0.2)">ou</span><div style="flex:1;height:0.5px;background:rgba(255,255,255,0.08)"></div></div>
+    <div id="forgot-form" style="display:none">
+      <div style="margin-bottom:14px"><label style="color:rgba(255,255,255,0.6);font-size:13px;margin-bottom:6px;display:block">Votre email</label><input type="email" id="forgot-email" placeholder="vous@exemple.fr" style="width:100%;padding:13px 16px;border-radius:10px;border:1px solid rgba(155,114,207,0.3);background:rgba(20,10,35,0.6);color:white;font-size:15px;font-family:inherit;outline:none;backdrop-filter:blur(8px)"/></div>
+      <button id="btn-forgot" onclick="doForgotPassword()" style="width:100%;padding:14px;border-radius:10px;background:linear-gradient(135deg,#9333EA,#C084FC);color:white;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Envoyer le lien</button>
+      <div class="auth-error" id="forgot-error" style="color:#F472B6;background:rgba(244,114,182,0.15);margin-top:10px;padding:10px;border-radius:8px;font-size:13px;display:none"></div>
+      <div class="auth-success" id="forgot-success" style="color:#5DCAA5;background:rgba(93,202,165,0.15);margin-top:10px;padding:10px;border-radius:8px;font-size:13px;display:none"></div>
+      <button onclick="showLogin()" style="width:100%;margin-top:12px;background:none;border:none;font-size:13px;color:rgba(255,255,255,0.4);cursor:pointer;font-family:inherit">&larr; Retour</button>
+    </div>
 
-      <!-- Create account -->
-      <div style="text-align:center;font-size:12px;color:rgba(255,255,255,0.35)">Pas encore de compte ? <button onclick="switchTab('register')" style="background:none;border:none;color:#C084FC;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;text-decoration:underline">Cr&eacute;er un compte</button></div>
+    <div style="display:flex;align-items:center;gap:12px;margin:16px 0"><div style="flex:1;height:0.5px;background:rgba(255,255,255,0.1)"></div><span style="font-size:12px;color:rgba(255,255,255,0.25)">ou</span><div style="flex:1;height:0.5px;background:rgba(255,255,255,0.1)"></div></div>
+    <div style="text-align:center;font-size:14px;color:rgba(255,255,255,0.4)">Pas encore de compte ? <button onclick="switchTab('register')" style="background:none;border:none;color:#C084FC;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;text-decoration:underline">Cr&eacute;er un compte</button></div>
 
-      <!-- REGISTER FORM (hidden) -->
-      <div id="register-form" style="display:none;margin-top:14px">
-        <div style="margin-bottom:10px"><label style="color:rgba(255,255,255,0.5);font-size:11px;margin-bottom:5px;display:block;font-weight:500">Nom complet</label><input type="text" id="r-name" placeholder="Marie Martin" style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(155,114,207,0.25);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:inherit;outline:none"/></div>
-        <div style="margin-bottom:10px"><label style="color:rgba(255,255,255,0.5);font-size:11px;margin-bottom:5px;display:block;font-weight:500">Email</label><input type="email" id="r-email" placeholder="vous@exemple.fr" style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(155,114,207,0.25);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:inherit;outline:none"/></div>
-        <div style="margin-bottom:14px"><label style="color:rgba(255,255,255,0.5);font-size:11px;margin-bottom:5px;display:block;font-weight:500">Mot de passe</label><input type="password" id="r-pwd" placeholder="min. 6 caract&egrave;res" style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(155,114,207,0.25);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:inherit;outline:none"/></div>
-        <div style="display:none"><input type="checkbox" id="r-mod-solo" checked/><input type="checkbox" id="r-mod-concierge"/></div>
-        <button id="btn-register" onclick="doRegister()" style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,#9333EA,#C084FC);color:white;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(147,51,234,0.35)">Cr&eacute;er mon compte</button>
-        <div class="auth-error" id="register-error" style="color:#F472B6;background:rgba(244,114,182,0.1);margin-top:10px;padding:8px;border-radius:8px;font-size:12px;display:none"></div>
-        <div class="auth-success" id="register-success" style="color:#5DCAA5;background:rgba(93,202,165,0.1);margin-top:10px;padding:8px;border-radius:8px;font-size:12px;display:none"></div>
-        <button onclick="switchTab('login')" style="width:100%;margin-top:10px;background:none;border:none;font-size:12px;color:rgba(255,255,255,0.35);cursor:pointer;font-family:inherit">&larr; D&eacute;j&agrave; un compte ?</button>
-      </div>
+    <div id="register-form" style="display:none;margin-top:16px">
+      <div style="margin-bottom:12px"><label style="color:rgba(255,255,255,0.6);font-size:13px;margin-bottom:6px;display:block">Nom complet</label><input type="text" id="r-name" placeholder="Marie Martin" style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(155,114,207,0.3);background:rgba(20,10,35,0.6);color:white;font-size:15px;font-family:inherit;outline:none;backdrop-filter:blur(8px)"/></div>
+      <div style="margin-bottom:12px"><label style="color:rgba(255,255,255,0.6);font-size:13px;margin-bottom:6px;display:block">Email</label><input type="email" id="r-email" placeholder="vous@exemple.fr" style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(155,114,207,0.3);background:rgba(20,10,35,0.6);color:white;font-size:15px;font-family:inherit;outline:none;backdrop-filter:blur(8px)"/></div>
+      <div style="margin-bottom:16px"><label style="color:rgba(255,255,255,0.6);font-size:13px;margin-bottom:6px;display:block">Mot de passe</label><input type="password" id="r-pwd" placeholder="min. 6 caract&egrave;res" style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(155,114,207,0.3);background:rgba(20,10,35,0.6);color:white;font-size:15px;font-family:inherit;outline:none;backdrop-filter:blur(8px)"/></div>
+      <div style="display:none"><input type="checkbox" id="r-mod-solo" checked/><input type="checkbox" id="r-mod-concierge"/></div>
+      <button id="btn-register" onclick="doRegister()" style="width:100%;padding:14px;border-radius:10px;background:linear-gradient(135deg,#9333EA,#C084FC);color:white;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 24px rgba(147,51,234,0.4)">Cr&eacute;er mon compte</button>
+      <div class="auth-error" id="register-error" style="color:#F472B6;background:rgba(244,114,182,0.15);margin-top:10px;padding:10px;border-radius:8px;font-size:13px;display:none"></div>
+      <div class="auth-success" id="register-success" style="color:#5DCAA5;background:rgba(93,202,165,0.15);margin-top:10px;padding:10px;border-radius:8px;font-size:13px;display:none"></div>
+      <button onclick="switchTab('login')" style="width:100%;margin-top:10px;background:none;border:none;font-size:13px;color:rgba(255,255,255,0.4);cursor:pointer;font-family:inherit">&larr; D&eacute;j&agrave; un compte ?</button>
     </div>
   </div>
 </div>
