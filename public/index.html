@@ -884,9 +884,13 @@ tr:hover td{background:#FAFAFF}
           <label class="onb2-label">Nom de l'appartement</label>
           <input class="onb2-input" id="onb2-apt-name" placeholder="ex : Studio Bastille, T2 Lyon Centre…" autocomplete="off"/>
         </div>
-        <div class="onb2-field">
-          <label class="onb2-label">Ville</label>
-          <input class="onb2-input" id="onb2-apt-city" placeholder="Paris, Lyon, Bordeaux…"/>
+        <div class="onb2-field" style="position:relative">
+          <label class="onb2-label">Adresse complète</label>
+          <input class="onb2-input" id="onb2-apt-address" placeholder="12 rue de la Paix, Paris…" autocomplete="off" oninput="onb2SearchAddr(this.value)"/>
+          <div id="onb2-addr-results" style="display:none;position:absolute;z-index:200;background:white;border:1px solid #E8E8EE;border-radius:10px;width:100%;margin-top:2px;box-shadow:0 4px 12px rgba(0,0,0,0.1);max-height:180px;overflow-y:auto"></div>
+          <input type="hidden" id="onb2-apt-city"/>
+          <input type="hidden" id="onb2-apt-lat"/>
+          <input type="hidden" id="onb2-apt-lng"/>
         </div>
         <div class="onb2-row">
           <div class="onb2-field">
@@ -899,6 +903,14 @@ tr:hover td{background:#FAFAFF}
           </div>
         </div>
         <div class="onb2-hint">💡 Le loyer sert à calculer votre rentabilité nette automatiquement.</div>
+        <!-- WOW MOMENT — preview EVA -->
+        <div id="onb2-wow" style="display:none;margin-top:16px;background:linear-gradient(135deg,#F5F0FF,#FDF2FF);border:1px solid #C4B5FD;border-radius:12px;padding:14px;animation:onbUp .3s ease-out">
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#6B3FA0;margin-bottom:10px">
+            <div style="width:7px;height:7px;border-radius:50%;background:#6B3FA0;animation:pulse 1.5s infinite"></div>
+            EVA analyse votre marché…
+          </div>
+          <div id="onb2-wow-content" style="font-size:13px;color:#3A3A50;line-height:1.6"></div>
+        </div>
       </div>
 
       <!-- ── ÉTAPE 2 : Type d'usage ── -->
@@ -1017,18 +1029,226 @@ function onb2GoTo(step){
   btn.disabled=false;
 }
 
+let _onb2AT=null;
+async function onb2SearchAddr(q){
+  clearTimeout(_onb2AT);
+  const b=document.getElementById('onb2-addr-results');
+  if(!q||q.length<3){b.style.display='none';return;}
+  _onb2AT=setTimeout(async()=>{
+    try{
+      const r=await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=4`);
+      const d=await r.json();
+      if(!d.features?.length){b.style.display='none';return;}
+      b.style.display='block';
+      b.innerHTML=d.features.map((f,i)=>`<div onclick="onb2PickA(${i})" style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid #F0F0F5" onmouseover="this.style.background='#F5F4FF'" onmouseout="this.style.background='white'"><span style="color:#6B3FA0">📍</span> ${f.properties.label}<div style="font-size:11px;color:#8A8A99">${f.properties.city||''}</div></div>`).join('');
+      window._onb2Addrs=d.features;
+    }catch(e){b.style.display='none';}
+  },300);
+}
+function onb2PickA(i){
+  const f=window._onb2Addrs?.[i];if(!f)return;
+  const city=f.properties.city||f.properties.municipality||'';
+  const lat=f.geometry.coordinates[1];
+  const lng=f.geometry.coordinates[0];
+  document.getElementById('onb2-apt-address').value=f.properties.label;
+  document.getElementById('onb2-apt-city').value=city;
+  document.getElementById('onb2-apt-lat').value=lat;
+  document.getElementById('onb2-apt-lng').value=lng;
+  document.getElementById('onb2-addr-results').style.display='none';
+  if(city)onb2LoadWow(city,lat,lng);
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#onb2-apt-address')&&!e.target.closest('#onb2-addr-results')){
+    const b=document.getElementById('onb2-addr-results');if(b)b.style.display='none';
+  }
+});
+
+async function onb2LoadWow(city,lat,lng){
+  const wow=document.getElementById('onb2-wow');
+  const content=document.getElementById('onb2-wow-content');
+  wow.style.display='block';
+  content.innerHTML='<div class="typing"><span></span><span></span><span></span></div>';
+
+  // Lancer POI + Events en parallèle
+  const [pois,events]=await Promise.all([
+    onb2FetchPOI(lat,lng),
+    onb2FetchEvents(city)
+  ]);
+
+  // Score de localisation
+  const score=onb2CalcScore(pois);
+
+  // Prix suggéré
+  const price=+document.getElementById('onb2-apt-price').value||90;
+  const rent=+document.getElementById('onb2-apt-rent').value||800;
+  const priceMult=score>=80?1.15:score>=60?1.05:score>=40?1.0:0.90;
+  const suggestedPrice=Math.round(price*priceMult);
+  const occEstimate=Math.min(Math.round(50+score*0.4),92);
+  const revMois=Math.round(suggestedPrice*30*occEstimate/100);
+  const netMois=revMois-rent-Math.round(revMois*0.03)-25*Math.round(30*occEstimate/100/3);
+
+  let html='';
+
+  // Score + KPIs
+  html+=`<div style="display:grid;grid-template-columns:auto 1fr;gap:12px;margin-bottom:12px">
+    <div style="text-align:center;min-width:70px">
+      <div style="font-size:32px;font-weight:700;color:${score>=70?'#1D9E75':score>=50?'#BA7517':'#E24B4A'}">${score}</div>
+      <div style="font-size:10px;color:#8A8A99;font-weight:500">Score loc.</div>
+      <div style="font-size:9px;color:${score>=70?'#1D9E75':score>=50?'#BA7517':'#E24B4A'};font-weight:600">${score>=80?'Excellent':score>=60?'Très bien':score>=40?'Correct':'À améliorer'}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+      <div style="background:white;border-radius:8px;padding:6px;text-align:center">
+        <div style="font-size:16px;font-weight:700;color:#6B3FA0">${suggestedPrice}€</div>
+        <div style="font-size:9px;color:#8A8A99">Prix suggéré</div>
+      </div>
+      <div style="background:white;border-radius:8px;padding:6px;text-align:center">
+        <div style="font-size:16px;font-weight:700;color:#1D9E75">${revMois}€</div>
+        <div style="font-size:9px;color:#8A8A99">Revenu/mois</div>
+      </div>
+      <div style="background:white;border-radius:8px;padding:6px;text-align:center">
+        <div style="font-size:16px;font-weight:700;color:${netMois>=0?'#1D9E75':'#E24B4A'}">${netMois>=0?'+':''}${netMois}€</div>
+        <div style="font-size:9px;color:#8A8A99">Net/mois</div>
+      </div>
+    </div>
+  </div>`;
+
+  // POIs breakdown
+  const cats=[
+    {key:'transport',emoji:'🚇',label:'Transports'},
+    {key:'food',emoji:'🍽',label:'Restaurants'},
+    {key:'tourism',emoji:'🏛',label:'Tourisme'},
+    {key:'shop',emoji:'🛒',label:'Commerces'},
+    {key:'park',emoji:'🌳',label:'Espaces verts'},
+    {key:'education',emoji:'🎓',label:'Éducation'}
+  ];
+  const poiItems=cats.filter(c=>pois[c.key]>0);
+  if(poiItems.length){
+    html+=`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">`;
+    poiItems.forEach(c=>{
+      html+=`<span style="font-size:11px;padding:3px 8px;border-radius:6px;background:white;border:0.5px solid #E8E8EE">${c.emoji} ${pois[c.key]} ${c.label.toLowerCase()}</span>`;
+    });
+    html+=`</div>`;
+  }
+
+  // Events
+  const hot=events.filter(e=>{const s=(e.segment||'').toLowerCase();const g=(e.genre||'').toLowerCase();return s==='sports'||s==='music'||g.includes('festival')||g.includes('salon')||g.includes('concert');});
+  if(hot.length){
+    html+=`<div style="font-size:11px;font-weight:600;color:#6B3FA0;margin-bottom:4px">🔥 ${hot.length} événement${hot.length>1?'s':''} à ${city}</div>`;
+    hot.slice(0,3).forEach(e=>{
+      const d=e.date?new Date(e.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}):'';
+      html+=`<div style="font-size:11px;padding:2px 0;display:flex;gap:6px"><span>🎯</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.name}</span><span style="color:#8A8A99;flex-shrink:0">${d}</span></div>`;
+    });
+  } else if(events.length){
+    html+=`<div style="font-size:11px;color:#8A8A99">📅 ${events.length} événement${events.length>1?'s':''} à ${city}</div>`;
+  }
+
+  html+=`<div style="font-size:10px;color:#9B72CF;margin-top:8px;font-weight:500">✨ Score basé sur ${Object.values(pois).reduce((a,b)=>a+b,0)} points d'intérêt dans un rayon de 800m</div>`;
+  content.innerHTML=html;
+
+  // Update price suggestion
+  if(suggestedPrice!==price){
+    document.getElementById('onb2-apt-price').value=suggestedPrice;
+  }
+}
+
+async function onb2FetchPOI(lat,lng){
+  const result={transport:0,food:0,tourism:0,shop:0,park:0,education:0};
+  try{
+    const radius=800;
+    const query=`[out:json][timeout:10];(
+      node["railway"="station"](around:${radius},${lat},${lng});
+      node["railway"="subway_entrance"](around:${radius},${lat},${lng});
+      node["highway"="bus_stop"](around:${radius},${lat},${lng});
+      node["railway"="tram_stop"](around:${radius},${lat},${lng});
+      node["amenity"="restaurant"](around:${radius},${lat},${lng});
+      node["amenity"="cafe"](around:${radius},${lat},${lng});
+      node["amenity"="bar"](around:${radius},${lat},${lng});
+      node["tourism"](around:${radius},${lat},${lng});
+      node["shop"="supermarket"](around:${radius},${lat},${lng});
+      node["shop"="bakery"](around:${radius},${lat},${lng});
+      node["shop"="convenience"](around:${radius},${lat},${lng});
+      node["leisure"="park"](around:${radius},${lat},${lng});
+      way["leisure"="park"](around:${radius},${lat},${lng});
+      node["amenity"="university"](around:${radius},${lat},${lng});
+      node["amenity"="school"](around:${radius},${lat},${lng});
+    );out count;`;
+    // Use Overpass counting — faster than getting all elements
+    const fullQuery=`[out:json][timeout:10];(
+      node["railway"~"station|subway_entrance"](around:${radius},${lat},${lng});
+      node["highway"="bus_stop"](around:${radius},${lat},${lng});
+      node["railway"="tram_stop"](around:${radius},${lat},${lng});
+    );out body;`;
+    const fullQuery2=`[out:json][timeout:10];(
+      node["amenity"~"restaurant|cafe|bar"](around:${radius},${lat},${lng});
+    );out body;`;
+    const fullQuery3=`[out:json][timeout:10];(
+      node["tourism"](around:${radius},${lat},${lng});
+      node["historic"](around:${radius},${lat},${lng});
+    );out body;`;
+    const fullQuery4=`[out:json][timeout:10];(
+      node["shop"~"supermarket|bakery|convenience"](around:${radius},${lat},${lng});
+    );out body;`;
+    const fullQuery5=`[out:json][timeout:10];(
+      node["leisure"="park"](around:${radius},${lat},${lng});
+      way["leisure"="park"](around:${radius},${lat},${lng});
+      node["leisure"="garden"](around:${radius},${lat},${lng});
+    );out body;`;
+    const fullQuery6=`[out:json][timeout:10];(
+      node["amenity"~"university|school|college"](around:${radius},${lat},${lng});
+    );out body;`;
+
+    const base='https://overpass-api.de/api/interpreter?data=';
+    const [r1,r2,r3,r4,r5,r6]=await Promise.all([
+      fetch(base+encodeURIComponent(fullQuery)).then(r=>r.json()).catch(()=>({elements:[]})),
+      fetch(base+encodeURIComponent(fullQuery2)).then(r=>r.json()).catch(()=>({elements:[]})),
+      fetch(base+encodeURIComponent(fullQuery3)).then(r=>r.json()).catch(()=>({elements:[]})),
+      fetch(base+encodeURIComponent(fullQuery4)).then(r=>r.json()).catch(()=>({elements:[]})),
+      fetch(base+encodeURIComponent(fullQuery5)).then(r=>r.json()).catch(()=>({elements:[]})),
+      fetch(base+encodeURIComponent(fullQuery6)).then(r=>r.json()).catch(()=>({elements:[]}))
+    ]);
+    result.transport=(r1.elements||[]).length;
+    result.food=(r2.elements||[]).length;
+    result.tourism=(r3.elements||[]).length;
+    result.shop=(r4.elements||[]).length;
+    result.park=(r5.elements||[]).length;
+    result.education=(r6.elements||[]).length;
+  }catch(e){}
+  return result;
+}
+
+function onb2CalcScore(pois){
+  let score=0;
+  // Transports — max 25 points
+  score+=Math.min(pois.transport*3,25);
+  // Food — max 20 points
+  score+=Math.min(pois.food*0.5,20);
+  // Tourism — max 25 points
+  score+=Math.min(pois.tourism*5,25);
+  // Shops — max 10 points
+  score+=Math.min(pois.shop*2,10);
+  // Parks — max 10 points
+  score+=Math.min(pois.park*3,10);
+  // Education — max 10 points
+  score+=Math.min(pois.education*3,10);
+  return Math.min(Math.round(score),100);
+}
+
+async function onb2FetchEvents(city){
+  try{
+    const res=await fetch('/api/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({city,countryCode:'FR',radius:50})});
+    const data=await res.json();
+    return Array.isArray(data)?data:[];
+  }catch(e){return[];}
+}
+
 function onb2Next(){
   if(onb2Step===1){
     // Validate étape 1
     const name=document.getElementById('onb2-apt-name').value.trim();
-    const city=document.getElementById('onb2-apt-city').value.trim();
+    const addr=(document.getElementById('onb2-apt-address')||{}).value||document.getElementById('onb2-apt-city').value||'';
     const err=document.getElementById('onb2-err1');
-    if(!name||!city){
-      err.textContent='Le nom et la ville sont obligatoires.';
-      err.classList.add('show');
-      setTimeout(()=>err.classList.remove('show'),3000);
-      return;
-    }
+    if(!name){err.textContent="Le nom est obligatoire.";err.classList.add('show');setTimeout(()=>err.classList.remove('show'),3000);return;}
+    if(!addr.trim()){err.textContent="Entrez une adresse et s\u00e9lectionnez-la.";err.classList.add('show');setTimeout(()=>err.classList.remove('show'),3000);return;}
     onb2GoTo(2);
   }else if(onb2Step===2){
     onb2GoTo(3);
@@ -1086,15 +1306,18 @@ async function onb2Finish(){
 
   // 1. Sauvegarder l'appartement si rempli
   const aptName=document.getElementById('onb2-apt-name').value.trim();
+  const aptAddr=(document.getElementById('onb2-apt-address')||{}).value||'';
   const aptCity=document.getElementById('onb2-apt-city').value.trim();
+  const aptLat=+(document.getElementById('onb2-apt-lat')||{}).value||null;
+  const aptLng=+(document.getElementById('onb2-apt-lng')||{}).value||null;
   const aptPrice=+document.getElementById('onb2-apt-price').value||95;
   const aptRent=+document.getElementById('onb2-apt-rent').value||900;
 
-  if(aptName&&aptCity&&apparts.length===0){
+  if(aptName&&(aptAddr||aptCity)&&apparts.length===0){
     try{
       const body={
         user_id:currentUser.user.id,
-        name:aptName,city:aptCity,zone:'',emoji:'🏠',
+        name:aptName,city:aptCity,zone:'',address:aptAddr,latitude:aptLat,longitude:aptLng,emoji:'🏠',
         rent:aptRent,cleaner:25,
         price:aptPrice,
         comp:Math.round(aptPrice*1.05),
