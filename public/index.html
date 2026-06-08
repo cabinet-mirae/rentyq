@@ -620,12 +620,30 @@ tr:hover td{background:#FCF8FF!important;}
 .scanner-map-marker.poi{background:#fff;color:#7C3AED;border:2px solid #A855F7;font-size:14px}
 @media(max-width:1000px){.scanner-grid{grid-template-columns:1fr}.scanner-score-grid{grid-template-columns:repeat(2,1fr)}#scanner-map{height:420px}}
 @media(max-width:640px){.scanner-score-grid{grid-template-columns:1fr}.scanner-controls select{min-width:0;width:100%}.scanner-controls .btn{width:100%;justify-content:center}}
+
+.scanner-apart-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin:1rem 0 1rem}
+.scanner-apart-card{background:rgba(255,255,255,.96);border:1px solid rgba(139,92,246,.16);border-radius:16px;padding:1rem;box-shadow:0 12px 34px rgba(69,39,120,.06);display:flex;flex-direction:column;gap:10px;transition:transform .15s,border-color .15s,box-shadow .15s}
+.scanner-apart-card:hover{transform:translateY(-2px);border-color:rgba(168,85,247,.34);box-shadow:0 18px 42px rgba(69,39,120,.10)}
+.scanner-apart-card.active{border-color:rgba(236,72,153,.45);box-shadow:0 18px 42px rgba(236,72,153,.13)}
+.scanner-apart-top{display:flex;align-items:flex-start;gap:10px}
+.scanner-apart-emoji{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#F3E8FF,#FCE7F3);display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
+.scanner-apart-name{font-size:14px;font-weight:850;color:#17122E;line-height:1.25}
+.scanner-apart-meta{font-size:12px;color:#7B708F;line-height:1.45;margin-top:3px}
+.scanner-apart-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.scanner-mini-stat{background:#FAF8FF;border:1px solid rgba(139,92,246,.10);border-radius:11px;padding:9px}
+.scanner-mini-label{font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;font-weight:850;margin-bottom:4px}
+.scanner-mini-value{font-size:15px;font-weight:850;color:#241A3D}
+.scanner-apart-actions{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.scanner-location-badge{font-size:11px;font-weight:750;border-radius:999px;padding:4px 8px;background:#ECFDF5;color:#059669;white-space:nowrap}
+.scanner-location-badge.missing{background:#FFF7ED;color:#C2410C}
+.scanner-muted{font-size:12px;color:rgba(255,255,255,.78);margin-top:8px;position:relative;z-index:1}
 /* ===== end EVA SCANNER V1 ===== */
 
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
 
 /* ===== EVA SCANNER V1 — cartographie + scoring ===== */
 let evaScannerMap=null;
@@ -640,23 +658,83 @@ const EVA_POI_CONFIG={
   events:{label:'Événements',icon:'🎉',color:'#F59E0B',score:18,terms:[]}
 };
 
+function scannerApartments(){
+  try{
+    return (Array.isArray(apparts)?apparts:[]).filter(a=>a&&a.id!=null);
+  }catch(e){return []}
+}
+
+function scannerAptTitle(a){
+  return `${a.emoji||'🏠'} ${a.name||a.title||'Appartement'}`;
+}
+
+function scannerAptPlace(a){
+  return a.address||a.zone||a.city||'adresse à compléter';
+}
+
+function scannerAptHasCoords(a){
+  return !!(aptLat(a)&&aptLng(a));
+}
+
 function renderScannerPage(){
   const sel=document.getElementById('scanner-apt-select');
   const empty=document.getElementById('scanner-empty');
   const res=document.getElementById('scanner-result');
+  const list=document.getElementById('scanner-apart-list');
   if(!sel||!empty||!res)return;
-  if(!apparts.length){empty.style.display='block';res.innerHTML='';sel.innerHTML='<option>Aucun appartement</option>';return;}
+  const apts=scannerApartments();
+  if(!apts.length){
+    empty.style.display='block';
+    res.innerHTML='';
+    sel.innerHTML='<option value="">Aucun appartement dans le parc</option>';
+    if(list)list.innerHTML='';
+    return;
+  }
   empty.style.display='none';
-  sel.innerHTML=apparts.map(a=>`<option value="${a.id}">${a.emoji||'🏠'} ${a.name||'Appartement'} — ${a.city||a.zone||a.address||'adresse à compléter'}</option>`).join('');
+  const currentValue=sel.value;
+  sel.innerHTML=apts.map(a=>`<option value="${a.id}">${scannerAptTitle(a)} — ${scannerAptPlace(a)}</option>`).join('');
+  if(currentValue&&apts.some(a=>String(a.id)===String(currentValue)))sel.value=currentValue;
+  if(list){
+    list.innerHTML=apts.map(a=>{
+      const coords=scannerAptHasCoords(a);
+      const price=Number(a.price||0);
+      const rec=a.ai_rec||Math.round((price||80)*1.08);
+      return `<div class="scanner-apart-card ${String(sel.value)===String(a.id)?'active':''}" onclick="selectScannerApt('${a.id}')">
+        <div class="scanner-apart-top">
+          <div class="scanner-apart-emoji">${a.emoji||'🏠'}</div>
+          <div style="min-width:0;flex:1">
+            <div class="scanner-apart-name">${escapeHtml(a.name||'Appartement')}</div>
+            <div class="scanner-apart-meta">${escapeHtml(scannerAptPlace(a))}</div>
+          </div>
+        </div>
+        <div class="scanner-apart-stats">
+          <div class="scanner-mini-stat"><div class="scanner-mini-label">Prix actuel</div><div class="scanner-mini-value">${price||'—'}${price?'€':''}</div></div>
+          <div class="scanner-mini-stat"><div class="scanner-mini-label">Reco actuelle</div><div class="scanner-mini-value">${rec||'—'}${rec?'€':''}</div></div>
+        </div>
+        <div class="scanner-apart-actions">
+          <span class="scanner-location-badge ${coords?'':'missing'}">${coords?'📍 Localisé':'⚠️ Adresse à compléter'}</span>
+          <button class="btn btn-ai btn-sm" onclick="event.stopPropagation();selectScannerApt('${a.id}');runEvaScanner();"><i class="ti ti-radar-2"></i> Scanner</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
   if(!res.innerHTML.trim()){
-    res.innerHTML=`<div class="scanner-diagnostic"><div class="scanner-verdict"><div class="scanner-verdict-icon">🧠</div><div><div class="scanner-verdict-title">Prêt à scanner</div><div class="scanner-verdict-text">Sélectionnez un logement puis lancez l’analyse. EVA affichera une carte des points d’intérêt, un score emplacement, un score prix actuel et une recommandation de nuitée.</div></div></div></div>`;
+    res.innerHTML=`<div class="scanner-diagnostic"><div class="scanner-verdict"><div class="scanner-verdict-icon">🧠</div><div><div class="scanner-verdict-title">Vos logements sont prêts à être scannés</div><div class="scanner-verdict-text">EVA reprend maintenant automatiquement les appartements déjà créés dans “Le parc”. Choisissez un logement dans la liste ci-dessus ou cliquez directement sur “Scanner”.</div></div></div></div>`;
   }
 }
 
-function getSelectedScannerApt(){
+function selectScannerApt(id){
   const sel=document.getElementById('scanner-apt-select');
-  if(!sel)return apparts[0];
-  return apparts.find(a=>String(a.id)===String(sel.value))||apparts[0];
+  if(sel)sel.value=id;
+  document.querySelectorAll('.scanner-apart-card').forEach(c=>c.classList.remove('active'));
+  renderScannerPage();
+}
+
+function getSelectedScannerApt(){
+  const apts=scannerApartments();
+  const sel=document.getElementById('scanner-apt-select');
+  if(!sel)return apts[0];
+  return apts.find(a=>String(a.id)===String(sel.value))||apts[0];
 }
 
 function aptLat(a){return parseFloat(a.lat||a.latitude||a.y||0)}
@@ -1087,12 +1165,14 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
           <div class="scanner-hero-title">Analysez le vrai potentiel d’un logement</div>
           <div class="scanner-hero-sub">EVA croise l’adresse, les transports, les commerces, les restaurants, les événements proches et votre prix actuel pour détecter si votre appartement est sous-exploité, bien positionné ou trop cher.</div>
           <div class="scanner-controls">
-            <select id="scanner-apt-select"></select>
-            <button class="btn btn-ai" onclick="runEvaScanner()"><i class="ti ti-radar-2"></i> Scanner l’appartement</button>
+            <select id="scanner-apt-select" onchange="renderScannerPage()"></select>
+            <button class="btn btn-ai" onclick="runEvaScanner()"><i class="ti ti-radar-2"></i> Scanner l’appartement sélectionné</button>
             <button class="btn" onclick="openAddModal()">+ Ajouter un logement</button>
           </div>
+          <div class="scanner-muted">Les appartements affichés ici viennent directement de votre parc existant.</div>
         </div>
-        <div id="scanner-empty" class="scanner-warning" style="display:none">Ajoutez d’abord un appartement avec une adresse précise pour lancer le Scanner EVA.</div>
+        <div id="scanner-empty" class="scanner-warning" style="display:none">Ajoutez d’abord un appartement dans “Le parc” pour lancer le Scanner EVA.</div>
+        <div id="scanner-apart-list" class="scanner-apart-list"></div>
         <div id="scanner-result"></div>
       </div>
 
@@ -2292,6 +2372,7 @@ function renderAll(){
   document.getElementById('parc-sub').textContent=apparts.length+' appartement'+(apparts.length>1?'s':'');
   document.getElementById('res-sub').textContent=reservations.length+' réservation'+(reservations.length>1?'s':'');
   if(smoobuKey){document.getElementById('btn-sync').style.display='inline-flex';}
+  if(document.getElementById('page-scanner')?.classList.contains('active'))renderScannerPage();
 }
 
 let cockpitTodos=[];
