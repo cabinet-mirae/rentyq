@@ -2473,7 +2473,7 @@ function updateNavVisibility(){
   // Smoobu — visible seulement si clé configurée
   const hasSmoobu=!!smoobuKey;
   const navSm=document.getElementById('nav-smoobu');
-  const navSmLabel=document.getElementById('nav-label-smoobu');
+  const navSmLabel=document.getElementById('nav-label-integrations');
   if(navSm)navSm.style.display=hasSmoobu?'flex':'none';
   if(navSmLabel)navSmLabel.style.display=hasSmoobu?'block':'none';
 }
@@ -3940,6 +3940,105 @@ function renderFinances(){
   const sub=document.getElementById('finances-sub');
   if(sub)sub.innerHTML=`Rentabilité nette · <a href="#" onclick="openRulesModal();return false" style="color:#6B3FA0">🏷 Règles</a>`;
 }
+
+// CALENDRIER
+let calDate=new Date();
+let calFilter=null;
+function calNav(dir){calDate=new Date(calDate.getFullYear(),calDate.getMonth()+dir,1);renderCalendar();}
+function calSetFilter(aptId){calFilter=calFilter===aptId?null:aptId;renderCalendar();}
+
+function renderCalendar(){
+  const year=calDate.getFullYear(),month=calDate.getMonth();
+  const label=calDate.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+  document.getElementById('cal-month-label').textContent=label.charAt(0).toUpperCase()+label.slice(1);
+  const filtersEl=document.getElementById('cal-filters');
+  filtersEl.innerHTML=`<button onclick="calSetFilter(null)" style="padding:5px 12px;border-radius:8px;border:1px solid ${calFilter===null?'#6B3FA0':'#E8E8EE'};background:${calFilter===null?'#F5F4FF':'white'};color:${calFilter===null?'#6B3FA0':'#8A8A99'};font-size:12px;font-weight:500;cursor:pointer;font-family:inherit">Tous</button>`+apparts.map(a=>`<button onclick="calSetFilter('${a.id}')" style="padding:5px 12px;border-radius:8px;border:1px solid ${calFilter===a.id?'#6B3FA0':'#E8E8EE'};background:${calFilter===a.id?'#F5F4FF':'white'};color:${calFilter===a.id?'#6B3FA0':'#8A8A99'};font-size:12px;font-weight:500;cursor:pointer;font-family:inherit">${a.emoji||'🏠'} ${a.name}</button>`).join('');
+  const firstDay=new Date(year,month,1).getDay();const startDay=firstDay===0?6:firstDay-1;const daysInMonth=new Date(year,month+1,0).getDate();
+  const today=new Date().toISOString().split('T')[0];const moisStr=calDate.toISOString().slice(0,7);
+  const filteredApparts=calFilter?apparts.filter(a=>a.id===calFilter):apparts;
+  const aptIds=new Set(filteredApparts.map(a=>a.id));
+  const monthRes=reservations.filter(r=>aptIds.has(r.appartement_id)&&r.date_from&&(r.date_from.startsWith(moisStr)||r.date_to>=moisStr+'-01'));
+  const monthMissions=typeof missionsData!=='undefined'?missionsData.filter(m=>aptIds.has(m.appartement_id)&&m.date&&m.date.startsWith(moisStr)):[];
+  const cities=[...new Set(filteredApparts.map(a=>a.city).filter(Boolean))];
+  const monthEvents=[];cities.forEach(c=>{(eventsCache[c]||[]).forEach(e=>{if(e.date&&e.date.startsWith(moisStr))monthEvents.push(e);});});
+  const jours=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  let html='<div style="display:grid;grid-template-columns:repeat(7,1fr)">';
+  jours.forEach(j=>{html+=`<div style="padding:10px 4px;text-align:center;font-size:11px;font-weight:600;color:#8A8A99;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid #EEEEF5">${j}</div>`;});
+  for(let i=0;i<startDay;i++){html+=`<div style="padding:8px;min-height:90px;border-bottom:1px solid #EEEEF5;border-right:1px solid #EEEEF5;background:#FAFAFF"></div>`;}
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const isToday=ds===today;const isWE=(startDay+d-1)%7>=5;
+    const dayRes=monthRes.filter(r=>r.date_from<=ds&&r.date_to>=ds);const dayMissions=monthMissions.filter(m=>m.date===ds);const dayEvents=monthEvents.filter(e=>e.date===ds);
+    const hasRes=dayRes.length>0;const isFree=!hasRes;
+    let bg='white';if(isFree&&!isWE)bg='#FEF8F8';if(isFree&&isWE)bg='#FDF2F2';if(hasRes)bg='#F0FFF7';if(isToday)bg=hasRes?'#E1F5EE':'#FCEBEB';
+    html+=`<div onclick="showCalDay('${ds}')" style="padding:6px 8px;min-height:90px;border-bottom:1px solid #EEEEF5;border-right:1px solid #EEEEF5;background:${bg};cursor:pointer;position:relative;transition:background .1s" onmouseover="this.style.background='#F5F4FF'" onmouseout="this.style.background='${bg}'">`;
+    html+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:13px;font-weight:${isToday?'700':'500'};color:${isToday?'#6B3FA0':'#1A1A2E'};${isToday?'background:#F0EBF9;padding:2px 6px;border-radius:4px':''}">${d}</span>`;
+    if(isFree)html+=`<span style="font-size:9px;color:#E24B4A;font-weight:500">LIBRE</span>`;
+    html+=`</div>`;
+    dayRes.forEach(r=>{const apt=apparts.find(a=>a.id===r.appartement_id);const isCI=r.date_from===ds;const isCO=r.date_to===ds;const lb=isCI?'▶ '+r.guest_name:isCO?r.guest_name+' ▶':(apt?apt.name:r.guest_name);html+=`<div style="font-size:10px;padding:2px 6px;border-radius:4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:${isCI?'#059669':isCO?'#BA7517':'#1D9E75'};color:white;font-weight:500">${lb||'Réservation'}</div>`;});
+    dayMissions.forEach(m=>{const apt=apparts.find(a=>a.id===m.appartement_id);html+=`<div style="font-size:10px;padding:2px 6px;border-radius:4px;margin-bottom:2px;background:#E0F4FD;color:#0284C7;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">🧹 ${m.heure||''} ${apt?apt.name:''}</div>`;});
+    dayEvents.forEach(e=>{html+=`<div style="font-size:9px;padding:2px 5px;border-radius:4px;margin-bottom:2px;background:#FEF3C7;color:#92400E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.emoji||'🎯'} ${e.name.slice(0,15)}</div>`;});
+    html+=`</div>`;
+  }
+  const totalCells=startDay+daysInMonth;const rem=totalCells%7===0?0:7-totalCells%7;
+  for(let i=0;i<rem;i++){html+=`<div style="padding:8px;min-height:90px;border-bottom:1px solid #EEEEF5;border-right:1px solid #EEEEF5;background:#FAFAFF"></div>`;}
+  html+=`</div>`;
+  document.getElementById('cal-grid').innerHTML=html;
+  let freeN=0,bookedN=0;
+  for(let d=1;d<=daysInMonth;d++){const ds2=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const hasR=monthRes.some(r=>r.date_from<=ds2&&r.date_to>=ds2);if(hasR)bookedN+=filteredApparts.length;else freeN+=filteredApparts.length;}
+  const totalN=daysInMonth*filteredApparts.length;const occ=totalN>0?Math.round(bookedN/totalN*100):0;
+  document.getElementById('cal-sub').textContent=`${bookedN} nuits réservées · ${freeN} libres · ${occ}% occupation · ${monthMissions.length} ménage${monthMissions.length>1?'s':''}`;
+}
+
+function showCalDay(ds){
+  const el=document.getElementById('cal-day-detail');
+  const dateLabel=new Date(ds+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const filteredApparts=calFilter?apparts.filter(a=>a.id===calFilter):apparts;
+  const aptIds=new Set(filteredApparts.map(a=>a.id));
+  const dayRes=reservations.filter(r=>aptIds.has(r.appartement_id)&&r.date_from<=ds&&r.date_to>=ds);
+  const dayMissions=typeof missionsData!=='undefined'?missionsData.filter(m=>aptIds.has(m.appartement_id)&&m.date===ds):[];
+  const cities=[...new Set(filteredApparts.map(a=>a.city).filter(Boolean))];
+  const dayEvents=[];cities.forEach(c=>{(eventsCache[c]||[]).forEach(e=>{if(e.date===ds)dayEvents.push(e);});});
+  let html=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><div style="font-size:16px;font-weight:600">${dateLabel}</div><button onclick="document.getElementById('cal-day-detail').style.display='none'" style="background:none;border:none;font-size:18px;color:#8A8A99;cursor:pointer">✕</button></div>`;
+  html+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:1rem">`;
+  filteredApparts.forEach(a=>{
+    const res=reservations.find(r=>r.appartement_id===a.id&&r.date_from<=ds&&r.date_to>=ds);
+    const mission=dayMissions.find(m=>m.appartement_id===a.id);
+    const isCI=res&&res.date_from===ds;const isCO=res&&res.date_to===ds;
+    const sBg=res?'#E1F5EE':'#FCEBEB';const sCol=res?'#085041':'#A32D2D';const sTxt=isCI?'Check-in':isCO?'Check-out':res?'Occupé':'Libre';
+    html+=`<div style="background:${sBg};border-radius:10px;padding:12px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-weight:600;font-size:13px">${a.emoji||'🏠'} ${a.name}</span><span style="font-size:11px;font-weight:500;color:${sCol}">${sTxt}</span></div>${res?`<div style="font-size:12px;color:${sCol}">👤 ${res.guest_name||'Voyageur'} · ${res.price_total||0}€</div>`:'<div style="font-size:12px;color:#E24B4A">💰 Prix : '+getCurrentDegPrice(a)+'€</div>'}${mission?`<div style="font-size:11px;color:#0284C7;margin-top:4px">🧹 Ménage ${mission.heure||''}</div>`:''}</div>`;
+  });
+  html+=`</div>`;
+  if(dayEvents.length){html+=`<div style="font-size:11px;font-weight:600;color:#8A8A99;margin-bottom:6px">Événements</div>`;dayEvents.forEach(e=>{html+=`<div style="display:flex;align-items:center;gap:8px;padding:8px;background:#FEF3C7;border-radius:8px;margin-bottom:4px;font-size:12px"><span>${e.emoji||'🎯'}</span><span style="flex:1;font-weight:500">${e.name}</span><span style="color:#BA7517;font-weight:600">+${e.boost}%</span></div>`;});}
+  html+=`</div>`;el.innerHTML=html;el.style.display='block';el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// PREVISIONNEL
+function renderPrevisionnel(){
+  const el=document.getElementById('fin-previsionnel');
+  if(el.style.display==='block'){el.style.display='none';return;}
+  el.style.display='block';
+  if(!apparts.length){el.innerHTML='<div class="card" style="text-align:center;padding:2rem;color:#8A8A99">Ajoutez des appartements.</div>';return;}
+  const now=new Date();const moisActuel=now.toISOString().slice(0,7);const months=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+  let totalFixesMensuel=0,totalVarParRes=0,prixMoyenNuit=0,commPctMoy=0,nbApparts=apparts.length;
+  apparts.forEach(a=>{const ac=chargesData.filter(c=>c.appartement_id===a.id);totalFixesMensuel+=ac.filter(c=>c.type==='fixe').reduce((s,c)=>s+(c.amount||0),0);totalVarParRes+=ac.filter(c=>c.type==='variable'&&c.category!=='commission_plateforme').reduce((s,c)=>s+(c.amount||0),0);commPctMoy+=ac.find(c=>c.category==='commission_plateforme')?.amount||0;prixMoyenNuit+=a.price||0;});
+  prixMoyenNuit=nbApparts?Math.round(prixMoyenNuit/nbApparts):90;commPctMoy=nbApparts?Math.round(commPctMoy/nbApparts):3;
+  const moisRes=reservations.filter(r=>r.date_from&&r.date_from.startsWith(moisActuel));const nuitsVendues=moisRes.reduce((s,r)=>s+(r.nights||0),0);const nuitsDispos=nbApparts*30;const occActuel=nuitsDispos>0?Math.round(nuitsVendues/nuitsDispos*100):50;
+  const saisonCoeff=[0.7,0.7,0.8,0.85,0.9,1.0,1.1,1.1,0.95,0.85,0.75,0.8];
+  const scenarios=[{name:'Pessimiste',emoji:'😰',occBase:Math.max(occActuel-15,20),color:'#E24B4A',bg:'#FCEBEB'},{name:'Réaliste',emoji:'📊',occBase:occActuel,color:'#6B3FA0',bg:'#F5F4FF'},{name:'Optimiste',emoji:'🚀',occBase:Math.min(occActuel+15,95),color:'#1D9E75',bg:'#E1F5EE'}];
+  scenarios.forEach(sc=>{sc.months=[];sc.totalRev=0;sc.totalCharges=0;sc.totalNet=0;for(let i=0;i<12;i++){const d=new Date(now.getFullYear(),now.getMonth()+i,1);const mIdx=d.getMonth();const occ=Math.min(Math.round(sc.occBase*saisonCoeff[mIdx]),98);const nuits=Math.round(nbApparts*30*occ/100);const nbRes=Math.round(nuits/3);const rev=nuits*prixMoyenNuit;const charges=totalFixesMensuel+totalVarParRes*nbRes+Math.round(rev*commPctMoy/100);const net=rev-charges;sc.months.push({mois:months[mIdx],occ,nuits,rev,charges,net});sc.totalRev+=rev;sc.totalCharges+=charges;sc.totalNet+=net;}});
+  const chargesFixes=totalFixesMensuel;const revParNuit=prixMoyenNuit*(1-commPctMoy/100);const varParNuit=totalVarParRes/3;const margeParNuit=revParNuit-varParNuit;const nuitsPointMort=margeParNuit>0?Math.ceil(chargesFixes/margeParNuit):999;const occPointMort=nuitsDispos>0?Math.round(nuitsPointMort/nuitsDispos*100):0;
+  const sc=scenarios[1];const maxRev=Math.max(...scenarios[2].months.map(m=>m.rev),1);
+  const rev3=sc.months.slice(0,3).reduce((s,m)=>s+m.rev,0);const net3=sc.months.slice(0,3).reduce((s,m)=>s+m.net,0);const rev6=sc.months.slice(0,6).reduce((s,m)=>s+m.rev,0);const net6=sc.months.slice(0,6).reduce((s,m)=>s+m.net,0);
+  let html=`<div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;margin:1.5rem 0 0.75rem">📈 Prévisionnel 12 mois</div>`;
+  html+=`<div class="card" style="display:flex;align-items:center;gap:16px;padding:1rem 1.25rem;margin-bottom:1rem;border-left:3px solid ${occPointMort<=occActuel?'#1D9E75':'#E24B4A'}"><div style="font-size:32px">${occPointMort<=occActuel?'✅':'⚠️'}</div><div style="flex:1"><div style="font-size:14px;font-weight:600">Point mort : ${nuitsPointMort} nuits/mois (${occPointMort}%)</div><div style="font-size:12px;color:#8A8A99;margin-top:2px">Occupation actuelle : ${occActuel}% · ${occPointMort<=occActuel?'Au-dessus ✓':'En dessous — remplir plus'}</div></div><div style="text-align:right"><div style="font-size:22px;font-weight:700;color:${occPointMort<=occActuel?'#1D9E75':'#E24B4A'}">${occPointMort}%</div><div style="font-size:10px;color:#8A8A99">seuil</div></div></div>`;
+  html+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:1rem"><div class="kpi"><div class="kpi-label">Revenus 3 mois</div><div class="kpi-value" style="color:#1D9E75">${Math.round(rev3)}€</div><div class="kpi-delta" style="color:#1D9E75">net : ${net3>=0?'+':''}${Math.round(net3)}€</div></div><div class="kpi"><div class="kpi-label">Revenus 6 mois</div><div class="kpi-value" style="color:#1D9E75">${Math.round(rev6)}€</div><div class="kpi-delta" style="color:#1D9E75">net : ${net6>=0?'+':''}${Math.round(net6)}€</div></div><div class="kpi"><div class="kpi-label">Revenus 12 mois</div><div class="kpi-value" style="color:#1D9E75">${Math.round(sc.totalRev)}€</div><div class="kpi-delta" style="color:#1D9E75">net : ${sc.totalNet>=0?'+':''}${Math.round(sc.totalNet)}€</div></div><div class="kpi"><div class="kpi-label">Occ. moyenne</div><div class="kpi-value" style="color:#6B3FA0">${Math.round(sc.months.reduce((s,m)=>s+m.occ,0)/12)}%</div><div class="kpi-delta" style="color:#8A8A99">sur 12 mois</div></div></div>`;
+  html+=`<div class="card" style="margin-bottom:1rem"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem"><div style="font-size:14px;font-weight:600">Projections mensuelles</div><div style="display:flex;gap:12px;font-size:11px">${scenarios.map(s=>`<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:${s.color}"></span>${s.name}</span>`).join('')}</div></div><div style="display:flex;align-items:flex-end;gap:3px;height:180px;padding-bottom:20px">${sc.months.map((m,i)=>{const p=scenarios[0].months[i];const o=scenarios[2].months[i];const hP=Math.max(Math.round(p.rev/maxRev*140),4);const hR=Math.max(Math.round(m.rev/maxRev*140),4);const hO=Math.max(Math.round(o.rev/maxRev*140),4);return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px"><div style="display:flex;gap:1px;align-items:flex-end;width:100%"><div style="flex:1;background:${scenarios[0].color};opacity:0.3;height:${hP}px;border-radius:2px 2px 0 0"></div><div style="flex:1;background:${scenarios[1].color};height:${hR}px;border-radius:2px 2px 0 0"></div><div style="flex:1;background:${scenarios[2].color};opacity:0.3;height:${hO}px;border-radius:2px 2px 0 0"></div></div><div style="font-size:8px;color:#8A8A99;margin-top:2px">${m.mois}</div></div>`;}).join('')}</div></div>`;
+  html+=`<div class="card"><div style="font-size:14px;font-weight:600;margin-bottom:1rem">Comparaison 12 mois</div><div class="table-wrap"><table><thead><tr><th>Scénario</th><th>Occ.</th><th style="text-align:right">Revenus</th><th style="text-align:right">Charges</th><th style="text-align:right">Net</th><th style="text-align:right">Marge</th></tr></thead><tbody>${scenarios.map(s=>{const avgO=Math.round(s.months.reduce((a,m)=>a+m.occ,0)/12);const mg=s.totalRev>0?Math.round(s.totalNet/s.totalRev*100):0;return`<tr><td style="font-weight:600">${s.emoji} ${s.name}</td><td>${avgO}%</td><td style="text-align:right;color:#1D9E75">${Math.round(s.totalRev)}€</td><td style="text-align:right;color:#E24B4A">${Math.round(s.totalCharges)}€</td><td style="text-align:right;font-weight:700;color:${s.totalNet>=0?'#1D9E75':'#E24B4A'}">${s.totalNet>=0?'+':''}${Math.round(s.totalNet)}€</td><td style="text-align:right"><span class="tag ${mg>=15?'tag-ok':mg>=0?'tag-warn':'tag-bad'}">${mg}%</span></td></tr>`;}).join('')}</tbody></table></div></div>`;
+  html+=`<div style="background:#F8F7FF;border-radius:10px;padding:1rem;margin-bottom:1rem;font-size:12px;color:#8A8A99;line-height:1.8"><strong style="color:#6B3FA0">Hypothèses :</strong> Occ. actuelle ${occActuel}% · Prix moy. ${prixMoyenNuit}€/nuit · ${nbApparts} bien${nbApparts>1?'s':''} · Charges fixes ${totalFixesMensuel}€/mois · Saisonnalité appliquée</div>`;
+  el.innerHTML=html;el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// FIX nav-label-smoobu → nav-label-integrations
 
 // STRIPE & TARIFS
 function renderTarifs(){
