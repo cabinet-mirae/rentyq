@@ -579,10 +579,243 @@ tr:hover td{background:#FCF8FF!important;}
 #auth-screen.rq-auth-screen::after{
   display:none!important;
 }
+
+
+/* ===== EVA SCANNER V1 — score emplacement + prix actuel ===== */
+.scanner-hero{
+  background:linear-gradient(135deg,#1E1448 0%,#7C3AED 45%,#EC4899 100%);
+  color:#fff;border-radius:18px;padding:1.45rem;margin-bottom:1rem;
+  box-shadow:0 18px 48px rgba(124,58,237,.18);position:relative;overflow:hidden
+}
+.scanner-hero:after{content:"";position:absolute;right:-60px;top:-80px;width:260px;height:260px;background:radial-gradient(circle,rgba(255,255,255,.22),transparent 62%);pointer-events:none}
+.scanner-hero-title{font-size:26px;font-weight:850;letter-spacing:-.7px;margin-bottom:.35rem;position:relative;z-index:1}
+.scanner-hero-sub{font-size:14px;line-height:1.65;color:rgba(255,255,255,.82);max-width:820px;position:relative;z-index:1}
+.scanner-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:1rem;position:relative;z-index:1}
+.scanner-controls select{min-width:260px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:#fff;font-family:inherit;font-weight:650;outline:none}
+.scanner-controls select option{color:#111;background:#fff}
+.scanner-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:1rem;align-items:start}
+.scanner-score-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:1rem}
+.scanner-kpi{background:white;border:1px solid rgba(139,92,246,.14);border-radius:14px;padding:1rem;box-shadow:0 10px 28px rgba(69,39,120,.06)}
+.scanner-kpi-label{font-size:10px;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;font-weight:800;margin-bottom:8px}
+.scanner-kpi-value{font-size:30px;font-weight:850;letter-spacing:-1px;line-height:1;color:#17122E}
+.scanner-kpi-desc{font-size:12px;color:#8A8A99;margin-top:7px;line-height:1.35}
+.scanner-map-card{background:#fff;border:1px solid rgba(139,92,246,.16);border-radius:16px;padding:.75rem;box-shadow:0 12px 34px rgba(69,39,120,.06)}
+#scanner-map{height:520px;border-radius:13px;overflow:hidden;background:#F3EEFF}
+.scanner-diagnostic{background:white;border-radius:16px;border:1px solid rgba(139,92,246,.16);box-shadow:0 12px 34px rgba(69,39,120,.06);padding:1.15rem;margin-bottom:1rem}
+.scanner-verdict{display:flex;align-items:flex-start;gap:12px;padding:1rem;border-radius:14px;background:linear-gradient(135deg,#F3E8FF,#FFF1F9);border:1px solid rgba(168,85,247,.22);margin-bottom:1rem}
+.scanner-verdict-icon{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#7C3AED,#EC4899);display:flex;align-items:center;justify-content:center;color:white;font-size:22px;flex-shrink:0}
+.scanner-verdict-title{font-size:17px;font-weight:850;color:#17122E;margin-bottom:4px}
+.scanner-verdict-text{font-size:13px;color:#5E5573;line-height:1.55}
+.scanner-breakdown{display:grid;grid-template-columns:1fr;gap:9px}
+.scanner-row{display:flex;align-items:center;gap:10px}
+.scanner-row-label{width:120px;font-size:12px;font-weight:750;color:#3A3150}
+.scanner-bar{height:9px;background:#EEE9FF;border-radius:100px;overflow:hidden;flex:1}
+.scanner-bar span{display:block;height:100%;border-radius:100px;background:linear-gradient(90deg,#7C3AED,#EC4899)}
+.scanner-row-score{width:46px;text-align:right;font-size:12px;font-weight:850;color:#7C3AED}
+.scanner-poi-list{display:grid;gap:8px;margin-top:1rem}
+.scanner-poi-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border-radius:10px;background:#FAF8FF;border:1px solid rgba(139,92,246,.10);font-size:12px}
+.scanner-poi-item strong{color:#241A3D}.scanner-poi-item span{color:#8A8A99}
+.scanner-warning{padding:1rem;border-radius:14px;background:#FFF7ED;border:1px solid #FED7AA;color:#9A3412;font-size:13px;line-height:1.5}
+.scanner-map-marker{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#7C3AED,#EC4899);color:white;border:2px solid #fff;box-shadow:0 8px 20px rgba(124,58,237,.35);font-size:15px}
+.scanner-map-marker.poi{background:#fff;color:#7C3AED;border:2px solid #A855F7;font-size:14px}
+@media(max-width:1000px){.scanner-grid{grid-template-columns:1fr}.scanner-score-grid{grid-template-columns:repeat(2,1fr)}#scanner-map{height:420px}}
+@media(max-width:640px){.scanner-score-grid{grid-template-columns:1fr}.scanner-controls select{min-width:0;width:100%}.scanner-controls .btn{width:100%;justify-content:center}}
+/* ===== end EVA SCANNER V1 ===== */
+
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js">
+
+/* ===== EVA SCANNER V1 — cartographie + scoring ===== */
+let evaScannerMap=null;
+let evaScannerLayer=null;
+
+const EVA_POI_CONFIG={
+  transport:{label:'Transports',icon:'🚉',color:'#7C3AED',score:30,terms:['bus_stop','tram_stop','station','subway_entrance','aerodrome']},
+  food:{label:'Restaurants & sorties',icon:'🍽️',color:'#EC4899',score:16,terms:['restaurant','cafe','bar','pub','fast_food']},
+  shops:{label:'Commerces',icon:'🛍️',color:'#F97316',score:16,terms:['supermarket','bakery','mall','convenience','clothes','chemist']},
+  tourism:{label:'Attractivité',icon:'📍',color:'#0EA5E9',score:12,terms:['attraction','museum','hotel','viewpoint','gallery']},
+  parking:{label:'Accès & parking',icon:'🅿️',color:'#10B981',score:8,terms:['parking']},
+  events:{label:'Événements',icon:'🎉',color:'#F59E0B',score:18,terms:[]}
+};
+
+function renderScannerPage(){
+  const sel=document.getElementById('scanner-apt-select');
+  const empty=document.getElementById('scanner-empty');
+  const res=document.getElementById('scanner-result');
+  if(!sel||!empty||!res)return;
+  if(!apparts.length){empty.style.display='block';res.innerHTML='';sel.innerHTML='<option>Aucun appartement</option>';return;}
+  empty.style.display='none';
+  sel.innerHTML=apparts.map(a=>`<option value="${a.id}">${a.emoji||'🏠'} ${a.name||'Appartement'} — ${a.city||a.zone||a.address||'adresse à compléter'}</option>`).join('');
+  if(!res.innerHTML.trim()){
+    res.innerHTML=`<div class="scanner-diagnostic"><div class="scanner-verdict"><div class="scanner-verdict-icon">🧠</div><div><div class="scanner-verdict-title">Prêt à scanner</div><div class="scanner-verdict-text">Sélectionnez un logement puis lancez l’analyse. EVA affichera une carte des points d’intérêt, un score emplacement, un score prix actuel et une recommandation de nuitée.</div></div></div></div>`;
+  }
+}
+
+function getSelectedScannerApt(){
+  const sel=document.getElementById('scanner-apt-select');
+  if(!sel)return apparts[0];
+  return apparts.find(a=>String(a.id)===String(sel.value))||apparts[0];
+}
+
+function aptLat(a){return parseFloat(a.lat||a.latitude||a.y||0)}
+function aptLng(a){return parseFloat(a.lng||a.lon||a.longitude||a.x||0)}
+
+async function runEvaScanner(){
+  const a=getSelectedScannerApt();
+  const res=document.getElementById('scanner-result');
+  if(!a){renderScannerPage();return;}
+  const lat=aptLat(a),lng=aptLng(a);
+  if(!lat||!lng){
+    res.innerHTML=`<div class="scanner-warning">Adresse incomplète pour <strong>${a.name||'ce logement'}</strong>. Ouvrez le logement dans “Le parc”, sélectionnez une adresse dans la recherche, puis relancez le scanner.</div>`;
+    return;
+  }
+  res.innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head"><div class="ai-dot"></div> EVA scanne l’environnement local…</div><div class="ai-bubble-text"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
+  const pois=await fetchEvaNearbyPois(lat,lng).catch(()=>[]);
+  const analysis=computeEvaScannerAnalysis(a,pois);
+  renderEvaScannerResult(a,analysis,pois);
+  setTimeout(()=>drawEvaScannerMap(a,analysis,pois),120);
+}
+
+async function fetchEvaNearbyPois(lat,lng){
+  const radius=1500;
+  const query=`[out:json][timeout:12];(
+    node(around:${radius},${lat},${lng})["highway"="bus_stop"];
+    node(around:${radius},${lat},${lng})["railway"~"station|tram_stop|subway_entrance"];
+    node(around:${radius},${lat},${lng})["aeroway"="aerodrome"];
+    node(around:${radius},${lat},${lng})["amenity"~"restaurant|cafe|bar|pub|fast_food|parking"];
+    node(around:${radius},${lat},${lng})["shop"];
+    node(around:${radius},${lat},${lng})["tourism"~"attraction|museum|hotel|viewpoint|gallery"];
+  );out center 80;`;
+  const url='https://overpass-api.de/api/interpreter?data='+encodeURIComponent(query);
+  const r=await fetch(url);
+  if(!r.ok)throw new Error('Overpass indisponible');
+  const data=await r.json();
+  return (data.elements||[]).map(el=>{
+    const tags=el.tags||{}; const pLat=el.lat||el.center?.lat; const pLng=el.lon||el.center?.lon;
+    return {lat:pLat,lng:pLng,name:tags.name||labelPoi(tags),type:typePoi(tags),tags,distance:distanceMeters(lat,lng,pLat,pLng)};
+  }).filter(p=>p.lat&&p.lng).sort((a,b)=>a.distance-b.distance);
+}
+
+function labelPoi(tags){
+  if(tags.highway==='bus_stop')return 'Arrêt de bus';
+  if(tags.railway==='tram_stop')return 'Tramway';
+  if(tags.railway==='station')return 'Gare / station';
+  if(tags.railway==='subway_entrance')return 'Métro';
+  if(tags.aeroway==='aerodrome')return 'Aéroport / aérodrome';
+  if(tags.amenity)return tags.amenity.replace('_',' ');
+  if(tags.shop)return 'Commerce';
+  if(tags.tourism)return tags.tourism.replace('_',' ');
+  return 'Point d’intérêt';
+}
+function typePoi(tags){
+  if(tags.highway==='bus_stop'||['station','tram_stop','subway_entrance'].includes(tags.railway)||tags.aeroway==='aerodrome')return 'transport';
+  if(['restaurant','cafe','bar','pub','fast_food'].includes(tags.amenity))return 'food';
+  if(tags.shop)return 'shops';
+  if(['attraction','museum','hotel','viewpoint','gallery'].includes(tags.tourism))return 'tourism';
+  if(tags.amenity==='parking')return 'parking';
+  return 'other';
+}
+function distanceMeters(lat1,lon1,lat2,lon2){
+  const R=6371000,rad=Math.PI/180; const dLat=(lat2-lat1)*rad,dLon=(lon2-lon1)*rad;
+  const s=Math.sin(dLat/2)**2+Math.cos(lat1*rad)*Math.cos(lat2*rad)*Math.sin(dLon/2)**2;
+  return Math.round(2*R*Math.asin(Math.sqrt(s)));
+}
+
+function computeEvaScannerAnalysis(a,pois){
+  const city=a.city||extractCity?.(a.zone,null)||a.zone||'';
+  const cityEvents=(eventsCache&&city&&eventsCache[city])?eventsCache[city]:[];
+  const hotEvents=cityEvents.filter(e=>e.hot);
+  const count=(type,dist=1500)=>pois.filter(p=>p.type===type&&p.distance<=dist).length;
+  const nearest=(type)=>pois.filter(p=>p.type===type)[0];
+  const sub={};
+  sub.transport=Math.min(30, count('transport',300)*16 + count('transport',800)*6 + count('transport',1500)*2);
+  sub.food=Math.min(16, count('food',300)*4 + count('food',800)*1.5 + count('food',1500)*.5);
+  sub.shops=Math.min(16, count('shops',300)*4 + count('shops',800)*1.5 + count('shops',1500)*.5);
+  sub.tourism=Math.min(12, count('tourism',800)*4 + count('tourism',1500)*1.5);
+  sub.parking=Math.min(8, count('parking',500)*5 + count('parking',1200)*2);
+  sub.events=Math.min(18, hotEvents.length*8 + cityEvents.length*2);
+  let locationScore=Math.round(Object.values(sub).reduce((s,v)=>s+v,0));
+  if(pois.filter(p=>p.distance<=800).length<5)locationScore-=10;
+  locationScore=Math.max(12,Math.min(100,locationScore));
+  const current=Number(a.price||0);
+  const comp=Number(a.comp||a.competitor||0);
+  const eventBoost=hotEvents.length?Math.min(.18,hotEvents.reduce((s,e)=>s+(Number(e.boost||8)/100),0)/2):0;
+  const locCoef=0.86+(locationScore/100)*0.42; // 0.86 à 1.28
+  let anchor=current||comp||90;
+  if(comp&&current)anchor=(current*.55+comp*.45);
+  else if(comp)anchor=comp;
+  let recommended=Math.round(anchor*locCoef*(1+eventBoost));
+  if(current&&recommended>current*1.24)recommended=Math.round(current*1.24);
+  if(current&&recommended<current*.82)recommended=Math.round(current*.82);
+  recommended=Math.max(floor(a)||35,recommended||Math.round((floor(a)||55)*1.35));
+  const diff=current?recommended-current:0;
+  const diffPct=current?Math.round(diff/current*100):0;
+  const priceScore=current?Math.max(0,Math.min(100,100-Math.abs(diffPct)*2)):55;
+  const status=diffPct>=8?'sous-évalué':diffPct<=-8?'trop élevé':'cohérent';
+  const verdict=buildEvaScannerVerdict(locationScore,priceScore,status,diffPct,nearest,hotEvents,pois);
+  return {sub,locationScore,priceScore,current,recommended,diff,diffPct,status,verdict,hotEvents,cityEvents,nearestTransport:nearest('transport'),nearestFood:nearest('food'),nearestShop:nearest('shops')};
+}
+
+function buildEvaScannerVerdict(locationScore,priceScore,status,diffPct,nearest,hotEvents,pois){
+  let level=locationScore>=75?'Très bon potentiel locatif':locationScore>=55?'Potentiel locatif correct':'Potentiel à surveiller';
+  let env=pois.filter(p=>p.distance<=800).length>=18?'l’environnement est dense et vivant':pois.filter(p=>p.distance<=800).length>=7?'l’environnement est correctement équipé':'l’environnement semble assez calme ou peu équipé';
+  let price=status==='sous-évalué'?`Le prix actuel semble trop bas : EVA détecte une marge de hausse d’environ +${Math.abs(diffPct)}%.`:status==='trop élevé'?`Le prix actuel semble ambitieux : EVA recommande de réduire ou de justifier le tarif par la qualité du logement.`:`Le prix actuel est proche de la zone recommandée par EVA.`;
+  let ev=hotEvents.length?` Des événements chauds proches renforcent temporairement la demande.`:'';
+  return `${level}. À cette adresse, ${env}. ${price}${ev}`;
+}
+
+function renderEvaScannerResult(a,analysis,pois){
+  const topPois=pois.filter(p=>['transport','food','shops','tourism','parking'].includes(p.type)).slice(0,9);
+  const scoreColor=analysis.locationScore>=75?'#059669':analysis.locationScore>=55?'#D97706':'#DC2626';
+  document.getElementById('scanner-result').innerHTML=`
+    <div class="scanner-score-grid">
+      <div class="scanner-kpi"><div class="scanner-kpi-label">Score emplacement</div><div class="scanner-kpi-value" style="color:${scoreColor}">${analysis.locationScore}/100</div><div class="scanner-kpi-desc">Potentiel de l’adresse</div></div>
+      <div class="scanner-kpi"><div class="scanner-kpi-label">Score prix actuel</div><div class="scanner-kpi-value">${analysis.priceScore}/100</div><div class="scanner-kpi-desc">Cohérence avec EVA</div></div>
+      <div class="scanner-kpi"><div class="scanner-kpi-label">Prix actuel</div><div class="scanner-kpi-value">${analysis.current||0}€</div><div class="scanner-kpi-desc">Tarif saisi utilisateur</div></div>
+      <div class="scanner-kpi"><div class="scanner-kpi-label">Reco EVA</div><div class="scanner-kpi-value" style="color:#7C3AED">${analysis.recommended}€</div><div class="scanner-kpi-desc">${analysis.diff>=0?'+':''}${analysis.diff}€ / nuit · ${analysis.diffPct>=0?'+':''}${analysis.diffPct}%</div></div>
+    </div>
+    <div class="scanner-grid">
+      <div class="scanner-map-card"><div id="scanner-map"></div></div>
+      <div>
+        <div class="scanner-diagnostic">
+          <div class="scanner-verdict"><div class="scanner-verdict-icon">${analysis.status==='sous-évalué'?'📈':analysis.status==='trop élevé'?'⚠️':'✅'}</div><div><div class="scanner-verdict-title">Diagnostic EVA : ${analysis.status}</div><div class="scanner-verdict-text">${analysis.verdict}</div></div></div>
+          <div class="scanner-breakdown">
+            ${Object.entries(analysis.sub).map(([k,v])=>`<div class="scanner-row"><div class="scanner-row-label">${EVA_POI_CONFIG[k]?.label||k}</div><div class="scanner-bar"><span style="width:${Math.round(v/(EVA_POI_CONFIG[k]?.score||20)*100)}%"></span></div><div class="scanner-row-score">${Math.round(v)}</div></div>`).join('')}
+          </div>
+        </div>
+        <div class="scanner-diagnostic">
+          <div class="card-title">Ce que EVA a détecté autour de l’adresse</div>
+          <div class="scanner-poi-list">
+            ${topPois.length?topPois.map(p=>`<div class="scanner-poi-item"><strong>${EVA_POI_CONFIG[p.type]?.icon||'📍'} ${escapeHtml(p.name)}</strong><span>${p.distance} m</span></div>`).join(''):'<div class="scanner-warning">Peu de points d’intérêt détectés à moins de 1,5 km. EVA considère l’emplacement comme plus difficile à valoriser.</div>'}
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function drawEvaScannerMap(a,analysis,pois){
+  const lat=aptLat(a),lng=aptLng(a);
+  const el=document.getElementById('scanner-map'); if(!el||!window.L)return;
+  if(evaScannerMap){evaScannerMap.remove();evaScannerMap=null;}
+  evaScannerMap=L.map('scanner-map',{scrollWheelZoom:false}).setView([lat,lng],14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(evaScannerMap);
+  L.circle([lat,lng],{radius:300,color:'#EC4899',weight:1,fill:false,opacity:.55}).addTo(evaScannerMap);
+  L.circle([lat,lng],{radius:800,color:'#8B5CF6',weight:1,fill:false,opacity:.38}).addTo(evaScannerMap);
+  L.circle([lat,lng],{radius:1500,color:'#7C3AED',weight:1,fill:false,opacity:.22}).addTo(evaScannerMap);
+  L.marker([lat,lng],{icon:L.divIcon({className:'',html:`<div class="scanner-map-marker">🏠</div>`,iconSize:[30,30],iconAnchor:[15,15]})}).addTo(evaScannerMap).bindPopup(`<strong>${escapeHtml(a.name||'Appartement')}</strong><br>Prix actuel : ${analysis.current||0}€<br>Reco EVA : ${analysis.recommended}€`);
+  pois.filter(p=>['transport','food','shops','tourism','parking'].includes(p.type)).slice(0,40).forEach(p=>{
+    const icon=EVA_POI_CONFIG[p.type]?.icon||'📍';
+    L.marker([p.lat,p.lng],{icon:L.divIcon({className:'',html:`<div class="scanner-map-marker poi">${icon}</div>`,iconSize:[26,26],iconAnchor:[13,13]})}).addTo(evaScannerMap).bindPopup(`<strong>${escapeHtml(p.name)}</strong><br>${EVA_POI_CONFIG[p.type]?.label||'Point'} · ${p.distance} m`);
+  });
+  setTimeout(()=>evaScannerMap.invalidateSize(),180);
+}
+
+function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));}
+/* ===== end EVA SCANNER V1 ===== */
+
+</script>
 </head>
 <body>
 
@@ -712,6 +945,7 @@ tr:hover td{background:#FCF8FF!important;}
       <button class="nav-item" onclick="goTo('reservations',this)"><span class="nav-emoji"><i class="ti ti-file-text" aria-hidden="true"></i></span>Réservations</button>
       <div class="nav-section-label" style="color:rgba(255,255,255,0.15)">Intelligence</div>
       <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji"><i class="ti ti-sparkles" aria-hidden="true"></i></span>EVA pricing <span class="nav-badge-new">IA</span></button>
+      <button class="nav-item" onclick="goTo('scanner',this)"><span class="nav-emoji"><i class="ti ti-radar-2" aria-hidden="true"></i></span>Scanner EVA <span class="nav-badge-new">NEW</span></button>
       <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji"><i class="ti ti-calendar-event" aria-hidden="true"></i></span>Événements <span class="nav-badge-new" id="events-badge" style="display:none">0</span></button>
       <button class="nav-item" onclick="goTo('finances',this)"><span class="nav-emoji"><i class="ti ti-wallet" aria-hidden="true"></i></span>Finances</button>
       <div class="nav-section-label" style="color:rgba(255,255,255,0.25)" id="nav-label-cleanyq">Ménage</div>
@@ -727,6 +961,7 @@ tr:hover td{background:#FCF8FF!important;}
       <button class="nav-item" onclick="goTo('rapports',this)"><span class="nav-emoji"><i class="ti ti-chart-bar" aria-hidden="true"></i></span>Rapports</button>
       <button class="nav-item" onclick="goTo('finances',this)"><span class="nav-emoji"><i class="ti ti-wallet" aria-hidden="true"></i></span>Finances</button>
       <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji"><i class="ti ti-sparkles" aria-hidden="true"></i></span>EVA pricing</button>
+      <button class="nav-item" onclick="goTo('scanner',this)"><span class="nav-emoji"><i class="ti ti-radar-2" aria-hidden="true"></i></span>Scanner EVA</button>
       <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji"><i class="ti ti-calendar-event" aria-hidden="true"></i></span>Événements</button>
       <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Intégrations</div>
       <button class="nav-item" onclick="goTo('smoobu',this)"><span class="nav-emoji"><i class="ti ti-link" aria-hidden="true"></i></span>Smoobu</button>
@@ -840,6 +1075,25 @@ tr:hover td{background:#FCF8FF!important;}
           <div class="card-head"><div class="card-title">Recommandations</div><span class="tag tag-ai">🤖 IA active</span></div>
           <div class="table-wrap"><table id="pricing-table"></table></div>
         </div>
+      </div>
+
+
+      <!-- SCANNER EVA -->
+      <div class="page" id="page-scanner">
+        <div class="page-header">
+          <div><div class="page-title">Scanner EVA</div><div class="page-sub">Score emplacement, score prix actuel et diagnostic locatif par adresse</div></div>
+        </div>
+        <div class="scanner-hero">
+          <div class="scanner-hero-title">Analysez le vrai potentiel d’un logement</div>
+          <div class="scanner-hero-sub">EVA croise l’adresse, les transports, les commerces, les restaurants, les événements proches et votre prix actuel pour détecter si votre appartement est sous-exploité, bien positionné ou trop cher.</div>
+          <div class="scanner-controls">
+            <select id="scanner-apt-select"></select>
+            <button class="btn btn-ai" onclick="runEvaScanner()"><i class="ti ti-radar-2"></i> Scanner l’appartement</button>
+            <button class="btn" onclick="openAddModal()">+ Ajouter un logement</button>
+          </div>
+        </div>
+        <div id="scanner-empty" class="scanner-warning" style="display:none">Ajoutez d’abord un appartement avec une adresse précise pour lancer le Scanner EVA.</div>
+        <div id="scanner-result"></div>
       </div>
 
       <!-- EVENEMENTS -->
@@ -2727,6 +2981,7 @@ function goTo(page,btn){
   if(page==='parc-c')renderParcConcierge();
   if(page==='proprietaires')renderProprietaires();
   if(page==='rapports'){initRapportMois();renderRapports();}
+  if(page==='scanner')renderScannerPage();
 }
 
 function openAddModal(){editId=null;['m-name','m-city','m-zone','m-rent','m-clean','m-price','m-comp','m-address','m-lat','m-lng'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('m-address-preview').style.display='none';document.getElementById('m-address-results').style.display='none';document.getElementById('m-degressif-toggle').className='toggle off';document.getElementById('m-degressif-config').style.display='none';document.getElementById('m-deg-start').value='14';document.getElementById('m-deg-step').value='5';document.getElementById('m-deg-min').value='';document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
