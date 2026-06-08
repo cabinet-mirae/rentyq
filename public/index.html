@@ -420,6 +420,159 @@ tr:hover td{background:#FCF8FF!important;}
 }
 /* ===== end RentyQ FINAL OVERRIDES ===== */
 
+
+
+/* ===== CORRECTIF FINAL 08/06 — login sans scroll + sidebar plus lisible ===== */
+#auth-screen.rq-auth-screen{
+  display:none;
+  min-height:100vh!important;
+  width:100vw!important;
+  overflow:hidden!important;
+  background-color:#08031b!important;
+  background-image:url('bg-login-rentyq.png')!important;
+  background-repeat:no-repeat!important;
+  background-size:cover!important;
+  background-position:center center!important;
+}
+#auth-screen.rq-auth-screen::before{
+  z-index:0!important;
+  background:
+    linear-gradient(90deg,rgba(4,2,18,.72) 0%,rgba(4,2,18,.36) 30%,rgba(4,2,18,.02) 62%,rgba(15,7,40,.74) 100%),
+    radial-gradient(circle at 80% 45%,rgba(236,72,153,.16),transparent 32%)!important;
+}
+#auth-screen.rq-auth-screen::after{
+  content:"";
+  position:absolute;
+  z-index:1;
+  top:0;right:0;bottom:0;
+  width:22vw;
+  min-width:250px;
+  background:linear-gradient(180deg,rgba(20,10,52,.72),rgba(8,3,25,.86));
+  border-left:1px solid rgba(168,85,247,.18);
+  box-shadow:-40px 0 90px rgba(8,3,25,.28);
+  pointer-events:none;
+}
+.rq-login-panel{
+  top:clamp(18px,3vh,34px)!important;
+  bottom:clamp(18px,3vh,34px)!important;
+  left:clamp(28px,2vw,44px)!important;
+  height:auto!important;
+  max-height:calc(100vh - 36px)!important;
+  width:clamp(440px,31vw,560px)!important;
+  min-width:0!important;
+  padding:clamp(28px,3.2vh,42px) clamp(32px,2.9vw,58px)!important;
+  overflow:hidden!important;
+  border-radius:26px!important;
+  background:linear-gradient(180deg,rgba(35,19,68,.66),rgba(8,8,29,.86))!important;
+  border:1px solid rgba(168,85,247,.48)!important;
+  box-shadow:0 28px 90px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.10)!important;
+}
+.rq-brand{margin-bottom:clamp(18px,2.8vh,34px)!important;gap:20px!important;}
+.rq-mark{width:clamp(70px,4.5vw,88px)!important;}
+.rq-wordmark{font-size:clamp(58px,4.7vw,78px)!important;line-height:.92!important;letter-spacing:-3px!important;}
+.rq-auth-copy h1{
+  color:#fff!important;
+  font-size:clamp(34px,2.6vw,44px)!important;
+  line-height:1.08!important;
+  font-weight:850!important;
+  margin:0 0 clamp(18px,2.3vh,24px)!important;
+  text-shadow:0 8px 26px rgba(0,0,0,.34)!important;
+}
+.rq-auth-copy h1 span,
+.rq-auth-copy h1 span *{
+  color:#fff!important;
+  background:none!important;
+  -webkit-background-clip:initial!important;
+  background-clip:initial!important;
+  -webkit-text-fill-color:#fff!important;
+}
+.rq-auth-copy p{font-size:clamp(13px,1.05vw,15px)!important;line-height:1.55!important;margin-bottom:clamp(18px,2.6vh,28px)!important;color:rgba(255,255,255,.76)!important;}
+.rq-field{margin-bottom:clamp(12px,1.7vh,18px)!important;}
+.rq-field label{font-size:14px!important;margin-bottom:7px!important;color:#fff!important;font-weight:650!important;}
+.rq-input-wrap input{height:clamp(46px,5.4vh,54px)!important;border-color:rgba(255,255,255,.25)!important;background:rgba(8,8,30,.54)!important;}
+.rq-options{margin:0 0 clamp(16px,2.2vh,24px)!important;}
+.rq-primary{height:clamp(48px,5.8vh,56px)!important;}
+.rq-separator{margin:clamp(16px,2.1vh,22px) 0!important;}
+.rq-google{height:clamp(46px,5.4vh,54px)!important;}
+.rq-spacer{flex:1 1 auto!important;min-height:8px!important;}
+.rq-request{margin-top:clamp(12px,2vh,24px)!important;color:rgba(255,255,255,.72)!important;}
+.rq-request button{color:#F0ABFC!important;font-weight:700!important;}
+.rq-side-stats{
+  position:absolute;
+  z-index:3;
+  top:clamp(42px,6vh,72px);
+  right:clamp(34px,3.2vw,64px);
+  bottom:clamp(42px,6vh,72px);
+  width:clamp(150px,10vw,196px);
+  display:grid;
+  grid-template-rows:repeat(4,minmax(0,1fr));
+  gap:clamp(14px,2vh,22px);
+  pointer-events:none;
+}
+.rq-stat-card{
+  border:1px solid rgba(168,85,247,.28);
+  border-radius:20px;
+  background:linear-gradient(180deg,rgba(21,13,48,.58),rgba(8,7,28,.72));
+  box-shadow:0 18px 50px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.08);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:#fff;
+  padding:12px 8px;
+}
+.rq-stat-card i{font-size:clamp(34px,2.8vw,48px);color:#A855F7;margin-bottom:clamp(8px,1vh,12px);filter:drop-shadow(0 0 18px rgba(168,85,247,.38));}
+.rq-stat-card strong{font-size:clamp(26px,2.1vw,36px);line-height:1.05;font-weight:850;letter-spacing:-.8px;}
+.rq-stat-card span{font-size:clamp(14px,1.1vw,17px);line-height:1.35;color:rgba(255,255,255,.86);margin-top:6px;}
+/* cockpit/sidebar : plus lumineux, plus RentyQ */
+.app .sidebar,
+.app .sidebar[style]{
+  background:linear-gradient(180deg,#27135B 0%,#15143F 48%,#0D122B 100%)!important;
+  border-right:1px solid rgba(236,72,153,.24)!important;
+  box-shadow:8px 0 34px rgba(16,10,46,.18)!important;
+}
+.app .sidebar::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 40% 0%,rgba(236,72,153,.20),transparent 34%);pointer-events:none;}
+.sidebar-brand{padding:1.55rem 1rem 1.15rem!important;position:relative!important;z-index:1!important;}
+.sidebar-brand svg{width:58px!important;filter:drop-shadow(0 12px 22px rgba(236,72,153,.33))!important;}
+.sidebar-brand div[style*="font-size:22px"]{font-size:30px!important;font-weight:850!important;color:#fff!important;letter-spacing:-1px!important;}
+.sidebar-brand .brand-tagline,
+.brand-tagline{
+  margin-left:70px!important;
+  margin-top:6px!important;
+  font-size:12px!important;
+  line-height:1.25!important;
+  color:#fff!important;
+  opacity:.96!important;
+  font-style:normal!important;
+  font-weight:700!important;
+  text-shadow:0 6px 20px rgba(0,0,0,.24)!important;
+}
+.nav-section-label{color:rgba(255,255,255,.48)!important;font-weight:800!important;}
+.nav-item{color:rgba(255,255,255,.78)!important;font-weight:600!important;}
+.nav-item:hover{background:rgba(255,255,255,.10)!important;color:#fff!important;}
+.nav-item.active{background:linear-gradient(90deg,rgba(168,85,247,.52),rgba(236,72,153,.24))!important;border-color:rgba(255,255,255,.16)!important;color:#fff!important;box-shadow:0 10px 26px rgba(139,92,246,.18)!important;}
+.nav-emoji{color:#F0ABFC!important;}
+.nav-badge,.nav-badge-new{color:#fff!important;background:linear-gradient(135deg,#EC4899,#8B5CF6)!important;border:1px solid rgba(255,255,255,.14)!important;}
+.sidebar-sep{background:rgba(255,255,255,.14)!important;}
+.user-name{color:#fff!important;}.user-plan{color:#F0ABFC!important;}
+.beta-banner{background:linear-gradient(90deg,#1E1448,#7C3AED,#EC4899,#1E1448)!important;color:#fff!important;}
+.main{background:linear-gradient(135deg,#F8F4FF 0%,#F3EEFF 58%,#FFF4FA 100%)!important;}
+@media(max-width:1280px){
+  .rq-side-stats{right:22px;width:140px;gap:12px;}
+  .rq-stat-card strong{font-size:25px}.rq-stat-card span{font-size:13px}.rq-stat-card i{font-size:32px;}
+  .rq-login-panel{width:430px!important;padding:26px 32px!important;}
+  .rq-mark{width:64px!important}.rq-wordmark{font-size:54px!important}.rq-auth-copy h1{font-size:32px!important;}
+}
+@media(max-width:900px){.rq-side-stats{display:none!important;}#auth-screen.rq-auth-screen::after{display:none!important;}}
+@media(max-width:768px){
+  .rq-login-panel{overflow-y:auto!important;max-height:calc(100vh - 32px)!important;}
+  .rq-auth-copy h1{font-size:30px!important;}
+}
+/* ===== fin correctif final 08/06 ===== */
+
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
@@ -441,6 +594,12 @@ tr:hover td{background:#FCF8FF!important;}
 
 
 <div id="auth-screen" class="rq-auth-screen">
+  <aside class="rq-side-stats" aria-hidden="true">
+    <div class="rq-stat-card"><i class="ti ti-cloud-up"></i><strong>2 400+</strong><span>Logements<br/>optimis&eacute;s</span></div>
+    <div class="rq-stat-card"><i class="ti ti-calendar"></i><strong>120+</strong><span>&Eacute;v&eacute;nements<br/>analys&eacute;s</span></div>
+    <div class="rq-stat-card"><i class="ti ti-target-arrow"></i><strong>+28%</strong><span>Revenus<br/>moyens</span></div>
+    <div class="rq-stat-card"><i class="ti ti-clock-hour-4"></i><strong>24/7</strong><span>Analyses<br/>en temps r&eacute;el</span></div>
+  </aside>
   <section class="rq-login-panel" aria-label="Connexion RentyQ">
     <div class="rq-brand">
       <svg class="rq-mark" viewBox="0 0 48 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -537,7 +696,7 @@ tr:hover td{background:#FCF8FF!important;}
           </svg>
           <div style="font-size:22px;font-weight:600;color:white;letter-spacing:-0.4px">RentyQ</div>
         </div>
-        <div class="brand-tagline" style="color:rgba(255,255,255,0.25);margin-left:54px;font-size:10px">Stop guessing. Start earning.</div>
+        <div class="brand-tagline" style="color:rgba(255,255,255,0.25);margin-left:54px;font-size:10px">Stop guessing.<br/>Start earning.</div>
       </div>
       <div id="mode-switcher" style="display:none;margin:0 .75rem .5rem;background:rgba(255,255,255,0.08);border-radius:10px;padding:3px;display:flex">
         <button id="mode-btn-solo" onclick="switchMode('solo')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:rgba(83,74,183,0.3);color:white;transition:all .15s"><i class="ti ti-building" style="margin-right:3px;font-size:13px;vertical-align:-1px" aria-hidden="true"></i>Gestion</button>
@@ -4510,4 +4669,3 @@ function checkPaymentReturn(){
 </script>
 </body>
 </html>
-
