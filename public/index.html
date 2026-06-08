@@ -656,6 +656,7 @@ const EVA_POI_CONFIG={
   tourism:{label:'Attractivité',icon:'📍',color:'#0EA5E9',score:12,terms:['attraction','museum','hotel','viewpoint','gallery']},
   parking:{label:'Accès & parking',icon:'🅿️',color:'#10B981',score:8,terms:['parking']},
   prestige:{label:'Adresse premium',icon:'⭐',color:'#F59E0B',score:18,terms:[]},
+  localMarket:{label:'Signal Orléans',icon:'🏙️',color:'#7C3AED',score:18,terms:[]},
   events:{label:'Événements',icon:'🎉',color:'#F59E0B',score:14,terms:[]}
 };
 
@@ -751,7 +752,8 @@ async function runEvaScanner(){
     return;
   }
   res.innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head"><div class="ai-dot"></div> EVA scanne l’environnement local…</div><div class="ai-bubble-text"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
-  const pois=await fetchEvaNearbyPois(lat,lng).catch(()=>[]);
+  const rawPois=await fetchEvaNearbyPois(lat,lng).catch(()=>[]);
+  const pois=enrichEvaLocalPois(a,rawPois);
   const analysis=computeEvaScannerAnalysis(a,pois);
   renderEvaScannerResult(a,analysis,pois);
   setTimeout(()=>drawEvaScannerMap(a,analysis,pois),120);
@@ -816,11 +818,75 @@ function scannerAddressText(a){
     .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 }
 
+
+const ORLEANS_MARKET_ANCHORS=[
+  {name:'Cathédrale Sainte-Croix',type:'tourism',lat:47.90292,lng:1.90925,weight:18,keywords:/cathedrale|sainte.?croix|hotel groslot/},
+  {name:'Place du Martroi',type:'tourism',lat:47.90245,lng:1.90418,weight:18,keywords:/martroi|rue royale|jeanne d.arc/},
+  {name:'Gare d’Orléans',type:'transport',lat:47.90642,lng:1.90472,weight:15,keywords:/gare d.?orleans|gare sncf|avenue de paris/},
+  {name:'Rue de Bourgogne',type:'food',lat:47.90058,lng:1.91235,weight:14,keywords:/rue de bourgogne|bourgogne|bars|sorties/},
+  {name:'Halles Châtelet',type:'shops',lat:47.89985,lng:1.90385,weight:12,keywords:/chatelet|halles|halle|march[eé]/},
+  {name:'Bords de Loire',type:'tourism',lat:47.89750,lng:1.90590,weight:12,keywords:/loire|quai|bords de loire|pont george.?v/},
+  {name:'Tram A/B — centre',type:'transport',lat:47.90230,lng:1.90460,weight:14,keywords:/tram|tramway|ligne a|ligne b/},
+  {name:'CO’Met / Zénith / Parc Expo',type:'tourism',lat:47.87895,lng:1.91220,weight:10,keywords:/comet|co.?met|zenith|z[eé]nith|parc expo|parc des expositions/}
+];
+
+function isOrleansApt(a){
+  const t=scannerAddressText(a);
+  return /orleans|orl[eé]ans|45000|45100|45100/.test(t);
+}
+
+function orleansMicroMarketSignal(a,pois=[]){
+  if(!isOrleansApt(a))return {score:0,minScore:0,label:'',signals:[]};
+  const t=scannerAddressText(a);
+  const lat=aptLat(a),lng=aptLng(a);
+  const signals=[];
+  let score=0,minScore=54,label='Orléans — potentiel à qualifier';
+
+  ORLEANS_MARKET_ANCHORS.forEach(anchor=>{
+    let hit=false,dist=99999;
+    if(anchor.keywords.test(t))hit=true;
+    if(lat&&lng){dist=distanceMeters(lat,lng,anchor.lat,anchor.lng); if(dist<=900)hit=true;}
+    if(hit){signals.push({...anchor,distance:dist}); score+=anchor.weight;}
+  });
+
+  if(/hyper.?centre|centre.?ville|centre ville|carmes|republique|r[eé]publique|martroi|cathedrale|bourgogne|chatelet/.test(t)){
+    score+=22; minScore=82; label='Orléans hyper-centre — très fort potentiel courte durée';
+  }else if(/gare|avenue de paris|dunois/.test(t)){
+    score+=18; minScore=74; label='Orléans gare / Dunois — fort potentiel mobilité';
+  }else if(/loire|quai|bords de loire|saint marceau|st marceau/.test(t)){
+    score+=15; minScore=70; label='Orléans Loire / Saint-Marceau — bon potentiel séjour';
+  }else if(/comet|co.?met|zenith|z[eé]nith|parc expo|olivet/.test(t)){
+    score+=14; minScore=66; label='Orléans CO’Met / Parc Expo — potentiel événementiel';
+  }
+
+  const density=pois.filter(p=>p.distance<=900).length;
+  if(density>=22){score+=10; minScore=Math.max(minScore,78);}
+  else if(density>=12){score+=6; minScore=Math.max(minScore,70);}
+
+  score=Math.min(18,Math.round(score/4));
+  return {score,minScore,label,signals};
+}
+
+function enrichEvaLocalPois(a,pois=[]){
+  if(!isOrleansApt(a))return pois;
+  const lat=aptLat(a),lng=aptLng(a);
+  if(!lat||!lng)return pois;
+  const enriched=[...pois];
+  ORLEANS_MARKET_ANCHORS.forEach(anchor=>{
+    const dist=distanceMeters(lat,lng,anchor.lat,anchor.lng);
+    if(dist<=2200 && !enriched.some(p=>String(p.name).toLowerCase()===anchor.name.toLowerCase())){
+      enriched.push({lat:anchor.lat,lng:anchor.lng,name:anchor.name,type:anchor.type,tags:{source:'eva-orleans'},distance:dist,local:true});
+    }
+  });
+  return enriched.sort((a,b)=>a.distance-b.distance);
+}
+
 function prestigeAddressScore(a,pois){
   const t=scannerAddressText(a);
   let score=0;
   if(/champs.?elysees|elysee|avenue montaigne|faubourg saint.?honore|george v|arc de triomphe|triangle d.or/.test(t))score=18;
   else if(/paris/.test(t)&&/(1er|2e|3e|4e|5e|6e|7e|8e|7500[1-8]|marais|saint.?germain|opera|louvre|trocadero|tour eiffel|montmartre)/.test(t))score=14;
+  else if(/orleans|orl[eé]ans|45000/.test(t)&&/martroi|cathedrale|sainte.?croix|bourgogne|chatelet|hyper.?centre|centre.?ville|gare d.?orleans|loire/.test(t))score=14;
   else if(/centre.?ville|hyper.?centre|gare|cathedrale|vieux.?port|presqu.ile|croisette|promenade des anglais/.test(t))score=10;
   const namedLandmarks=(pois||[]).filter(p=>p.distance<=1200&&['tourism','transport'].includes(p.type)&&p.name&&!/^Point|Transport|Commerce|Lieu/.test(p.name)).length;
   score=Math.max(score,Math.min(12,namedLandmarks*3));
@@ -842,7 +908,9 @@ function computeEvaScannerAnalysis(a,pois){
   sub.shops=Math.min(16, count('shops',250)*5 + count('shops',700)*2 + count('shops',1400)*.7);
   sub.tourism=Math.min(12, count('tourism',500)*5 + count('tourism',1200)*2 + count('tourism',2000)*.8);
   sub.parking=Math.min(8, count('parking',500)*5 + count('parking',1200)*2);
+  const orleansSignal=orleansMicroMarketSignal(a,pois);
   sub.prestige=prestigeAddressScore(a,pois);
+  sub.localMarket=orleansSignal.score;
   sub.events=Math.min(14, hotEvents.length*7 + cityEvents.length*1.6);
   let locationScore=Math.round(Object.values(sub).reduce((s,v)=>s+v,0));
 
@@ -855,6 +923,8 @@ function computeEvaScannerAnalysis(a,pois){
   if(/champs.?elysees|avenue montaigne|george v|arc de triomphe|triangle d.or/.test(t))locationScore=Math.max(locationScore,92);
   else if(/paris/.test(t)&&sub.prestige>=14)locationScore=Math.max(locationScore,82);
   else if(/centre.?ville|hyper.?centre|cathedrale|gare/.test(t)&&sub.prestige>=10)locationScore=Math.max(locationScore,70);
+  if(orleansSignal.minScore)locationScore=Math.max(locationScore,orleansSignal.minScore);
+  if(/orleans|orl[eé]ans|45000/.test(t)&&/martroi|cathedrale|sainte.?croix|rue de bourgogne|bourgogne|chatelet|halles|hyper.?centre/.test(t))locationScore=Math.max(locationScore,86);
   locationScore=Math.max(18,Math.min(100,locationScore));
 
   const current=Number(a.price||0);
@@ -874,12 +944,13 @@ function computeEvaScannerAnalysis(a,pois){
   const priceScore=current?Math.max(0,Math.min(100,100-Math.abs(diffPct)*1.7)):55;
   const status=diffPct>=8?'sous-évalué':diffPct<=-8?'trop élevé':'cohérent';
   const verdict=buildEvaScannerVerdict(locationScore,priceScore,status,diffPct,nearest,hotEvents,pois,sub);
-  return {sub,locationScore,priceScore,current,recommended,diff,diffPct,status,verdict,hotEvents,cityEvents,nearestTransport:nearest('transport'),nearestFood:nearest('food'),nearestShop:nearest('shops'),poiDensity:{dense300,dense800,dense1500}};
+  return {sub,locationScore,priceScore,current,recommended,diff,diffPct,status,verdict,hotEvents,cityEvents,nearestTransport:nearest('transport'),nearestFood:nearest('food'),nearestShop:nearest('shops'),poiDensity:{dense300,dense800,dense1500},orleansSignal};
 }
 
 function buildEvaScannerVerdict(locationScore,priceScore,status,diffPct,nearest,hotEvents,pois,sub={}){
   let level=locationScore>=85?'Adresse premium très forte':locationScore>=75?'Très bon potentiel locatif':locationScore>=55?'Potentiel locatif correct':'Potentiel à surveiller';
   let env=pois.filter(p=>p.distance<=800).length>=18?'l’environnement est très dense, vivant et facilement valorisable':pois.filter(p=>p.distance<=800).length>=7?'l’environnement est correctement équipé':'l’environnement détecté par la cartographie reste limité';
+  if(isOrleansApt(getSelectedScannerApt?.()||{}) && sub.localMarket>=10)env='EVA reconnaît un signal local orléanais fort : hyper-centre, mobilité, commerces, sorties et attractivité patrimoniale renforcent la valeur courte durée';
   if(sub.prestige>=16)env='l’adresse bénéficie d’un signal premium exceptionnel, avec une forte attractivité touristique, business et commerciale';
   let price=status==='sous-évalué'?`Le prix actuel semble trop bas : EVA détecte une marge de hausse d’environ +${Math.abs(diffPct)}%.`:status==='trop élevé'?`Le prix actuel semble ambitieux : EVA recommande de réduire ou de justifier le tarif par la qualité du logement.`:`Le prix actuel est proche de la zone recommandée par EVA.`;
   let ev=hotEvents.length?` Des événements chauds proches renforcent temporairement la demande.`:'';
