@@ -655,7 +655,8 @@ const EVA_POI_CONFIG={
   shops:{label:'Commerces',icon:'🛍️',color:'#F97316',score:16,terms:['supermarket','bakery','mall','convenience','clothes','chemist']},
   tourism:{label:'Attractivité',icon:'📍',color:'#0EA5E9',score:12,terms:['attraction','museum','hotel','viewpoint','gallery']},
   parking:{label:'Accès & parking',icon:'🅿️',color:'#10B981',score:8,terms:['parking']},
-  events:{label:'Événements',icon:'🎉',color:'#F59E0B',score:18,terms:[]}
+  prestige:{label:'Adresse premium',icon:'⭐',color:'#F59E0B',score:18,terms:[]},
+  events:{label:'Événements',icon:'🎉',color:'#F59E0B',score:14,terms:[]}
 };
 
 function scannerApartments(){
@@ -757,27 +758,34 @@ async function runEvaScanner(){
 }
 
 async function fetchEvaNearbyPois(lat,lng){
-  const radius=1500;
-  const query=`[out:json][timeout:12];(
-    node(around:${radius},${lat},${lng})["highway"="bus_stop"];
-    node(around:${radius},${lat},${lng})["railway"~"station|tram_stop|subway_entrance"];
-    node(around:${radius},${lat},${lng})["aeroway"="aerodrome"];
-    node(around:${radius},${lat},${lng})["amenity"~"restaurant|cafe|bar|pub|fast_food|parking"];
-    node(around:${radius},${lat},${lng})["shop"];
-    node(around:${radius},${lat},${lng})["tourism"~"attraction|museum|hotel|viewpoint|gallery"];
-  );out center 80;`;
+  const radius=2000;
+  const query=`[out:json][timeout:18];(
+    nwr(around:${radius},${lat},${lng})["highway"="bus_stop"];
+    nwr(around:${radius},${lat},${lng})["public_transport"~"station|stop_position|platform"];
+    nwr(around:${radius},${lat},${lng})["railway"~"station|tram_stop|subway_entrance|halt|platform"];
+    nwr(around:${radius},${lat},${lng})["aeroway"~"aerodrome|terminal"];
+    nwr(around:${radius},${lat},${lng})["amenity"~"restaurant|cafe|bar|pub|fast_food|parking|theatre|cinema|marketplace"];
+    nwr(around:${radius},${lat},${lng})["shop"];
+    nwr(around:${radius},${lat},${lng})["tourism"~"attraction|museum|hotel|viewpoint|gallery|artwork"];
+    nwr(around:${radius},${lat},${lng})["leisure"~"park|garden|sports_centre|stadium"];
+    nwr(around:${radius},${lat},${lng})["historic"];
+  );out center 180;`;
   const url='https://overpass-api.de/api/interpreter?data='+encodeURIComponent(query);
   const r=await fetch(url);
   if(!r.ok)throw new Error('Overpass indisponible');
   const data=await r.json();
+  const seen=new Set();
   return (data.elements||[]).map(el=>{
     const tags=el.tags||{}; const pLat=el.lat||el.center?.lat; const pLng=el.lon||el.center?.lon;
+    const key=[Math.round((pLat||0)*100000),Math.round((pLng||0)*100000),tags.name||labelPoi(tags)].join('|');
+    if(seen.has(key))return null; seen.add(key);
     return {lat:pLat,lng:pLng,name:tags.name||labelPoi(tags),type:typePoi(tags),tags,distance:distanceMeters(lat,lng,pLat,pLng)};
-  }).filter(p=>p.lat&&p.lng).sort((a,b)=>a.distance-b.distance);
+  }).filter(p=>p&&p.lat&&p.lng).sort((a,b)=>a.distance-b.distance);
 }
 
 function labelPoi(tags){
   if(tags.highway==='bus_stop')return 'Arrêt de bus';
+  if(tags.public_transport)return 'Transport public';
   if(tags.railway==='tram_stop')return 'Tramway';
   if(tags.railway==='station')return 'Gare / station';
   if(tags.railway==='subway_entrance')return 'Métro';
@@ -785,13 +793,15 @@ function labelPoi(tags){
   if(tags.amenity)return tags.amenity.replace('_',' ');
   if(tags.shop)return 'Commerce';
   if(tags.tourism)return tags.tourism.replace('_',' ');
+  if(tags.leisure)return tags.leisure.replace('_',' ');
+  if(tags.historic)return 'Lieu historique';
   return 'Point d’intérêt';
 }
 function typePoi(tags){
-  if(tags.highway==='bus_stop'||['station','tram_stop','subway_entrance'].includes(tags.railway)||tags.aeroway==='aerodrome')return 'transport';
+  if(tags.highway==='bus_stop'||tags.public_transport||['station','tram_stop','subway_entrance','halt','platform'].includes(tags.railway)||['aerodrome','terminal'].includes(tags.aeroway))return 'transport';
   if(['restaurant','cafe','bar','pub','fast_food'].includes(tags.amenity))return 'food';
   if(tags.shop)return 'shops';
-  if(['attraction','museum','hotel','viewpoint','gallery'].includes(tags.tourism))return 'tourism';
+  if(['attraction','museum','hotel','viewpoint','gallery','artwork'].includes(tags.tourism)||tags.leisure||tags.historic)return 'tourism';
   if(tags.amenity==='parking')return 'parking';
   return 'other';
 }
@@ -801,44 +811,76 @@ function distanceMeters(lat1,lon1,lat2,lon2){
   return Math.round(2*R*Math.asin(Math.sqrt(s)));
 }
 
+function scannerAddressText(a){
+  return String([a.name,a.address,a.zone,a.city,a.postal_code,a.cp].filter(Boolean).join(' ')).toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+
+function prestigeAddressScore(a,pois){
+  const t=scannerAddressText(a);
+  let score=0;
+  if(/champs.?elysees|elysee|avenue montaigne|faubourg saint.?honore|george v|arc de triomphe|triangle d.or/.test(t))score=18;
+  else if(/paris/.test(t)&&/(1er|2e|3e|4e|5e|6e|7e|8e|7500[1-8]|marais|saint.?germain|opera|louvre|trocadero|tour eiffel|montmartre)/.test(t))score=14;
+  else if(/centre.?ville|hyper.?centre|gare|cathedrale|vieux.?port|presqu.ile|croisette|promenade des anglais/.test(t))score=10;
+  const namedLandmarks=(pois||[]).filter(p=>p.distance<=1200&&['tourism','transport'].includes(p.type)&&p.name&&!/^Point|Transport|Commerce|Lieu/.test(p.name)).length;
+  score=Math.max(score,Math.min(12,namedLandmarks*3));
+  return Math.min(18,score);
+}
+
 function computeEvaScannerAnalysis(a,pois){
-  const city=a.city||extractCity?.(a.zone,null)||a.zone||'';
-  const cityEvents=(eventsCache&&city&&eventsCache[city])?eventsCache[city]:[];
+  const city=a.city||((typeof extractCity==='function')?extractCity(a.zone,null):'')||a.zone||'';
+  const cityEvents=(typeof eventsCache!=='undefined'&&eventsCache&&city&&eventsCache[city])?eventsCache[city]:[];
   const hotEvents=cityEvents.filter(e=>e.hot);
   const count=(type,dist=1500)=>pois.filter(p=>p.type===type&&p.distance<=dist).length;
   const nearest=(type)=>pois.filter(p=>p.type===type)[0];
+  const dense300=pois.filter(p=>p.distance<=300).length;
+  const dense800=pois.filter(p=>p.distance<=800).length;
+  const dense1500=pois.filter(p=>p.distance<=1500).length;
   const sub={};
-  sub.transport=Math.min(30, count('transport',300)*16 + count('transport',800)*6 + count('transport',1500)*2);
-  sub.food=Math.min(16, count('food',300)*4 + count('food',800)*1.5 + count('food',1500)*.5);
-  sub.shops=Math.min(16, count('shops',300)*4 + count('shops',800)*1.5 + count('shops',1500)*.5);
-  sub.tourism=Math.min(12, count('tourism',800)*4 + count('tourism',1500)*1.5);
+  sub.transport=Math.min(30, count('transport',250)*18 + count('transport',600)*7 + count('transport',1200)*2.5);
+  sub.food=Math.min(16, count('food',250)*5 + count('food',700)*2 + count('food',1400)*.7);
+  sub.shops=Math.min(16, count('shops',250)*5 + count('shops',700)*2 + count('shops',1400)*.7);
+  sub.tourism=Math.min(12, count('tourism',500)*5 + count('tourism',1200)*2 + count('tourism',2000)*.8);
   sub.parking=Math.min(8, count('parking',500)*5 + count('parking',1200)*2);
-  sub.events=Math.min(18, hotEvents.length*8 + cityEvents.length*2);
+  sub.prestige=prestigeAddressScore(a,pois);
+  sub.events=Math.min(14, hotEvents.length*7 + cityEvents.length*1.6);
   let locationScore=Math.round(Object.values(sub).reduce((s,v)=>s+v,0));
-  if(pois.filter(p=>p.distance<=800).length<5)locationScore-=10;
-  locationScore=Math.max(12,Math.min(100,locationScore));
+
+  // Correctif V2 : l'absence de POI Overpass ne doit pas condamner une adresse premium.
+  // Certaines zones très denses sont mal remontées si l'API renvoie peu de nodes/ways.
+  const t=scannerAddressText(a);
+  if(dense800>=35)locationScore+=8;
+  else if(dense800>=20)locationScore+=5;
+  else if(dense800<5 && sub.prestige<10)locationScore-=8;
+  if(/champs.?elysees|avenue montaigne|george v|arc de triomphe|triangle d.or/.test(t))locationScore=Math.max(locationScore,92);
+  else if(/paris/.test(t)&&sub.prestige>=14)locationScore=Math.max(locationScore,82);
+  else if(/centre.?ville|hyper.?centre|cathedrale|gare/.test(t)&&sub.prestige>=10)locationScore=Math.max(locationScore,70);
+  locationScore=Math.max(18,Math.min(100,locationScore));
+
   const current=Number(a.price||0);
   const comp=Number(a.comp||a.competitor||0);
   const eventBoost=hotEvents.length?Math.min(.18,hotEvents.reduce((s,e)=>s+(Number(e.boost||8)/100),0)/2):0;
-  const locCoef=0.86+(locationScore/100)*0.42; // 0.86 à 1.28
+  const prestigeBoost=sub.prestige>=16?.14:sub.prestige>=12?.09:sub.prestige>=8?.05:0;
+  const locCoef=0.84+(locationScore/100)*0.46+prestigeBoost;
   let anchor=current||comp||90;
   if(comp&&current)anchor=(current*.55+comp*.45);
   else if(comp)anchor=comp;
   let recommended=Math.round(anchor*locCoef*(1+eventBoost));
-  if(current&&recommended>current*1.24)recommended=Math.round(current*1.24);
-  if(current&&recommended<current*.82)recommended=Math.round(current*.82);
-  recommended=Math.max(floor(a)||35,recommended||Math.round((floor(a)||55)*1.35));
+  if(current&&recommended>current*1.38)recommended=Math.round(current*1.38);
+  if(current&&recommended<current*.80)recommended=Math.round(current*.80);
+  recommended=Math.max((typeof floor==='function'?floor(a):0)||35,recommended||Math.round(((typeof floor==='function'?floor(a):0)||55)*1.35));
   const diff=current?recommended-current:0;
   const diffPct=current?Math.round(diff/current*100):0;
-  const priceScore=current?Math.max(0,Math.min(100,100-Math.abs(diffPct)*2)):55;
+  const priceScore=current?Math.max(0,Math.min(100,100-Math.abs(diffPct)*1.7)):55;
   const status=diffPct>=8?'sous-évalué':diffPct<=-8?'trop élevé':'cohérent';
-  const verdict=buildEvaScannerVerdict(locationScore,priceScore,status,diffPct,nearest,hotEvents,pois);
-  return {sub,locationScore,priceScore,current,recommended,diff,diffPct,status,verdict,hotEvents,cityEvents,nearestTransport:nearest('transport'),nearestFood:nearest('food'),nearestShop:nearest('shops')};
+  const verdict=buildEvaScannerVerdict(locationScore,priceScore,status,diffPct,nearest,hotEvents,pois,sub);
+  return {sub,locationScore,priceScore,current,recommended,diff,diffPct,status,verdict,hotEvents,cityEvents,nearestTransport:nearest('transport'),nearestFood:nearest('food'),nearestShop:nearest('shops'),poiDensity:{dense300,dense800,dense1500}};
 }
 
-function buildEvaScannerVerdict(locationScore,priceScore,status,diffPct,nearest,hotEvents,pois){
-  let level=locationScore>=75?'Très bon potentiel locatif':locationScore>=55?'Potentiel locatif correct':'Potentiel à surveiller';
-  let env=pois.filter(p=>p.distance<=800).length>=18?'l’environnement est dense et vivant':pois.filter(p=>p.distance<=800).length>=7?'l’environnement est correctement équipé':'l’environnement semble assez calme ou peu équipé';
+function buildEvaScannerVerdict(locationScore,priceScore,status,diffPct,nearest,hotEvents,pois,sub={}){
+  let level=locationScore>=85?'Adresse premium très forte':locationScore>=75?'Très bon potentiel locatif':locationScore>=55?'Potentiel locatif correct':'Potentiel à surveiller';
+  let env=pois.filter(p=>p.distance<=800).length>=18?'l’environnement est très dense, vivant et facilement valorisable':pois.filter(p=>p.distance<=800).length>=7?'l’environnement est correctement équipé':'l’environnement détecté par la cartographie reste limité';
+  if(sub.prestige>=16)env='l’adresse bénéficie d’un signal premium exceptionnel, avec une forte attractivité touristique, business et commerciale';
   let price=status==='sous-évalué'?`Le prix actuel semble trop bas : EVA détecte une marge de hausse d’environ +${Math.abs(diffPct)}%.`:status==='trop élevé'?`Le prix actuel semble ambitieux : EVA recommande de réduire ou de justifier le tarif par la qualité du logement.`:`Le prix actuel est proche de la zone recommandée par EVA.`;
   let ev=hotEvents.length?` Des événements chauds proches renforcent temporairement la demande.`:'';
   return `${level}. À cette adresse, ${env}. ${price}${ev}`;
