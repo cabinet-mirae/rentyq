@@ -204,135 +204,56 @@ tr:hover td{background:#FAFAFF}
   <div class="spinner"></div>
 </div>
 
-<div id="auth-screen" style="display:none;min-height:100vh;position:relative;overflow:hidden;background:#0a0618">
-  <!-- BG IMAGE -->
+<div id="auth-screen" style="display:none;min-height:100vh;position:relative;overflow:hidden">
+  <!-- FULL BG IMAGE — contains all the visual design -->
   <div style="position:absolute;inset:0;background:url('bg-login.png') center/cover no-repeat"></div>
-  <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,4,20,0.93) 0%,rgba(8,4,20,0.85) 32%,rgba(8,4,20,0.25) 55%,transparent 100%)"></div>
 
-  <div style="position:relative;z-index:1;display:flex;flex-direction:column;min-height:100vh">
-    <div style="flex:1;display:flex">
+  <!-- LOGIN MODULE — positioned below the image text, no overlap -->
+  <div style="position:absolute;left:3.5%;bottom:12%;width:370px;z-index:2">
+    <div style="background:rgba(12,6,25,0.65);backdrop-filter:blur(24px);border:1px solid rgba(192,132,252,0.2);border-radius:18px;padding:1.75rem 2rem">
 
-      <!-- LEFT PANEL with border -->
-      <div style="width:480px;flex-shrink:0;padding:2.5rem 3rem 2rem 3.5rem;display:flex;flex-direction:column;justify-content:center;margin:1.5rem 0 1.5rem 1.5rem;background:rgba(12,6,30,0.75);backdrop-filter:blur(20px);border:1px solid rgba(155,114,207,0.2);border-radius:20px">
-
-        <!-- Logo -->
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:2.25rem">
-          <svg viewBox="0 0 52 44" xmlns="http://www.w3.org/2000/svg" style="width:56px;flex-shrink:0">
-            <defs><linearGradient id="lg-auth" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6B3FA0"/><stop offset="100%" stop-color="#FF6B6B"/></linearGradient></defs>
-            <rect width="52" height="44" rx="11" fill="url(#lg-auth)"/>
-            <text x="5" y="32" font-family="Inter,system-ui,sans-serif" font-size="24" font-weight="700" fill="white">RyQ</text>
-          </svg>
-          <div style="font-size:36px;font-weight:700;color:white;letter-spacing:-0.5px">Rent<span style="background:linear-gradient(90deg,#C084FC,#F472B6);-webkit-background-clip:text;-webkit-text-fill-color:transparent">yQ</span></div>
+      <!-- LOGIN FORM -->
+      <div id="login-form">
+        <div style="margin-bottom:12px">
+          <label style="color:rgba(255,255,255,0.5);font-size:11px;margin-bottom:5px;display:block;font-weight:500">Email</label>
+          <input type="email" id="l-email" placeholder="votre@email.com" style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid rgba(155,114,207,0.25);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s" onfocus="this.style.borderColor='rgba(192,132,252,0.6)'" onblur="this.style.borderColor='rgba(155,114,207,0.25)'"/>
         </div>
-
-        <!-- Headline -->
-        <div style="font-size:36px;font-weight:700;color:white;line-height:1.25;margin-bottom:1rem">Stop guessing.<br>Start <span style="background:linear-gradient(90deg,#C084FC,#F472B6);-webkit-background-clip:text;-webkit-text-fill-color:transparent">earning.</span></div>
-        <div style="font-size:14px;color:rgba(255,255,255,0.45);line-height:1.7;margin-bottom:2rem;max-width:380px">L&rsquo;outil de gestion intelligent pour les locations courte dur&eacute;e. EVA analyse votre march&eacute;, d&eacute;tecte les &eacute;v&eacute;nements et optimise vos prix automatiquement.</div>
-
-        <!-- LOGIN FORM -->
-        <div id="login-form">
-          <div style="margin-bottom:12px">
-            <label style="color:rgba(255,255,255,0.6);font-size:12px;margin-bottom:5px;display:block;font-weight:500">Email</label>
-            <div style="position:relative"><span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.25);font-size:15px">&#9993;</span><input type="email" id="l-email" placeholder="votre@email.com" style="width:100%;padding:12px 14px 12px 40px;border-radius:12px;border:1px solid rgba(155,114,207,0.25);background:rgba(255,255,255,0.05);color:white;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s" onfocus="this.style.borderColor='rgba(192,132,252,0.6)'" onblur="this.style.borderColor='rgba(155,114,207,0.25)'"/></div>
-          </div>
-          <div style="margin-bottom:14px">
-            <div style="display:flex;justify-content:space-between;margin-bottom:5px"><label style="color:rgba(255,255,255,0.6);font-size:12px;font-weight:500">Mot de passe</label><button onclick="showForgotPassword()" style="background:none;border:none;font-size:12px;color:#C084FC;cursor:pointer;font-family:inherit;padding:0">Mot de passe oubli&eacute; ?</button></div>
-            <div style="position:relative"><span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.25);font-size:14px">&#128274;</span><input type="password" id="l-pwd" placeholder="••••••••" style="width:100%;padding:12px 14px 12px 40px;border-radius:12px;border:1px solid rgba(155,114,207,0.25);background:rgba(255,255,255,0.05);color:white;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s" onfocus="this.style.borderColor='rgba(192,132,252,0.6)'" onblur="this.style.borderColor='rgba(155,114,207,0.25)'"/></div>
-          </div>
-          <div style="display:flex;align-items:center;margin-bottom:18px"><label style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,0.4);cursor:pointer"><input type="checkbox" style="accent-color:#C084FC"/>Se souvenir de moi</label></div>
-          <button id="btn-login" onclick="doLogin()" style="width:100%;padding:13px;border-radius:12px;background:linear-gradient(135deg,#9333EA,#C084FC);color:white;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .15s;box-shadow:0 4px 20px rgba(147,51,234,0.4)" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">Se connecter</button>
-          <div class="auth-error" id="login-error" style="color:#F472B6;background:rgba(244,114,182,0.1);border:1px solid rgba(244,114,182,0.2);margin-top:10px"></div>
+        <div style="margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px"><label style="color:rgba(255,255,255,0.5);font-size:11px;font-weight:500">Mot de passe</label><button onclick="showForgotPassword()" style="background:none;border:none;font-size:11px;color:#C084FC;cursor:pointer;font-family:inherit;padding:0">Oubli&eacute; ?</button></div>
+          <input type="password" id="l-pwd" placeholder="••••••••" style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid rgba(155,114,207,0.25);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s" onfocus="this.style.borderColor='rgba(192,132,252,0.6)'" onblur="this.style.borderColor='rgba(155,114,207,0.25)'"/>
         </div>
-
-        <div id="forgot-form" style="display:none">
-          <div style="margin-bottom:12px"><label style="color:rgba(255,255,255,0.6);font-size:12px;margin-bottom:5px;display:block;font-weight:500">Votre email</label><input type="email" id="forgot-email" placeholder="vous@exemple.fr" style="width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(155,114,207,0.25);background:rgba(255,255,255,0.05);color:white;font-size:14px;font-family:inherit;outline:none"/></div>
-          <button id="btn-forgot" onclick="doForgotPassword()" style="width:100%;padding:13px;border-radius:12px;background:linear-gradient(135deg,#9333EA,#C084FC);color:white;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Envoyer le lien</button>
-          <div class="auth-error" id="forgot-error" style="color:#F472B6;background:rgba(244,114,182,0.1);margin-top:10px"></div>
-          <div class="auth-success" id="forgot-success" style="color:#5DCAA5;background:rgba(93,202,165,0.1);margin-top:10px"></div>
-          <button onclick="showLogin()" style="width:100%;margin-top:10px;background:none;border:none;font-size:13px;color:rgba(255,255,255,0.4);cursor:pointer;font-family:inherit">&larr; Retour</button>
-        </div>
-
-        <!-- Separator -->
-        <div style="display:flex;align-items:center;gap:12px;margin:18px 0"><div style="flex:1;height:0.5px;background:rgba(255,255,255,0.1)"></div><span style="font-size:12px;color:rgba(255,255,255,0.25)">ou</span><div style="flex:1;height:0.5px;background:rgba(255,255,255,0.1)"></div></div>
-
-        <!-- Create account -->
-        <div style="text-align:center;font-size:13px;color:rgba(255,255,255,0.4)">Pas encore de compte ? <button onclick="switchTab('register')" style="background:none;border:none;color:#C084FC;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;text-decoration:underline">Cr&eacute;er un compte</button></div>
-
-        <div id="register-form" style="display:none;margin-top:16px">
-          <div style="margin-bottom:10px"><label style="color:rgba(255,255,255,0.6);font-size:12px;margin-bottom:5px;display:block;font-weight:500">Nom complet</label><input type="text" id="r-name" placeholder="Marie Martin" style="width:100%;padding:11px 14px;border-radius:12px;border:1px solid rgba(155,114,207,0.25);background:rgba(255,255,255,0.05);color:white;font-size:14px;font-family:inherit;outline:none"/></div>
-          <div style="margin-bottom:10px"><label style="color:rgba(255,255,255,0.6);font-size:12px;margin-bottom:5px;display:block;font-weight:500">Email</label><input type="email" id="r-email" placeholder="vous@exemple.fr" style="width:100%;padding:11px 14px;border-radius:12px;border:1px solid rgba(155,114,207,0.25);background:rgba(255,255,255,0.05);color:white;font-size:14px;font-family:inherit;outline:none"/></div>
-          <div style="margin-bottom:14px"><label style="color:rgba(255,255,255,0.6);font-size:12px;margin-bottom:5px;display:block;font-weight:500">Mot de passe</label><input type="password" id="r-pwd" placeholder="min. 6 caract&egrave;res" style="width:100%;padding:11px 14px;border-radius:12px;border:1px solid rgba(155,114,207,0.25);background:rgba(255,255,255,0.05);color:white;font-size:14px;font-family:inherit;outline:none"/></div>
-          <div style="display:none"><input type="checkbox" id="r-mod-solo" checked/><input type="checkbox" id="r-mod-concierge"/></div>
-          <button id="btn-register" onclick="doRegister()" style="width:100%;padding:13px;border-radius:12px;background:linear-gradient(135deg,#9333EA,#C084FC);color:white;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(147,51,234,0.4)">Cr&eacute;er mon compte</button>
-          <div class="auth-error" id="register-error" style="color:#F472B6;background:rgba(244,114,182,0.1);margin-top:10px"></div>
-          <div class="auth-success" id="register-success" style="color:#5DCAA5;background:rgba(93,202,165,0.1);margin-top:10px"></div>
-          <button onclick="switchTab('login')" style="width:100%;margin-top:10px;background:none;border:none;font-size:13px;color:rgba(255,255,255,0.4);cursor:pointer;font-family:inherit">&larr; D&eacute;j&agrave; un compte ? Se connecter</button>
-        </div>
+        <div style="display:flex;align-items:center;margin-bottom:16px"><label style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,0.35);cursor:pointer"><input type="checkbox" style="accent-color:#C084FC"/>Se souvenir de moi</label></div>
+        <button id="btn-login" onclick="doLogin()" style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,#9333EA,#C084FC);color:white;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(147,51,234,0.35);transition:opacity .15s" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">Se connecter</button>
+        <div class="auth-error" id="login-error" style="color:#F472B6;background:rgba(244,114,182,0.1);border:1px solid rgba(244,114,182,0.2);margin-top:10px;padding:8px;border-radius:8px;font-size:12px;display:none"></div>
       </div>
 
-      <!-- RIGHT — Neon floating cards + lines -->
-      <div style="flex:1;position:relative;pointer-events:none">
-        <!-- NEON SVG LINES -->
-        <svg style="position:absolute;inset:0;width:100%;height:100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          </defs>
-          <!-- Curved neon lines -->
-          <path d="M 15%,22% Q 25%,35% 30%,48%" stroke="#C084FC" stroke-width="1.5" fill="none" filter="url(#glow)" opacity="0.7"/>
-          <path d="M 30%,48% Q 45%,55% 50%,58%" stroke="#C084FC" stroke-width="1.5" fill="none" filter="url(#glow)" opacity="0.6"/>
-          <path d="M 50%,18% Q 65%,25% 78%,15%" stroke="#A855F7" stroke-width="1.5" fill="none" filter="url(#glow)" opacity="0.7"/>
-          <path d="M 78%,15% Q 85%,30% 82%,50%" stroke="#A855F7" stroke-width="1.5" fill="none" filter="url(#glow)" opacity="0.5"/>
-          <path d="M 50%,58% Q 70%,65% 80%,72%" stroke="#C084FC" stroke-width="1.5" fill="none" filter="url(#glow)" opacity="0.6"/>
-          <!-- Glowing dots at intersections -->
-          <circle cx="15%" cy="22%" r="4" fill="#C084FC" filter="url(#glow)" opacity="0.9"/>
-          <circle cx="30%" cy="48%" r="4" fill="#C084FC" filter="url(#glow)" opacity="0.9"/>
-          <circle cx="50%" cy="18%" r="4" fill="#A855F7" filter="url(#glow)" opacity="0.9"/>
-          <circle cx="78%" cy="15%" r="4" fill="#A855F7" filter="url(#glow)" opacity="0.9"/>
-          <circle cx="50%" cy="58%" r="4" fill="#C084FC" filter="url(#glow)" opacity="0.9"/>
-          <circle cx="82%" cy="50%" r="3" fill="#A855F7" filter="url(#glow)" opacity="0.8"/>
-          <circle cx="80%" cy="72%" r="4" fill="#C084FC" filter="url(#glow)" opacity="0.9"/>
-        </svg>
+      <!-- FORGOT FORM (hidden) -->
+      <div id="forgot-form" style="display:none">
+        <div style="margin-bottom:12px"><label style="color:rgba(255,255,255,0.5);font-size:11px;margin-bottom:5px;display:block;font-weight:500">Votre email</label><input type="email" id="forgot-email" placeholder="vous@exemple.fr" style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid rgba(155,114,207,0.25);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:inherit;outline:none"/></div>
+        <button id="btn-forgot" onclick="doForgotPassword()" style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,#9333EA,#C084FC);color:white;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Envoyer le lien</button>
+        <div class="auth-error" id="forgot-error" style="color:#F472B6;background:rgba(244,114,182,0.1);margin-top:10px;padding:8px;border-radius:8px;font-size:12px;display:none"></div>
+        <div class="auth-success" id="forgot-success" style="color:#5DCAA5;background:rgba(93,202,165,0.1);margin-top:10px;padding:8px;border-radius:8px;font-size:12px;display:none"></div>
+        <button onclick="showLogin()" style="width:100%;margin-top:10px;background:none;border:none;font-size:12px;color:rgba(255,255,255,0.35);cursor:pointer;font-family:inherit">&larr; Retour</button>
+      </div>
 
-        <!-- Price cards with glass + neon border -->
-        <div style="position:absolute;top:14%;left:8%;background:rgba(20,10,40,0.6);backdrop-filter:blur(16px);border-radius:14px;padding:14px 20px;border:1px solid rgba(192,132,252,0.3);box-shadow:0 0 20px rgba(192,132,252,0.1)">
-          <div style="font-size:28px;font-weight:700;color:white">149 &euro;</div>
-          <div style="font-size:13px;color:#A855F7;margin-top:2px">+23% <span style="font-size:11px;opacity:0.6">&#8599;</span></div>
-        </div>
-        <div style="position:absolute;top:40%;left:20%;background:rgba(20,10,40,0.6);backdrop-filter:blur(16px);border-radius:14px;padding:14px 20px;border:1px solid rgba(192,132,252,0.3);box-shadow:0 0 20px rgba(192,132,252,0.1)">
-          <div style="font-size:28px;font-weight:700;color:white">89 &euro;</div>
-          <div style="font-size:13px;color:#A855F7;margin-top:2px">+8% <span style="font-size:11px;opacity:0.6">&#8599;</span></div>
-        </div>
-        <div style="position:absolute;top:8%;right:12%;background:rgba(20,10,40,0.6);backdrop-filter:blur(16px);border-radius:14px;padding:14px 20px;border:1px solid rgba(192,132,252,0.3);box-shadow:0 0 20px rgba(192,132,252,0.1)">
-          <div style="font-size:28px;font-weight:700;color:white">119 &euro;</div>
-          <div style="font-size:13px;color:#A855F7;margin-top:2px">+18% <span style="font-size:11px;opacity:0.6">&#8599;</span></div>
-        </div>
-        <div style="position:absolute;bottom:22%;right:6%;background:rgba(20,10,40,0.6);backdrop-filter:blur(16px);border-radius:14px;padding:14px 20px;border:1px solid rgba(192,132,252,0.3);box-shadow:0 0 20px rgba(192,132,252,0.1)">
-          <div style="font-size:28px;font-weight:700;color:white">129 &euro;</div>
-          <div style="font-size:13px;color:#A855F7;margin-top:2px">+15% <span style="font-size:11px;opacity:0.6">&#8599;</span></div>
-        </div>
+      <!-- Separator -->
+      <div style="display:flex;align-items:center;gap:12px;margin:14px 0"><div style="flex:1;height:0.5px;background:rgba(255,255,255,0.08)"></div><span style="font-size:11px;color:rgba(255,255,255,0.2)">ou</span><div style="flex:1;height:0.5px;background:rgba(255,255,255,0.08)"></div></div>
 
-        <!-- Event cards with neon purple -->
-        <div style="position:absolute;top:6%;right:30%;background:rgba(107,63,160,0.4);backdrop-filter:blur(16px);border-radius:14px;padding:12px 18px;border:1px solid rgba(192,132,252,0.35);display:flex;align-items:center;gap:10px;box-shadow:0 0 20px rgba(168,85,247,0.15)">
-          <div style="font-size:20px">&#127925;</div>
-          <div><div style="font-size:14px;font-weight:600;color:white">Concert Z&eacute;nith Orl&eacute;ans</div><div style="font-size:12px;color:rgba(255,255,255,0.5)">24 mai</div></div>
-        </div>
-        <div style="position:absolute;top:52%;left:32%;background:rgba(107,63,160,0.4);backdrop-filter:blur(16px);border-radius:14px;padding:12px 18px;border:1px solid rgba(192,132,252,0.35);display:flex;align-items:center;gap:10px;box-shadow:0 0 20px rgba(168,85,247,0.15)">
-          <div style="font-size:20px">&#127754;</div>
-          <div><div style="font-size:14px;font-weight:600;color:white">Festival de Loire</div><div style="font-size:12px;color:rgba(255,255,255,0.5)">20 &ndash; 24 sept.</div></div>
-        </div>
+      <!-- Create account -->
+      <div style="text-align:center;font-size:12px;color:rgba(255,255,255,0.35)">Pas encore de compte ? <button onclick="switchTab('register')" style="background:none;border:none;color:#C084FC;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;text-decoration:underline">Cr&eacute;er un compte</button></div>
+
+      <!-- REGISTER FORM (hidden) -->
+      <div id="register-form" style="display:none;margin-top:14px">
+        <div style="margin-bottom:10px"><label style="color:rgba(255,255,255,0.5);font-size:11px;margin-bottom:5px;display:block;font-weight:500">Nom complet</label><input type="text" id="r-name" placeholder="Marie Martin" style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(155,114,207,0.25);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:inherit;outline:none"/></div>
+        <div style="margin-bottom:10px"><label style="color:rgba(255,255,255,0.5);font-size:11px;margin-bottom:5px;display:block;font-weight:500">Email</label><input type="email" id="r-email" placeholder="vous@exemple.fr" style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(155,114,207,0.25);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:inherit;outline:none"/></div>
+        <div style="margin-bottom:14px"><label style="color:rgba(255,255,255,0.5);font-size:11px;margin-bottom:5px;display:block;font-weight:500">Mot de passe</label><input type="password" id="r-pwd" placeholder="min. 6 caract&egrave;res" style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(155,114,207,0.25);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:inherit;outline:none"/></div>
+        <div style="display:none"><input type="checkbox" id="r-mod-solo" checked/><input type="checkbox" id="r-mod-concierge"/></div>
+        <button id="btn-register" onclick="doRegister()" style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,#9333EA,#C084FC);color:white;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(147,51,234,0.35)">Cr&eacute;er mon compte</button>
+        <div class="auth-error" id="register-error" style="color:#F472B6;background:rgba(244,114,182,0.1);margin-top:10px;padding:8px;border-radius:8px;font-size:12px;display:none"></div>
+        <div class="auth-success" id="register-success" style="color:#5DCAA5;background:rgba(93,202,165,0.1);margin-top:10px;padding:8px;border-radius:8px;font-size:12px;display:none"></div>
+        <button onclick="switchTab('login')" style="width:100%;margin-top:10px;background:none;border:none;font-size:12px;color:rgba(255,255,255,0.35);cursor:pointer;font-family:inherit">&larr; D&eacute;j&agrave; un compte ?</button>
       </div>
     </div>
-
-    <!-- BOTTOM BAR -->
-    <div style="border-top:1px solid rgba(192,132,252,0.1);padding:16px 3rem;display:flex;gap:2rem;justify-content:center;background:rgba(8,4,20,0.8);backdrop-filter:blur(12px)">
-      <div style="display:flex;align-items:center;gap:10px"><div style="width:34px;height:34px;border-radius:10px;background:rgba(192,132,252,0.15);display:flex;align-items:center;justify-content:center"><i class="ti ti-chart-line" style="font-size:16px;color:#C084FC" aria-hidden="true"></i></div><div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.75)">Demandes en temps r&eacute;el</div><div style="font-size:10px;color:rgba(255,255,255,0.3)">Des milliers de signaux chaque jour</div></div></div>
-      <div style="display:flex;align-items:center;gap:10px"><div style="width:34px;height:34px;border-radius:10px;background:rgba(244,114,182,0.15);display:flex;align-items:center;justify-content:center"><i class="ti ti-calendar-event" style="font-size:16px;color:#F472B6" aria-hidden="true"></i></div><div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.75)">&Eacute;v&eacute;nements locaux</div><div style="font-size:10px;color:rgba(255,255,255,0.3)">Concerts, salons, festivals&hellip;</div></div></div>
-      <div style="display:flex;align-items:center;gap:10px"><div style="width:34px;height:34px;border-radius:10px;background:rgba(93,202,165,0.15);display:flex;align-items:center;justify-content:center"><i class="ti ti-sparkles" style="font-size:16px;color:#5DCAA5" aria-hidden="true"></i></div><div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.75)">Recommandations EVA</div><div style="font-size:10px;color:rgba(255,255,255,0.3)">Le bon prix, au bon moment</div></div></div>
-      <div style="display:flex;align-items:center;gap:10px"><div style="width:34px;height:34px;border-radius:10px;background:rgba(250,199,117,0.15);display:flex;align-items:center;justify-content:center"><i class="ti ti-trending-up" style="font-size:16px;color:#FAC775" aria-hidden="true"></i></div><div><div style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.75)">Plus de revenus</div><div style="font-size:10px;color:rgba(255,255,255,0.3)">Maximisez occupation &amp; revenu/nuit</div></div></div>
-    </div>
-
-    <!-- Footer -->
-    <div style="text-align:center;padding:10px;font-size:11px;color:rgba(255,255,255,0.15)">&copy; 2026 RentyQ &middot; Powered by EVA &middot; Made in France</div>
   </div>
 </div>
 
