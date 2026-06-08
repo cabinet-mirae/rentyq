@@ -340,15 +340,13 @@ tr:hover td{background:#FAFAFF}
       <button class="nav-item" onclick="goTo('calendrier',this)"><span class="nav-emoji">📅</span>Calendrier</button>
       <button class="nav-item" onclick="goTo('parc',this)"><span class="nav-emoji">🏠</span>Le Parc <span class="nav-badge" id="parc-badge">0</span></button>
       <button class="nav-item" onclick="goTo('reservations',this)"><span class="nav-emoji">📋</span>Réservations</button>
-      <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji">🤖</span>EVA Pricing <span class="nav-badge-new">NEW</span></button>
+      <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji">🤖</span>EVA Pricing <span class="nav-badge-new">IA</span></button>
       <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji">🎯</span>Événements <span class="nav-badge-new" id="events-badge" style="display:none">0</span></button>
       <button class="nav-item" onclick="goTo('finances',this)"><span class="nav-emoji">💰</span>Finances</button>
-      <button class="nav-item" onclick="goTo('squad',this)"><span class="nav-emoji">👥</span>La Squad</button>
-      <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Intégrations</div>
-      <button class="nav-item" onclick="goTo('smoobu',this)"><span class="nav-emoji">🔗</span>Smoobu <span class="smoobu-badge" id="smoobu-nav-badge" style="display:none">✓</span></button>
-      <div class="nav-section-label">CleanyQ</div>
-      <button class="nav-item" onclick="goTo('clean',this)"><span class="nav-emoji">🧹</span>CleanyQ</button>
-      <button class="nav-item" onclick="goTo('annuaire',this)"><span class="nav-emoji">🟡</span>L'Annuaire</button>
+      <div class="nav-section-label" style="color:rgba(255,255,255,0.25)" id="nav-label-cleanyq">Ménage</div>
+      <button class="nav-item" onclick="goTo('clean',this)" id="nav-cleanyq"><span class="nav-emoji">🧹</span>CleanyQ</button>
+      <div class="nav-section-label" style="color:rgba(255,255,255,0.25)" id="nav-label-integrations">Intégrations</div>
+      <button class="nav-item" onclick="goTo('smoobu',this)" id="nav-smoobu"><span class="nav-emoji">🔗</span>Smoobu <span class="smoobu-badge" id="smoobu-nav-badge" style="display:none">✓</span></button>
       </div>
       <div id="nav-concierge" style="display:none">
       <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Conciergerie</div>
@@ -431,8 +429,8 @@ tr:hover td{background:#FAFAFF}
           <div id="parc-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px"></div>
           <div id="parc-empty" style="text-align:center;padding:3rem;display:none">
             <div style="font-size:48px;margin-bottom:1rem">🏠</div>
-            <div style="font-weight:600;font-size:16px;margin-bottom:6px">Aucun appartement</div>
-            <div style="font-size:13px;color:#8A8A99;margin-bottom:1rem">Ajoutez votre premier bien pour commencer</div>
+            <div style="font-weight:600;font-size:16px;margin-bottom:6px">Votre parc est prêt</div>
+            <div style="font-size:13px;color:#8A8A99;margin-bottom:1rem">Ajoutez votre premier bien — EVA s'occupe du reste</div>
             <button class="btn btn-purple" onclick="openAddModal()">+ Ajouter un appartement</button>
           </div>
         </div>
@@ -574,7 +572,7 @@ tr:hover td{background:#FAFAFF}
         <!-- Empty state -->
         <div id="fin-empty" style="text-align:center;padding:3rem;display:none">
           <div style="font-size:48px;margin-bottom:1rem">💰</div>
-          <div style="font-weight:600;font-size:16px;margin-bottom:6px">Configurez vos charges</div>
+          <div style="font-weight:600;font-size:16px;margin-bottom:6px">Votre P&L automatique</div>
           <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">Ajoutez les charges de vos appartements pour calculer votre rentabilité nette</div>
           <button class="btn btn-purple" onclick="openChargesModal()">⚙ Configurer les charges</button>
         </div>
@@ -1606,6 +1604,7 @@ async function loadApp(){
     await loadCharges();await loadTransactions();await loadCatRules();await loadCleaners();await loadMissions();
     applyModules();
     if(userModules.includes('concierge')){renderProprietaires();initRapportMois();renderRapports();renderCockpitConcierge();renderParcConcierge();}
+     updateNavVisibility();
      onb2Open();
   }catch(e){document.getElementById('loading').style.display='none';document.getElementById('auth-screen').style.display='flex';}
 }
@@ -1641,7 +1640,7 @@ function initTodos(apts){
     const occ=a.booked?Math.round(monthRes.length/30*100)||65:Math.round(monthRes.length/30*100)||20;
     if(occ<50)cockpitTodos.push({id:'occ-'+a.id,text:`Améliorer taux occupation ${a.name} — ${occ}% ce mois (objectif 65%)`,done:false,urgency:'soon'});
   });
-  if(!cockpitTodos.length&&apts.length===0)cockpitTodos.push({id:'empty',text:'Ajoutez votre premier appartement pour commencer',done:false,urgency:'today'});
+  if(!cockpitTodos.length&&apts.length===0)cockpitTodos.push({id:'empty',text:'Ajoutez votre premier bien — EVA analyse votre marché dès la première adresse',done:false,urgency:'today'});
 }
 
 function genAlerts(apts){
@@ -2463,8 +2462,25 @@ function getModules(){
   return['solo'];
 }
 
+function updateNavVisibility(){
+  // CleanyQ — visible seulement si au moins 1 cleaner ou 1 mission
+  const hasCleanyQ=typeof cleanersData!=='undefined'&&(cleanersData.length>0||(typeof missionsData!=='undefined'&&missionsData.length>0));
+  const navCQ=document.getElementById('nav-cleanyq');
+  const navCQLabel=document.getElementById('nav-label-cleanyq');
+  if(navCQ)navCQ.style.display=hasCleanyQ?'flex':'none';
+  if(navCQLabel)navCQLabel.style.display=hasCleanyQ?'block':'none';
+
+  // Smoobu — visible seulement si clé configurée
+  const hasSmoobu=!!smoobuKey;
+  const navSm=document.getElementById('nav-smoobu');
+  const navSmLabel=document.getElementById('nav-label-smoobu');
+  if(navSm)navSm.style.display=hasSmoobu?'flex':'none';
+  if(navSmLabel)navSmLabel.style.display=hasSmoobu?'block':'none';
+}
+
 function applyModules(){
   userModules=getModules();
+  updateNavVisibility();
   // Show switcher only if both modules active
   const switcher=document.getElementById('mode-switcher');
   const hasBoth=userModules.includes('solo')&&userModules.includes('concierge');
