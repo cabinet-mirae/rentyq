@@ -144,6 +144,47 @@ tr:hover td{background:#FAFAFF}
 .status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block}
 .status-dot.connected{background:#10B981}
 .status-dot.disconnected{background:#D1D1D8}
+/* MOBILE RESPONSIVE */
+@media(max-width:768px){
+  .app-body{flex-direction:column}
+  .sidebar{position:fixed;left:-260px;top:0;bottom:0;width:250px;z-index:400;transition:left .25s;box-shadow:none}
+  .sidebar.open{left:0;box-shadow:4px 0 24px rgba(0,0,0,0.3)}
+  .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:399}
+  .sidebar-overlay.open{display:block}
+  .mobile-topbar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#1A1A2E;color:white}
+  .hamburger{background:none;border:none;color:white;font-size:24px;cursor:pointer;padding:4px;line-height:1}
+  .mobile-topbar .brand-logo{font-size:18px;color:white}
+  .mobile-topbar .brand-logo span{background:linear-gradient(90deg,#9B72CF,#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .main{overflow-x:hidden}
+  .page{padding:1rem}
+  .page-title{font-size:22px}
+  .page-header{flex-direction:column;gap:0.75rem}
+  .actions{width:100%;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+  .actions .btn{white-space:nowrap;flex-shrink:0}
+  .kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .kpi-value{font-size:20px}
+  .grid-2{grid-template-columns:1fr}
+  #parc-cards{grid-template-columns:1fr !important}
+  .events-grid{grid-template-columns:1fr}
+  #cleanyq-split{grid-template-columns:1fr !important}
+  .modal{max-width:100%;border-radius:14px 14px 0 0;margin-top:auto}
+  .modal-overlay{align-items:flex-end}
+  table{font-size:12px;min-width:400px}
+  td,th{padding:8px 6px}
+  .beta-banner{font-size:11px;padding:8px 12px}
+  .card{padding:1rem;border-radius:12px}
+  .setting-row{flex-direction:column;align-items:flex-start;gap:8px}
+  .setting-row .toggle{align-self:flex-end}
+  #cal-grid div{min-height:60px !important;padding:4px !important}
+  #cal-grid div>div:first-child span:first-child{font-size:11px !important}
+  .cal-pill{font-size:9px !important}
+  .onb2-row{grid-template-columns:1fr}
+  #onb2-sheet{max-width:100%;border-radius:16px 16px 0 0}
+}
+@media(min-width:769px){
+  .mobile-topbar{display:none}
+  .sidebar-overlay{display:none !important}
+}
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -265,6 +306,15 @@ tr:hover td{background:#FAFAFF}
 </div>
 
 <div class="app" id="app">
+  <!-- Mobile topbar -->
+  <div class="mobile-topbar">
+    <button class="hamburger" onclick="toggleSidebar()">☰</button>
+    <div class="brand-logo">Rent<span>yQ</span></div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+      <div class="user-avatar" id="m-avatar" style="width:28px;height:28px;font-size:11px">?</div>
+    </div>
+  </div>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
   <div class="beta-banner" style="background:linear-gradient(90deg,#1A1A2E,#2d1b4e,#1A1A2E)">🚀 <strong>Beta RentyQ</strong> — EVA Pricing + Smoobu + Événements Ticketmaster</div>
   <div class="app-body">
     <div class="sidebar" style="background:#1A1A2E;border-right:1px solid rgba(255,255,255,0.08)">
@@ -1339,6 +1389,7 @@ async function loadApp(){
 
 function renderSidebar(){
   document.getElementById('s-name').textContent=(currentProfile.name||'User').split(' ')[0];
+  try{document.getElementById('m-avatar').textContent=(currentProfile.name||'U').charAt(0).toUpperCase();}catch(e){}
   document.getElementById('s-avatar').textContent=(currentProfile.name||'U').charAt(0).toUpperCase();
   document.getElementById('s-plan').textContent='Plan '+(currentProfile.plan||'Starter');
   document.getElementById('parc-badge').textContent=apparts.length;
@@ -2011,7 +2062,20 @@ function renderSmoobuApts(apts){
   apts.map(a=>`<tr><td><div class="apt-name"><div class="apt-emoji">🏠</div>${a.name||'—'}</div></td><td>${a.city||'—'}</td><td>${a.price||'—'}€</td></tr>`).join('')+`</tbody>`;
 }
 
+function toggleSidebar(){
+  const sb=document.querySelector('.sidebar');
+  const ov=document.getElementById('sidebar-overlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('open');
+}
+function closeSidebarMobile(){
+  const sb=document.querySelector('.sidebar');
+  const ov=document.getElementById('sidebar-overlay');
+  if(sb)sb.classList.remove('open');
+  if(ov)ov.classList.remove('open');
+}
 function goTo(page,btn){
+  closeSidebarMobile();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
@@ -4114,5 +4178,3 @@ function checkPaymentReturn(){
 </script>
 </body>
 </html>
-
-
