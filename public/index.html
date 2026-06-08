@@ -876,7 +876,7 @@ tr:hover td{background:#FAFAFF}
       <div id="onb2-s1">
         <span class="onb2-icon">🏠</span>
         <div class="onb2-title">Ajoutez votre premier bien</div>
-        <div class="onb2-sub">Juste le nom, la ville et votre prix habituel. Vous pourrez tout modifier après.</div>
+        <div class="onb2-sub">Juste le nom, la ville et votre prix habituel. Commencez par votre premier bien — vous pourrez ajouter les autres juste après dans Le Parc.</div>
         <div class="onb2-err" id="onb2-err1"></div>
         <div class="onb2-field">
           <label class="onb2-label">Nom de l'appartement</label>
@@ -986,6 +986,7 @@ tr:hover td{background:#FAFAFF}
     <div id="onb2-footer">
       <button class="onb2-btn-main" id="onb2-btn-next" onclick="onb2Next()">Continuer →</button>
       <button class="onb2-btn-back" id="onb2-btn-back" style="display:none" onclick="onb2Back()">← Retour</button>
+      <button onclick="loadDemoData()" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;border:1px dashed #C4B5FD;background:none;font-size:13px;color:#6B3FA0;cursor:pointer;font-family:inherit">🎮 Tester avec des données démo</button>
     </div>
 
   </div>
@@ -2350,7 +2351,61 @@ async function saveReservation(){
 
 async function toggleBooked(id,val){await sbFetch(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({booked:val})});const a=apparts.find(x=>x.id===id);if(a)a.booked=val;renderAll();}
 async function toggleAutoPricing(id,val){await sbFetch(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({auto_pricing:val})});const a=apparts.find(x=>x.id===id);if(a)a.auto_pricing=val;renderPricingTable();}
-async function applyAI(id,rec){await sbFetch(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({price:rec})});const a=apparts.find(x=>x.id===id);if(a)a.price=rec;renderAll();showToast('✓ Prix appliqué : '+rec+'€');}
+async function applyAI(id,rec){
+  await sbFetch(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({price:rec})});
+  const a=apparts.find(x=>x.id===id);if(a)a.price=rec;renderAll();
+  // Proposer push vers Smoobu si connecté
+  if(smoobuKey&&a&&a.smoobu_id){
+    showSmoobuPush(a,rec);
+  } else {
+    showToast('✓ Prix appliqué : '+rec+'€');
+  }
+}
+
+function showSmoobuPush(apt,newPrice){
+  const modal=document.getElementById('modal');
+  const m=document.querySelector('#modal .modal');
+  m.innerHTML=`
+    <div class="modal-head"><div class="modal-title">🤖 EVA → Smoobu</div><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div style="text-align:center;padding:1rem 0">
+      <div style="font-size:40px;margin-bottom:12px">🤖→🔗</div>
+      <div style="font-size:16px;font-weight:600;margin-bottom:6px">Appliquer ${newPrice}€/nuit sur Smoobu ?</div>
+      <div style="font-size:13px;color:#8A8A99;margin-bottom:4px">${apt.emoji||'🏠'} ${apt.name}</div>
+      <div style="display:flex;justify-content:center;gap:16px;margin:16px 0">
+        <div style="background:#FCEBEB;border-radius:10px;padding:10px 20px;text-align:center">
+          <div style="font-size:11px;color:#8A8A99">Ancien prix</div>
+          <div style="font-size:20px;font-weight:700;color:#E24B4A;text-decoration:line-through">${apt.price||0}€</div>
+        </div>
+        <div style="display:flex;align-items:center;font-size:20px;color:#8A8A99">→</div>
+        <div style="background:#E1F5EE;border-radius:10px;padding:10px 20px;text-align:center">
+          <div style="font-size:11px;color:#8A8A99">Nouveau prix</div>
+          <div style="font-size:20px;font-weight:700;color:#1D9E75">${newPrice}€</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#8A8A99;margin-bottom:16px">Le prix sera modifié sur Airbnb et Booking via Smoobu</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="closeModal()" style="flex:1">Annuler</button>
+        <button class="btn btn-purple" onclick="pushToSmoobu('${apt.id}','${apt.smoobu_id}',${newPrice})" style="flex:2">✅ Confirmer et pousser</button>
+      </div>
+      <button onclick="closeModal();showToast('✓ Prix modifié dans RentyQ uniquement')" style="margin-top:10px;background:none;border:none;font-size:12px;color:#8A8A99;cursor:pointer;font-family:inherit">Modifier seulement dans RentyQ →</button>
+    </div>`;
+  modal.classList.add('open');
+}
+
+async function pushToSmoobu(aptId,smoobuId,newPrice){
+  closeModal();
+  showToast('🔄 Envoi à Smoobu…');
+  try{
+    const res=await smoobuCall('updatePrice',{apartmentId:smoobuId,price:newPrice});
+    if(res.success||res.status==='ok'){
+      showToast('✅ Prix poussé sur Smoobu : '+newPrice+'€');
+    } else {
+      showToast('⚠ Erreur Smoobu — prix modifié dans RentyQ uniquement');
+    }
+  }catch(e){
+    showToast('⚠ Erreur connexion Smoobu');
+  }
+}
 async function deleteAppart(id){if(!confirm('Supprimer ?'))return;await sbFetch(`appartements?id=eq.${id}`,{method:'DELETE'});apparts=apparts.filter(a=>a.id!==id);renderAll();}
 async function saveProfile(){const name=document.getElementById('set-name').value.trim();await sbFetch(`profiles?id=eq.${currentProfile.id}`,{method:'PATCH',body:JSON.stringify({name})});currentProfile.name=name;renderSidebar();showToast('✓ Sauvegardé');}
 
@@ -4036,6 +4091,109 @@ function renderPrevisionnel(){
   html+=`<div class="card"><div style="font-size:14px;font-weight:600;margin-bottom:1rem">Comparaison 12 mois</div><div class="table-wrap"><table><thead><tr><th>Scénario</th><th>Occ.</th><th style="text-align:right">Revenus</th><th style="text-align:right">Charges</th><th style="text-align:right">Net</th><th style="text-align:right">Marge</th></tr></thead><tbody>${scenarios.map(s=>{const avgO=Math.round(s.months.reduce((a,m)=>a+m.occ,0)/12);const mg=s.totalRev>0?Math.round(s.totalNet/s.totalRev*100):0;return`<tr><td style="font-weight:600">${s.emoji} ${s.name}</td><td>${avgO}%</td><td style="text-align:right;color:#1D9E75">${Math.round(s.totalRev)}€</td><td style="text-align:right;color:#E24B4A">${Math.round(s.totalCharges)}€</td><td style="text-align:right;font-weight:700;color:${s.totalNet>=0?'#1D9E75':'#E24B4A'}">${s.totalNet>=0?'+':''}${Math.round(s.totalNet)}€</td><td style="text-align:right"><span class="tag ${mg>=15?'tag-ok':mg>=0?'tag-warn':'tag-bad'}">${mg}%</span></td></tr>`;}).join('')}</tbody></table></div></div>`;
   html+=`<div style="background:#F8F7FF;border-radius:10px;padding:1rem;margin-bottom:1rem;font-size:12px;color:#8A8A99;line-height:1.8"><strong style="color:#6B3FA0">Hypothèses :</strong> Occ. actuelle ${occActuel}% · Prix moy. ${prixMoyenNuit}€/nuit · ${nbApparts} bien${nbApparts>1?'s':''} · Charges fixes ${totalFixesMensuel}€/mois · Saisonnalité appliquée</div>`;
   el.innerHTML=html;el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// MODE DÉMO
+async function loadDemoData(){
+  const btn=document.querySelector('[onclick="loadDemoData()"]');
+  if(btn){btn.disabled=true;btn.textContent='Chargement des données démo…';}
+
+  // Fermer l'onboarding
+  document.getElementById('onb2').classList.remove('open');
+  try{localStorage.setItem('onb2_seen_'+(currentUser?.user?.id||'demo'),'1');}catch(e){}
+
+  // Appartements démo
+  const demoApparts=[
+    {name:'Studio Marais',city:'Paris',zone:'Le Marais',address:'15 rue des Francs-Bourgeois, Paris',latitude:48.8566,longitude:2.3522,emoji:'🏠',rent:950,cleaner:30,price:95,comp:105,ai_rec:102,booked:true,auto_pricing:true,note:4.7,auto_degressif:true,degressif_start:14,degressif_step:5,degressif_min:55},
+    {name:'T2 Bastille',city:'Paris',zone:'Bastille',address:'8 rue de la Roquette, Paris',latitude:48.8534,longitude:2.3710,emoji:'🛋️',rent:1200,cleaner:35,price:110,comp:120,ai_rec:118,booked:false,auto_pricing:true,note:4.3,auto_degressif:false},
+    {name:'T3 Bellecour Lyon',city:'Lyon',zone:'Bellecour',address:'12 place Bellecour, Lyon',latitude:45.7578,longitude:4.8320,emoji:'🌇',rent:850,cleaner:40,price:85,comp:92,ai_rec:90,booked:true,auto_pricing:true,note:4.8,auto_degressif:false},
+    {name:'Studio Centre Orléans',city:'Orléans',zone:'Centre',address:'5 rue de la République, Orléans',latitude:47.9025,longitude:1.9040,emoji:'🌸',rent:650,cleaner:25,price:72,comp:78,ai_rec:76,booked:false,auto_pricing:true,note:4.5,auto_degressif:true,degressif_start:15,degressif_step:4,degressif_min:42}
+  ];
+
+  // Réservations démo (passées + futures)
+  const now=new Date();
+  const fmt=d=>d.toISOString().split('T')[0];
+  const demoRes=[];
+  const guests=['Sophie Martin','Pierre Durand','Emma Laurent','Lucas Bernard','Camille Petit','Hugo Moreau','Léa Simon','Nathan Michel'];
+  const platforms=['airbnb','airbnb','booking','airbnb','direct','booking','airbnb','airbnb'];
+
+  for(let i=-14;i<21;i+=3){
+    const from=new Date(now.getTime()+i*86400000);
+    const nights=Math.floor(Math.random()*3)+2;
+    const to=new Date(from.getTime()+nights*86400000);
+    const aptIdx=Math.floor(Math.random()*demoApparts.length);
+    const price=demoApparts[aptIdx].price*nights;
+    demoRes.push({
+      apartment_name:demoApparts[aptIdx].name,
+      appartement_id:'demo-apt-'+aptIdx,
+      guest_name:guests[Math.floor(Math.random()*guests.length)],
+      date_from:fmt(from),date_to:fmt(to),
+      nights,price_total:price,
+      platform:platforms[Math.floor(Math.random()*platforms.length)],
+      status:'confirmed'
+    });
+  }
+
+  // Charges démo
+  const demoCharges=[];
+  demoApparts.forEach((a,i)=>{
+    const id='demo-apt-'+i;
+    demoCharges.push({appartement_id:id,category:'loyer',label:'Loyer mensuel',amount:a.rent,type:'fixe',per:'mois'});
+    demoCharges.push({appartement_id:id,category:'charges_locatives',label:'Charges locatives',amount:Math.round(a.rent*0.08),type:'fixe',per:'mois'});
+    demoCharges.push({appartement_id:id,category:'energie',label:'Électricité',amount:Math.round(35+Math.random()*25),type:'fixe',per:'mois'});
+    demoCharges.push({appartement_id:id,category:'internet',label:'Internet / WiFi',amount:25,type:'fixe',per:'mois'});
+    demoCharges.push({appartement_id:id,category:'assurance',label:'Assurance PNO',amount:Math.round(20+Math.random()*15),type:'fixe',per:'mois'});
+    demoCharges.push({appartement_id:id,category:'menage',label:'Ménage / séjour',amount:a.cleaner,type:'variable',per:'reservation'});
+    demoCharges.push({appartement_id:id,category:'commission_plateforme',label:'Commission plateforme (%)',amount:3,type:'variable',per:'reservation'});
+  });
+
+  // Cleaners démo
+  const demoCleaner=[
+    {name:'Sara D.',phone:'06 12 34 56 78',email:'sara@email.com',city:'Paris',radius_km:10,tarif_t1:30,tarif_t2:42,tarif_t3:58,score:96,auto_accept:true,disponibilites:'Lun-Sam',id:'demo-cl-1'},
+    {name:'Inès M.',phone:'06 98 76 54 32',email:'ines@email.com',city:'Lyon',radius_km:8,tarif_t1:28,tarif_t2:38,tarif_t3:52,score:82,auto_accept:false,disponibilites:'Lun-Ven',id:'demo-cl-2'}
+  ];
+
+  // Missions démo
+  const demoMissions=[];
+  for(let i=0;i<6;i++){
+    const d=new Date(now.getTime()+(i-1)*86400000*2);
+    const aptIdx=i%demoApparts.length;
+    const clIdx=i%demoCleaner.length;
+    demoMissions.push({
+      id:'demo-mi-'+i,
+      appartement_id:'demo-apt-'+aptIdx,
+      cleaner_id:demoCleaner[clIdx].id,
+      date:fmt(d),
+      heure:['10:00','14:00','11:00','15:30'][i%4],
+      duree_min:[120,150,120,180][i%4],
+      tarif:[30,42,30,58][i%4],
+      status:i<2?'terminee':i<4?'acceptee':'en_attente',
+      checklist:'Draps, sdb, cuisine, aspirateur, poubelles',
+      notes:''
+    });
+  }
+
+  // Injecter les données
+  apparts=demoApparts.map((a,i)=>({...a,id:'demo-apt-'+i,user_id:'demo'}));
+  reservations=demoRes;
+  chargesData=demoCharges;
+  if(typeof cleanersData!=='undefined')cleanersData=demoCleaner;
+  if(typeof missionsData!=='undefined')missionsData=demoMissions;
+
+  // Afficher l'app
+  document.getElementById('app').style.display='flex';
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('loading').style.display='none';
+
+  renderSidebar();
+  renderAll();
+  document.getElementById('cockpit-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  applyModules();
+
+  // Charger les événements pour les villes démo
+  loadEvents(true);
+
+  showToast('🎮 Mode démo activé — 4 apparts, réservations, finances');
 }
 
 // FIX nav-label-smoobu → nav-label-integrations
