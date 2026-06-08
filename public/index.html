@@ -321,13 +321,11 @@ tr:hover td{background:#FAFAFF}
     <div class="sidebar" style="background:#0F172A;border-right:1px solid rgba(255,255,255,0.08)">
       <div class="sidebar-brand">
         <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:30px;height:30px;border-radius:8px;background:#534AB7;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="1" y="8" width="3" height="7" rx="1" fill="white" opacity="0.6"/>
-              <rect x="6" y="4" width="3" height="11" rx="1" fill="white" opacity="0.8"/>
-              <rect x="11" y="1" width="3" height="14" rx="1" fill="white"/>
-            </svg>
-          </div>
+          <svg viewBox="0 0 38 32" xmlns="http://www.w3.org/2000/svg" style="width:30px;flex-shrink:0">
+            <defs><linearGradient id="lg-side" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6B3FA0"/><stop offset="100%" stop-color="#FF6B6B"/></linearGradient></defs>
+            <rect width="38" height="32" rx="8" fill="url(#lg-side)"/>
+            <text x="3" y="23" font-family="Inter,system-ui,sans-serif" font-size="17" font-weight="700" fill="white">RyQ</text>
+          </svg>
           <div style="font-size:17px;font-weight:500;color:white;letter-spacing:-0.3px">RentyQ</div>
         </div>
         <div class="brand-tagline" style="color:rgba(255,255,255,0.2);margin-left:40px;font-size:10px">Stop guessing. Start earning.</div>
@@ -4303,4 +4301,3 @@ function checkPaymentReturn(){
 </script>
 </body>
 </html>
-
