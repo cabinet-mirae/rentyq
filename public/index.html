@@ -194,7 +194,7 @@ tr:hover td{background:#FAFAFF}
   position:relative;
   overflow:hidden;
   color:#fff;
-  background:#070217 url('bg-login-v2.png') center center / cover no-repeat;
+  background:#070217 url('bg-login-v2.png') center center / contain no-repeat;
   isolation:isolate;
 }
 #auth-screen.rq-auth-screen::before{
@@ -498,6 +498,7 @@ tr:hover td{background:#FCF8FF!important;}
 .rq-request{margin-top:clamp(12px,2vh,24px)!important;color:rgba(255,255,255,.72)!important;}
 .rq-request button{color:#F0ABFC!important;font-weight:700!important;}
 .rq-side-stats{
+  display:none;
   position:absolute;
   z-index:3;
   top:clamp(42px,6vh,72px);
@@ -594,12 +595,7 @@ tr:hover td{background:#FCF8FF!important;}
 
 
 <div id="auth-screen" class="rq-auth-screen">
-  <aside class="rq-side-stats" aria-hidden="true">
-    <div class="rq-stat-card"><i class="ti ti-cloud-up"></i><strong>2 400+</strong><span>Logements<br/>optimis&eacute;s</span></div>
-    <div class="rq-stat-card"><i class="ti ti-calendar"></i><strong>120+</strong><span>&Eacute;v&eacute;nements<br/>analys&eacute;s</span></div>
-    <div class="rq-stat-card"><i class="ti ti-target-arrow"></i><strong>+28%</strong><span>Revenus<br/>moyens</span></div>
-    <div class="rq-stat-card"><i class="ti ti-clock-hour-4"></i><strong>24/7</strong><span>Analyses<br/>en temps r&eacute;el</span></div>
-  </aside>
+  
   <section class="rq-login-panel" aria-label="Connexion RentyQ">
     <div class="rq-brand">
       <svg class="rq-mark" viewBox="0 0 48 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
