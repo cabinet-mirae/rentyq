@@ -191,10 +191,12 @@ tr:hover td{background:#FAFAFF}
 #auth-screen.rq-auth-screen{
   display:none;
   min-height:100vh;
+  width:100vw;
   position:relative;
   overflow:hidden;
   color:#fff;
-  background:#070217 url('bg-login-v2.png') center center / contain no-repeat;
+  background:#070217 url('bg-login-v2.png') center center / cover no-repeat;
+  background-attachment:scroll;
   isolation:isolate;
 }
 #auth-screen.rq-auth-screen::before{
@@ -441,16 +443,7 @@ tr:hover td{background:#FCF8FF!important;}
     radial-gradient(circle at 80% 45%,rgba(236,72,153,.16),transparent 32%)!important;
 }
 #auth-screen.rq-auth-screen::after{
-  content:"";
-  position:absolute;
-  z-index:1;
-  top:0;right:0;bottom:0;
-  width:22vw;
-  min-width:250px;
-  background:linear-gradient(180deg,rgba(20,10,52,.72),rgba(8,3,25,.86));
-  border-left:1px solid rgba(168,85,247,.18);
-  box-shadow:-40px 0 90px rgba(8,3,25,.28);
-  pointer-events:none;
+  display:none;
 }
 .rq-login-panel{
   top:clamp(18px,3vh,34px)!important;
@@ -574,6 +567,18 @@ tr:hover td{background:#FCF8FF!important;}
 }
 /* ===== fin correctif final 08/06 ===== */
 
+/* FORCE fond plein écran sans bords */
+#auth-screen.rq-auth-screen{
+  background-image:url('bg-login-v2.png')!important;
+  background-size:cover!important;
+  background-position:center center!important;
+  background-repeat:no-repeat!important;
+  margin:0!important;
+  padding:0!important;
+}
+#auth-screen.rq-auth-screen::after{
+  display:none!important;
+}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
