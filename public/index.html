@@ -1679,10 +1679,13 @@ function renderCockpit(){
     ${hotCount>0?`<div class="kpi" style="border-color:#FCD34D;background:#FFFBEB"><div class="kpi-label">Événements</div><div class="kpi-value" style="color:#BA7517">${hotCount}</div><div class="kpi-delta" style="color:#BA7517">🔥 boost dispo</div></div>`:''}
   </div>`;
 
-  // To-do prioritaire
+  // Layout 2 colonnes : Actions + Apparts
+  h+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;align-items:start" class="grid-2">`;
+
+  // To-do prioritaire (colonne gauche)
   if(cockpitTodos.length){
-    h+=`<div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Actions prioritaires</div>
-    <div style="background:white;border-radius:12px;border:0.5px solid #EEEEF5;padding:.5rem;margin-bottom:1rem">`;
+    h+=`<div><div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Actions prioritaires</div>
+    <div style="background:white;border-radius:12px;border:0.5px solid #EEEEF5;padding:.5rem">`;
     cockpitTodos.slice(0,5).forEach(t=>{
       const col=t.urgency==='urgent'?'#993C1D':t.urgency==='today'?'#854F0B':'#534AB7';
       const bg=t.urgency==='urgent'?'#FAECE7':t.urgency==='today'?'#FAEEDA':'#EEEDFE';
@@ -1695,10 +1698,47 @@ function renderCockpit(){
         <span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:100px;background:${bg};color:${col};flex-shrink:0">${lbl}</span>
       </div>`;
     });
-    h+=`</div>`;
+    h+=`</div></div>`;
+  } else {
+    h+=`<div>`;
   }
 
-  // Alertes
+  // Etat apparts (colonne droite)
+  h+=`<div><div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">État de chaque appartement</div>
+  <div style="display:flex;flex-direction:column;gap:8px">`;
+  if(!apts.length){
+    h+=`<div style="text-align:center;padding:1.5rem;color:#8A8A99;background:white;border-radius:12px;border:0.5px solid #EEEEF5">
+      <div style="font-size:28px;margin-bottom:6px">🏠</div>
+      <button class="btn btn-purple btn-sm" onclick="openAddModal()">+ Ajouter</button>
+    </div>`;
+  }
+  apts.forEach(a=>{
+    const fl=floor(a);const safe=a.price>=fl;
+    const city=a.city||extractCity(a.zone,null)||'';
+    const cityEvs=eventsCache[city]||[];const hotEvs=cityEvs.filter(e=>e.hot);
+    const brdColor=!a.booked?'#F0997B':hotEvs.length?'#AFA9EC':'#5DCAA5';
+    const statusBg=!a.booked?'#FAECE7':hotEvs.length?'#EEEDFE':'#E1F5EE';
+    const statusCol=!a.booked?'#993C1D':hotEvs.length?'#3C3489':'#0F6E56';
+    const statusLbl=a.booked?'Loué':'Libre';
+    h+=`<div style="background:white;border-radius:10px;border:0.5px solid ${brdColor};padding:.75rem;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${brdColor}"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:14px">${a.emoji||'🏠'}</span>
+          <div><div style="font-size:12px;font-weight:500">${a.name}</div><div style="font-size:10px;color:#8A8A99">${city}</div></div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:15px;font-weight:600">${a.price||0}€</div>
+          <span style="font-size:9px;padding:2px 6px;border-radius:100px;background:${statusBg};color:${statusCol}">${statusLbl}</span>
+        </div>
+      </div>
+      ${hotEvs.length>0?'<div style="font-size:10px;padding:2px 6px;border-radius:4px;background:#FAEEDA;color:#854F0B;margin-top:4px">🔥 '+hotEvs[0].name.slice(0,25)+'</div>':''}
+    </div>`;
+  });
+  h+=`</div></div>`;
+  h+=`</div>`; // fermer grid-2
+
+  // Alertes (pleine largeur en dessous)
   if(alerts.length){
     h+=`<div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Alertes intelligentes</div>`;
     alerts.forEach(a=>{
@@ -1718,46 +1758,9 @@ function renderCockpit(){
     });
   }
 
-  // Etat apparts
-  h+=`<div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem;margin-top:1rem">État de chaque appartement</div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-bottom:1.25rem">`;
-  if(!apts.length){
-    h+=`<div style="text-align:center;padding:2rem;color:#8A8A99;grid-column:1/-1;background:white;border-radius:12px;border:0.5px solid #EEEEF5">
-      <div style="font-size:32px;margin-bottom:8px">🏠</div>
-      <div style="font-weight:500;margin-bottom:8px">Aucun appartement</div>
-      <button class="btn btn-purple btn-sm" onclick="openAddModal()">+ Ajouter</button>
-    </div>`;
-  }
-  apts.forEach(a=>{
-    const fl=floor(a);const safe=a.price>=fl;
-    const city=a.city||extractCity(a.zone,null)||'';
-    const cityEvs=eventsCache[city]||[];const hotEvs=cityEvs.filter(e=>e.hot);
-    const brdColor=!a.booked?'#F0997B':hotEvs.length?'#AFA9EC':'#5DCAA5';
-    const statusBg=!a.booked?'#FAECE7':hotEvs.length?'#EEEDFE':'#E1F5EE';
-    const statusCol=!a.booked?'#993C1D':hotEvs.length?'#3C3489':'#0F6E56';
-    const statusLbl=a.booked?'Loué':'Libre';
-    const occMonth=Math.round(reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(new Date().toISOString().slice(0,7))).length/30*100)||0;
-    h+=`<div style="background:white;border-radius:12px;border:0.5px solid ${brdColor};padding:1rem;position:relative;overflow:hidden">
-      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${brdColor}"></div>
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-        <div>
-          <div style="font-size:13px;font-weight:500">${a.emoji||'🏠'} ${a.name}</div>
-          <div style="font-size:11px;color:#8A8A99">${city}</div>
-        </div>
-        <span style="font-size:10px;font-weight:500;padding:2px 8px;border-radius:100px;background:${statusBg};color:${statusCol}">${statusLbl}</span>
-      </div>
-      <div style="font-size:20px;font-weight:500;margin-bottom:4px">${a.price||0}€<span style="font-size:12px;font-weight:400;color:#8A8A99">/nuit</span></div>
-      <div style="font-size:11px;color:#8A8A99;display:flex;gap:8px;margin-bottom:8px">
-        <span style="color:${safe?'#1D9E75':'#D85A30'}">plancher ${fl}€</span>
-        <span>reco ${a.ai_rec||Math.round((a.price||0)*1.08)}€</span>
-      </div>
-      ${hotEvs.length>0?`<div style="font-size:11px;padding:4px 8px;border-radius:6px;background:#FAEEDA;color:#854F0B">🔥 ${hotEvs[0].name.slice(0,28)}…</div>`:''}
-      ${!safe?`<div style="font-size:11px;padding:4px 8px;border-radius:6px;background:#FAECE7;color:#993C1D">⚠ Prix sous plancher</div>`:''}
-    </div>`;
-  });
-  h+=`</div>`;
+  // (Apparts déplacés dans le grid 2 colonnes)
 
-  // Taux occupation
+    // Taux occupation
   if(apts.length){
     h+=`<div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Taux d'occupation ce mois</div>
     <div style="background:white;border-radius:12px;border:0.5px solid #EEEEF5;padding:1rem;margin-bottom:1.25rem">`;
@@ -2195,15 +2198,16 @@ function renderEventsPage(citiesMap){
       <div class="city-header">
         <div class="city-name">📍 ${city}</div>
         <div class="city-apts">${apts.map(a=>a.emoji||'🏠'+' '+a.name).join(', ')}</div>
-        ${hotCount>0?`<span class="city-count">🔥 ${hotCount} chaud${hotCount>1?'s':''}</span>`:''}
-        ${cityEvents.length>0?`<span class="city-count">${cityEvents.length} événement${cityEvents.length>1?'s':''}</span>`:''}
+        <span class="city-count">${cityEvents.length} événement${cityEvents.length>1?'s':''}</span>
+        ${hotCount>0?`<span class="city-count" style="background:#FAEEDA;color:#854F0B">🔥 ${hotCount} à fort impact</span>`:``}
       </div>`;
 
     if(!cityEvents.length){
       html+=`<div style="color:#8A8A99;font-size:13px;padding:1rem;background:white;border-radius:12px;border:1px solid #EEEEF5">Aucun événement trouvé pour ${city} dans les 6 prochains mois.</div>`;
     } else {
       html+=`<div class="events-grid">`;
-      cityEvents.slice(0,12).forEach(e=>{
+      const sorted=[...cityEvents].sort((a,b)=>(b.boost||0)-(a.boost||0));
+      sorted.slice(0,12).forEach(e=>{
         html+=`<div class="event-card ${e.hot?'hot':''}">
           <div class="ev-row">
             <div class="ev-emoji">${e.emoji}</div>
@@ -2352,8 +2356,12 @@ async function saveReservation(){
 async function toggleBooked(id,val){await sbFetch(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({booked:val})});const a=apparts.find(x=>x.id===id);if(a)a.booked=val;renderAll();}
 async function toggleAutoPricing(id,val){await sbFetch(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({auto_pricing:val})});const a=apparts.find(x=>x.id===id);if(a)a.auto_pricing=val;renderPricingTable();}
 async function applyAI(id,rec){
+  const a=apparts.find(x=>x.id===id);if(!a)return;
+  const maxPrice=Math.round((a.price||100)*1.25);
+  const fl=Math.round((a.rent||0)/30+(a.cleaner||0));
+  rec=Math.max(Math.min(rec,maxPrice),fl);
   await sbFetch(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({price:rec})});
-  const a=apparts.find(x=>x.id===id);if(a)a.price=rec;renderAll();
+  a.price=rec;renderAll();
   // Proposer push vers Smoobu si connecté
   if(smoobuKey&&a&&a.smoobu_id){
     showSmoobuPush(a,rec);
@@ -3095,9 +3103,9 @@ function renderCleanyQ(){
         </div>
         ${m.checklist?`<div style="font-size:11px;color:#8A8A99;margin-top:6px;padding-top:6px;border-top:0.5px solid #F0F0F5">📝 ${m.checklist}</div>`:''}
         <div style="display:flex;gap:6px;margin-top:8px">
-          ${st==='en_attente'?`<button class="btn btn-sm" onclick="updateMissionStatus('${m.id}','acceptee')" style="font-size:11px">✓ Accepter</button>`:''}
-          ${st==='acceptee'?`<button class="btn btn-sm" onclick="updateMissionStatus('${m.id}','terminee')" style="font-size:11px;background:#E1F5EE;border-color:#5DCAA5;color:#085041">✓ Terminée</button>`:''}
-          ${st!=='terminee'?`<button class="btn btn-sm" onclick="updateMissionStatus('${m.id}','annulee')" style="font-size:11px;color:#E24B4A">✗ Annuler</button>`:''}
+          ${st==='en_attente'?`<button class="btn btn-sm" onclick="updateMissionStatus('${m.id}','acceptee')" style="font-size:11px;background:#E1F5EE;border-color:#5DCAA5;color:#085041">✅ Valider la mission</button>`:''}
+          ${st==='acceptee'?`<button class="btn btn-sm" onclick="updateMissionStatus('${m.id}','terminee')" style="font-size:11px;background:#E1F5EE;border-color:#5DCAA5;color:#085041">🧹 Marquer comme terminée</button>`:''}
+          ${st!=='terminee'?`<button class="btn btn-sm" onclick="if(confirm('Annuler cette mission ?'))updateMissionStatus('${m.id}','annulee')" style="font-size:11px;color:#E24B4A">✗ Annuler</button>`:''}
         </div>
       </div>`;
     });
@@ -3461,11 +3469,13 @@ function renderParcMap(){
     
     const icon=L.divIcon({
       className:'',
-      html:`<div style="background:${statusColor};color:white;padding:6px 10px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;gap:4px;border:2px solid white">
-        <span>${a.emoji||'🏠'}</span> ${a.price||0}€
+      html:`<div style="display:flex;flex-direction:column;align-items:center">
+        <div style="background:${statusColor};color:white;padding:3px 7px;border-radius:6px;font-size:11px;font-weight:600;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,0.25);border:1.5px solid white">${a.price||0}€</div>
+        <div style="width:2px;height:8px;background:${statusColor}"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:${statusColor};border:1.5px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.3)"></div>
       </div>`,
       iconSize:[0,0],
-      iconAnchor:[40,20]
+      iconAnchor:[20,36]
     });
     
     const marker=L.marker([lat,lng],{icon}).addTo(parcMap);
@@ -4031,7 +4041,7 @@ function renderCalendar(){
     html+=`</div>`;
     dayRes.forEach(r=>{const apt=apparts.find(a=>a.id===r.appartement_id);const isCI=r.date_from===ds;const isCO=r.date_to===ds;const lb=isCI?'▶ '+r.guest_name:isCO?r.guest_name+' ▶':(apt?apt.name:r.guest_name);html+=`<div style="font-size:10px;padding:2px 6px;border-radius:4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:${isCI?'#059669':isCO?'#BA7517':'#1D9E75'};color:white;font-weight:500">${lb||'Réservation'}</div>`;});
     dayMissions.forEach(m=>{const apt=apparts.find(a=>a.id===m.appartement_id);html+=`<div style="font-size:10px;padding:2px 6px;border-radius:4px;margin-bottom:2px;background:#E0F4FD;color:#0284C7;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">🧹 ${m.heure||''} ${apt?apt.name:''}</div>`;});
-    dayEvents.forEach(e=>{html+=`<div style="font-size:9px;padding:2px 5px;border-radius:4px;margin-bottom:2px;background:#FEF3C7;color:#92400E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.emoji||'🎯'} ${e.name.slice(0,15)}</div>`;});
+    if(dayEvents.length)html+=`<div style="font-size:9px;padding:2px 5px;border-radius:4px;background:#FEF3C7;color:#92400E">🎯 ${dayEvents.length} evt</div>`;
     html+=`</div>`;
   }
   const totalCells=startDay+daysInMonth;const rem=totalCells%7===0?0:7-totalCells%7;
