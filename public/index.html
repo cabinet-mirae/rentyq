@@ -1156,7 +1156,47 @@ tr:hover td{background:#FCF8FF!important;}
 
 <!-- ═══════════════════════════════════════════════════
      ONBOARDING RENTYQ v2 — Overlay wizard 3 étapes
-     Injecter avant </body> dans index.html
+     Injecter avant 
+<!-- ══ PRODUCT TOUR ══ -->
+<div id="rq-tour-overlay" style="display:none;position:fixed;inset:0;z-index:9000;pointer-events:none">
+  <!-- Fond sombre -->
+  <div style="position:absolute;inset:0;background:rgba(8,4,20,0.72);pointer-events:auto" onclick=""></div>
+  <!-- Spotlight autour de l'élément actif -->
+  <div id="rq-tour-spot" style="position:absolute;border-radius:10px;box-shadow:0 0 0 9999px rgba(8,4,20,0.72);border:2px solid #9333EA;box-shadow:0 0 0 9999px rgba(8,4,20,0.72),0 0 0 4px rgba(147,51,234,0.3);transition:all .35s cubic-bezier(.22,1,.36,1);pointer-events:none;z-index:1"></div>
+  <!-- Tooltip -->
+  <div id="rq-tour-card" style="position:absolute;background:white;border-radius:16px;padding:1.5rem;width:300px;box-shadow:0 8px 40px rgba(0,0,0,0.25);pointer-events:auto;z-index:2;transition:all .35s cubic-bezier(.22,1,.36,1)">
+    <div id="rq-tour-arrow" style="position:absolute;left:-8px;top:28px;width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-right:8px solid white"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div id="rq-tour-dots" style="display:flex;gap:5px"></div>
+      <button onclick="rqTourClose()" style="background:none;border:none;font-size:18px;color:#9CA3AF;cursor:pointer;line-height:1;padding:0">✕</button>
+    </div>
+    <div id="rq-tour-emoji" style="font-size:26px;margin-bottom:6px"></div>
+    <div id="rq-tour-title" style="font-size:15px;font-weight:700;color:#111827;margin-bottom:6px"></div>
+    <div id="rq-tour-text" style="font-size:13px;color:#6B7280;line-height:1.6;margin-bottom:1.25rem"></div>
+    <div style="display:flex;gap:8px">
+      <button id="rq-tour-prev" onclick="rqTourPrev()" style="flex:1;padding:9px;border-radius:8px;border:1px solid #E5E7EB;background:white;color:#374151;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">← Retour</button>
+      <button id="rq-tour-next" onclick="rqTourNext()" style="flex:2;padding:9px;border-radius:8px;border:none;background:#534AB7;color:white;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Suivant →</button>
+    </div>
+  </div>
+  <!-- Welcome popup -->
+  <div id="rq-tour-welcome" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:white;border-radius:20px;padding:2rem 2rem 1.75rem;width:460px;max-width:90vw;box-shadow:0 8px 40px rgba(0,0,0,0.25);pointer-events:auto;z-index:3">
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div style="font-size:44px;margin-bottom:12px">👋</div>
+      <div style="font-size:22px;font-weight:700;color:#111827;margin-bottom:8px">Bienvenue dans RentyQ</div>
+      <div style="font-size:14px;color:#6B7280;line-height:1.7;max-width:360px;margin:0 auto">Ton premier logement est intégré. On te montre rapidement comment piloter tes revenus.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1.5rem">
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F9FAFB;border-radius:10px"><span style="font-size:18px;width:28px;text-align:center">🏠</span><div><div style="font-size:13px;font-weight:600;color:#111827">Cockpit</div><div style="font-size:12px;color:#9CA3AF">Vue globale — priorités du jour</div></div></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F9FAFB;border-radius:10px"><span style="font-size:18px;width:28px;text-align:center">📅</span><div><div style="font-size:13px;font-weight:600;color:#111827">Calendrier</div><div style="font-size:12px;color:#9CA3AF">Réservations et disponibilités</div></div></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F9FAFB;border-radius:10px"><span style="font-size:18px;width:28px;text-align:center">🧠</span><div><div style="font-size:13px;font-weight:600;color:#111827">EVA Pricing</div><div style="font-size:12px;color:#9CA3AF">L'IA qui recommande le bon prix</div></div></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F9FAFB;border-radius:10px"><span style="font-size:18px;width:28px;text-align:center">🎉</span><div><div style="font-size:13px;font-weight:600;color:#111827">Événements</div><div style="font-size:12px;color:#9CA3AF">Concerts, salons, festivals — boost de revenus</div></div></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F9FAFB;border-radius:10px"><span style="font-size:18px;width:28px;text-align:center">💰</span><div><div style="font-size:13px;font-weight:600;color:#111827">Finances</div><div style="font-size:12px;color:#9CA3AF">Rentabilité nette et performances</div></div></div>
+    </div>
+    <button onclick="rqTourStart()" style="width:100%;padding:13px;border-radius:12px;background:#534AB7;color:white;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px">Faire le tour en 30 secondes →</button>
+    <button onclick="rqTourClose()" style="width:100%;padding:9px;border-radius:12px;background:none;color:#9CA3AF;border:none;font-size:13px;cursor:pointer;font-family:inherit">Je connais déjà, passer</button>
+  </div>
+</div>
+</body> dans index.html
      Remplace l'ancien #onboarding-overlay
 ════════════════════════════════════════════════════ -->
 
@@ -1897,7 +1937,7 @@ const eventsCall=(city)=>fetch(EVENTS_FN,{method:'POST',headers:{'Content-Type':
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
 function showErr(id,msg){const el=document.getElementById(id);if(!el)return;el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',5000)}
-function showOk(id,msg){const el=document.getElementById(id);if(!el)return;el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',5000)}
+function showOk(id,msg){const el=document.getElementById(id);if(!el)return;if(msg.includes('<')){el.innerHTML=msg;}else{el.textContent=msg;}el.style.display='block';setTimeout(()=>el.style.display='none',5000)}
 
 function extractCity(zone,city){
   if(city&&city.trim())return city.trim();
@@ -1939,8 +1979,18 @@ async function doRegister(){
     const res=await authFetch('signup',{email,password:pwd,data:{name,type,modules:modules.join(',')}});
     const data=await res.json();
     if(data.error){showErr('register-error',data.error);btn.disabled=false;btn.textContent='✨ Créer mon compte';return}
-    showOk('register-success','✓ Compte créé ! Connectez-vous.');
-    btn.disabled=false;btn.textContent='✨ Créer mon compte';setTimeout(()=>switchTab('login'),2000);
+    showOk('register-success',`<div style="text-align:center;padding:4px 0">
+  <div style="font-size:28px;margin-bottom:8px">📧</div>
+  <div style="font-size:15px;font-weight:600;color:#111827;margin-bottom:6px">Vérifiez votre boîte mail !</div>
+  <div style="font-size:13px;color:#374151;line-height:1.6;margin-bottom:8px">
+    Un email de confirmation a été envoyé à <strong>${email}</strong>.<br>
+    Cliquez sur le lien pour activer votre compte.
+  </div>
+  <div style="font-size:12px;color:#6B7280;padding:8px;background:#F9FAFB;border-radius:8px">
+    💡 Pas reçu ? Vérifiez vos spams ou <button onclick="doRegister()" style="background:none;border:none;color:#534AB7;cursor:pointer;font-family:inherit;font-size:12px;text-decoration:underline;padding:0">renvoyez l'email</button>
+  </div>
+</div>`);
+    btn.disabled=false;btn.textContent='✨ Créer mon compte';
   }catch(e){showErr('register-error','Erreur réseau');btn.disabled=false;btn.textContent='✨ Créer mon compte';}
 }
 
@@ -1964,6 +2014,7 @@ async function loadApp(){
     document.getElementById('loading').style.display='none';
     document.getElementById('app').style.display='flex';
     renderSidebar();renderAll();
+    setTimeout(()=>rqTourTrigger(),800);
     document.getElementById('cockpit-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
     document.getElementById('set-name').value=currentProfile.name||'';
     document.getElementById('set-email').textContent=currentProfile.email||'';
@@ -4667,6 +4718,150 @@ function checkPaymentReturn(){
     document.getElementById('auth-screen').style.display='flex';
   }
 })();
+
+// ══ PRODUCT TOUR ══
+const RQ_TOUR_KEY = 'rentyq_tour_v1';
+let rqTourStep = -1;
+
+const RQ_TOUR_STEPS = [
+  {
+    sel: "button.nav-item:nth-of-type(1)",
+    fallback: "[onclick*="'cockpit'"]",
+    page: 'cockpit',
+    emoji: '🏠', 
+    title: '1/5 — Cockpit',
+    text: 'Ici, tu vois les priorités du jour : logements libres, revenus, occupation et alertes importantes. C'est ta tour de contrôle quotidienne.'
+  },
+  {
+    sel: "[onclick*="'calendrier'"]",
+    page: 'calendrier',
+    emoji: '📅',
+    title: '2/5 — Calendrier',
+    text: 'Visualise tes périodes libres, réservées et les opportunités à venir. Clique sur n'importe quel jour pour voir le détail et les missions ménage.'
+  },
+  {
+    sel: "[onclick*="'pricing'"]",
+    page: 'pricing',
+    emoji: '🧠',
+    title: '3/5 — EVA Pricing',
+    text: 'EVA analyse ton logement, les événements locaux et la demande pour suggérer le bon prix. Tu valides chaque ajustement avant qu'il soit appliqué.'
+  },
+  {
+    sel: "[onclick*="'events'"]",
+    page: 'events',
+    emoji: '🎉',
+    title: '4/5 — Événements',
+    text: 'Repère les concerts, salons et pics de demande qui peuvent augmenter tes revenus. EVA détecte automatiquement les opportunités dans tes villes.'
+  },
+  {
+    sel: "[onclick*="'finances'"]",
+    page: 'finances',
+    emoji: '💰',
+    title: '5/5 — Finances',
+    text: 'Suis ta rentabilité nette et comprends ce qui te rapporte vraiment. Le prévisionnel sur 12 mois t'aide à anticiper tes revenus futurs.'
+  }
+];
+
+function rqTourShouldShow() {
+  try { return !localStorage.getItem(RQ_TOUR_KEY); } catch(e) { return false; }
+}
+
+function rqTourTrigger() {
+  if (!rqTourShouldShow()) return;
+  setTimeout(() => {
+    const overlay = document.getElementById('rq-tour-overlay');
+    if (!overlay) return;
+    overlay.style.display = 'block';
+    overlay.style.pointerEvents = 'auto';
+    document.getElementById('rq-tour-welcome').style.display = 'block';
+    document.getElementById('rq-tour-card').style.display = 'none';
+    document.getElementById('rq-tour-spot').style.display = 'none';
+  }, 1000);
+}
+
+function rqTourStart() {
+  document.getElementById('rq-tour-welcome').style.display = 'none';
+  document.getElementById('rq-tour-card').style.display = 'block';
+  document.getElementById('rq-tour-spot').style.display = 'block';
+  rqTourGoTo(0);
+}
+
+function rqTourGoTo(idx) {
+  if (idx < 0 || idx >= RQ_TOUR_STEPS.length) return;
+  rqTourStep = idx;
+  const step = RQ_TOUR_STEPS[idx];
+
+  // Naviguer vers la page
+  const navBtn = document.querySelector(step.sel) || (step.fallback ? document.querySelector(step.fallback) : null);
+  if (navBtn) {
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    navBtn.classList.add('active');
+    if (typeof goTo === 'function') goTo(step.page, navBtn);
+  }
+
+  // Contenu
+  document.getElementById('rq-tour-emoji').textContent = step.emoji;
+  document.getElementById('rq-tour-title').textContent = step.title;
+  document.getElementById('rq-tour-text').textContent = step.text;
+
+  // Dots
+  document.getElementById('rq-tour-dots').innerHTML = RQ_TOUR_STEPS.map((_, i) =>
+    `<div style="width:${i===idx?'20px':'8px'};height:8px;border-radius:4px;background:${i===idx?'#534AB7':'#E5E7EB'};transition:all .3s"></div>`
+  ).join('');
+
+  // Boutons
+  document.getElementById('rq-tour-prev').style.display = idx === 0 ? 'none' : 'block';
+  const next = document.getElementById('rq-tour-next');
+  if (idx === RQ_TOUR_STEPS.length - 1) {
+    next.innerHTML = '🚀 Lancer ma première analyse EVA';
+    next.style.fontSize = '12px';
+    next.style.background = 'linear-gradient(135deg,#534AB7,#9333EA)';
+  } else {
+    next.innerHTML = 'Suivant →';
+    next.style.fontSize = '13px';
+    next.style.background = '#534AB7';
+  }
+
+  // Position spotlight + card
+  setTimeout(() => {
+    const el = document.querySelector(step.sel) || (step.fallback ? document.querySelector(step.fallback) : null);
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const spot = document.getElementById('rq-tour-spot');
+    spot.style.left = (rect.left - 6) + 'px';
+    spot.style.top = (rect.top - 6) + 'px';
+    spot.style.width = (rect.width + 12) + 'px';
+    spot.style.height = (rect.height + 12) + 'px';
+
+    const card = document.getElementById('rq-tour-card');
+    const cardTop = Math.max(12, Math.min(rect.top + rect.height/2 - 120, window.innerHeight - 320));
+    card.style.left = (rect.right + 18) + 'px';
+    card.style.top = cardTop + 'px';
+  }, 80);
+}
+
+function rqTourNext() {
+  if (rqTourStep === RQ_TOUR_STEPS.length - 1) {
+    rqTourClose();
+    const evaBtn = document.querySelector("[onclick*="'pricing'"]");
+    if (evaBtn && typeof goTo === 'function') goTo('pricing', evaBtn);
+    const t = document.getElementById('toast');
+    if (t) { t.textContent = '🤖 EVA est prête — analysez vos recommandations !'; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
+  } else {
+    rqTourGoTo(rqTourStep + 1);
+  }
+}
+
+function rqTourPrev() {
+  if (rqTourStep > 0) rqTourGoTo(rqTourStep - 1);
+}
+
+function rqTourClose() {
+  const overlay = document.getElementById('rq-tour-overlay');
+  if (overlay) overlay.style.display = 'none';
+  try { localStorage.setItem(RQ_TOUR_KEY, '1'); } catch(e) {}
+}
+
 </script>
 </body>
 </html>
