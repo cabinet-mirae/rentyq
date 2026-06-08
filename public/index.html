@@ -9,13 +9,13 @@
 body{font-family:'Inter',system-ui,sans-serif;color:#1A1A2E;background:#F5F4FF;font-size:14px}
 #loading{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#F5F4FF;flex-direction:column;gap:1rem}
 .loading-logo{font-size:32px;font-weight:700}
-.loading-logo span{background:linear-gradient(90deg,#6B3FA0,#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.loading-logo span{background:#534AB7;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .spinner{width:32px;height:32px;border:3px solid #E8E8EE;border-top-color:#6B3FA0;border-radius:50%;animation:spin 0.8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 #auth-screen{display:none;align-items:center;justify-content:center;min-height:100vh;padding:2rem;background:#F5F4FF}
 .auth-card{background:white;border-radius:14px;padding:2rem;width:100%;max-width:380px;border:1px solid #E8E8EE}
 .auth-logo{font-size:26px;font-weight:700;margin-bottom:2px}
-.auth-logo span{background:linear-gradient(90deg,#6B3FA0,#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.auth-logo span{background:#534AB7;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .auth-tagline{font-size:13px;color:#8A8A99;margin-bottom:1.5rem;font-style:italic}
 .auth-tabs{display:flex;margin-bottom:1.5rem;border-bottom:1px solid #E8E8EE}
 .auth-tab{padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:none;color:#8A8A99;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit}
@@ -24,25 +24,25 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A1A2E;background:#F5F4FF;f
 .form-group label{display:block;font-size:11px;color:#8A8A99;margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
 .form-group input,.form-group select{width:100%;padding:9px 12px;border-radius:8px;border:1px solid #E8E8EE;background:white;color:#1A1A2E;font-size:14px;font-family:inherit}
 .form-group input:focus{outline:none;border-color:#6B3FA0}
-.btn-full{width:100%;padding:11px;border-radius:8px;background:linear-gradient(135deg,#6B3FA0,#9333EA);color:white;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:0.5rem}
+.btn-full{width:100%;padding:11px;border-radius:8px;background:#534AB7;color:white;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:0.5rem}
 .auth-error{margin-top:0.75rem;padding:0.75rem;background:#FEE2E2;border-radius:8px;font-size:12px;color:#DC2626;display:none}
 .auth-success{margin-top:0.75rem;padding:0.75rem;background:#E0F2E9;border-radius:8px;font-size:12px;color:#059669;display:none}
 .app{display:none;flex-direction:column;min-height:100vh}
-.beta-banner{background:linear-gradient(90deg,#6B3FA0,#FF6B6B);color:white;text-align:center;padding:10px 20px;font-size:13px;font-weight:600}
+.beta-banner{background:#534AB7;color:white;text-align:center;padding:10px 20px;font-size:13px;font-weight:600}
 .app-body{display:flex;flex:1}
 .sidebar{width:250px;background:white;border-right:1px solid #EEEEF5;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
 .sidebar-brand{padding:1.5rem 1.25rem 1rem}
 .brand-logo{font-size:24px;font-weight:700}
-.brand-logo span{background:linear-gradient(90deg,#6B3FA0,#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.brand-logo span{background:#534AB7;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .brand-tagline{font-size:11px;color:#8A8A99;margin-top:3px;font-style:italic}
 .sidebar-sep{height:1px;background:#EEEEF5;margin:0 1.25rem 0.75rem}
 .nav-section-label{font-size:10px;font-weight:700;color:#B0A8C8;text-transform:uppercase;letter-spacing:1px;padding:0.75rem 1.25rem 0.35rem}
 .nav-item{display:flex;align-items:center;gap:10px;padding:9px 1rem;margin:1px 0.75rem;border-radius:10px;color:rgba(255,255,255,0.5);cursor:pointer;font-size:13px;font-weight:500;border:none;background:none;font-family:inherit;width:calc(100% - 1.5rem);text-align:left;transition:all .12s}
 .nav-item:hover{background:rgba(107,63,160,0.15);color:white}
 .nav-item.active{background:rgba(107,63,160,0.25);color:white;font-weight:600}
-.nav-emoji{font-size:18px;width:24px;text-align:center;flex-shrink:0}
+.nav-emoji{font-size:16px;width:24px;text-align:center;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .nav-badge{margin-left:auto;background:#FF6B6B;color:white;font-size:10px;padding:2px 7px;border-radius:100px;font-weight:700}
-.nav-badge-new{margin-left:auto;background:linear-gradient(135deg,#6B3FA0,#9333EA);color:white;font-size:10px;padding:2px 8px;border-radius:100px;font-weight:700}
+.nav-badge-new{margin-left:auto;background:rgba(83,74,183,0.25);color:#CECBF6;font-size:9px;padding:2px 7px;border-radius:4px;font-weight:500}
 .smoobu-badge{margin-left:auto;background:#E0F2E9;color:#059669;font-size:10px;padding:2px 8px;border-radius:100px;font-weight:700}
 .sidebar-footer{margin-top:auto;padding:0.75rem 1rem;border-top:1px solid #EEEEF5}
 .user-row{display:flex;align-items:center;gap:8px}
@@ -53,24 +53,24 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A1A2E;background:#F5F4FF;f
 .main{flex:1;overflow-y:auto;background:#F5F4FF}
 .page{display:none;padding:2rem}
 .page.active{display:block}
-.page-title{font-size:28px;font-weight:700}
+.page-title{font-size:20px;font-weight:500;letter-spacing:-0.3px}
 .page-sub{font-size:13px;color:#8A8A99;margin-top:4px}
 .page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;gap:1rem;flex-wrap:wrap}
 .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #E8E8EE;background:white;color:#1A1A2E;font-family:inherit;display:inline-flex;align-items:center;gap:6px;transition:all .12s}
 .btn:hover{border-color:#6B3FA0;color:#6B3FA0}
-.btn-purple{background:linear-gradient(135deg,#6B3FA0,#9333EA);color:white;border:none}
+.btn-purple{background:#534AB7;color:white;border:none}
 .btn-purple:hover{opacity:0.9;color:white}
-.btn-ai{background:linear-gradient(135deg,#7C3AED,#9333EA);color:white;border:none}
-.btn-green{background:linear-gradient(135deg,#059669,#10B981);color:white;border:none}
+.btn-ai{background:#534AB7;color:white;border:none}
+.btn-green{background:#059669;color:white;border:none}
 .btn-sm{padding:5px 11px;font-size:12px}
 .btn:disabled{opacity:0.5;cursor:not-allowed}
-.card{background:white;border-radius:14px;padding:1.25rem;margin-bottom:1rem;border:1px solid #EEEEF5}
+.card{background:white;border-radius:10px;padding:1.125rem;margin-bottom:0.875rem;border:0.5px solid #EEEEF5}
 .card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;gap:0.5rem;flex-wrap:wrap}
 .card-title{font-size:15px;font-weight:700}
 .grid-2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:1rem;margin-bottom:1rem}
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:1.25rem}
-.kpi{background:white;border-radius:12px;padding:1rem;border:1px solid #EEEEF5}
+.kpi{background:white;border-radius:10px;padding:0.875rem;border:0.5px solid #EEEEF5}
 .kpi-label{font-size:10px;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;font-weight:700;margin-bottom:6px}
 .kpi-value{font-size:26px;font-weight:700;line-height:1}
 .kpi-delta{margin-top:6px;font-size:12px;font-weight:600}
@@ -96,7 +96,7 @@ tr:hover td{background:#FAFAFF}
 .price-ai{font-size:13px;font-weight:700;color:#6B3FA0}
 .price-comp{font-size:11px;color:#8A8A99}
 .toggle{width:34px;height:19px;border-radius:100px;border:none;cursor:pointer;position:relative;transition:background .15s;flex-shrink:0}
-.toggle.on{background:linear-gradient(90deg,#6B3FA0,#9333EA)}
+.toggle.on{background:#534AB7}
 .toggle.off{background:#D1D1D8}
 .toggle::after{content:'';position:absolute;top:3px;width:13px;height:13px;border-radius:50%;background:white;transition:left .15s}
 .toggle.on::after{left:18px}
@@ -133,7 +133,7 @@ tr:hover td{background:#FAFAFF}
 .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
 .modal-title{font-size:17px;font-weight:700}
 .modal-close{background:none;border:none;cursor:pointer;color:#8A8A99;font-size:20px}
-.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#1A1A2E;color:white;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#0F172A;color:white;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.show{opacity:1}
 .setting-row{display:flex;justify-content:space-between;align-items:center;padding:0.85rem 0;border-bottom:1px solid #EEEEF5}
 .setting-row:last-child{border-bottom:none}
@@ -151,7 +151,7 @@ tr:hover td{background:#FAFAFF}
   .sidebar.open{left:0;box-shadow:4px 0 24px rgba(0,0,0,0.3)}
   .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:399}
   .sidebar-overlay.open{display:block}
-  .mobile-topbar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#1A1A2E;color:white}
+  .mobile-topbar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#0F172A;color:white}
   .hamburger{background:none;border:none;color:white;font-size:24px;cursor:pointer;padding:4px;line-height:1}
   .mobile-topbar .brand-logo{font-size:18px;color:white}
   .mobile-topbar .brand-logo span{background:linear-gradient(90deg,#9B72CF,#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
@@ -186,6 +186,7 @@ tr:hover td{background:#FAFAFF}
   .sidebar-overlay{display:none !important}
 }
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons-webfont/3.3.0/tabler-icons.min.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 </head>
@@ -315,19 +316,15 @@ tr:hover td{background:#FAFAFF}
     </div>
   </div>
   <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
-  <div class="beta-banner" style="background:linear-gradient(90deg,#1A1A2E,#2d1b4e,#1A1A2E)">🚀 <strong>Beta RentyQ</strong> — EVA Pricing + Smoobu + Événements Ticketmaster</div>
+  <div class="beta-banner" style="background:#0F172A;font-size:12px;padding:8px 20px"><i class="ti ti-sparkles" style="margin-right:4px;vertical-align:-1px"></i> <strong>Beta</strong> — EVA Pricing + Smoobu + Événements</div>
   <div class="app-body">
-    <div class="sidebar" style="background:#1A1A2E;border-right:1px solid rgba(255,255,255,0.08)">
+    <div class="sidebar" style="background:#0F172A;border-right:1px solid rgba(255,255,255,0.08)">
       <div class="sidebar-brand">
         <div style="display:flex;align-items:center;gap:8px">
-          <svg viewBox="0 0 38 32" xmlns="http://www.w3.org/2000/svg" style="width:28px;flex-shrink:0">
-            <defs><linearGradient id="lg-side" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6B3FA0"/><stop offset="100%" stop-color="#FF6B6B"/></linearGradient></defs>
-            <rect width="38" height="32" rx="8" fill="url(#lg-side)"/>
-            <text x="3" y="23" font-family="Inter,system-ui,sans-serif" font-size="17" font-weight="700" fill="white">RyQ</text>
-          </svg>
-          <div class="brand-logo" style="color:white">Rent<span style="background:linear-gradient(90deg,#9B72CF,#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent">yQ</span></div>
+          <div style="width:28px;height:28px;border-radius:7px;background:#534AB7;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-chart-dots-3" style="font-size:14px;color:white" aria-hidden="true"></i></div>
+          <div class="brand-logo" style="color:white;font-size:18px">RentyQ</div>
         </div>
-        <div class="brand-tagline" style="color:rgba(255,255,255,0.35);margin-left:36px">Stop guessing. Start earning.</div>
+        <div class="brand-tagline" style="color:rgba(255,255,255,0.2);margin-left:36px;font-size:10px">Stop guessing. Start earning.</div>
       </div>
       <div id="mode-switcher" style="display:none;margin:0 .75rem .5rem;background:rgba(255,255,255,0.08);border-radius:10px;padding:3px;display:flex">
         <button id="mode-btn-solo" onclick="switchMode('solo')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:rgba(107,63,160,0.5);color:white;transition:all .15s">🏠 Gestion</button>
@@ -336,33 +333,33 @@ tr:hover td{background:#FAFAFF}
       <div class="sidebar-sep" style="background:rgba(255,255,255,0.08)"></div>
       <div id="nav-solo">
       <div class="nav-section-label">Mon Business</div>
-      <button class="nav-item active" onclick="goTo('cockpit',this)"><span class="nav-emoji">📊</span>Le Cockpit</button>
-      <button class="nav-item" onclick="goTo('calendrier',this)"><span class="nav-emoji">📅</span>Calendrier</button>
-      <button class="nav-item" onclick="goTo('parc',this)"><span class="nav-emoji">🏠</span>Le Parc <span class="nav-badge" id="parc-badge">0</span></button>
-      <button class="nav-item" onclick="goTo('reservations',this)"><span class="nav-emoji">📋</span>Réservations</button>
-      <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji">🤖</span>EVA Pricing <span class="nav-badge-new">IA</span></button>
-      <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji">🎯</span>Événements <span class="nav-badge-new" id="events-badge" style="display:none">0</span></button>
-      <button class="nav-item" onclick="goTo('finances',this)"><span class="nav-emoji">💰</span>Finances</button>
+      <button class="nav-item active" onclick="goTo('cockpit',this)"><span class="nav-emoji"><i class="ti ti-layout-dashboard" aria-hidden="true"></i></span>Cockpit</button>
+      <button class="nav-item" onclick="goTo('calendrier',this)"><span class="nav-emoji"><i class="ti ti-calendar" aria-hidden="true"></i></span>Calendrier</button>
+      <button class="nav-item" onclick="goTo('parc',this)"><span class="nav-emoji"><i class="ti ti-building" aria-hidden="true"></i></span>Le parc <span class="nav-badge" id="parc-badge">0</span></button>
+      <button class="nav-item" onclick="goTo('reservations',this)"><span class="nav-emoji"><i class="ti ti-file-text" aria-hidden="true"></i></span>Réservations</button>
+      <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji"><i class="ti ti-sparkles" aria-hidden="true"></i></span>EVA pricing <span class="nav-badge-new">IA</span></button>
+      <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji"><i class="ti ti-calendar-event" aria-hidden="true"></i></span>Événements <span class="nav-badge-new" id="events-badge" style="display:none">0</span></button>
+      <button class="nav-item" onclick="goTo('finances',this)"><span class="nav-emoji"><i class="ti ti-wallet" aria-hidden="true"></i></span>Finances</button>
       <div class="nav-section-label" style="color:rgba(255,255,255,0.25)" id="nav-label-cleanyq">Ménage</div>
-      <button class="nav-item" onclick="goTo('clean',this)" id="nav-cleanyq"><span class="nav-emoji">🧹</span>CleanyQ</button>
+      <button class="nav-item" onclick="goTo('clean',this)" id="nav-cleanyq"><span class="nav-emoji"><i class="ti ti-spray" aria-hidden="true"></i></span>CleanyQ</button>
       <div class="nav-section-label" style="color:rgba(255,255,255,0.25)" id="nav-label-integrations">Intégrations</div>
-      <button class="nav-item" onclick="goTo('smoobu',this)" id="nav-smoobu"><span class="nav-emoji">🔗</span>Smoobu <span class="smoobu-badge" id="smoobu-nav-badge" style="display:none">✓</span></button>
+      <button class="nav-item" onclick="goTo('smoobu',this)" id="nav-smoobu"><span class="nav-emoji"><i class="ti ti-link" aria-hidden="true"></i></span>Smoobu <span class="smoobu-badge" id="smoobu-nav-badge" style="display:none">✓</span></button>
       </div>
       <div id="nav-concierge" style="display:none">
       <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Conciergerie</div>
-      <button class="nav-item" onclick="goTo('cockpit-c',this)"><span class="nav-emoji">📊</span>Dashboard</button>
-      <button class="nav-item" onclick="goTo('proprietaires',this)"><span class="nav-emoji">👤</span>Propriétaires</button>
-      <button class="nav-item" onclick="goTo('parc-c',this)"><span class="nav-emoji">🏠</span>Parc géré</button>
-      <button class="nav-item" onclick="goTo('rapports',this)"><span class="nav-emoji">📊</span>Rapports mensuels</button>
-      <button class="nav-item" onclick="goTo('finances',this)"><span class="nav-emoji">💰</span>Finances</button>
-      <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji">🤖</span>EVA Pricing</button>
-      <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji">🎯</span>Événements</button>
+      <button class="nav-item" onclick="goTo('cockpit-c',this)"><span class="nav-emoji"><i class="ti ti-layout-dashboard" aria-hidden="true"></i></span>Dashboard</button>
+      <button class="nav-item" onclick="goTo('proprietaires',this)"><span class="nav-emoji"><i class="ti ti-users" aria-hidden="true"></i></span>Propriétaires</button>
+      <button class="nav-item" onclick="goTo('parc-c',this)"><span class="nav-emoji"><i class="ti ti-building" aria-hidden="true"></i></span>Parc géré</button>
+      <button class="nav-item" onclick="goTo('rapports',this)"><span class="nav-emoji"><i class="ti ti-chart-bar" aria-hidden="true"></i></span>Rapports</button>
+      <button class="nav-item" onclick="goTo('finances',this)"><span class="nav-emoji"><i class="ti ti-wallet" aria-hidden="true"></i></span>Finances</button>
+      <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji"><i class="ti ti-sparkles" aria-hidden="true"></i></span>EVA pricing</button>
+      <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji"><i class="ti ti-calendar-event" aria-hidden="true"></i></span>Événements</button>
       <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Intégrations</div>
-      <button class="nav-item" onclick="goTo('smoobu',this)"><span class="nav-emoji">🔗</span>Smoobu</button>
+      <button class="nav-item" onclick="goTo('smoobu',this)"><span class="nav-emoji"><i class="ti ti-link" aria-hidden="true"></i></span>Smoobu</button>
       </div>
       <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Compte</div>
-      <button class="nav-item" onclick="goTo('tarifs',this)"><span class="nav-emoji">💳</span>Tarifs &amp; Abonnement</button>
-      <button class="nav-item" onclick="goTo('settings',this)"><span class="nav-emoji">⚙️</span>Paramètres</button>
+      <button class="nav-item" onclick="goTo('tarifs',this)"><span class="nav-emoji"><i class="ti ti-credit-card" aria-hidden="true"></i></span>Tarifs</button>
+      <button class="nav-item" onclick="goTo('settings',this)"><span class="nav-emoji"><i class="ti ti-settings" aria-hidden="true"></i></span>Paramètres</button>
       <div class="sidebar-footer" style="border-top:1px solid rgba(255,255,255,0.08)">
         <div class="user-row">
           <div class="user-avatar" id="s-avatar">?</div>
@@ -377,7 +374,7 @@ tr:hover td{background:#FAFAFF}
       <!-- COCKPIT -->
       <div class="page active" id="page-cockpit">
         <div class="page-header">
-          <div><div class="page-title">Le Cockpit 📊</div><div class="page-sub" id="cockpit-date"></div></div>
+          <div><div class="page-title">Cockpit</div><div class="page-sub" id="cockpit-date"></div></div>
           <div class="actions">
             <button class="btn" onclick="goTo('events',document.querySelectorAll('.nav-item')[4])">🎯 Événements</button>
             <button class="btn btn-ai" onclick="goTo('pricing',document.querySelectorAll('.nav-item')[3])">🤖 EVA</button>
@@ -389,7 +386,7 @@ tr:hover td{background:#FAFAFF}
       <!-- CALENDRIER -->
       <div class="page" id="page-calendrier">
         <div class="page-header">
-          <div><div class="page-title">Calendrier 📅</div><div class="page-sub" id="cal-sub">Vue mensuelle de vos réservations</div></div>
+          <div><div class="page-title">Calendrier</div><div class="page-sub" id="cal-sub">Vue mensuelle de vos réservations</div></div>
           <div class="actions">
             <button class="btn" id="cal-prev" onclick="calNav(-1)">← Mois</button>
             <span id="cal-month-label" style="font-size:15px;font-weight:600;min-width:160px;text-align:center"></span>
@@ -415,7 +412,7 @@ tr:hover td{background:#FAFAFF}
       <!-- LE PARC -->
       <div class="page" id="page-parc">
         <div class="page-header">
-          <div><div class="page-title">Le Parc 🏠</div><div class="page-sub" id="parc-sub"></div></div>
+          <div><div class="page-title">Le parc</div><div class="page-sub" id="parc-sub"></div></div>
           <div class="actions">
             <div style="display:flex;background:#F0F0F5;border-radius:8px;padding:2px;margin-right:8px">
               <button id="parc-view-list" onclick="switchParcView('list')" style="padding:6px 12px;border-radius:6px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:#6B3FA0;color:white">📋 Liste</button>
@@ -445,7 +442,7 @@ tr:hover td{background:#FAFAFF}
       <!-- RESERVATIONS -->
       <div class="page" id="page-reservations">
         <div class="page-header">
-          <div><div class="page-title">Réservations 📋</div><div class="page-sub" id="res-sub"></div></div>
+          <div><div class="page-title">Réservations</div><div class="page-sub" id="res-sub"></div></div>
           <div class="actions"><button class="btn btn-purple" onclick="openAddResModal()">+ Ajouter</button></div>
         </div>
         <div class="card">
@@ -461,7 +458,7 @@ tr:hover td{background:#FAFAFF}
       <!-- IA PRICING -->
       <div class="page" id="page-pricing">
         <div class="page-header">
-          <div><div class="page-title">EVA Pricing 🤖</div><div class="page-sub">EVA analyse votre parc</div></div>
+          <div><div class="page-title">EVA pricing</div><div class="page-sub">EVA analyse votre parc</div></div>
           <div class="actions"><button class="btn btn-ai" onclick="runGlobal()" id="btn-global">🤖 Analyse globale</button></div>
         </div>
         <div id="global-result"></div>
@@ -474,7 +471,7 @@ tr:hover td{background:#FAFAFF}
       <!-- EVENEMENTS -->
       <div class="page" id="page-events">
         <div class="page-header">
-          <div><div class="page-title">Événements 🎯</div><div class="page-sub" id="events-sub">Détectés automatiquement selon vos villes</div></div>
+          <div><div class="page-title">Événements</div><div class="page-sub" id="events-sub">Détectés automatiquement selon vos villes</div></div>
           <div class="actions">
             <button class="btn btn-ai" onclick="loadEvents(true)" id="btn-refresh-events">🔄 Actualiser</button>
           </div>
@@ -495,7 +492,7 @@ tr:hover td{background:#FAFAFF}
       <!-- COCKPIT CONCIERGERIE -->
       <div class="page" id="page-cockpit-c">
         <div class="page-header">
-          <div><div class="page-title">Dashboard Conciergerie 🏢</div><div class="page-sub" id="cockpit-c-date"></div></div>
+          <div><div class="page-title">Dashboard conciergerie</div><div class="page-sub" id="cockpit-c-date"></div></div>
           <div class="actions">
             <button class="btn btn-purple" onclick="openAddProprioModal()">+ Propriétaire</button>
             <button class="btn btn-ai" onclick="goTo('rapports',document.querySelector('[onclick*=rapports]'))">📊 Rapports</button>
@@ -507,7 +504,7 @@ tr:hover td{background:#FAFAFF}
       <!-- PARC CONCIERGERIE -->
       <div class="page" id="page-parc-c">
         <div class="page-header">
-          <div><div class="page-title">Parc géré 🏠</div><div class="page-sub" id="parc-c-sub"></div></div>
+          <div><div class="page-title">Parc géré</div><div class="page-sub" id="parc-c-sub"></div></div>
         </div>
         <div id="parc-c-content"></div>
       </div>
@@ -515,7 +512,7 @@ tr:hover td{background:#FAFAFF}
       <!-- PROPRIETAIRES -->
       <div class="page" id="page-proprietaires">
         <div class="page-header">
-          <div><div class="page-title">Propriétaires 👤</div><div class="page-sub" id="proprios-sub">Gérez les portefeuilles de vos clients</div></div>
+          <div><div class="page-title">Propriétaires</div><div class="page-sub" id="proprios-sub">Gérez les portefeuilles de vos clients</div></div>
           <div class="actions"><button class="btn btn-purple" onclick="openAddProprioModal()">+ Ajouter un propriétaire</button></div>
         </div>
         <div class="kpi-grid" id="proprios-kpis"></div>
@@ -531,7 +528,7 @@ tr:hover td{background:#FAFAFF}
       <!-- RAPPORTS -->
       <div class="page" id="page-rapports">
         <div class="page-header">
-          <div><div class="page-title">Rapports mensuels 📊</div><div class="page-sub">Générez les rapports pour vos propriétaires</div></div>
+          <div><div class="page-title">Rapports mensuels</div><div class="page-sub">Générez les rapports pour vos propriétaires</div></div>
           <div class="actions">
             <select id="rapport-mois" style="padding:8px 12px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit" onchange="renderRapports()"></select>
             <button class="btn btn-purple" onclick="genererRapports()">📊 Générer les rapports</button>
@@ -548,7 +545,7 @@ tr:hover td{background:#FAFAFF}
       <!-- FINANCES -->
       <div class="page" id="page-finances">
         <div class="page-header">
-          <div><div class="page-title">Finances 💰</div><div class="page-sub" id="finances-sub">Rentabilité nette de vos appartements</div></div>
+          <div><div class="page-title">Finances</div><div class="page-sub" id="finances-sub">Rentabilité nette de vos appartements</div></div>
           <div class="actions">
             <select id="fin-mois" style="padding:8px 12px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit" onchange="renderFinances()"></select>
             <button class="btn btn-ai" onclick="renderPrevisionnel()">📈 Prévisionnel</button>
@@ -580,7 +577,7 @@ tr:hover td{background:#FAFAFF}
 
       <!-- SQUAD -->
       <div class="page" id="page-squad">
-        <div class="page-header"><div><div class="page-title">La Squad 👥</div></div></div>
+        <div class="page-header"><div><div class="page-title">La Squad</div></div></div>
         <div class="card" style="text-align:center;padding:3rem">
           <div style="font-size:40px;margin-bottom:1rem">👥</div>
           <div style="font-weight:600;font-size:16px">Gestion de l'équipe ménage</div>
@@ -590,7 +587,7 @@ tr:hover td{background:#FAFAFF}
 
       <!-- SMOOBU -->
       <div class="page" id="page-smoobu">
-        <div class="page-header"><div><div class="page-title">Intégration Smoobu 🔗</div><div class="page-sub">Importez vos données Airbnb & Booking automatiquement</div></div></div>
+        <div class="page-header"><div><div class="page-title">Intégration Smoobu</div><div class="page-sub">Importez vos données Airbnb & Booking automatiquement</div></div></div>
         <div class="smoobu-connect-box">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem">
             <div style="font-size:36px">🔗</div>
@@ -643,7 +640,7 @@ tr:hover td{background:#FAFAFF}
       <div class="page" id="page-clean">
         <div class="page-header">
           <div>
-            <div class="page-title">CleanyQ 🧹</div>
+            <div class="page-title">CleanyQ</div>
             <div class="page-sub">Le ménage est clinique. · 0% de commission</div>
           </div>
           <div class="actions">
@@ -675,7 +672,7 @@ tr:hover td{background:#FAFAFF}
 
       <!-- ANNUAIRE -->
       <div class="page" id="page-annuaire">
-        <div class="page-header"><div><div class="page-title">L'Annuaire 🟡</div></div></div>
+        <div class="page-header"><div><div class="page-title">L'Annuaire</div></div></div>
         <div class="card" style="text-align:center;padding:3rem">
           <div style="font-size:48px;margin-bottom:1rem">🟡</div>
           <div style="font-size:18px;font-weight:700;margin-bottom:8px">Annuaire des partenaires</div>
@@ -685,7 +682,7 @@ tr:hover td{background:#FAFAFF}
 
       <!-- TARIFS -->
       <div class="page" id="page-tarifs">
-        <div class="page-header"><div><div class="page-title">Tarifs &amp; Abonnement 💳</div><div class="page-sub" id="tarifs-sub">14 jours d'essai gratuit — sans carte bancaire</div></div></div>
+        <div class="page-header"><div><div class="page-title">Tarifs</div><div class="page-sub" id="tarifs-sub">14 jours d'essai gratuit — sans carte bancaire</div></div></div>
         <div id="tarifs-content"></div>
         <div id="tarifs-success" style="display:none">
           <div class="card" style="text-align:center;padding:3rem;border-color:#5DCAA5;background:#ECFDF5">
@@ -698,7 +695,7 @@ tr:hover td{background:#FAFAFF}
       </div>
       <!-- SETTINGS -->
       <div class="page" id="page-settings">
-        <div class="page-header"><div><div class="page-title">Paramètres ⚙️</div></div></div>
+        <div class="page-header"><div><div class="page-title">Paramètres</div></div></div>
         <div class="card">
           <div class="settings-section-title">Mon compte</div>
           <div class="setting-row"><div><div class="setting-label">Nom</div></div><input type="text" id="set-name" style="width:180px;padding:6px 10px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit"/></div>
@@ -848,7 +845,7 @@ tr:hover td{background:#FAFAFF}
 
 /* ── FOOTER ── */
 #onb2-footer{padding:0 24px}
-.onb2-btn-main{width:100%;padding:14px;border-radius:12px;background:linear-gradient(135deg,#6B3FA0,#9333EA);color:white;border:none;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .15s;letter-spacing:0.2px}
+.onb2-btn-main{width:100%;padding:14px;border-radius:12px;background:#534AB7;color:white;border:none;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .15s;letter-spacing:0.2px}
 .onb2-btn-main:active{opacity:0.9}
 .onb2-btn-main:disabled{opacity:0.5;cursor:not-allowed}
 .onb2-btn-back{background:none;border:none;font-size:13px;color:#B0B0C0;cursor:pointer;font-family:inherit;margin-top:12px;width:100%;text-align:center;padding:4px}
@@ -1593,7 +1590,7 @@ async function loadApp(){
     document.getElementById('loading').style.display='none';
     document.getElementById('app').style.display='flex';
     renderSidebar();renderAll();
-    document.getElementById('cockpit-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    document.getElementById('cockpit-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
     document.getElementById('set-name').value=currentProfile.name||'';
     document.getElementById('set-email').textContent=currentProfile.email||'';
     document.getElementById('set-plan').textContent='Plan '+(currentProfile.plan||'Starter');
@@ -4197,7 +4194,7 @@ async function loadDemoData(){
 
   renderSidebar();
   renderAll();
-  document.getElementById('cockpit-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('cockpit-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   applyModules();
 
   // Charger les événements pour les villes démo
