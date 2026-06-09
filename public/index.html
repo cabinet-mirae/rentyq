@@ -1819,17 +1819,28 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
 <div class="toast" id="toast"></div>
 
 <script>
+/* Sécurité RentyQ: les appels IA, Smoobu, Events et Stripe passent maintenant par des Supabase Edge Functions. Ne pas remettre de clé privée ni de prompt stratégique dans ce fichier. */
 const SB_URL='https://gtffekgqglpxjjligffi.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0ZmZla2dxZ2xweGpqbGlnZmZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyNjUxODMsImV4cCI6MjA5NTg0MTE4M30.8SHvalTRdUD4dXjcKP8s13yXhtg3NDrjQCBXDlu-jyE';
-const SMOOBU_FN='/api/smoobu';
-const EVENTS_FN='/api/events';
-const STRIPE_FN='/api/stripe';
-let currentUser=null,currentProfile=null,apparts=[],reservations=[],editId=null,smoobuKey=null,eventsCache={};
+const FUNCTIONS_URL=`${SB_URL}/functions/v1`;
+const SMOOBU_FN=`${FUNCTIONS_URL}/smoobu-proxy`;
+const EVENTS_FN=`${FUNCTIONS_URL}/events-proxy`;
+const STRIPE_FN=`${FUNCTIONS_URL}/stripe-checkout`;
+const EVA_FN=`${FUNCTIONS_URL}/eva-analysis`;
+let currentUser=null,currentProfile=null,apparts=[],reservations=[],editId=null,smoobuConnected=false,eventsCache={};
+
+const secureHeaders=()=>({
+  'Content-Type':'application/json',
+  'apikey':SB_KEY,
+  'Authorization':`Bearer ${currentUser?.access_token||SB_KEY}`
+});
 
 const sbFetch=(path,opts={})=>fetch(`${SB_URL}/rest/v1/${path}`,{headers:{'apikey':SB_KEY,'Authorization':`Bearer ${currentUser?.access_token||SB_KEY}`,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})},method:opts.method||'GET',body:opts.body});
 const authFetch=(path,body)=>fetch(`${SB_URL}/auth/v1/${path}`,{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify(body)});
-const smoobuCall=(action,params={})=>fetch(SMOOBU_FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,apiKey:smoobuKey,params})}).then(r=>r.json());
-const eventsCall=(city)=>fetch(EVENTS_FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({city,countryCode:'FR',radius:50})}).then(r=>r.json());
+const functionCall=(url,body={})=>fetch(url,{method:'POST',headers:secureHeaders(),body:JSON.stringify(body)}).then(async r=>{const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||'Erreur serveur');return data;});
+const smoobuCall=(action,params={})=>functionCall(SMOOBU_FN,{action,params});
+const eventsCall=(city)=>functionCall(EVENTS_FN,{city,countryCode:'FR',radius:50});
+const evaCall=(payload)=>functionCall(EVA_FN,payload);
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
 function showErr(id,msg){const el=document.getElementById(id);if(!el)return;el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',5000)}
@@ -1905,7 +1916,7 @@ async function loadApp(){
     document.getElementById('set-name').value=currentProfile.name||'';
     document.getElementById('set-email').textContent=currentProfile.email||'';
     document.getElementById('set-plan').textContent='Plan '+(currentProfile.plan||'Starter');
-    if(smoobuKey)updateSmoobuUI(true);
+    try{const smStatus=await smoobuCall('status');smoobuConnected=!!smStatus.connected;updateSmoobuUI(smoobuConnected);}catch(e){smoobuConnected=false;updateSmoobuUI(false);}
     if(apparts.length)loadEvents(false);
     renderTarifs();
     checkPaymentReturn();
@@ -1942,7 +1953,7 @@ function renderAll(){
   document.getElementById('parc-badge').textContent=apparts.length;
   document.getElementById('parc-sub').textContent=apparts.length+' appartement'+(apparts.length>1?'s':'');
   document.getElementById('res-sub').textContent=reservations.length+' réservation'+(reservations.length>1?'s':'');
-  if(smoobuKey){document.getElementById('btn-sync').style.display='inline-flex';}
+  if(smoobuConnected){document.getElementById('btn-sync').style.display='inline-flex';}
   if(document.getElementById('page-scanner')?.classList.contains('active'))renderScannerPage();
 }
 
@@ -2644,21 +2655,42 @@ function updateSmoobuUI(connected){
 }
 
 async function testSmoobu(){
-  const key=document.getElementById('smoobu-key').value.trim();if(!key){showErr('smoobu-error','Entrez votre clé API');return}
-  const btn=document.getElementById('btn-test');btn.disabled=true;btn.textContent='Test…';smoobuKey=key;
-  try{const data=await smoobuCall('testConnection');if(data.success){showOk('smoobu-success','✓ Connexion réussie !');updateSmoobuUI(true);}else{showErr('smoobu-error','Clé invalide');smoobuKey=null;}}
-  catch(e){showErr('smoobu-error','Erreur');smoobuKey=null;}
+  const key=document.getElementById('smoobu-key').value.trim();
+  if(!key){showErr('smoobu-error','Collez une clé API Smoobu à tester');return;}
+  const btn=document.querySelector('[onclick="testSmoobu()"]');
+  btn.disabled=true;btn.textContent='Test…';
+  try{
+    const data=await smoobuCall('testConnection',{apiKey:key});
+    if(data.success){
+      showOk('smoobu-success','Connexion Smoobu OK. Cliquez sur “Connecter” pour enregistrer la clé côté serveur.');
+      updateSmoobuUI(true);
+    }else{
+      showErr('smoobu-error','Clé invalide');
+      updateSmoobuUI(false);
+    }
+  }catch(e){
+    showErr('smoobu-error','Erreur de connexion Smoobu');
+    updateSmoobuUI(false);
+  }
   btn.disabled=false;btn.textContent='🔌 Tester';
 }
 
 async function saveSmoobuKey(){
   const key=document.getElementById('smoobu-key').value.trim();if(!key)return;
-  smoobuKey=key;try{localStorage.setItem('smoobu_key',key);}catch(e){}
-  await syncSmoobu();
+  try{
+    await smoobuCall('saveKey',{apiKey:key});
+    smoobuConnected=true;
+    document.getElementById('smoobu-key').value='';
+    updateSmoobuUI(true);
+    showToast('✓ Clé Smoobu enregistrée côté serveur');
+    await syncSmoobu();
+  }catch(e){
+    showErr('smoobu-error',"Impossible d'enregistrer la clé Smoobu");
+  }
 }
 
 async function syncSmoobu(){
-  if(!smoobuKey)return;showToast('🔄 Sync Smoobu…');
+  showToast('🔄 Sync Smoobu…');
   try{
     const aptsData=await smoobuCall('getApartments');const smoobuApts=aptsData._embedded?.apartments||aptsData.apartments||[];
     for(const sa of smoobuApts){
@@ -2764,7 +2796,7 @@ async function applyAI(id,rec){
   await sbFetch(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({price:rec})});
   a.price=rec;renderAll();
   // Proposer push vers Smoobu si connecté
-  if(smoobuKey&&a&&a.smoobu_id){
+  if(smoobuConnected&&a&&a.smoobu_id){
     showSmoobuPush(a,rec);
   } else {
     showToast('✓ Prix appliqué : '+rec+'€');
@@ -2823,44 +2855,20 @@ async function runGlobal(){
   btn.disabled=true;btn.textContent='⏳…';
   zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head"><div class="ai-dot"></div> EVA analyse…</div><div class="ai-bubble-text"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
   if(!apparts.length){zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">🤖</div><div class="ai-bubble-text">Ajoutez des appartements d'abord.</div></div>`;btn.disabled=false;btn.innerHTML='🤖 Analyse globale';return;}
-  const evCtx=Object.entries(eventsCache).map(([city,evs])=>{const hot=evs.filter(e=>e.hot);return hot.length?`${city}: ${hot.map(e=>e.name+' (+'+e.boost+'%)').join(', ')}`:null;}).filter(Boolean).join(' | ');
-  const ctx=apparts.map(a=>`${a.name} (${a.city||a.zone||'?'}): prix=${a.price}€, plancher=${floor(a)}€, ${a.booked?'loué':'libre'}`).join('\n');
   try{
-    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:600,system:`Tu es EVA, l'IA pricing de RentyQ. Tu es une experte en location courte durée en France.
-
-PHILOSOPHIE FONDAMENTALE :
-- Objectif : 92-95% d'occupation. Une nuit vide coûte plus cher qu'une nuit à prix réduit.
-- Les augmentations de prix sont RAISONNABLES et JUSTIFIÉES. Jamais d'augmentation agressive.
-- Prix trop élevé = nuit vide = perte d'argent (le loyer et les charges courent quand même).
-
-SCORING DES ÉVÉNEMENTS :
-- Sport international (JO, Coupe du monde, Roland-Garros) : +15-20% max
-- Concert géant (+30 000 pers.) : +10-15%
-- Salon pro majeur (Vivatech, Maison&Objet) : +10-15%
-- Festival multi-jours : +8-12%
-- Spectacle, expo, théâtre : +3-5% seulement
-- Comique solo, petit événement : pas de changement
-
-SAISONNALITÉ :
-- Été (juin-août) + vacances scolaires : hausse modérée +5-10%
-- Ponts, jours fériés, Noël/Nouvel An : +10-15%
-- Basse saison (jan-mars, nov) : prix attractif pour REMPLIR
-
-STRATÉGIE PAR OCCUPATION :
-- Occ < 50% : URGENCE → baisser les prix significativement, remplir est la priorité
-- Occ 50-75% : optimiser → prix légèrement sous le marché
-- Occ 75-90% : équilibre → prix marché
-- Occ > 90% : augmentation légère possible
-
-RÈGLE ABSOLUE :
-- Ne JAMAIS recommander un prix sous le plancher de rentabilité
-- Le plancher = (loyer mensuel / 30) + coût ménage
-- Si le prix actuel est correct et l'occupation bonne, dis-le (pas de changement inutile)
-
-Réponds en français, avec emojis, 5-6 phrases maximum. Donne des CHIFFRES PRÉCIS.`,messages:[{role:"user",content:`Parc (${apparts.length} apparts):\n${ctx}\n${evCtx?'\nÉvénements détectés:\n'+evCtx:''}\nDate: ${new Date().toLocaleDateString('fr-FR')}\nSaison: ${['hiver','hiver','printemps','printemps','printemps','été','été','été','automne','automne','automne','hiver'][new Date().getMonth()]}\nMois: ${new Date().toLocaleDateString('fr-FR',{month:'long'})}\n\nBriefing global et recommandations de prix pour chaque appart. Priorité : remplir les nuits vides.`}]})});
-    const data=await res.json();const text=data.content?.find(b=>b.type==='text')?.text||"Indisponible.";
-    zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">🤖 EVA — Analyse globale</div><div class="ai-bubble-text">${text.replace(/\n/g,'<br/>')}</div></div>`;
-  }catch(e){zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">⚠️</div><div class="ai-bubble-text">IA indisponible.</div></div>`;}
+    const data=await evaCall({
+      type:'global_pricing_analysis',
+      apparts:apparts.map(a=>({
+        id:a.id,name:a.name,city:a.city||a.zone||'',price:a.price,floor:floor(a),booked:!!a.booked,
+        rent:a.rent,cleaner:a.cleaner,comp:a.comp,ai_rec:a.ai_rec,has_event:!!a.has_event
+      })),
+      events:eventsCache
+    });
+    const txt=data.analysis||data.text||data.message||"Analyse indisponible pour le moment.";
+    zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head"><div class="ai-dot"></div> EVA — Analyse globale sécurisée</div><div class="ai-bubble-text">${escapeHtml(txt).replace(/\n/g,'<br>')}</div></div>`;
+  }catch(e){
+    zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">⚠️ EVA indisponible</div><div class="ai-bubble-text">L'analyse IA doit maintenant passer par la Supabase Edge Function <strong>eva-analysis</strong>. Vérifiez que la fonction est déployée et que le secret <strong>ANTHROPIC_API_KEY</strong> est configuré.</div></div>`;
+  }
   btn.disabled=false;btn.innerHTML='🤖 Analyse globale';
 }
 
@@ -2962,7 +2970,7 @@ function updateNavVisibility(){
   if(navCQLabel)navCQLabel.style.display=hasCleanyQ?'block':'none';
 
   // Smoobu — visible seulement si clé configurée
-  const hasSmoobu=!!smoobuKey;
+  const hasSmoobu=!!smoobuConnected;
   const navSm=document.getElementById('nav-smoobu');
   const navSmLabel=document.getElementById('nav-label-integrations');
   if(navSm)navSm.style.display=hasSmoobu?'flex':'none';
@@ -4710,7 +4718,6 @@ function checkPaymentReturn(){
   document.getElementById('loading').style.display='none';
   document.getElementById('auth-screen').style.display='flex';
   try{
-    const storedKey=localStorage.getItem('smoobu_key');if(storedKey)smoobuKey=storedKey;
     const stored=localStorage.getItem('sb_session');
     if(stored){
       currentUser=JSON.parse(stored);
