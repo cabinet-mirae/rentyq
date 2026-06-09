@@ -832,115 +832,11 @@ const ORLEANS_MARKET_ANCHORS=[
 
 function isOrleansApt(a){
   const t=scannerAddressText(a);
-  // Orléans intra-muros + communes de l'agglomération
-  return /orleans|orl[eé]ans|45000|45100|45101|45160/.test(t);
-}
-
-// Communes du Loiret proches d'Orléans (rayon ~20km)
-const ORLEANS_SUBURBS={
-  'saint-denis-en-val':{lat:47.8947,lng:1.9654,distKm:10,code:'45560'},
-  'olivet':{lat:47.8640,lng:1.9031,distKm:5,code:'45160'},
-  'fleury-les-aubrais':{lat:47.9314,lng:1.9078,distKm:4,code:'45400'},
-  'saran':{lat:47.9456,lng:1.8761,distKm:7,code:'45770'},
-  'la source':{lat:47.8501,lng:1.9142,distKm:8,code:'45100'},
-  'saint-jean-de-braye':{lat:47.9108,lng:1.9567,distKm:5,code:'45800'},
-  'saint-jean-le-blanc':{lat:47.8897,lng:1.9278,distKm:3,code:'45650'},
-  'ingré':{lat:47.9056,lng:1.8378,distKm:8,code:'45140'},
-  'checy':{lat:47.9097,lng:2.0264,distKm:12,code:'45430'},
-  'saint-pryvé-saint-mesmin':{lat:47.8753,lng:1.8886,distKm:4,code:'45750'},
-  'la chapelle-saint-mesmin':{lat:47.8989,lng:1.8589,distKm:5,code:'45380'},
-  'micy':{lat:47.9011,lng:1.8444,distKm:6,code:'45380'},
-  'boigny-sur-bionne':{lat:47.9144,lng:1.9919,distKm:9,code:'45760'},
-  'marigny-les-usages':{lat:47.9244,lng:2.0181,distKm:11,code:'45760'},
-  'semoy':{lat:47.9333,lng:1.9819,distKm:8,code:'45400'}
-};
-
-// Distance GPS entre 2 points (Haversine simple)
-function gpsDistKm(lat1,lng1,lat2,lng2){
-  const R=6371;
-  const dLat=(lat2-lat1)*Math.PI/180;
-  const dLng=(lng2-lng1)*Math.PI/180;
-  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-}
-
-// Détecte si un appart est dans la périphérie d'Orléans
-function getOrleansSuburbSignal(a){
-  const t=scannerAddressText(a).toLowerCase();
-  const lat=aptLat(a),lng=aptLng(a);
-  // 1. Match par nom de commune
-  for(const [name,info] of Object.entries(ORLEANS_SUBURBS)){
-    if(t.includes(name)||t.includes(info.code)){
-      return {isSuburb:true,name,distKm:info.distKm,lat:info.lat,lng:info.lng};
-    }
-  }
-  // 2. Match GPS : si dans 20km d'Orléans centre
-  if(lat&&lng){
-    const distKm=gpsDistKm(lat,lng,47.9025,1.9040);
-    if(distKm<=20&&distKm>0.5){
-      return {isSuburb:true,name:'périphérie Orléans',distKm:Math.round(distKm*10)/10,lat,lng};
-    }
-  }
-  return {isSuburb:false};
-}
-
-// Score pour communes périurbaines d'Orléans
-function orleansPeriSignal(a,pois,suburbInfo){
-  const distKm=suburbInfo.distKm||15;
-  const t=scannerAddressText(a).toLowerCase();
-  const count=(type,dist)=>pois.filter(p=>p.type===type&&p.distance<=dist).length;
-
-  // Base selon distance au centre d'Orléans
-  let minScore, distLabel;
-  if(distKm<=3){
-    minScore=62; distLabel='proche centre Orléans';
-  } else if(distKm<=6){
-    minScore=52; distLabel='agglomération Orléans';
-  } else if(distKm<=10){
-    minScore=42; distLabel='périphérie proche Orléans';
-  } else if(distKm<=15){
-    minScore=34; distLabel='périphérie Orléans';
-  } else {
-    minScore=26; distLabel='zone rurale Loiret';
-  }
-
-  // Bonus commerces/restos locaux
-  const localFood=count('food',600);
-  const localShops=count('shops',600);
-  const localTransport=count('transport',800);
-  let bonus=0;
-  let bonusLabels=[];
-
-  if(localFood>=3){bonus+=8;bonusLabels.push('restos/bars à pied');}
-  else if(localFood>=1){bonus+=4;bonusLabels.push('quelques restos');}
-
-  if(localShops>=3){bonus+=7;bonusLabels.push('commerces de proximité');}
-  else if(localShops>=1){bonus+=3;bonusLabels.push('commerces basiques');}
-
-  // Transport en commun local (tram, bus vers Orléans)
-  if(localTransport>=2){bonus+=10;bonusLabels.push('TC vers Orléans (<15min)');}
-  else if(localTransport>=1){bonus+=5;bonusLabels.push('arrêt TC à proximité');}
-
-  // Malus si vraiment rien dans 800m
-  const totalLocal=pois.filter(p=>p.distance<=800).length;
-  if(totalLocal<3&&localTransport===0){bonus-=8;bonusLabels.push('zone peu dense');}
-
-  const score=Math.min(18,Math.round((minScore+bonus)/7));
-  const finalMin=Math.max(18,Math.min(minScore+bonus,72));
-  const label=bonusLabels.length
-    ? `${suburbInfo.name} (${distKm}km) — ${bonusLabels.slice(0,2).join(', ')}`
-    : `${suburbInfo.name} — ${distLabel}`;
-  return {score,minScore:finalMin,label,signals:[],suburb:true,distKm,bonus};
+  return /orleans|orl[eé]ans|45000|45100|45100/.test(t);
 }
 
 function orleansMicroMarketSignal(a,pois=[]){
-  // Vérifier si c'est une commune périurbaine
-  const suburbInfo=getOrleansSuburbSignal(a);
-  if(!isOrleansApt(a)&&!suburbInfo.isSuburb)return {score:0,minScore:0,label:'',signals:[]};
-  // Traitement communes périphériques
-  if(!isOrleansApt(a)&&suburbInfo.isSuburb){
-    return orleansPeriSignal(a,pois,suburbInfo);
-  }
+  if(!isOrleansApt(a))return {score:0,minScore:0,label:'',signals:[]};
   const t=scannerAddressText(a);
   const lat=aptLat(a),lng=aptLng(a);
   const signals=[];
@@ -1028,8 +924,6 @@ function computeEvaScannerAnalysis(a,pois){
   else if(/paris/.test(t)&&sub.prestige>=14)locationScore=Math.max(locationScore,82);
   else if(/centre.?ville|hyper.?centre|cathedrale|gare/.test(t)&&sub.prestige>=10)locationScore=Math.max(locationScore,70);
   if(orleansSignal.minScore)locationScore=Math.max(locationScore,orleansSignal.minScore);
-  // Bonus GPS périphérique : ne pas pénaliser les biens suburbains avec des POIs locaux
-  if(orleansSignal.suburb&&orleansSignal.bonus>0)locationScore=Math.max(locationScore,orleansSignal.minScore);
   if(/orleans|orl[eé]ans|45000/.test(t)&&/martroi|cathedrale|sainte.?croix|rue de bourgogne|bourgogne|chatelet|halles|hyper.?centre/.test(t))locationScore=Math.max(locationScore,86);
   locationScore=Math.max(18,Math.min(100,locationScore));
 
@@ -1364,14 +1258,37 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       <!-- IA PRICING -->
       <div class="page" id="page-pricing">
         <div class="page-header">
-          <div><div class="page-title">EVA pricing</div><div class="page-sub">EVA analyse votre parc</div></div>
-          <div class="actions"><button class="btn btn-ai" onclick="runGlobal()" id="btn-global">🤖 Analyse globale</button></div>
+          <div>
+            <div class="page-title">EVA pricing</div>
+            <div class="page-sub" id="pricing-sub">EVA analyse votre parc</div>
+          </div>
+          <div class="actions">
+            <select id="pricing-horizon" onchange="renderPricingTable()" style="padding:6px 10px;border-radius:8px;border:0.5px solid #EEEEF5;font-size:13px;font-family:inherit">
+              <option value="7">7 jours</option>
+              <option value="14" selected>14 jours</option>
+              <option value="30">30 jours</option>
+            </select>
+            <button class="btn btn-ai" onclick="runGlobal()" id="btn-global"><i class="ti ti-sparkles" aria-hidden="true"></i> Analyse globale</button>
+            <button class="btn btn-purple" onclick="applyAllEVA()" id="btn-apply-all" style="display:none">Appliquer tout</button>
+          </div>
         </div>
         <div id="global-result"></div>
-        <div class="card">
-          <div class="card-head"><div class="card-title">Recommandations</div><span class="tag tag-ai">🤖 IA active</span></div>
-          <div class="table-wrap"><table id="pricing-table"></table></div>
+
+        <!-- GRILLE CALENDRIER (vue C) -->
+        <div class="card" id="pricing-grid-wrap" style="overflow-x:auto;padding:1rem 0.75rem">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:0 0.5rem">
+            <div style="font-size:13px;font-weight:500">Vue calendrier — nuits libres à pricer</div>
+            <div style="display:flex;gap:12px;font-size:11px;color:#8A8A99">
+              <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#1D9E75;border-radius:2px;display:inline-block"></span>Réservé</span>
+              <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#E24B4A;border-radius:2px;display:inline-block"></span>Libre — cliquer pour appliquer</span>
+              <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#854F0B;border-radius:2px;display:inline-block"></span>Événement</span>
+            </div>
+          </div>
+          <div id="pricing-grid"></div>
         </div>
+
+        <!-- PIPELINE OPPORTUNITÉS (vue B) -->
+        <div id="pricing-pipeline"></div>
       </div>
 
 
@@ -3063,90 +2980,172 @@ function getSmartRec(a){
 }
 
 function renderPricingTable(){
-  if(!apparts.length){document.getElementById('pricing-table').innerHTML=`<tr><td colspan="6" style="text-align:center;padding:2rem;color:#8A8A99">Ajoutez des appartements.</td></tr>`;return}
-  document.getElementById('pricing-table').innerHTML=`<thead><tr><th>Appartement</th><th>Prix actuel</th><th>Reco EVA</th><th>Événements</th><th>Mode</th><th>Actions</th></tr></thead><tbody>`+
-  apparts.map(a=>{
-    const smart=getSmartRec(a);const rec=smart.rec;const diff=rec-(a.price||0);
-    const city=a.city||extractCity(a.zone,null)||'';
-    const cityEvents=eventsCache[city]||[];const hotEvents=cityEvents.filter(e=>e.hot);
-    const evTag=hotEvents.length>0?`<span class="tag tag-warn">🔥 ${hotEvents.length} chaud${hotEvents.length>1?'s':''}</span>`:'<span class="tag" style="background:#F0F0F5;color:#8A8A99">Normal</span>';
-    return`<tr>
-    <td><div class="apt-name"><div class="apt-emoji">${a.emoji||'🏠'}</div><div>${a.name}<div style="font-size:11px;color:#8A8A99">${city}</div></div></div></td>
-    <td><div class="price-main">${a.price||0}€</div><div class="price-floor">Plancher: ${floor(a)}€</div></td>
-    <td><div class="price-ai" title="${smart.reason}">🤖 ${rec}€ <span style="font-size:11px;color:${diff>=0?'#059669':'#DC2626'}">(${diff>=0?'+':''}${diff}€)</span></div><div style="font-size:10px;color:#8A8A99;margin-top:2px">${smart.reason}</div></td>
-    <td>${evTag}</td>
-    <td><div style="display:flex;align-items:center;gap:6px"><button class="toggle ${a.auto_pricing?'on':'off'}" onclick="toggleAutoPricing('${a.id}',${!a.auto_pricing})"></button><span style="font-size:12px;color:#8A8A99">${a.auto_pricing?'Auto':'Manuel'}</span></div></td>
-    <td style="white-space:nowrap"><button class="btn btn-sm" onclick="applyAI('${a.id}',${rec})" style="margin-right:4px">✓</button><button class="btn btn-sm btn-ai" onclick="askAI('${a.id}')">🤖</button></td>
-  </tr><tr id="ai-row-${a.id}" style="display:none"><td colspan="6" style="padding:0 10px 12px"><div id="ai-bubble-${a.id}"></div></td></tr>`;}).join('')+`</tbody>`;
-}
-
-// EVENTS
-async function loadEvents(force){
-  if(!apparts.length){
-    document.getElementById('events-empty').style.display='block';
-    document.getElementById('events-container').innerHTML='';
-    return;
-  }
-  document.getElementById('events-empty').style.display='none';
-  document.getElementById('events-loading').style.display='block';
-  document.getElementById('events-container').innerHTML='';
-
-  // Grouper les apparts par ville
-  const citiesMap={};
-  apparts.forEach(a=>{
-    const city=a.city||extractCity(a.zone,null);
-    if(!city)return;
-    const cityNorm=city.charAt(0).toUpperCase()+city.slice(1).toLowerCase();
-    if(!citiesMap[cityNorm])citiesMap[cityNorm]=[];
-    citiesMap[cityNorm].push(a);
+  const horizon=+(document.getElementById('pricing-horizon')?.value||14);
+  const now=new Date();
+  const days=Array.from({length:horizon},(_,i)=>{
+    const d=new Date(now);d.setDate(d.getDate()+i);
+    return {
+      date:d.toISOString().split('T')[0],
+      label:d.getDate(),
+      dayName:d.toLocaleDateString('fr-FR',{weekday:'short'}),
+      isToday:i===0
+    };
   });
 
-  const cities=Object.keys(citiesMap);
-  if(!cities.length){
-    document.getElementById('events-loading').style.display='none';
-    document.getElementById('events-empty').style.display='block';
+  if(!apparts.length){
+    document.getElementById('pricing-grid').innerHTML='<div style="text-align:center;padding:2rem;color:#8A8A99">Ajoutez des appartements pour voir le planning.</div>';
+    document.getElementById('pricing-pipeline').innerHTML='';
     return;
   }
 
-  // Charger les événements pour chaque ville
-  for(const city of cities){
-    if(!force&&eventsCache[city])continue;
-    try{
-      const data=await eventsCall(city);
-      const raw=Array.isArray(data)?data:data.events||[];
-      eventsCache[city]=raw.map(e=>{
-        const seg=(e.segment||'').toLowerCase();
-        const genre=(e.genre||'').toLowerCase();
-        let emoji='🎯';let boost=5;let hot=false;
-        if(seg==='sports'||genre.includes('football')||genre.includes('rugby')||genre.includes('tennis')||genre.includes('olympic')){emoji='⚽';boost=12;hot=true;}
-        else if(genre.includes('festival')||genre.includes('fête')||genre.includes('fete')){emoji='🎪';boost=10;hot=true;}
-        else if(seg==='music'||genre.includes('rock')||genre.includes('pop')||genre.includes('hip')||genre.includes('concert')){emoji='🎸';boost=8;hot=true;}
-        else if(genre.includes('salon')||genre.includes('foire')||genre.includes('conference')||genre.includes('congrès')||genre.includes('business')){emoji='💼';boost=8;hot=true;}
-        else if(genre.includes('marathon')||genre.includes('running')||genre.includes('course')){emoji='🏃';boost=6;hot=true;}
-        else if(seg==='arts'||genre.includes('theatre')||genre.includes('spectacle')||genre.includes('danse')){emoji='🎭';boost=3;}
-        else if(genre.includes('comedy')||genre.includes('comédie')||genre.includes('humour')){emoji='😂';boost=2;}
-        else if(genre.includes('exposition')||genre.includes('expo')||genre.includes('marché')||genre.includes('brocante')){emoji='🖼';boost=2;}
-        const d=e.date?new Date(e.date):null;
-        const date_label=d?d.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}):'';
-        const daysUntil=d?Math.round((d-new Date())/86400000):999;
-        if(daysUntil<=14)hot=true;
-        if(daysUntil<=7){boost=Math.round(boost*1.5);}
-        return{...e,emoji,boost,hot,date_label,people:0};
-      });
-    }catch(e){eventsCache[city]=[];}
+  // ─── Données par appart / par jour ───
+  const gridData=apparts.map(a=>{
+    const city=a.city||extractCity(a.zone,null)||'';
+    const cityEvents=eventsCache[city]||[];
+    return {
+      a,
+      days:days.map(day=>{
+        const isBooked=reservations.some(r=>r.appartement_id===a.id&&r.date_from<=day.date&&r.date_to>=day.date);
+        const hotEvs=cityEvents.filter(e=>e.hot&&e.date===day.date);
+        const smart=getSmartRec(a);
+        // Ajuster le rec selon la date (+ variation hebdo)
+        const dow=new Date(day.date).getDay();
+        const weekendBoost=dow===5||dow===6?1.08:1;
+        const recPrice=Math.round(smart.rec*weekendBoost*(1+(hotEvs.length?0.12:0)));
+        return {date:day.date,label:day.label,dayName:day.dayName,isToday:day.isToday,isBooked,hotEvs,recPrice,currentPrice:a.price||0};
+      })
+    };
+  });
+
+  // ─── KPIs ───
+  const totalFreeNights=gridData.reduce((s,g)=>s+g.days.filter(d=>!d.isBooked).length,0);
+  const totalPotential=gridData.reduce((s,g)=>s+g.days.filter(d=>!d.isBooked).reduce((ss,d)=>ss+d.recPrice,0),0);
+  const eventNights=gridData.reduce((s,g)=>s+g.days.filter(d=>d.hotEvs.length>0).length,0);
+  document.getElementById('pricing-sub').innerHTML=
+    `<span style="color:#E24B4A;font-weight:500">${totalFreeNights}</span> nuits libres sur ${horizon}j &nbsp;·&nbsp; potentiel <span style="color:#1D9E75;font-weight:500">${totalPotential}€</span>&nbsp;·&nbsp; <span style="color:#854F0B">${eventNights} avec événement</span>`;
+  document.getElementById('btn-apply-all').style.display=totalFreeNights>0?'inline-flex':'none';
+
+  // ─── GRILLE CALENDRIER ───
+  const COL_W=horizon<=7?48:horizon<=14?38:28;
+  const APT_W=140;
+  let grid=`<div style="display:grid;grid-template-columns:${APT_W}px ${days.map(()=>COL_W+'px').join(' ')};gap:2px;min-width:${APT_W+days.length*(COL_W+2)}px">`;
+
+  // Header jours
+  grid+=`<div style="padding:4px 6px;font-size:11px;font-weight:500;color:#8A8A99"></div>`;
+  days.forEach(d=>{
+    grid+=`<div style="text-align:center;padding:3px 0;font-size:${COL_W<38?'9':'10'}px;color:${d.isToday?'#534AB7':'#8A8A99'};font-weight:${d.isToday?'500':'400'}">
+      <div>${d.dayName}</div><div style="font-weight:${d.isToday?'600':'400'};font-size:${COL_W<38?'10':'11'}px">${d.label}</div>
+    </div>`;
+  });
+
+  // Lignes apparts
+  gridData.forEach(({a,days:aptDays})=>{
+    grid+=`<div style="display:flex;align-items:center;gap:5px;padding:3px 4px;font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${a.name} — ${a.city||''}">
+      <span style="font-size:13px">${a.emoji||'🏠'}</span>
+      <span style="overflow:hidden;text-overflow:ellipsis">${a.name}</span>
+    </div>`;
+    aptDays.forEach(d=>{
+      const isEvt=d.hotEvs.length>0;
+      let bg,txt,click,cursor;
+      if(d.isBooked){
+        bg='#E1F5EE';txt='';click='';cursor='default';
+      } else if(isEvt){
+        bg='#854F0B';txt=`<span style="font-size:${COL_W<38?'8':'9'}px;color:white;font-weight:500">${d.recPrice}€</span>`;
+        click=`onclick="applyAI('${a.id}',${d.recPrice})"`;cursor='pointer';
+      } else {
+        bg='#E24B4A';txt=`<span style="font-size:${COL_W<38?'8':'9'}px;color:white;font-weight:500">${d.recPrice}€</span>`;
+        click=`onclick="applyAI('${a.id}',${d.recPrice})"`;cursor='pointer';
+      }
+      grid+=`<div ${click} style="height:36px;background:${bg};border-radius:3px;display:flex;align-items:center;justify-content:center;cursor:${cursor};transition:opacity .1s;border:${d.isToday?'1.5px solid #534AB7':'none'}" ${click?'onmouseover="this.style.opacity=\'0.8\'"onmouseout="this.style.opacity=\'1\'"':''}>${txt}</div>`;
+    });
+  });
+  grid+=`</div>`;
+  document.getElementById('pricing-grid').innerHTML=grid;
+
+  // ─── PIPELINE OPPORTUNITÉS ───
+  const opportunities=gridData.map(({a,days:aptDays})=>{
+    const freeDays=aptDays.filter(d=>!d.isBooked);
+    const potential=freeDays.reduce((s,d)=>s+d.recPrice,0);
+    const hasEvent=freeDays.some(d=>d.hotEvs.length>0);
+    const freeTonight=freeDays[0]?.isToday;
+    const urgency=freeTonight?3:hasEvent?2:potential>200?1:0;
+    return {a,freeDays,potential,hasEvent,freeTonight,urgency};
+  }).filter(o=>o.freeDays.length>0).sort((a,b)=>b.urgency-a.urgency||b.potential-a.potential);
+
+  if(!opportunities.length){
+    document.getElementById('pricing-pipeline').innerHTML='<div class="card" style="text-align:center;padding:2rem;color:#1D9E75"><i class="ti ti-check" style="font-size:24px;vertical-align:-4px" aria-hidden="true"></i> Tous vos biens sont réservés sur la période !</div>';
+    return;
   }
 
-  document.getElementById('events-loading').style.display='none';
-  renderEventsPage(citiesMap);
-  renderCockpitEvents();
-  renderKPIs();
+  const urgencyColors=['#534AB7','#E24B4A','#854F0B','#E24B4A'];
+  const urgencyLabels=['Opportunité','Urgent — libre ce soir','Événement détecté','Urgent — libre ce soir'];
 
-  // Badge événements chauds
-  const totalHot=Object.values(eventsCache).flat().filter(e=>e.hot).length;
-  const badge=document.getElementById('events-badge');
-  if(totalHot>0){badge.textContent='🔥 '+totalHot;badge.style.display='inline-block';}
-  else badge.style.display='none';
+  let pipe=`<div class="card">
+    <div class="card-head" style="margin-bottom:0.75rem">
+      <div class="card-title">Pipeline d'opportunités</div>
+      <div style="font-size:12px;color:#8A8A99">Trié par impact · ${opportunities.length} bien${opportunities.length>1?'s':''} avec nuits libres</div>
+    </div>`;
+
+  opportunities.forEach(({a,freeDays,potential,hasEvent,freeTonight,urgency})=>{
+    const city=a.city||extractCity(a.zone,null)||'';
+    const smart=getSmartRec(a);
+    const urgColor=urgencyColors[urgency];
+    // Résumé des nuits: J, J+1, J+3…
+    const nightsSummary=freeDays.slice(0,4).map(d=>{
+      const evtMark=d.hotEvs.length?` <span style="color:#854F0B;font-size:10px">evt</span>`:'';
+      return `<span style="padding:2px 6px;background:${d.hotEvs.length?'#FAEEDA':'#FCEBEB'};border-radius:4px;font-size:11px;color:${d.hotEvs.length?'#854F0B':'#A32D2D'};margin-right:3px">${d.label}/${(new Date(d.date).getMonth()+1)}: <strong>${d.recPrice}€</strong>${evtMark}</span>`;
+    }).join('')+(freeDays.length>4?`<span style="font-size:11px;color:#8A8A99">+${freeDays.length-4} nuits</span>`:'');
+
+    pipe+=`<div style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;border:0.5px solid #EEEEF5;margin-bottom:6px;background:white;transition:background .1s" onmouseover="this.style.background='#FAFAFF'" onmouseout="this.style.background='white'">
+      <div style="width:5px;min-height:48px;background:${urgColor};border-radius:3px;flex-shrink:0"></div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">
+          <span style="font-size:13px;font-weight:500">${a.emoji||'🏠'} ${a.name}</span>
+          <span style="font-size:12px;color:#8A8A99">${city}</span>
+          ${freeTonight?`<span style="font-size:11px;padding:2px 7px;border-radius:4px;background:#FCEBEB;color:#A32D2D">Libre ce soir</span>`:''}
+          ${hasEvent?`<span style="font-size:11px;padding:2px 7px;border-radius:4px;background:#FAEEDA;color:#854F0B">Événement</span>`:''}
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span style="font-size:11px;color:#8A8A99">Prix actuel: ${a.price||0}€ · EVA: ${smart.rec}€ · Nuits libres:</span>
+          ${nightsSummary}
+        </div>
+        <div style="font-size:11px;color:#8A8A99;margin-top:3px">${smart.reason}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:20px;font-weight:500;color:#1D9E75">+${potential}€</div>
+        <div style="font-size:11px;color:#8A8A99">potentiel ${freeDays.length}n</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+        <button class="btn btn-sm btn-purple" onclick="applyAllForApt('${a.id}')">Appliquer tout</button>
+        <button class="btn btn-sm" onclick="askAI('${a.id}')"><i class="ti ti-sparkles" aria-hidden="true"></i> Analyse</button>
+      </div>
+    </div>`;
+  });
+  pipe+=`</div>`;
+  document.getElementById('pricing-pipeline').innerHTML=pipe;
 }
+
+function applyAllForApt(aptId){
+  const a=apparts.find(x=>x.id===aptId);if(!a)return;
+  const smart=getSmartRec(a);
+  applyAI(aptId,smart.rec);
+  showToast(`✓ Prix EVA appliqué pour ${a.name}`);
+}
+
+function applyAllEVA(){
+  const horizon=+(document.getElementById('pricing-horizon')?.value||14);
+  const now=new Date();
+  let count=0;
+  apparts.forEach(a=>{
+    const hasFreeDays=Array.from({length:horizon},(_,i)=>{
+      const d=new Date(now);d.setDate(d.getDate()+i);
+      return d.toISOString().split('T')[0];
+    }).some(date=>!reservations.some(r=>r.appartement_id===a.id&&r.date_from<=date&&r.date_to>=date));
+    if(hasFreeDays){const smart=getSmartRec(a);applyAI(a.id,smart.rec);count++;}
+  });
+  showToast(`✅ EVA appliqué sur ${count} bien${count>1?'s':''}`);
+}
+
 
 function renderEventsPage(citiesMap){
   const container=document.getElementById('events-container');
