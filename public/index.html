@@ -1826,7 +1826,7 @@ const FUNCTIONS_URL=`${SB_URL}/functions/v1`;
 const SMOOBU_FN=`${FUNCTIONS_URL}/smoobu-proxy`;
 const EVENTS_FN=`${FUNCTIONS_URL}/events-proxy`;
 const STRIPE_FN=`${FUNCTIONS_URL}/stripe-checkout`;
-const EVA_FN=`${FUNCTIONS_URL}/eva-analysis`;
+// IA payante désactivée pour le moment : EVA fonctionne avec le Rules Engine local.
 let currentUser=null,currentProfile=null,apparts=[],reservations=[],editId=null,smoobuConnected=false,eventsCache={};
 
 const secureHeaders=()=>({
@@ -1840,7 +1840,6 @@ const authFetch=(path,body)=>fetch(`${SB_URL}/auth/v1/${path}`,{method:'POST',he
 const functionCall=(url,body={})=>fetch(url,{method:'POST',headers:secureHeaders(),body:JSON.stringify(body)}).then(async r=>{const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||'Erreur serveur');return data;});
 const smoobuCall=(action,params={})=>functionCall(SMOOBU_FN,{action,params});
 const eventsCall=(city)=>functionCall(EVENTS_FN,{city,countryCode:'FR',radius:50});
-const evaCall=(payload)=>functionCall(EVA_FN,payload);
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
 function showErr(id,msg){const el=document.getElementById(id);if(!el)return;el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',5000)}
@@ -2381,48 +2380,245 @@ function renderResTable(){
     <td>${pi[r.platform||'other']}</td></tr>`;}).join('')+`</tbody>`;
 }
 
-function getSmartRec(a){
-  const price=a.price||0;
-  const fl=Math.round((a.rent||0)/30+(a.cleaner||0));
+// ===== EVA RULES ENGINE — sans IA payante =====
+// Objectif: privilégier le taux d'occupation. Une nuit louée moins chère vaut mieux qu'une nuit vide.
+// Les recommandations ci-dessous sont calculées localement avec des règles métier, sans appel Claude/OpenAI.
+
+function rqISO(d){return new Date(d).toISOString().split('T')[0];}
+function rqTodayISO(){return rqISO(new Date());}
+function rqDaysUntil(dateStr){
+  const today=new Date(rqTodayISO());
+  const d=new Date(dateStr);
+  return Math.max(0,Math.round((d-today)/(1000*60*60*24)));
+}
+function rqDaysInMonth(date=new Date()){return new Date(date.getFullYear(),date.getMonth()+1,0).getDate();}
+function rqOverlapNights(from,to,start,end){
+  if(!from||!to)return 0;
+  const a=new Date(from), b=new Date(to), s=new Date(start), e=new Date(end);
+  const startMax=new Date(Math.max(a,s));
+  const endMin=new Date(Math.min(b,e));
+  return Math.max(0,Math.round((endMin-startMax)/(1000*60*60*24)));
+}
+function rqIsBookedOn(a,dateStr){
+  return reservations.some(r=>r.appartement_id===a.id&&r.date_from<=dateStr&&r.date_to>dateStr);
+}
+function rqMonthOcc(a,date=new Date()){
+  const y=date.getFullYear(),m=date.getMonth();
+  const start=rqISO(new Date(y,m,1));
+  const end=rqISO(new Date(y,m+1,1));
+  const booked=reservations.filter(r=>r.appartement_id===a.id).reduce((s,r)=>s+rqOverlapNights(r.date_from,r.date_to,start,end),0);
+  return Math.min(100,Math.round(booked/rqDaysInMonth(date)*100));
+}
+function rqPortfolioOcc(days=14){
+  if(!apparts.length)return 0;
+  const today=new Date(rqTodayISO());
+  let total=0,booked=0;
+  apparts.forEach(a=>{
+    for(let i=0;i<days;i++){
+      const d=new Date(today);d.setDate(d.getDate()+i);
+      total++;
+      if(rqIsBookedOn(a,rqISO(d)))booked++;
+    }
+  });
+  return total?Math.round(booked/total*100):0;
+}
+function rqFreeStreak(a,startDate,horizon=14){
+  let streak=0;
+  const s=new Date(startDate);
+  for(let i=0;i<horizon;i++){
+    const d=new Date(s);d.setDate(d.getDate()+i);
+    if(rqIsBookedOn(a,rqISO(d)))break;
+    streak++;
+  }
+  return streak;
+}
+function rqSeasonFactor(dateStr){
+  const d=new Date(dateStr);
+  const m=d.getMonth()+1;
+  const day=d.getDate();
+  // Très simple et volontairement prudent. À améliorer ville par ville plus tard.
+  if((m===7)||(m===8))return {pct:8,label:'saison été'};
+  if(m===12&&day>=18)return {pct:18,label:'vacances / fêtes'};
+  if(m===1&&day<=12)return {pct:-8,label:'début janvier plus calme'};
+  if(m===2)return {pct:-5,label:'février souvent plus lent'};
+  if(m===5||m===6||m===9)return {pct:4,label:'saison correcte'};
+  return {pct:0,label:''};
+}
+function rqDowFactor(dateStr){
+  const dow=new Date(dateStr).getDay();
+  if(dow===6)return {pct:12,label:'samedi demandé'};
+  if(dow===5)return {pct:8,label:'vendredi demandé'};
+  if(dow===0)return {pct:-6,label:'dimanche plus difficile'};
+  if(dow===1||dow===2)return {pct:-5,label:'début de semaine plus calme'};
+  return {pct:0,label:''};
+}
+function rqRoundPrice(n){return Math.max(1,Math.round(n));}
+function rqCleanReason(parts){return parts.filter(Boolean).join(' · ');}
+
+function getPricingDecisionForDate(a,dateStr,opts={}){
+  const price=Number(a.price||0)||80;
+  const fl=Math.round((Number(a.rent||0)/30)+Number(a.cleaner||0));
+  const floorPrice=Math.max(15,fl||0);
+  const isBooked=opts.isBooked ?? rqIsBookedOn(a,dateStr);
   const city=a.city||extractCity(a.zone,null)||'';
-  const cityEvs=eventsCache[city]||[];
-  const hotEvs=cityEvs.filter(e=>e.hot);
-  const mois=new Date().toISOString().slice(0,7);
-  const monthRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(mois));
-  const occ=Math.min(Math.round((monthRes.length/8)*100),100)||0;
+  const cityEvents=eventsCache[city]||[];
+  const hotEvs=opts.hotEvs ?? cityEvents.filter(e=>e.hot&&e.date===dateStr);
+  const lead=rqDaysUntil(dateStr);
+  const aptOcc=rqMonthOcc(a);
+  const portfolioOcc=rqPortfolioOcc(14);
+  const freeStreak=rqFreeStreak(a,dateStr,14);
+  const comp=Number(a.comp||0);
+  const factors=[];
+  let pct=0;
+  let priority='maintain';
 
-  let rec=price;
-  let reason='';
-
-  // Priorité 1 : libre ce soir → baisser pour remplir
-  if(!a.booked){
-    if(occ<30){rec=Math.round(price*0.80);reason='⚠ Libre + occupation très faible → prix cassé pour remplir';}
-    else if(occ<50){rec=Math.round(price*0.85);reason='⚠ Libre + occupation faible → baisser pour remplir';}
-    else{rec=Math.round(price*0.90);reason='⚠ Libre ce soir → légère baisse pour remplir';}
-  }
-  // Priorité 2 : événement chaud → augmenter (seulement si loué ou pas urgent)
-  else if(hotEvs.length>0){
-    const boost=hotEvs[0].boost||5;
-    rec=Math.round(price*(1+boost/100));
-    reason='🔥 Événement détecté → hausse de +'+boost+'%';
-  }
-  // Priorité 3 : occupation bonne → maintenir ou légère hausse
-  else if(occ>=75){
-    rec=Math.round(price*1.05);
-    reason='📊 Bonne occupation → légère hausse possible';
-  }
-  // Priorité 4 : occupation correcte → maintenir
-  else{
-    rec=price;
-    reason='✓ Prix cohérent — pas de changement';
+  if(isBooked){
+    return {rec:price,reason:'✓ Nuit déjà réservée — aucun changement',factors:['réservé'],pct:0,priority:'booked',floor:floorPrice};
   }
 
-  // Ne jamais descendre sous le plancher
-  if(rec<fl){rec=fl;reason+=' (plancher appliqué)';}
-  // Ne jamais recommander plus de +20%
-  if(rec>price*1.20){rec=Math.round(price*1.20);}
+  // 1) Urgence remplissage: le taux d'occupation passe avant tout.
+  if(lead===0){pct-=28;priority='fill';factors.push('libre ce soir: baisse forte pour éviter 0€');}
+  else if(lead===1){pct-=22;priority='fill';factors.push('libre demain: baisse forte');}
+  else if(lead<=3){pct-=16;priority='fill';factors.push('J-'+lead+': remplir rapidement');}
+  else if(lead<=7){pct-=8;priority='fill';factors.push('moins de 7 jours: baisse légère');}
+  else if(lead>=21){pct+=4;factors.push('date éloignée: pas besoin de brader');}
 
-  return{rec,reason};
+  // 2) Occupation du logement.
+  if(aptOcc<25){pct-=16;priority='fill';factors.push('occupation du bien très faible ('+aptOcc+'%)');}
+  else if(aptOcc<45){pct-=10;priority='fill';factors.push('occupation du bien faible ('+aptOcc+'%)');}
+  else if(aptOcc>=85){pct+=8;factors.push('occupation du bien élevée ('+aptOcc+'%)');}
+  else if(aptOcc>=70){pct+=4;factors.push('occupation du bien correcte ('+aptOcc+'%)');}
+
+  // 3) Occupation globale du portefeuille.
+  if(portfolioOcc<35){pct-=8;priority='fill';factors.push('portefeuille peu rempli ('+portfolioOcc+'%)');}
+  else if(portfolioOcc>75){pct+=5;factors.push('portefeuille bien rempli ('+portfolioOcc+'%)');}
+
+  // 4) Suite de nuits libres = risque de trou de calendrier.
+  if(freeStreak>=6){pct-=12;priority='fill';factors.push(freeStreak+' nuits libres consécutives: combler le trou');}
+  else if(freeStreak>=3){pct-=7;priority='fill';factors.push(freeStreak+' nuits libres consécutives');}
+
+  // 5) Jour de la semaine.
+  const dow=rqDowFactor(dateStr);
+  pct+=dow.pct;if(dow.label)factors.push(dow.label);
+
+  // 6) Saisonnalité.
+  const season=rqSeasonFactor(dateStr);
+  pct+=season.pct;if(season.label)factors.push(season.label);
+
+  // 7) Événements. On augmente, mais pas au point de rester vide à J-0/J-1.
+  if(hotEvs.length){
+    const evBoost=Math.min(30,Math.max(6,Number(hotEvs[0].boost||12)));
+    const applied=(lead<=2&&aptOcc<50)?Math.round(evBoost*0.45):evBoost;
+    pct+=applied;
+    factors.push('événement: '+hotEvs[0].name+' (+'+applied+'%)');
+    if(lead>3)priority='event';
+  }
+
+  // 8) Comparaison marché si renseignée.
+  if(comp>0){
+    if(price>comp*1.12&&aptOcc<55){pct-=9;priority='fill';factors.push('prix au-dessus du comparable');}
+    else if(price<comp*0.88&&aptOcc>65){pct+=5;factors.push('prix sous le comparable');}
+  }
+
+  // 9) Dégressif manuel si activé.
+  if(a.auto_degressif&&lead<=Number(a.degressif_start||14)){
+    const step=Number(a.degressif_step||5);
+    const extra=Math.min(18,Math.max(0,step));
+    pct-=extra;priority='fill';
+    factors.push('règle dégressive activée (-'+extra+'%)');
+  }
+
+  // Garde-fous business.
+  // Si c'est proche et non réservé, on évite les hausses, sauf événement très fort.
+  if(lead<=3&&priority==='fill'&&!hotEvs.length)pct=Math.min(pct,-8);
+  if(lead===0&&!hotEvs.length)pct=Math.min(pct,-18);
+  if(lead===1&&!hotEvs.length)pct=Math.min(pct,-14);
+
+  // Limites pour éviter les recommandations extrêmes.
+  pct=Math.max(-45,Math.min(35,pct));
+  let rec=rqRoundPrice(price*(1+pct/100));
+
+  // Prix plancher: on ne descend jamais sous coût minimum calculé.
+  let floorApplied=false;
+  if(rec<floorPrice){rec=floorPrice;floorApplied=true;factors.push('prix plancher appliqué');}
+
+  // Si le prix plancher est supérieur au prix actuel, on le signale.
+  if(floorPrice>price){priority='risk';}
+
+  const action = priority==='fill'
+    ? 'Remplir d’abord'
+    : priority==='event'
+      ? 'Capturer la demande événement'
+      : priority==='risk'
+        ? 'Corriger le prix plancher'
+        : rec>price
+          ? 'Hausse prudente'
+          : rec<price
+            ? 'Baisse tactique'
+            : 'Maintien';
+
+  const delta=rec-price;
+  const sign=delta>0?'+':'';
+  const reason=`${action} — ${sign}${delta}€ (${pct>0?'+':''}${pct}%) · ${rqCleanReason(factors.slice(0,5))}`;
+
+  return {rec,reason,factors,pct,priority,action,floor:floorPrice,occ:aptOcc,portfolioOcc,freeStreak,floorApplied};
+}
+
+function getSmartRec(a){
+  return getPricingDecisionForDate(a,rqTodayISO());
+}
+
+function buildGlobalRulesAnalysis(){
+  const horizon=14;
+  const today=new Date(rqTodayISO());
+  const portfolioOcc=rqPortfolioOcc(horizon);
+  const rows=apparts.map(a=>{
+    let free=0,potential=0,urgent=0,eventNights=0,firstDecision=null;
+    for(let i=0;i<horizon;i++){
+      const d=new Date(today);d.setDate(d.getDate()+i);
+      const date=rqISO(d);
+      if(!rqIsBookedOn(a,date)){
+        const dec=getPricingDecisionForDate(a,date);
+        if(!firstDecision)firstDecision=dec;
+        free++;potential+=dec.rec;
+        if(i<=3)urgent++;
+        const city=a.city||extractCity(a.zone,null)||'';
+        if((eventsCache[city]||[]).some(e=>e.hot&&e.date===date))eventNights++;
+      }
+    }
+    return {a,free,potential,urgent,eventNights,decision:firstDecision||getSmartRec(a),occ:rqMonthOcc(a)};
+  }).sort((x,y)=>y.urgent-x.urgent||x.occ-y.occ||y.free-x.free);
+
+  let html=`<strong>EVA Rules Engine — analyse sans IA payante</strong><br>`;
+  html+=`Portefeuille : <strong>${portfolioOcc}%</strong> d'occupation estimée sur ${horizon} jours.<br><br>`;
+
+  const urgent=rows.filter(r=>r.urgent>0);
+  const lowOcc=rows.filter(r=>r.occ<45);
+  const eventRows=rows.filter(r=>r.eventNights>0);
+
+  html+=`<strong>1. Priorité remplissage</strong><br>`;
+  if(urgent.length){
+    urgent.slice(0,4).forEach(r=>{
+      html+=`• ${r.a.name} : ${r.urgent} nuit(s) libre(s) dans les 3 prochains jours → <strong>${r.decision.rec}€</strong>. ${r.decision.action}.<br>`;
+    });
+  }else html+=`• Aucun trou urgent détecté dans les 3 prochains jours.<br>`;
+
+  html+=`<br><strong>2. Biens à surveiller</strong><br>`;
+  if(lowOcc.length){
+    lowOcc.slice(0,4).forEach(r=>html+=`• ${r.a.name} : occupation faible (${r.occ}%). Objectif : déclencher plus vite avec une baisse tactique.<br>`);
+  }else html+=`• Aucun bien avec occupation très faible ce mois-ci.<br>`;
+
+  html+=`<br><strong>3. Opportunités de hausse</strong><br>`;
+  if(eventRows.length){
+    eventRows.slice(0,4).forEach(r=>html+=`• ${r.a.name} : ${r.eventNights} nuit(s) avec événement. Hausse possible, mais uniquement si la date n'est pas trop proche.<br>`);
+  }else html+=`• Aucun événement fort détecté dans les nuits libres du portefeuille.<br>`;
+
+  html+=`<br><strong>4. Règle de décision</strong><br>`;
+  html+=`• À J-0 / J-1 : on privilégie le remplissage, même moins cher.<br>`;
+  html+=`• À J+7 et plus : on peut maintenir ou augmenter si la demande est bonne.<br>`;
+  html+=`• Le prix ne descend jamais sous le prix plancher calculé.<br>`;
+
+  return html;
 }
 
 function renderPricingTable(){
@@ -2451,14 +2647,14 @@ function renderPricingTable(){
     return {
       a,
       days:days.map(day=>{
-        const isBooked=reservations.some(r=>r.appartement_id===a.id&&r.date_from<=day.date&&r.date_to>=day.date);
+        const isBooked=reservations.some(r=>r.appartement_id===a.id&&r.date_from<=day.date&&r.date_to>day.date);
         const hotEvs=cityEvents.filter(e=>e.hot&&e.date===day.date);
-        const smart=getSmartRec(a);
-        // Ajuster le rec selon la date (+ variation hebdo)
-        const dow=new Date(day.date).getDay();
-        const weekendBoost=dow===5||dow===6?1.08:1;
-        const recPrice=Math.round(smart.rec*weekendBoost*(1+(hotEvs.length?0.12:0)));
-        return {date:day.date,label:day.label,dayName:day.dayName,isToday:day.isToday,isBooked,hotEvs,recPrice,currentPrice:a.price||0};
+        const decision=getPricingDecisionForDate(a,day.date,{isBooked,hotEvs});
+        return {
+          date:day.date,label:day.label,dayName:day.dayName,isToday:day.isToday,
+          isBooked,hotEvs,recPrice:decision.rec,currentPrice:a.price||0,
+          reason:decision.reason,action:decision.action,priority:decision.priority,pct:decision.pct
+        };
       })
     };
   });
@@ -2534,7 +2730,7 @@ function renderPricingTable(){
 
   opportunities.forEach(({a,freeDays,potential,hasEvent,freeTonight,urgency})=>{
     const city=a.city||extractCity(a.zone,null)||'';
-    const smart=getSmartRec(a);
+    const smart=getPricingDecisionForDate(a,freeDays[0]?.date||rqTodayISO());
     const urgColor=urgencyColors[urgency];
     // Résumé des nuits: J, J+1, J+3…
     const nightsSummary=freeDays.slice(0,4).map(d=>{
@@ -2552,7 +2748,7 @@ function renderPricingTable(){
           ${hasEvent?`<span style="font-size:11px;padding:2px 7px;border-radius:4px;background:#FAEEDA;color:#854F0B">Événement</span>`:''}
         </div>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <span style="font-size:11px;color:#8A8A99">Prix actuel: ${a.price||0}€ · EVA: ${smart.rec}€ · Nuits libres:</span>
+          <span style="font-size:11px;color:#8A8A99">Prix actuel: ${a.price||0}€ · Reco EVA: ${smart.rec}€ · Nuits libres:</span>
           ${nightsSummary}
         </div>
         <div style="font-size:11px;color:#8A8A99;margin-top:3px">${smart.reason}</div>
@@ -2573,9 +2769,17 @@ function renderPricingTable(){
 
 function applyAllForApt(aptId){
   const a=apparts.find(x=>x.id===aptId);if(!a)return;
-  const smart=getSmartRec(a);
+  const horizon=+(document.getElementById('pricing-horizon')?.value||14);
+  const now=new Date();
+  let firstFree=null;
+  for(let i=0;i<horizon;i++){
+    const d=new Date(now);d.setDate(d.getDate()+i);
+    const date=rqISO(d);
+    if(!rqIsBookedOn(a,date)){firstFree=date;break;}
+  }
+  const smart=getPricingDecisionForDate(a,firstFree||rqTodayISO());
   applyAI(aptId,smart.rec);
-  showToast(`✓ Prix EVA appliqué pour ${a.name}`);
+  showToast(`✓ Prix EVA Rules appliqué pour ${a.name}`);
 }
 
 function applyAllEVA(){
@@ -2853,24 +3057,15 @@ async function saveProfile(){const name=document.getElementById('set-name').valu
 async function runGlobal(){
   const btn=document.getElementById('btn-global');const zone=document.getElementById('global-result');
   btn.disabled=true;btn.textContent='⏳…';
-  zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head"><div class="ai-dot"></div> EVA analyse…</div><div class="ai-bubble-text"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
-  if(!apparts.length){zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">🤖</div><div class="ai-bubble-text">Ajoutez des appartements d'abord.</div></div>`;btn.disabled=false;btn.innerHTML='🤖 Analyse globale';return;}
-  try{
-    const data=await evaCall({
-      type:'global_pricing_analysis',
-      apparts:apparts.map(a=>({
-        id:a.id,name:a.name,city:a.city||a.zone||'',price:a.price,floor:floor(a),booked:!!a.booked,
-        rent:a.rent,cleaner:a.cleaner,comp:a.comp,ai_rec:a.ai_rec,has_event:!!a.has_event
-      })),
-      events:eventsCache
-    });
-    const txt=data.analysis||data.text||data.message||"Analyse indisponible pour le moment.";
-    zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head"><div class="ai-dot"></div> EVA — Analyse globale</div><div class="ai-bubble-text">${escapeHtml(txt).replace(/\n/g,'<br>')}</div></div>`;
-  }catch(e){
-    console.error('EVA error:', e);
-    const msg=e?.message||'Erreur inconnue';
-    zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">⚠️ EVA — erreur</div><div class="ai-bubble-text">Erreur : <strong>${escapeHtml(msg)}</strong><br><br>Vérifiez que le secret <strong>ANTHROPIC_API_KEY</strong> est bien configuré dans Supabase → Settings → Edge Functions → Secrets.</div></div>`;
+  if(!apparts.length){
+    zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">🤖 EVA Rules Engine</div><div class="ai-bubble-text">Ajoutez des appartements d'abord.</div></div>`;
+    btn.disabled=false;btn.innerHTML='🤖 Analyse globale';return;
   }
+  const txt=buildGlobalRulesAnalysis();
+  zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem">
+    <div class="ai-bubble-head">⚙️ EVA Rules Engine — sans IA payante</div>
+    <div class="ai-bubble-text">${txt}</div>
+  </div>`;
   btn.disabled=false;btn.innerHTML='🤖 Analyse globale';
 }
 
