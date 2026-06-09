@@ -2489,7 +2489,12 @@ async function loadApp(){
     if(userModules.includes('concierge')){renderProprietaires();initRapportMois();renderRapports();renderCockpitConcierge();renderParcConcierge();}
      updateNavVisibility();
      onb2Open();
-  }catch(e){document.getElementById('loading').style.display='none';document.getElementById('auth-screen').style.display='flex';}
+  }catch(e){
+    console.error('loadApp error:',e);
+    document.getElementById('loading').style.display='none';
+    document.getElementById('app').style.display='flex';
+    try{renderSidebar();renderAll();}catch(e2){console.warn(e2);}
+  }
 }
 
 function renderSidebar(){
@@ -2503,7 +2508,11 @@ function renderSidebar(){
 function floor(a){return Math.round((a.rent||0)/30+(a.cleaner||0))}
 
 function renderAll(){
-  renderKPIs();renderCockpitTable();renderParcTable();renderResTable();renderPricingTable();
+  try{renderKPIs();}catch(e){console.warn('renderKPIs',e);}
+  try{renderCockpitTable();}catch(e){console.warn('renderCockpitTable',e);}
+  try{renderParcTable();}catch(e){console.warn('renderParcTable',e);}
+  try{renderResTable();}catch(e){console.warn('renderResTable',e);}
+  try{renderPricingTable();}catch(e){console.warn('renderPricingTable',e);}
   document.getElementById('parc-badge').textContent=apparts.length;
   document.getElementById('parc-sub').textContent=apparts.length+' appartement'+(apparts.length>1?'s':'');
   document.getElementById('res-sub').textContent=reservations.length+' réservation'+(reservations.length>1?'s':'');
