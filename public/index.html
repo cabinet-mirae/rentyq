@@ -2797,6 +2797,89 @@ function applyAllEVA(){
 }
 
 
+// ===== EVENTS ENGINE — restauration sans IA payante =====
+function normalizeEvent(raw, city){
+  const name = raw.name || raw.title || raw.event_name || 'Événement local';
+  const date = raw.date || raw.start_date || raw.startDate || raw.dates?.start?.localDate || '';
+  const venue = raw.venue || raw.location || raw._embedded?.venues?.[0]?.name || '';
+  const segment = raw.segment || raw.category || raw.classifications?.[0]?.segment?.name || 'Événement';
+  const lower = String(name+' '+segment+' '+venue).toLowerCase();
+  let boost = Number(raw.boost || raw.price_boost || 0);
+  if(!boost){
+    boost = 6;
+    if(/concert|festival|salon|foire|expo|congrès|congres|match|stade|zenith|zénith|arena|parc expo|spectacle/.test(lower)) boost = 12;
+    if(/festival|finale|international|coupe|marathon|grand prix|tournoi|foire|congrès|congres/.test(lower)) boost = 18;
+    if(/olympique|jo|mondial|euro|championnat|très fort|tres fort/.test(lower)) boost = 25;
+  }
+  const emoji = raw.emoji || (/concert|festival|spectacle|zenith|zénith/.test(lower) ? '🎤' : /match|stade|sport|tournoi/.test(lower) ? '🏟️' : /salon|expo|foire|congrès|congres/.test(lower) ? '🎪' : '🎉');
+  return {
+    name, city, date, venue, segment, emoji,
+    boost: Math.max(5, Math.min(35, Math.round(boost))),
+    hot: boost >= 12 || !!raw.hot,
+    date_label: raw.date_label || (date ? new Date(date).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}) : 'Date à confirmer')
+  };
+}
+
+function fallbackEventsForCity(city){
+  const now = new Date();
+  const makeDate = (days)=>{const d=new Date(now); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10)};
+  return [
+    normalizeEvent({name:`Week-end forte demande — ${city}`,date:makeDate(5),venue:'Centre-ville',segment:'Demande locale',boost:8,emoji:'📈'},city),
+    normalizeEvent({name:`Période à surveiller — ${city}`,date:makeDate(14),venue:'Zone touristique',segment:'Occupation',boost:10,emoji:'🏙️'},city)
+  ];
+}
+
+async function loadEvents(force=false){
+  const loading=document.getElementById('events-loading');
+  const empty=document.getElementById('events-empty');
+  const container=document.getElementById('events-container');
+  const btn=document.getElementById('btn-refresh-events');
+  if(loading)loading.style.display='block';
+  if(empty)empty.style.display='none';
+  if(container&&!Object.keys(eventsCache).length)container.innerHTML='';
+  if(btn){btn.disabled=true;btn.textContent='Chargement…';}
+
+  const citiesMap={};
+  (apparts||[]).forEach(a=>{
+    const city=(a.city||extractCity(a.zone,null)||'').trim();
+    if(!city)return;
+    if(!citiesMap[city])citiesMap[city]=[];
+    citiesMap[city].push(a);
+  });
+
+  const cities=Object.keys(citiesMap);
+  if(!cities.length){
+    if(loading)loading.style.display='none';
+    if(empty)empty.style.display='block';
+    if(container)container.innerHTML='';
+    if(btn){btn.disabled=false;btn.textContent='🔄 Actualiser';}
+    return;
+  }
+
+  for(const city of cities){
+    if(eventsCache[city] && !force) continue;
+    try{
+      const data=await eventsCall(city);
+      const raw = data.events || data.data || data.results || data._embedded?.events || [];
+      const list = Array.isArray(raw) ? raw : [];
+      eventsCache[city]=list.map(e=>normalizeEvent(e,city)).filter(Boolean).slice(0,24);
+      if(!eventsCache[city].length) eventsCache[city]=fallbackEventsForCity(city);
+    }catch(e){
+      console.warn('eventsCall error for '+city,e);
+      eventsCache[city]=fallbackEventsForCity(city);
+    }
+  }
+
+  if(loading)loading.style.display='none';
+  renderEventsPage(citiesMap);
+  try{renderAll();}catch(e){}
+  const hotCount=Object.values(eventsCache).flat().filter(e=>e.hot).length;
+  const badge=document.getElementById('events-badge');
+  if(badge){badge.textContent=hotCount;badge.style.display=hotCount?'inline-block':'none';}
+  if(btn){btn.disabled=false;btn.textContent='🔄 Actualiser';}
+}
+
+
 function renderEventsPage(citiesMap){
   const container=document.getElementById('events-container');
   const cities=Object.keys(citiesMap);
