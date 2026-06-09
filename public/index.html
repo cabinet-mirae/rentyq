@@ -2865,9 +2865,11 @@ async function runGlobal(){
       events:eventsCache
     });
     const txt=data.analysis||data.text||data.message||"Analyse indisponible pour le moment.";
-    zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head"><div class="ai-dot"></div> EVA — Analyse globale sécurisée</div><div class="ai-bubble-text">${escapeHtml(txt).replace(/\n/g,'<br>')}</div></div>`;
+    zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head"><div class="ai-dot"></div> EVA — Analyse globale</div><div class="ai-bubble-text">${escapeHtml(txt).replace(/\n/g,'<br>')}</div></div>`;
   }catch(e){
-    zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">⚠️ EVA indisponible</div><div class="ai-bubble-text">L'analyse IA doit maintenant passer par la Supabase Edge Function <strong>eva-analysis</strong>. Vérifiez que la fonction est déployée et que le secret <strong>ANTHROPIC_API_KEY</strong> est configuré.</div></div>`;
+    console.error('EVA error:', e);
+    const msg=e?.message||'Erreur inconnue';
+    zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">⚠️ EVA — erreur</div><div class="ai-bubble-text">Erreur : <strong>${escapeHtml(msg)}</strong><br><br>Vérifiez que le secret <strong>ANTHROPIC_API_KEY</strong> est bien configuré dans Supabase → Settings → Edge Functions → Secrets.</div></div>`;
   }
   btn.disabled=false;btn.innerHTML='🤖 Analyse globale';
 }
