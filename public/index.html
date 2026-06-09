@@ -1666,9 +1666,8 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
     <button onclick="rqTourClose()" style="width:100%;padding:9px;border-radius:12px;background:none;color:#9CA3AF;border:none;font-size:13px;cursor:pointer;font-family:inherit">Je connais déjà, passer</button>
   </div>
 </div>
-</body> dans index.html
-     Remplace l'ancien #onboarding-overlay
-════════════════════════════════════════════════════ -->
+</body>
+<!--
 
 <style>
 /* ── OVERLAY ── */
@@ -3440,28 +3439,55 @@ Réponds en français, avec emojis, 5-6 phrases maximum. Donne des CHIFFRES PRÉ
 
 async function askAI(id){
   const a=apparts.find(x=>x.id===id);if(!a)return;
-  document.getElementById('ai-row-'+id).style.display='table-row';
-  document.getElementById('ai-bubble-'+id).innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head"><div class="ai-dot"></div> Analyse…</div><div class="ai-bubble-text"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
   const city=a.city||extractCity(a.zone,null)||'';
-  const cityEvents=eventsCache[city]||[];const hotEvs=cityEvents.filter(e=>e.hot);
-  const evCtx=hotEvs.length?` Événements chauds à ${city}: ${hotEvs.slice(0,3).map(e=>e.name+' le '+e.date_label+' (+'+e.boost+'%)').join(', ')}.`:'';
-  try{
-    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,system:`EVA, IA pricing RentyQ. Objectif : 92-95% d'occupation. Une nuit vide coûte plus cher qu'une nuit bradée. Augmentations RAISONNABLES uniquement. Événement majeur (sport, concert géant) = +10-15% max. Événement mineur = +3-5% ou rien. Basse saison = baisser pour remplir. Occupation faible = baisser le prix. Ne jamais descendre sous le plancher. 3-4 phrases, chiffres précis, emojis.`,messages:[{role:"user",content:`${a.name} à ${city}${a.address?' ('+a.address+')':''}:
-- Prix actuel: ${a.price}€/nuit
-- Plancher rentabilité: ${floor(a)}€
-- Concurrent moyen: ${a.comp||'?'}€
-- Statut: ${a.booked?'LOUÉ':'LIBRE ce soir'}
-- Loyer mensuel: ${a.rent||0}€
-${evCtx?'\nÉvénements à proximité:\n'+evCtx:'\nAucun événement détecté à proximité.'}
-Date: ${new Date().toLocaleDateString('fr-FR')} (${['hiver','hiver','printemps','printemps','printemps','été','été','été','automne','automne','automne','hiver'][new Date().getMonth()]})
+  const smart=getSmartRec(a);
+  const cityEvents=(eventsCache[city]||[]).filter(e=>e.hot);
+  const freeDays=reservations.filter(r=>r.appartement_id===id).length;
 
-Quel prix recommandes-tu ce soir et pour les 7 prochains jours ? Objectif : remplir au maximum.`}]})});
-    const data=await res.json();const text=data.content?.find(b=>b.type==='text')?.text||"Indisponible.";
-    document.getElementById('ai-bubble-'+id).innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head">🤖 ${a.name}</div><div class="ai-bubble-text">${text.replace(/\n/g,'<br/>')}</div></div>`;
-  }catch(e){document.getElementById('ai-bubble-'+id).innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head">⚠️</div><div class="ai-bubble-text">Indisponible.</div></div>`;}
+  // Afficher dans une modale légère
+  const modal=document.getElementById('modal');
+  if(!modal)return;
+  const m=modal.querySelector('.modal');
+  m.innerHTML=`
+    <div class="modal-head">
+      <div class="modal-title">${a.emoji||'🏠'} Analyse EVA — ${a.name}</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="ai-bubble" style="margin-bottom:0">
+      <div class="ai-bubble-head"><div class="ai-dot"></div> EVA analyse votre bien…</div>
+      <div class="ai-bubble-text" id="ai-modal-text">
+        <div class="typing"><span></span><span></span><span></span></div>
+      </div>
+    </div>`;
+  modal.classList.add('open');
+
+  // Générer l'analyse
+  setTimeout(()=>{
+    const fl=floor(a);
+    const occ=Math.min(Math.round((freeDays/8)*100),100)||0;
+    let txt=`<strong>${a.name}</strong> — ${city}<br><br>`;
+    txt+=`<strong>Situation actuelle :</strong><br>`;
+    txt+=`• Prix actuel : ${a.price||0}€/nuit · Plancher : ${fl}€<br>`;
+    txt+=`• Statut ce soir : ${a.booked?'✅ Loué':'⚠️ Libre'}<br>`;
+    txt+=`• Occupation estimée : ${occ}%<br><br>`;
+    txt+=`<strong>Recommandation EVA :</strong> ${smart.rec}€/nuit<br>`;
+    txt+=`• ${smart.reason}<br><br>`;
+    if(cityEvents.length>0){
+      txt+=`<strong>Événements détectés :</strong><br>`;
+      cityEvents.slice(0,3).forEach(e=>{
+        txt+=`• ${e.name}${e.date?' — '+new Date(e.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}):''} (+${e.boost||8}%)<br>`;
+      });
+      txt+='<br>';
+    }
+    txt+=`<strong>Action recommandée :</strong> `;
+    if(!a.booked&&occ<40)txt+=`Baisser à <strong>${smart.rec}€</strong> pour remplir cette nuit libre.`;
+    else if(cityEvents.length>0)txt+=`Monter à <strong>${smart.rec}€</strong> pendant l'événement.`;
+    else txt+=`Maintenir à <strong>${smart.rec}€</strong>, prix cohérent avec le marché.`;
+    document.getElementById('ai-modal-text').innerHTML=txt;
+  },800);
 }
 
-// MOT DE PASSE OUBLIÉ
+
 function showForgotPassword(){
   document.getElementById('login-form').style.display='none';
   document.getElementById('forgot-form').style.display='block';
