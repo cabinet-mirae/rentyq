@@ -878,6 +878,38 @@ tr:hover td{background:#FCF8FF!important;}
 @media(max-width:1100px){.eva-cockpit-grid,.eva-priority-layout{grid-template-columns:1fr}.eva-mini-kpi-row{grid-template-columns:repeat(2,1fr)}.eva-flow-steps{grid-template-columns:1fr 1fr}}
 @media(max-width:640px){.eva-mini-kpi-row,.eva-flow-steps{grid-template-columns:1fr}.eva-cockpit-title{font-size:24px}.eva-signal{grid-template-columns:6px 1fr}.eva-signal-value{text-align:left}}
 /* ===== end EVA COCKPIT CLARIFIÉ ===== */
+
+
+/* ===== RentyQ V2 — sidebar stable + navigation contexte logement ===== */
+.rq-property-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 0;position:relative;z-index:2}
+.rq-property-tab{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.13);color:white;border-radius:999px;padding:9px 13px;font-size:12px;font-weight:900;cursor:pointer;font-family:inherit;transition:.15s}
+.rq-property-tab:hover{background:rgba(255,255,255,.20)}
+.rq-property-tab.active{background:white;color:#24105C;border-color:white;box-shadow:0 10px 26px rgba(0,0,0,.16)}
+.rq-property-tab-panel{display:none;animation:rqFade .18s ease-out}
+.rq-property-tab-panel.active{display:block}
+@keyframes rqFade{from{opacity:.35;transform:translateY(4px)}to{opacity:1;transform:none}}
+.rq-context-layout{display:grid;grid-template-columns:1.05fr .95fr;gap:16px;margin-top:16px}
+.rq-context-card{background:white;border:1px solid rgba(139,92,246,.14);border-radius:20px;box-shadow:0 14px 40px rgba(69,39,120,.06);padding:16px}
+.rq-context-title{font-size:17px;font-weight:950;color:#17122E;letter-spacing:-.3px;margin-bottom:4px}
+.rq-context-sub{font-size:12px;color:#8A8A99;line-height:1.45;margin-bottom:14px}
+.rq-audit-upload{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.rq-audit-input{border:1px dashed rgba(139,92,246,.26);border-radius:14px;padding:12px;background:#FAF8FF}
+.rq-audit-input label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.75px;color:#7C3AED;font-weight:900;margin-bottom:6px}
+.rq-audit-input input{width:100%;font-size:12px}
+.rq-mini-pie-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px}
+.rq-mini-pie{background:#FAF8FF;border:1px solid rgba(139,92,246,.10);border-radius:16px;padding:12px;text-align:center}
+.rq-pie-circle{width:72px;height:72px;border-radius:50%;margin:0 auto 8px;background:conic-gradient(#7C3AED var(--occ),#EDE9FE 0);display:grid;place-items:center;font-size:14px;font-weight:950;color:#241A3D}
+.rq-pricing-day-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.rq-price-day{border:1px solid rgba(139,92,246,.12);background:linear-gradient(180deg,#fff,#FFFCFF);border-radius:14px;padding:11px;cursor:pointer}
+.rq-price-day.booked{background:#ECFDF5;color:#047857;cursor:default}
+.rq-price-day.event{background:#FFF7ED;border-color:#FDBA74}
+.rq-charge-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.rq-charge-tile{background:#FAF8FF;border:1px solid rgba(139,92,246,.10);border-radius:14px;padding:12px}
+.rq-charge-label{font-size:11px;color:#8A8A99;font-weight:800;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.rq-charge-value{font-size:22px;font-weight:950;color:#17122E}
+@media(max-width:980px){.rq-context-layout{grid-template-columns:1fr}.rq-audit-upload{grid-template-columns:1fr}}
+/* ===== end RentyQ V2 ===== */
+
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
@@ -1368,19 +1400,12 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       </div>
       <div class="sidebar-sep" style="background:rgba(255,255,255,0.08)"></div>
       <div id="nav-solo">
-      <div class="nav-section-label">Mon Business</div>
-      <button class="nav-item active" onclick="goTo('cockpit',this)"><span class="nav-emoji"><i class="ti ti-layout-dashboard" aria-hidden="true"></i></span>Cockpit</button>
-      <button class="nav-item" onclick="goTo('calendrier',this)"><span class="nav-emoji"><i class="ti ti-calendar" aria-hidden="true"></i></span>Calendrier</button>
-      <button class="nav-item" onclick="goTo('parc',this)"><span class="nav-emoji"><i class="ti ti-building" aria-hidden="true"></i></span>Le parc <span class="nav-badge" id="parc-badge">0</span></button>
-      <button class="nav-item" onclick="goTo('reservations',this)"><span class="nav-emoji"><i class="ti ti-file-text" aria-hidden="true"></i></span>Réservations</button>
-      <div class="nav-section-label" style="color:rgba(255,255,255,0.15)">Intelligence</div>
-      <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji"><i class="ti ti-sparkles" aria-hidden="true"></i></span>EVA pricing <span class="nav-badge-new">IA</span></button>
-      <button class="nav-item" onclick="goTo('scanner',this)"><span class="nav-emoji"><i class="ti ti-radar-2" aria-hidden="true"></i></span>Scanner EVA <span class="nav-badge-new">NEW</span></button>
-      <button class="nav-item" onclick="goTo('eva-audit',this)"><span class="nav-emoji"><i class="ti ti-chart-pie" aria-hidden="true"></i></span>EVA Audit <span class="nav-badge-new">360°</span></button>
-      <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji"><i class="ti ti-calendar-event" aria-hidden="true"></i></span>Événements <span class="nav-badge-new" id="events-badge" style="display:none">0</span></button>
-      <button class="nav-item" onclick="goTo('finances',this)"><span class="nav-emoji"><i class="ti ti-wallet" aria-hidden="true"></i></span>Finances</button>
-      <div class="nav-section-label" style="color:rgba(255,255,255,0.25)" id="nav-label-cleanyq">Ménage</div>
+      <div class="nav-section-label">RentyQ</div>
+      <button class="nav-item active" onclick="goTo('parc',this)"><span class="nav-emoji"><i class="ti ti-building" aria-hidden="true"></i></span>Mes logements <span class="nav-badge" id="parc-badge">0</span></button>
+      <button class="nav-item" onclick="goTo('scanner',this)"><span class="nav-emoji"><i class="ti ti-radar-2" aria-hidden="true"></i></span>Scanner EVA <span class="nav-badge-new">Investir</span></button>
+      <button class="nav-item" onclick="goTo('calendrier',this)"><span class="nav-emoji"><i class="ti ti-calendar" aria-hidden="true"></i></span>Calendrier global</button>
       <button class="nav-item" onclick="goTo('clean',this)" id="nav-cleanyq"><span class="nav-emoji"><i class="ti ti-spray" aria-hidden="true"></i></span>CleanyQ</button>
+      <button class="nav-item" onclick="goTo('settings',this)"><span class="nav-emoji"><i class="ti ti-settings" aria-hidden="true"></i></span>Paramètres</button>
       <div class="nav-section-label" style="color:rgba(255,255,255,0.25)" id="nav-label-integrations">Intégrations</div>
       <button class="nav-item" onclick="goTo('smoobu',this)" id="nav-smoobu"><span class="nav-emoji"><i class="ti ti-link" aria-hidden="true"></i></span>Smoobu <span class="smoobu-badge" id="smoobu-nav-badge" style="display:none">✓</span></button>
       </div>
@@ -1412,7 +1437,7 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
     <div class="main">
 
       <!-- COCKPIT -->
-      <div class="page active" id="page-cockpit">
+      <div class="page" id="page-cockpit">
         <div class="page-header">
           <div><div class="page-title">Cockpit RentyQ</div><div class="page-sub" id="cockpit-date">Votre tour de contrôle : revenus, risques et prochaines actions EVA</div></div>
           <div class="actions">
@@ -1451,9 +1476,9 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       </div>
 
       <!-- LE PARC -->
-      <div class="page" id="page-parc">
+      <div class="page active" id="page-parc">
         <div class="page-header">
-          <div><div class="page-title">Le parc</div><div class="page-sub" id="parc-sub"></div></div>
+          <div><div class="page-title">Mes logements</div><div class="page-sub" id="parc-sub"></div></div>
           <div class="actions">
             <div style="display:flex;background:#F0F0F5;border-radius:8px;padding:2px;margin-right:8px">
               <button id="parc-view-list" onclick="switchParcView('list')" style="padding:6px 12px;border-radius:6px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:#6B3FA0;color:white">📋 Liste</button>
@@ -1500,8 +1525,8 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       <div class="page" id="page-pricing">
         <div class="page-header">
           <div>
-            <div class="page-title">EVA pricing</div>
-            <div class="page-sub" id="pricing-sub">EVA analyse votre parc</div>
+            <div class="page-title">Tarification IA</div>
+            <div class="page-sub" id="pricing-sub">EVA Pricing analyse les prochaines nuits libres et propose les meilleurs prix à pousser via Smoobu.</div>
           </div>
           <div class="actions">
             <select id="pricing-horizon" onchange="renderPricingTable()" style="padding:6px 10px;border-radius:8px;border:0.5px solid #EEEEF5;font-size:13px;font-family:inherit">
@@ -2706,8 +2731,16 @@ function showApartDetail(id){
           <div class="rq-hero-kpi"><div class="rq-hero-kpi-label">Revenu à récupérer</div><div class="rq-hero-kpi-value">${potential}€</div><div class="rq-hero-kpi-sub">sur nuits libres proches</div></div>
           <div class="rq-hero-kpi"><div class="rq-hero-kpi-label">Actions</div><div class="rq-hero-kpi-value">${actions.filter(x=>x.type).length}</div><div class="rq-hero-kpi-sub">priorités opérationnelles</div></div>
         </div>
+        <div class="rq-property-tabs">
+          <button class="rq-property-tab active" onclick="switchPropertyTab('overview')">Vue d’ensemble</button>
+          <button class="rq-property-tab" onclick="switchPropertyTab('audit')">Audit 360°</button>
+          <button class="rq-property-tab" onclick="switchPropertyTab('pricing')">Tarification IA</button>
+          <button class="rq-property-tab" onclick="switchPropertyTab('calendar')">Calendrier</button>
+          <button class="rq-property-tab" onclick="switchPropertyTab('charges')">Charges</button>
+        </div>
       </section>
 
+      <div class="rq-property-tab-panel active" id="rq-tab-overview">
       <section class="rq-reco-card ${recoClass}">
         <div class="rq-reco-main"><div><div class="rq-reco-kicker">🎯 EVA recommande</div><div class="rq-reco-title">${esc(recoTitle)}</div></div><div class="rq-reco-price">${recoPrice}€<br><span>prix conseillé</span></div></div>
         <div class="rq-reason-list">${recoReasons.slice(0,4).map(r=>`<div class="rq-reason-item"><b>${esc(r[0])}</b><br>${esc(r[1])}</div>`).join('')}</div>
@@ -2724,6 +2757,60 @@ function showApartDetail(id){
           <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">🧭 Timeline opérationnelle</div><div class="rq-card-sub-v2">Ce qui arrive sur ce logement.</div></div></div><div class="rq-timeline">${timelineHtml}</div></section>
           <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">🧹 CleanyQ</div><div class="rq-card-sub-v2">Ménage et préparation du bien.</div></div></div><div class="rq-clean-list">${cleanHtml}</div></section>
           <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">🎉 Événements proches</div><div class="rq-card-sub-v2">Opportunités de hausse locale.</div></div></div><div class="rq-events-list">${eventsHtml}</div></section>
+        </div>
+      </div>
+
+      </div>
+
+      <div class="rq-property-tab-panel" id="rq-tab-audit">
+        <div class="rq-context-layout">
+          <section class="rq-context-card">
+            <div class="rq-context-title">Audit 360° du logement</div>
+            <div class="rq-context-sub">Importez les données du bien pour produire l’analyse complète : réservations, charges, occupation, rentabilité nette et recommandations structurelles.</div>
+            <div class="rq-audit-upload">
+              <div class="rq-audit-input"><label>CSV réservations</label><input type="file" accept=".csv,text/csv"></div>
+              <div class="rq-audit-input"><label>CSV bancaire</label><input type="file" accept=".csv,text/csv"></div>
+              <div class="rq-audit-input"><label>Adresse</label><input value="${esc(a.address||city||'')}" placeholder="Adresse du bien"></div>
+            </div>
+            <button class="rq-button-primary" onclick="goTo('eva-audit',document.querySelector('[onclick*=eva-audit]'))">Lancer l’analyse EVA complète</button>
+          </section>
+          <section class="rq-context-card">
+            <div class="rq-context-title">Lecture immédiate</div>
+            <div class="rq-charge-grid">
+              <div class="rq-charge-tile"><div class="rq-charge-label">Score EVA</div><div class="rq-charge-value">${score}/100</div></div>
+              <div class="rq-charge-tile"><div class="rq-charge-label">Rentabilité nette</div><div class="rq-charge-value">${net>=0?'+':''}${net}€</div></div>
+              <div class="rq-charge-tile"><div class="rq-charge-label">Occupation 14j</div><div class="rq-charge-value">${occ14}%</div></div>
+              <div class="rq-charge-tile"><div class="rq-charge-label">Potentiel proche</div><div class="rq-charge-value">${potential}€</div></div>
+            </div>
+          </section>
+        </div>
+        <section class="rq-context-card" style="margin-top:16px">
+          <div class="rq-context-title">Taux d’occupation par mois</div>
+          <div class="rq-context-sub">Vue simple propriétaire : part des nuits réservées vs disponibles.</div>
+          <div class="rq-mini-pie-grid">${[0,1,2].map(i=>{const d=new Date(today.getFullYear(),today.getMonth()-2+i,1);const m=d.toISOString().slice(0,7);const booked=aptRes.filter(r=>r.date_from&&r.date_from.startsWith(m)).reduce((s,r)=>s+(+r.nights||1),0);const days=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();const pct=Math.min(100,Math.round(booked/days*100));return `<div class="rq-mini-pie"><div class="rq-pie-circle" style="--occ:${pct}%">${pct}%</div><b>${months[d.getMonth()]}</b><div style="font-size:11px;color:#8A8A99;margin-top:4px">${booked} nuits occupées · ${Math.max(0,days-booked)} libres</div></div>`}).join('')}</div>
+        </section>
+      </div>
+
+      <div class="rq-property-tab-panel" id="rq-tab-pricing">
+        <section class="rq-context-card">
+          <div class="rq-context-title">Tarification IA — propulsée par EVA Pricing</div>
+          <div class="rq-context-sub">Objectif : recommander le bon prix jour par jour, puis pousser les modifications via Smoobu vers Airbnb et Booking.</div>
+          <div class="rq-reco-card ${recoClass}" style="margin-bottom:14px"><div class="rq-reco-main"><div><div class="rq-reco-kicker">Prix recommandé maintenant</div><div class="rq-reco-title">${esc(recoTitle)}</div></div><div class="rq-reco-price">${recoPrice}€<br><span>conseillé</span></div></div><div class="rq-reco-footer"><span class="rq-impact-pill">${esc(impactText)}</span><button class="rq-button-primary" onclick="applyAI('${a.id}',${recoPrice})">Appliquer via Smoobu</button></div></div>
+          <div class="rq-pricing-day-list">${days14.slice(0,14).map(d=>`<div class="rq-price-day ${d.booked?'booked':d.evs.length?'event':''}" ${d.booked?'':`onclick="applyAI('${a.id}',${d.rec})"`}><div style="font-size:11px;color:#8A8A99;font-weight:800">${dayName(d.d)} ${dayNum(d.d)}</div><div style="font-size:22px;font-weight:950;margin-top:4px">${d.booked?'Réservé':d.rec+'€'}</div><div style="font-size:11px;color:#8A8A99;margin-top:4px">${d.evs.length?'Événement local':d.booked?'Déjà vendu':'Libre à optimiser'}</div></div>`).join('')}</div>
+        </section>
+      </div>
+
+      <div class="rq-property-tab-panel" id="rq-tab-calendar">
+        <div class="rq-context-layout">
+          <section class="rq-context-card"><div class="rq-context-title">Calendrier du logement</div><div class="rq-context-sub">Vue opérationnelle des prochaines nuits, réservations, événements et ménages.</div><div class="rq-nights-grid">${nightsHtml}</div></section>
+          <section class="rq-context-card"><div class="rq-context-title">Timeline</div><div class="rq-timeline">${timelineHtml}</div></section>
+        </div>
+      </div>
+
+      <div class="rq-property-tab-panel" id="rq-tab-charges">
+        <div class="rq-context-layout">
+          <section class="rq-context-card"><div class="rq-context-title">Charges et rentabilité</div><div class="rq-context-sub">Comprendre où part l’argent et combien il reste réellement.</div><div class="rq-finance-grid"><div class="rq-finance-line"><div class="rq-finance-label">CA généré</div><div class="rq-finance-value">${rev}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Charges détectées</div><div class="rq-finance-value">${charges}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Résultat net</div><div class="rq-finance-value ${net>=0?'good':'bad'}">${net>=0?'+':''}${net}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Rentabilité</div><div class="rq-finance-value ${profitability>=0?'good':'bad'}">${profitability}%</div></div></div></section>
+          <section class="rq-context-card"><div class="rq-context-title">Actions charges</div><div class="rq-actions-list"><div class="rq-action-v2 warn"><div class="rq-action-icon">🧹</div><div><div class="rq-action-title">Optimiser le ménage</div><div class="rq-action-desc">Comparer coût par rotation et durée moyenne des séjours.</div></div></div><div class="rq-action-v2"><div class="rq-action-icon">⚡</div><div><div class="rq-action-title">Suivre les charges fixes</div><div class="rq-action-desc">Internet, énergie, abonnements et maintenance doivent être suivis chaque mois.</div></div></div></div></section>
         </div>
       </div>
 
@@ -5827,6 +5914,18 @@ function eva360BuildDetect(data){
 }
 /* ===== end EVA AUDIT 360 ===== */
 
+
+function switchPropertyTab(tab){
+  document.querySelectorAll('.rq-property-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.rq-property-tab-panel').forEach(p=>p.classList.remove('active'));
+  const btns=[...document.querySelectorAll('.rq-property-tab')];
+  const idx={overview:0,audit:1,pricing:2,calendar:3,charges:4}[tab]||0;
+  if(btns[idx])btns[idx].classList.add('active');
+  const panel=document.getElementById('rq-tab-'+tab);
+  if(panel)panel.classList.add('active');
+}
+
 </script>
 </body>
 </html>
+
