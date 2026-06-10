@@ -925,6 +925,27 @@ tr:hover td{background:#FCF8FF!important;}
 .rq-api-insight b{display:block;color:#17122E;font-size:13px;margin-bottom:4px}
 .rq-api-source{font-size:11px;color:#7B708F;margin-top:10px}
 
+
+/* ===== RentyQ x Easy Concierge API - Step 2 Performance OTA ===== */
+.rq-ota-panel{margin-top:16px;border:1px solid rgba(139,92,246,.16)!important;background:linear-gradient(180deg,#FFFFFF 0%,#FFFCFF 100%)!important}
+.rq-ota-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:12px}
+.rq-ota-card{border:1px solid rgba(139,92,246,.12);border-radius:16px;padding:13px;background:#fff;box-shadow:0 10px 24px rgba(69,39,120,.045)}
+.rq-ota-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.rq-ota-name{font-size:14px;font-weight:950;color:#17122E;display:flex;align-items:center;gap:7px}
+.rq-ota-badge{font-size:10px;font-weight:900;padding:3px 7px;border-radius:999px;background:#F3E8FF;color:#7C3AED}
+.rq-ota-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rq-ota-stat{background:#FAF8FF;border:1px solid rgba(139,92,246,.09);border-radius:12px;padding:8px}
+.rq-ota-label{font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;font-weight:900;margin-bottom:4px}
+.rq-ota-value{font-size:18px;font-weight:950;color:#17122E;letter-spacing:-.4px}
+.rq-ota-note{font-size:12px;color:#5E5573;line-height:1.45;margin-top:10px}
+.rq-ota-opportunity{display:grid;grid-template-columns:8px 1fr auto;gap:10px;align-items:center;margin-top:12px;padding:12px;border-radius:15px;background:linear-gradient(135deg,#ECFDF5,#FFFFFF);border:1px solid rgba(16,185,129,.22)}
+.rq-ota-sev{width:8px;height:100%;min-height:48px;border-radius:999px;background:#10B981}
+.rq-ota-opp-title{font-size:13px;font-weight:950;color:#17122E}
+.rq-ota-opp-text{font-size:12px;color:#5E5573;line-height:1.45;margin-top:3px}
+.rq-ota-gain{font-size:18px;font-weight:950;color:#059669;white-space:nowrap}
+@media(max-width:720px){.rq-ota-opportunity{grid-template-columns:8px 1fr}.rq-ota-gain{grid-column:2}}
+/* ===== end Step 2 Performance OTA ===== */
+
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
@@ -2824,6 +2845,71 @@ function showApartDetail(id){
             <div class="rq-api-insight"><b>3. EVA Audit devient plus crédible</b>Les avis, photos et performances d’annonce permettent de dire si le problème vient du prix, de l’annonce, des photos, de l’emplacement ou de l’exploitation.</div>
           </div>
           <div class="rq-api-source">Étape 1 : affichage démo sécurisé. Étape 2 : brancher ces chiffres sur les vraies réponses API par logement.</div>
+        </section>
+
+        <section class="rq-context-card rq-ota-panel">
+          <div class="rq-api-top">
+            <div>
+              <div class="rq-context-title">📡 Performance OTA par canal</div>
+              <div class="rq-context-sub">EVA compare Airbnb, Booking, VRBO et Direct pour comprendre quels canaux remplissent le logement, lesquels coûtent le plus en commission et où se cache la meilleure marge.</div>
+            </div>
+            <span class="rq-api-badge">Nouveau · Étape 2</span>
+          </div>
+
+          <div class="rq-ota-grid">
+            <div class="rq-ota-card">
+              <div class="rq-ota-head"><div class="rq-ota-name">🏡 Airbnb</div><span class="rq-ota-badge">10 réservations</span></div>
+              <div class="rq-ota-stats">
+                <div class="rq-ota-stat"><div class="rq-ota-label">Nuits</div><div class="rq-ota-value">31</div></div>
+                <div class="rq-ota-stat"><div class="rq-ota-label">CA logement</div><div class="rq-ota-value">2 514€</div></div>
+                <div class="rq-ota-stat"><div class="rq-ota-label">Commission</div><div class="rq-ota-value">445€</div></div>
+                <div class="rq-ota-stat"><div class="rq-ota-label">Net PMS</div><div class="rq-ota-value">2 564€</div></div>
+              </div>
+              <div class="rq-ota-note">Canal principal : bon volume, mais commission élevée. À surveiller lors des périodes fortes.</div>
+            </div>
+
+            <div class="rq-ota-card">
+              <div class="rq-ota-head"><div class="rq-ota-name">🏨 Booking</div><span class="rq-ota-badge">7 réservations</span></div>
+              <div class="rq-ota-stats">
+                <div class="rq-ota-stat"><div class="rq-ota-label">Nuits</div><div class="rq-ota-value">21</div></div>
+                <div class="rq-ota-stat"><div class="rq-ota-label">CA logement</div><div class="rq-ota-value">1 644€</div></div>
+                <div class="rq-ota-stat"><div class="rq-ota-label">Commission</div><div class="rq-ota-value">333€</div></div>
+                <div class="rq-ota-stat"><div class="rq-ota-label">Net PMS</div><div class="rq-ota-value">1 660€</div></div>
+              </div>
+              <div class="rq-ota-note">Booking convertit bien, mais il faut contrôler la commission et pousser des prix plus hauts lors des pics.</div>
+            </div>
+
+            <div class="rq-ota-card">
+              <div class="rq-ota-head"><div class="rq-ota-name">🌐 VRBO</div><span class="rq-ota-badge">5 réservations</span></div>
+              <div class="rq-ota-stats">
+                <div class="rq-ota-stat"><div class="rq-ota-label">Nuits</div><div class="rq-ota-value">16</div></div>
+                <div class="rq-ota-stat"><div class="rq-ota-label">CA logement</div><div class="rq-ota-value">1 144€</div></div>
+                <div class="rq-ota-stat"><div class="rq-ota-label">Commission</div><div class="rq-ota-value">178€</div></div>
+                <div class="rq-ota-stat"><div class="rq-ota-label">Net PMS</div><div class="rq-ota-value">1 216€</div></div>
+              </div>
+              <div class="rq-ota-note">Canal secondaire intéressant, utile pour diversifier la demande et éviter la dépendance Airbnb.</div>
+            </div>
+
+            <div class="rq-ota-card">
+              <div class="rq-ota-head"><div class="rq-ota-name">🤝 Direct</div><span class="rq-ota-badge">4 réservations</span></div>
+              <div class="rq-ota-stats">
+                <div class="rq-ota-stat"><div class="rq-ota-label">Nuits</div><div class="rq-ota-value">6</div></div>
+                <div class="rq-ota-stat"><div class="rq-ota-label">CA logement</div><div class="rq-ota-value">485€</div></div>
+                <div class="rq-ota-stat"><div class="rq-ota-label">Commission</div><div class="rq-ota-value">0€</div></div>
+                <div class="rq-ota-stat"><div class="rq-ota-label">Net PMS</div><div class="rq-ota-value">634€</div></div>
+              </div>
+              <div class="rq-ota-note">Meilleure marge nette. EVA doit recommander de développer ce canal quand c’est possible.</div>
+            </div>
+          </div>
+
+          <div class="rq-ota-opportunity">
+            <div class="rq-ota-sev"></div>
+            <div>
+              <div class="rq-ota-opp-title">Recommandation EVA : augmenter la part du direct</div>
+              <div class="rq-ota-opp-text">Le direct ne représente que 6 nuits sur 74, mais ne génère aucune commission OTA. Objectif : capter davantage de séjours récurrents, pros ou clients satisfaits.</div>
+            </div>
+            <div class="rq-ota-gain">+450€/an</div>
+          </div>
         </section>
 
         <section class="rq-context-card" style="margin-top:16px">
