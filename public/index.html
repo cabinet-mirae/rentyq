@@ -946,6 +946,28 @@ tr:hover td{background:#FCF8FF!important;}
 @media(max-width:720px){.rq-ota-opportunity{grid-template-columns:8px 1fr}.rq-ota-gain{grid-column:2}}
 /* ===== end Step 2 Performance OTA ===== */
 
+/* ===== RentyQ x Easy Concierge API - Step 3 Avis & Qualité ===== */
+.rq-quality-panel{margin-top:16px;border:1px solid rgba(236,72,153,.18)!important;background:linear-gradient(135deg,#FFFFFF 0%,#FFF7FB 52%,#F8F4FF 100%)!important}
+.rq-quality-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0 14px}
+.rq-quality-score{background:white;border:1px solid rgba(139,92,246,.11);border-radius:15px;padding:12px;box-shadow:0 10px 22px rgba(69,39,120,.045)}
+.rq-quality-label{font-size:9px;text-transform:uppercase;letter-spacing:.75px;color:#8A8A99;font-weight:900;margin-bottom:6px}
+.rq-quality-value{font-size:24px;font-weight:950;color:#17122E;letter-spacing:-.5px;line-height:1}
+.rq-quality-bar{height:7px;background:#EEE9FF;border-radius:999px;overflow:hidden;margin-top:10px}
+.rq-quality-bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#7C3AED,#EC4899)}
+.rq-review-columns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.rq-review-box{background:#fff;border:1px solid rgba(139,92,246,.11);border-radius:15px;padding:12px}
+.rq-review-title{font-size:13px;font-weight:950;color:#17122E;margin-bottom:7px}
+.rq-review-list{display:grid;gap:7px}
+.rq-review-item{font-size:12px;line-height:1.45;color:#5E5573;padding:9px;border-radius:11px;background:#FAF8FF;border:1px solid rgba(139,92,246,.08)}
+.rq-review-item b{color:#17122E}
+.rq-quality-action{display:grid;grid-template-columns:8px 1fr auto;gap:10px;align-items:center;margin-top:12px;padding:12px;border-radius:15px;background:linear-gradient(135deg,#FFF7ED,#FFFFFF);border:1px solid rgba(245,158,11,.24)}
+.rq-quality-sev{width:8px;height:100%;min-height:48px;border-radius:999px;background:#F59E0B}
+.rq-quality-action-title{font-size:13px;font-weight:950;color:#17122E}
+.rq-quality-action-text{font-size:12px;color:#5E5573;line-height:1.45;margin-top:3px}
+.rq-quality-impact{font-size:18px;font-weight:950;color:#D97706;white-space:nowrap}
+@media(max-width:760px){.rq-review-columns{grid-template-columns:1fr}.rq-quality-action{grid-template-columns:8px 1fr}.rq-quality-impact{grid-column:2}}
+/* ===== end Step 3 Avis & Qualité ===== */
+
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
@@ -2909,6 +2931,55 @@ function showApartDetail(id){
               <div class="rq-ota-opp-text">Le direct ne représente que 6 nuits sur 74, mais ne génère aucune commission OTA. Objectif : capter davantage de séjours récurrents, pros ou clients satisfaits.</div>
             </div>
             <div class="rq-ota-gain">+450€/an</div>
+          </div>
+        </section>
+
+
+
+        <section class="rq-context-card rq-quality-panel">
+          <div class="rq-api-top">
+            <div>
+              <div class="rq-context-title">⭐ Avis & Qualité perçue</div>
+              <div class="rq-context-sub">EVA croise les notes détaillées et les commentaires voyageurs pour détecter ce qui limite la conversion, le prix accepté et la satisfaction future.</div>
+            </div>
+            <span class="rq-api-badge">Nouveau · Étape 3</span>
+          </div>
+
+          <div class="rq-quality-grid">
+            <div class="rq-quality-score"><div class="rq-quality-label">Note globale</div><div class="rq-quality-value">4.6/5</div><div class="rq-quality-bar"><span style="width:92%"></span></div></div>
+            <div class="rq-quality-score"><div class="rq-quality-label">Propreté</div><div class="rq-quality-value">4.4/5</div><div class="rq-quality-bar"><span style="width:88%"></span></div></div>
+            <div class="rq-quality-score"><div class="rq-quality-label">Emplacement</div><div class="rq-quality-value">4.8/5</div><div class="rq-quality-bar"><span style="width:96%"></span></div></div>
+            <div class="rq-quality-score"><div class="rq-quality-label">Qualité / prix</div><div class="rq-quality-value">4.3/5</div><div class="rq-quality-bar"><span style="width:86%"></span></div></div>
+            <div class="rq-quality-score"><div class="rq-quality-label">Check-in</div><div class="rq-quality-value">4.7/5</div><div class="rq-quality-bar"><span style="width:94%"></span></div></div>
+            <div class="rq-quality-score"><div class="rq-quality-label">Communication</div><div class="rq-quality-value">4.6/5</div><div class="rq-quality-bar"><span style="width:92%"></span></div></div>
+          </div>
+
+          <div class="rq-review-columns">
+            <div class="rq-review-box">
+              <div class="rq-review-title">Ce qui aide la rentabilité</div>
+              <div class="rq-review-list">
+                <div class="rq-review-item"><b>Emplacement très fort</b> : la proximité centre-ville / cathédrale est un argument de prix.</div>
+                <div class="rq-review-item"><b>Check-in fluide</b> : bon signal pour les voyageurs business et séjours courts.</div>
+                <div class="rq-review-item"><b>Équipement pro visible</b> : workspace + Wi-Fi permettent un positionnement affaires.</div>
+              </div>
+            </div>
+            <div class="rq-review-box">
+              <div class="rq-review-title">Ce qui limite le prix accepté</div>
+              <div class="rq-review-list">
+                <div class="rq-review-item"><b>Propreté perfectible</b> : à surveiller car elle impacte directement les notes et la conversion.</div>
+                <div class="rq-review-item"><b>Qualité/prix fragile</b> : si EVA augmente les prix, il faut renforcer la valeur perçue.</div>
+                <div class="rq-review-item"><b>Photos à optimiser</b> : score IA 73/100, potentiel d'amélioration de l'annonce.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rq-quality-action">
+            <div class="rq-quality-sev"></div>
+            <div>
+              <div class="rq-quality-action-title">Recommandation EVA : sécuriser la propreté avant d’augmenter fortement les prix</div>
+              <div class="rq-quality-action-text">Le logement peut vendre plus cher grâce à son emplacement, mais EVA recommande de renforcer le contrôle ménage et la mise en valeur avant les hausses événementielles.</div>
+            </div>
+            <div class="rq-quality-impact">+3 à 7%</div>
           </div>
         </section>
 
