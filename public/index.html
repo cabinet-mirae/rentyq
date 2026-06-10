@@ -879,36 +879,12 @@ tr:hover td{background:#FCF8FF!important;}
 @media(max-width:640px){.eva-mini-kpi-row,.eva-flow-steps{grid-template-columns:1fr}.eva-cockpit-title{font-size:24px}.eva-signal{grid-template-columns:6px 1fr}.eva-signal-value{text-align:left}}
 /* ===== end EVA COCKPIT CLARIFIÉ ===== */
 
-
-/* ===== RentyQ V2 — sidebar stable + navigation contexte logement ===== */
-.rq-property-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 0;position:relative;z-index:2}
-.rq-property-tab{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.13);color:white;border-radius:999px;padding:9px 13px;font-size:12px;font-weight:900;cursor:pointer;font-family:inherit;transition:.15s}
-.rq-property-tab:hover{background:rgba(255,255,255,.20)}
-.rq-property-tab.active{background:white;color:#24105C;border-color:white;box-shadow:0 10px 26px rgba(0,0,0,.16)}
-.rq-property-tab-panel{display:none;animation:rqFade .18s ease-out}
-.rq-property-tab-panel.active{display:block}
-@keyframes rqFade{from{opacity:.35;transform:translateY(4px)}to{opacity:1;transform:none}}
-.rq-context-layout{display:grid;grid-template-columns:1.05fr .95fr;gap:16px;margin-top:16px}
-.rq-context-card{background:white;border:1px solid rgba(139,92,246,.14);border-radius:20px;box-shadow:0 14px 40px rgba(69,39,120,.06);padding:16px}
-.rq-context-title{font-size:17px;font-weight:950;color:#17122E;letter-spacing:-.3px;margin-bottom:4px}
-.rq-context-sub{font-size:12px;color:#8A8A99;line-height:1.45;margin-bottom:14px}
-.rq-audit-upload{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px}
-.rq-audit-input{border:1px dashed rgba(139,92,246,.26);border-radius:14px;padding:12px;background:#FAF8FF}
-.rq-audit-input label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.75px;color:#7C3AED;font-weight:900;margin-bottom:6px}
-.rq-audit-input input{width:100%;font-size:12px}
-.rq-mini-pie-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px}
-.rq-mini-pie{background:#FAF8FF;border:1px solid rgba(139,92,246,.10);border-radius:16px;padding:12px;text-align:center}
-.rq-pie-circle{width:72px;height:72px;border-radius:50%;margin:0 auto 8px;background:conic-gradient(#7C3AED var(--occ),#EDE9FE 0);display:grid;place-items:center;font-size:14px;font-weight:950;color:#241A3D}
-.rq-pricing-day-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
-.rq-price-day{border:1px solid rgba(139,92,246,.12);background:linear-gradient(180deg,#fff,#FFFCFF);border-radius:14px;padding:11px;cursor:pointer}
-.rq-price-day.booked{background:#ECFDF5;color:#047857;cursor:default}
-.rq-price-day.event{background:#FFF7ED;border-color:#FDBA74}
-.rq-charge-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
-.rq-charge-tile{background:#FAF8FF;border:1px solid rgba(139,92,246,.10);border-radius:14px;padding:12px}
-.rq-charge-label{font-size:11px;color:#8A8A99;font-weight:800;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
-.rq-charge-value{font-size:22px;font-weight:950;color:#17122E}
-@media(max-width:980px){.rq-context-layout{grid-template-columns:1fr}.rq-audit-upload{grid-template-columns:1fr}}
-/* ===== end RentyQ V2 ===== */
+/* ===== RentyQ V3 — mode unique + navigation logement ===== */
+.rq-property-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 2px}
+.rq-property-tab{border:1px solid rgba(139,92,246,.18);background:#fff;border-radius:999px;padding:9px 13px;font-size:12px;font-weight:850;color:#5B4B7A;cursor:pointer;box-shadow:0 8px 20px rgba(69,39,120,.05)}
+.rq-property-tab.active{background:linear-gradient(135deg,#7C3AED,#EC4899);color:#fff;border-color:transparent}
+.rq-owner-chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.16);padding:6px 10px;color:#fff;font-size:12px;font-weight:850;margin-left:8px}
+.rq-onboarding-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#F8F4FF;border:1px solid rgba(139,92,246,.14);font-size:12px;color:#5E5573;line-height:1.55}
 
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css"/>
@@ -1380,7 +1356,7 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
     </div>
   </div>
   <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
-  <div class="beta-banner" style="background:#0F172A;font-size:12px;padding:8px 20px"><i class="ti ti-sparkles" style="margin-right:4px;vertical-align:-1px"></i> <strong>Beta</strong> — EVA Pricing + Smoobu + Événements</div>
+  <div class="beta-banner" style="background:#0F172A;font-size:12px;padding:8px 20px"><i class="ti ti-sparkles" style="margin-right:4px;vertical-align:-1px"></i> <strong>Beta</strong> — Copilote de rentabilité LCD : Audit 360° + Tarification IA + Smoobu</div>
   <div class="app-body">
     <div class="sidebar" style="background:#0F172A;border-right:1px solid rgba(255,255,255,0.08)">
       <div class="sidebar-brand">
@@ -1394,22 +1370,18 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
         </div>
         <div class="brand-tagline" style="color:rgba(255,255,255,0.25);margin-left:54px;font-size:10px">Stop guessing.<br/>Start earning.</div>
       </div>
-      <div id="mode-switcher" style="display:none;margin:0 .75rem .5rem;background:rgba(255,255,255,0.08);border-radius:10px;padding:3px;display:flex">
-        <button id="mode-btn-solo" onclick="switchMode('solo')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:rgba(83,74,183,0.3);color:white;transition:all .15s"><i class="ti ti-building" style="margin-right:3px;font-size:13px;vertical-align:-1px" aria-hidden="true"></i>Gestion</button>
-        <button id="mode-btn-concierge" onclick="switchMode('concierge')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:rgba(255,255,255,0.4);transition:all .15s"><i class="ti ti-users" style="margin-right:3px;font-size:13px;vertical-align:-1px" aria-hidden="true"></i>Conciergerie</button>
-      </div>
+      <div id="mode-switcher" style="display:none!important"></div>
       <div class="sidebar-sep" style="background:rgba(255,255,255,0.08)"></div>
       <div id="nav-solo">
-      <div class="nav-section-label">RentyQ</div>
+      <div class="nav-section-label">Pilotage</div>
       <button class="nav-item active" onclick="goTo('parc',this)"><span class="nav-emoji"><i class="ti ti-building" aria-hidden="true"></i></span>Mes logements <span class="nav-badge" id="parc-badge">0</span></button>
-      <button class="nav-item" onclick="goTo('scanner',this)"><span class="nav-emoji"><i class="ti ti-radar-2" aria-hidden="true"></i></span>Scanner EVA <span class="nav-badge-new">Investir</span></button>
+      <button class="nav-item" onclick="goTo('scanner',this)"><span class="nav-emoji"><i class="ti ti-radar-2" aria-hidden="true"></i></span>Scanner EVA <span class="nav-badge-new">NEW</span></button>
       <button class="nav-item" onclick="goTo('calendrier',this)"><span class="nav-emoji"><i class="ti ti-calendar" aria-hidden="true"></i></span>Calendrier global</button>
       <button class="nav-item" onclick="goTo('clean',this)" id="nav-cleanyq"><span class="nav-emoji"><i class="ti ti-spray" aria-hidden="true"></i></span>CleanyQ</button>
-      <button class="nav-item" onclick="goTo('settings',this)"><span class="nav-emoji"><i class="ti ti-settings" aria-hidden="true"></i></span>Paramètres</button>
       <div class="nav-section-label" style="color:rgba(255,255,255,0.25)" id="nav-label-integrations">Intégrations</div>
       <button class="nav-item" onclick="goTo('smoobu',this)" id="nav-smoobu"><span class="nav-emoji"><i class="ti ti-link" aria-hidden="true"></i></span>Smoobu <span class="smoobu-badge" id="smoobu-nav-badge" style="display:none">✓</span></button>
       </div>
-      <div id="nav-concierge" style="display:none">
+      <div id="nav-concierge" style="display:none!important">
       <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Conciergerie</div>
       <button class="nav-item" onclick="goTo('cockpit-c',this)"><span class="nav-emoji"><i class="ti ti-layout-dashboard" aria-hidden="true"></i></span>Dashboard</button>
       <button class="nav-item" onclick="goTo('proprietaires',this)"><span class="nav-emoji"><i class="ti ti-users" aria-hidden="true"></i></span>Propriétaires</button>
@@ -1437,7 +1409,7 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
     <div class="main">
 
       <!-- COCKPIT -->
-      <div class="page" id="page-cockpit">
+      <div class="page active" id="page-cockpit">
         <div class="page-header">
           <div><div class="page-title">Cockpit RentyQ</div><div class="page-sub" id="cockpit-date">Votre tour de contrôle : revenus, risques et prochaines actions EVA</div></div>
           <div class="actions">
@@ -1476,9 +1448,9 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       </div>
 
       <!-- LE PARC -->
-      <div class="page active" id="page-parc">
+      <div class="page" id="page-parc">
         <div class="page-header">
-          <div><div class="page-title">Mes logements</div><div class="page-sub" id="parc-sub"></div></div>
+          <div><div class="page-title">Le parc</div><div class="page-sub" id="parc-sub"></div></div>
           <div class="actions">
             <div style="display:flex;background:#F0F0F5;border-radius:8px;padding:2px;margin-right:8px">
               <button id="parc-view-list" onclick="switchParcView('list')" style="padding:6px 12px;border-radius:6px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:#6B3FA0;color:white">📋 Liste</button>
@@ -1525,8 +1497,8 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       <div class="page" id="page-pricing">
         <div class="page-header">
           <div>
-            <div class="page-title">Tarification IA</div>
-            <div class="page-sub" id="pricing-sub">EVA Pricing analyse les prochaines nuits libres et propose les meilleurs prix à pousser via Smoobu.</div>
+            <div class="page-title">EVA pricing</div>
+            <div class="page-sub" id="pricing-sub">EVA analyse votre parc</div>
           </div>
           <div class="actions">
             <select id="pricing-horizon" onchange="renderPricingTable()" style="padding:6px 10px;border-radius:8px;border:0.5px solid #EEEEF5;font-size:13px;font-family:inherit">
@@ -2034,18 +2006,17 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
     </div>
   </div>
   <!-- Welcome popup -->
-  <div id="rq-tour-welcome" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:white;border-radius:20px;padding:2rem 2rem 1.75rem;width:460px;max-width:90vw;box-shadow:0 8px 40px rgba(0,0,0,0.25);pointer-events:auto;z-index:3">
+  <div id="rq-tour-welcome" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:white;border-radius:20px;padding:2rem 2rem 1.75rem;width:500px;max-width:92vw;box-shadow:0 8px 40px rgba(0,0,0,0.25);pointer-events:auto;z-index:3">
     <div style="text-align:center;margin-bottom:1.5rem">
       <div style="font-size:44px;margin-bottom:12px">👋</div>
-      <div style="font-size:22px;font-weight:700;color:#111827;margin-bottom:8px">Bienvenue dans RentyQ</div>
-      <div style="font-size:14px;color:#6B7280;line-height:1.7;max-width:360px;margin:0 auto">Ton premier logement est intégré. On te montre rapidement comment piloter tes revenus.</div>
+      <div style="font-size:22px;font-weight:800;color:#111827;margin-bottom:8px">Bienvenue dans RentyQ</div>
+      <div style="font-size:14px;color:#6B7280;line-height:1.7;max-width:390px;margin:0 auto">RentyQ est un seul outil pour pros LCD, sous-loueurs et conciergeries. Ajoutez vos logements, puis EVA vous dit quoi faire pour gagner plus.</div>
     </div>
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1.5rem">
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F9FAFB;border-radius:10px"><span style="font-size:18px;width:28px;text-align:center">🏠</span><div><div style="font-size:13px;font-weight:600;color:#111827">Cockpit</div><div style="font-size:12px;color:#9CA3AF">Vue globale — priorités du jour</div></div></div>
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F9FAFB;border-radius:10px"><span style="font-size:18px;width:28px;text-align:center">📅</span><div><div style="font-size:13px;font-weight:600;color:#111827">Calendrier</div><div style="font-size:12px;color:#9CA3AF">Réservations et disponibilités</div></div></div>
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F9FAFB;border-radius:10px"><span style="font-size:18px;width:28px;text-align:center">🧠</span><div><div style="font-size:13px;font-weight:600;color:#111827">EVA Pricing</div><div style="font-size:12px;color:#9CA3AF">L'IA qui recommande le bon prix</div></div></div>
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F9FAFB;border-radius:10px"><span style="font-size:18px;width:28px;text-align:center">🎉</span><div><div style="font-size:13px;font-weight:600;color:#111827">Événements</div><div style="font-size:12px;color:#9CA3AF">Concerts, salons, festivals — boost de revenus</div></div></div>
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F9FAFB;border-radius:10px"><span style="font-size:18px;width:28px;text-align:center">💰</span><div><div style="font-size:13px;font-weight:600;color:#111827">Finances</div><div style="font-size:12px;color:#9CA3AF">Rentabilité nette et performances</div></div></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F9FAFB;border-radius:10px"><span style="font-size:18px;width:28px;text-align:center">🏠</span><div><div style="font-size:13px;font-weight:700;color:#111827">Mes logements</div><div style="font-size:12px;color:#9CA3AF">Votre parc unique, avec propriétaire associé si besoin.</div></div></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F9FAFB;border-radius:10px"><span style="font-size:18px;width:28px;text-align:center">📊</span><div><div style="font-size:13px;font-weight:700;color:#111827">Audit 360° dans chaque logement</div><div style="font-size:12px;color:#9CA3AF">CSV réservations + CSV bancaire + adresse → rentabilité nette et actions.</div></div></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F9FAFB;border-radius:10px"><span style="font-size:18px;width:28px;text-align:center">🧠</span><div><div style="font-size:13px;font-weight:700;color:#111827">Tarification IA</div><div style="font-size:12px;color:#9CA3AF">EVA recommande les prix, puis RentyQ peut pousser via Smoobu.</div></div></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F9FAFB;border-radius:10px"><span style="font-size:18px;width:28px;text-align:center">📍</span><div><div style="font-size:13px;font-weight:700;color:#111827">Scanner EVA</div><div style="font-size:12px;color:#9CA3AF">Analyse une adresse avant de signer ou d’ajouter un nouveau bien.</div></div></div>
     </div>
     <button onclick="rqTourStart()" style="width:100%;padding:13px;border-radius:12px;background:#534AB7;color:white;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px">Faire le tour en 30 secondes →</button>
     <button onclick="rqTourClose()" style="width:100%;padding:9px;border-radius:12px;background:none;color:#9CA3AF;border:none;font-size:13px;cursor:pointer;font-family:inherit">Je connais déjà, passer</button>
@@ -2310,9 +2281,10 @@ async function loadApp(){
     await loadProprietaires();
     await loadCharges();await loadTransactions();await loadCatRules();await loadCleaners();await loadMissions();
     applyModules();
-    if(userModules.includes('concierge')){renderProprietaires();initRapportMois();renderRapports();renderCockpitConcierge();renderParcConcierge();}
+    // Mode unique : pas de dashboard conciergerie séparé. Les propriétaires sont gérés comme attributs des logements.
      updateNavVisibility();
      onb2Open();
+     try{const firstNav=document.querySelector('[onclick*="parc"]'); if(firstNav)goTo('parc',firstNav);}catch(e){}
   }catch(e){
     console.error('loadApp error:',e);
     document.getElementById('loading').style.display='none';
@@ -2399,9 +2371,9 @@ function renderCockpit(){
 
   let h=`
   <div class="eva-cockpit-hero">
-    <div class="eva-cockpit-kicker">RentyQ intelligence cockpit</div>
-    <div class="eva-cockpit-title">Votre prochaine décision rentable doit être évidente.</div>
-    <div class="eva-cockpit-sub">Le cockpit ne remplace pas les modules EVA : il les coordonne. EVA Pricing agit sur les prix à court terme, Scanner EVA analyse le potentiel d’une adresse, EVA Audit explique la rentabilité nette et les actions structurelles à mener.</div>
+    <div class="eva-cockpit-kicker">RentyQ — cockpit de rentabilité</div>
+    <div class="eva-cockpit-title">Votre parc doit vous dire quoi faire en priorité.</div>
+    <div class="eva-cockpit-sub">RentyQ fonctionne en un seul mode : vos logements, les propriétaires associés si besoin, et EVA pour prioriser les décisions qui augmentent la rentabilité nette.</div>
   </div>
 
   <div class="eva-mini-kpi-row">
@@ -2721,7 +2693,7 @@ function showApartDetail(id){
         <div class="rq-detail-hero-main">
           <div>
             <div class="rq-detail-title-row"><div class="rq-detail-emoji">${a.emoji||'🏠'}</div><div style="min-width:0"><div class="rq-detail-name">${esc(a.name||'Appartement')}</div><div class="rq-detail-address">${esc(a.address||city||'Adresse à compléter')}</div></div></div>
-            <div style="margin-top:14px"><span class="rq-health-badge ${healthClass}"><span class="rq-health-dot"></span>${healthLabel}</span><span style="display:inline-block;margin-left:10px;color:rgba(255,255,255,.74);font-size:13px">${healthText}</span></div>
+            <div style="margin-top:14px"><span class="rq-health-badge ${healthClass}"><span class="rq-health-dot"></span>${healthLabel}</span><span style="display:inline-block;margin-left:10px;color:rgba(255,255,255,.74);font-size:13px">${healthText}</span>${(typeof proprietaires!=='undefined'&&a.proprietaire_id)?`<span class="rq-owner-chip">👥 Propriétaire : ${esc((proprietaires.find(p=>String(p.id)===String(a.proprietaire_id))||{}).name||'Client')}</span>`:''}</div>
           </div>
           <div class="rq-score-ring" style="--score:${score}%"><div class="rq-score-ring-inner"><div class="rq-score-num">${score}</div><div class="rq-score-label">EVA Score</div></div></div>
         </div>
@@ -2731,16 +2703,16 @@ function showApartDetail(id){
           <div class="rq-hero-kpi"><div class="rq-hero-kpi-label">Revenu à récupérer</div><div class="rq-hero-kpi-value">${potential}€</div><div class="rq-hero-kpi-sub">sur nuits libres proches</div></div>
           <div class="rq-hero-kpi"><div class="rq-hero-kpi-label">Actions</div><div class="rq-hero-kpi-value">${actions.filter(x=>x.type).length}</div><div class="rq-hero-kpi-sub">priorités opérationnelles</div></div>
         </div>
-        <div class="rq-property-tabs">
-          <button class="rq-property-tab active" onclick="switchPropertyTab('overview')">Vue d’ensemble</button>
-          <button class="rq-property-tab" onclick="switchPropertyTab('audit')">Audit 360°</button>
-          <button class="rq-property-tab" onclick="switchPropertyTab('pricing')">Tarification IA</button>
-          <button class="rq-property-tab" onclick="switchPropertyTab('calendar')">Calendrier</button>
-          <button class="rq-property-tab" onclick="switchPropertyTab('charges')">Charges</button>
-        </div>
       </section>
 
-      <div class="rq-property-tab-panel active" id="rq-tab-overview">
+      <div class="rq-property-tabs">
+        <button class="rq-property-tab active" onclick="this.closest('.rq-detail-v2').scrollIntoView({behavior:'smooth',block:'start'})">Vue d’ensemble</button>
+        <button class="rq-property-tab" onclick="goTo('eva-audit',document.querySelector('[onclick*=eva-audit]'))">Audit 360°</button>
+        <button class="rq-property-tab" onclick="goTo('pricing',document.querySelector('[onclick*=pricing]'))">Tarification IA</button>
+        <button class="rq-property-tab" onclick="goTo('calendrier',document.querySelector('[onclick*=calendrier]'))">Calendrier</button>
+        <button class="rq-property-tab" onclick="goTo('finances',document.querySelector('[onclick*=finances]'))">Charges</button>
+      </div>
+
       <section class="rq-reco-card ${recoClass}">
         <div class="rq-reco-main"><div><div class="rq-reco-kicker">🎯 EVA recommande</div><div class="rq-reco-title">${esc(recoTitle)}</div></div><div class="rq-reco-price">${recoPrice}€<br><span>prix conseillé</span></div></div>
         <div class="rq-reason-list">${recoReasons.slice(0,4).map(r=>`<div class="rq-reason-item"><b>${esc(r[0])}</b><br>${esc(r[1])}</div>`).join('')}</div>
@@ -2757,60 +2729,6 @@ function showApartDetail(id){
           <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">🧭 Timeline opérationnelle</div><div class="rq-card-sub-v2">Ce qui arrive sur ce logement.</div></div></div><div class="rq-timeline">${timelineHtml}</div></section>
           <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">🧹 CleanyQ</div><div class="rq-card-sub-v2">Ménage et préparation du bien.</div></div></div><div class="rq-clean-list">${cleanHtml}</div></section>
           <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">🎉 Événements proches</div><div class="rq-card-sub-v2">Opportunités de hausse locale.</div></div></div><div class="rq-events-list">${eventsHtml}</div></section>
-        </div>
-      </div>
-
-      </div>
-
-      <div class="rq-property-tab-panel" id="rq-tab-audit">
-        <div class="rq-context-layout">
-          <section class="rq-context-card">
-            <div class="rq-context-title">Audit 360° du logement</div>
-            <div class="rq-context-sub">Importez les données du bien pour produire l’analyse complète : réservations, charges, occupation, rentabilité nette et recommandations structurelles.</div>
-            <div class="rq-audit-upload">
-              <div class="rq-audit-input"><label>CSV réservations</label><input type="file" accept=".csv,text/csv"></div>
-              <div class="rq-audit-input"><label>CSV bancaire</label><input type="file" accept=".csv,text/csv"></div>
-              <div class="rq-audit-input"><label>Adresse</label><input value="${esc(a.address||city||'')}" placeholder="Adresse du bien"></div>
-            </div>
-            <button class="rq-button-primary" onclick="goTo('eva-audit',document.querySelector('[onclick*=eva-audit]'))">Lancer l’analyse EVA complète</button>
-          </section>
-          <section class="rq-context-card">
-            <div class="rq-context-title">Lecture immédiate</div>
-            <div class="rq-charge-grid">
-              <div class="rq-charge-tile"><div class="rq-charge-label">Score EVA</div><div class="rq-charge-value">${score}/100</div></div>
-              <div class="rq-charge-tile"><div class="rq-charge-label">Rentabilité nette</div><div class="rq-charge-value">${net>=0?'+':''}${net}€</div></div>
-              <div class="rq-charge-tile"><div class="rq-charge-label">Occupation 14j</div><div class="rq-charge-value">${occ14}%</div></div>
-              <div class="rq-charge-tile"><div class="rq-charge-label">Potentiel proche</div><div class="rq-charge-value">${potential}€</div></div>
-            </div>
-          </section>
-        </div>
-        <section class="rq-context-card" style="margin-top:16px">
-          <div class="rq-context-title">Taux d’occupation par mois</div>
-          <div class="rq-context-sub">Vue simple propriétaire : part des nuits réservées vs disponibles.</div>
-          <div class="rq-mini-pie-grid">${[0,1,2].map(i=>{const d=new Date(today.getFullYear(),today.getMonth()-2+i,1);const m=d.toISOString().slice(0,7);const booked=aptRes.filter(r=>r.date_from&&r.date_from.startsWith(m)).reduce((s,r)=>s+(+r.nights||1),0);const days=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();const pct=Math.min(100,Math.round(booked/days*100));return `<div class="rq-mini-pie"><div class="rq-pie-circle" style="--occ:${pct}%">${pct}%</div><b>${months[d.getMonth()]}</b><div style="font-size:11px;color:#8A8A99;margin-top:4px">${booked} nuits occupées · ${Math.max(0,days-booked)} libres</div></div>`}).join('')}</div>
-        </section>
-      </div>
-
-      <div class="rq-property-tab-panel" id="rq-tab-pricing">
-        <section class="rq-context-card">
-          <div class="rq-context-title">Tarification IA — propulsée par EVA Pricing</div>
-          <div class="rq-context-sub">Objectif : recommander le bon prix jour par jour, puis pousser les modifications via Smoobu vers Airbnb et Booking.</div>
-          <div class="rq-reco-card ${recoClass}" style="margin-bottom:14px"><div class="rq-reco-main"><div><div class="rq-reco-kicker">Prix recommandé maintenant</div><div class="rq-reco-title">${esc(recoTitle)}</div></div><div class="rq-reco-price">${recoPrice}€<br><span>conseillé</span></div></div><div class="rq-reco-footer"><span class="rq-impact-pill">${esc(impactText)}</span><button class="rq-button-primary" onclick="applyAI('${a.id}',${recoPrice})">Appliquer via Smoobu</button></div></div>
-          <div class="rq-pricing-day-list">${days14.slice(0,14).map(d=>`<div class="rq-price-day ${d.booked?'booked':d.evs.length?'event':''}" ${d.booked?'':`onclick="applyAI('${a.id}',${d.rec})"`}><div style="font-size:11px;color:#8A8A99;font-weight:800">${dayName(d.d)} ${dayNum(d.d)}</div><div style="font-size:22px;font-weight:950;margin-top:4px">${d.booked?'Réservé':d.rec+'€'}</div><div style="font-size:11px;color:#8A8A99;margin-top:4px">${d.evs.length?'Événement local':d.booked?'Déjà vendu':'Libre à optimiser'}</div></div>`).join('')}</div>
-        </section>
-      </div>
-
-      <div class="rq-property-tab-panel" id="rq-tab-calendar">
-        <div class="rq-context-layout">
-          <section class="rq-context-card"><div class="rq-context-title">Calendrier du logement</div><div class="rq-context-sub">Vue opérationnelle des prochaines nuits, réservations, événements et ménages.</div><div class="rq-nights-grid">${nightsHtml}</div></section>
-          <section class="rq-context-card"><div class="rq-context-title">Timeline</div><div class="rq-timeline">${timelineHtml}</div></section>
-        </div>
-      </div>
-
-      <div class="rq-property-tab-panel" id="rq-tab-charges">
-        <div class="rq-context-layout">
-          <section class="rq-context-card"><div class="rq-context-title">Charges et rentabilité</div><div class="rq-context-sub">Comprendre où part l’argent et combien il reste réellement.</div><div class="rq-finance-grid"><div class="rq-finance-line"><div class="rq-finance-label">CA généré</div><div class="rq-finance-value">${rev}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Charges détectées</div><div class="rq-finance-value">${charges}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Résultat net</div><div class="rq-finance-value ${net>=0?'good':'bad'}">${net>=0?'+':''}${net}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Rentabilité</div><div class="rq-finance-value ${profitability>=0?'good':'bad'}">${profitability}%</div></div></div></section>
-          <section class="rq-context-card"><div class="rq-context-title">Actions charges</div><div class="rq-actions-list"><div class="rq-action-v2 warn"><div class="rq-action-icon">🧹</div><div><div class="rq-action-title">Optimiser le ménage</div><div class="rq-action-desc">Comparer coût par rotation et durée moyenne des séjours.</div></div></div><div class="rq-action-v2"><div class="rq-action-icon">⚡</div><div><div class="rq-action-title">Suivre les charges fixes</div><div class="rq-action-desc">Internet, énergie, abonnements et maintenance doivent être suivis chaque mois.</div></div></div></div></section>
         </div>
       </div>
 
@@ -3706,48 +3624,32 @@ function updateNavVisibility(){
   const hasSmoobu=!!smoobuConnected;
   const navSm=document.getElementById('nav-smoobu');
   const navSmLabel=document.getElementById('nav-label-integrations');
-  if(navSm)navSm.style.display=hasSmoobu?'flex':'none';
-  if(navSmLabel)navSmLabel.style.display=hasSmoobu?'block':'none';
+  if(navSm)navSm.style.display='flex';
+  if(navSmLabel)navSmLabel.style.display='block';
 }
 
 function applyModules(){
-  userModules=getModules();
-  updateNavVisibility();
-  // Show switcher only if both modules active
+  // RentyQ est maintenant un seul produit, sans mode Propriétaire / Conciergerie.
+  userModules=['solo'];
+  currentMode='solo';
   const switcher=document.getElementById('mode-switcher');
-  const hasBoth=userModules.includes('solo')&&userModules.includes('concierge');
-  if(switcher)switcher.style.display=hasBoth?'flex':'none';
-  // If only concierge, auto switch
-  if(userModules.includes('concierge')&&!userModules.includes('solo'))switchMode('concierge');
-  else if(!userModules.includes('concierge')&&userModules.includes('solo'))switchMode('solo');
-  // Update settings toggles
-  const tSolo=document.getElementById('toggle-mod-solo');
-  const tConc=document.getElementById('toggle-mod-concierge');
-  if(tSolo){tSolo.className='toggle '+(userModules.includes('solo')?'on':'off');}
-  if(tConc){tConc.className='toggle '+(userModules.includes('concierge')?'on':'off');}
+  if(switcher)switcher.style.display='none';
+  const navSolo=document.getElementById('nav-solo');
+  const navConc=document.getElementById('nav-concierge');
+  if(navSolo)navSolo.style.display='block';
+  if(navConc)navConc.style.display='none';
+  updateNavVisibility();
 }
 
 function switchMode(mode){
-  currentMode=mode;
+  // Compatibilité ancienne logique : on force toujours le mode unique.
+  currentMode='solo';
   const navSolo=document.getElementById('nav-solo');
   const navConc=document.getElementById('nav-concierge');
-  const btnSolo=document.getElementById('mode-btn-solo');
-  const btnConc=document.getElementById('mode-btn-concierge');
-  if(mode==='solo'){
-    if(navSolo)navSolo.style.display='block';
-    if(navConc)navConc.style.display='none';
-    if(btnSolo){btnSolo.style.background='rgba(107,63,160,0.5)';btnSolo.style.color='white';}
-    if(btnConc){btnConc.style.background='transparent';btnConc.style.color='rgba(255,255,255,0.4)';}
-    goTo('cockpit',document.querySelector('#nav-solo .nav-item'));
-  } else {
-    if(navSolo)navSolo.style.display='none';
-    if(navConc)navConc.style.display='block';
-    if(btnConc){btnConc.style.background='rgba(107,63,160,0.5)';btnConc.style.color='white';}
-    if(btnSolo){btnSolo.style.background='transparent';btnSolo.style.color='rgba(255,255,255,0.4)';}
-    goTo('cockpit-c',document.querySelector('#nav-concierge .nav-item'));
-    renderCockpitConcierge();
-    renderParcConcierge();
-  }
+  if(navSolo)navSolo.style.display='block';
+  if(navConc)navConc.style.display='none';
+  const btn=document.querySelector('#nav-solo .nav-item');
+  if(typeof goTo==='function')goTo('parc',btn);
 }
 
 function renderCockpitConcierge(){
@@ -5471,39 +5373,39 @@ let rqTourStep = -1;
 
 const RQ_TOUR_STEPS = [
   {
-    sel: "[onclick*=\"cockpit\"]",
-    page: "cockpit",
+    sel: "[onclick*="parc"]",
+    page: "parc",
     emoji: "🏠",
-    title: "1/5 — Cockpit",
-    text: "Ici, tu vois les priorités du jour : logements libres, revenus, occupation et alertes importantes. C’est ta tour de contrôle quotidienne."
+    title: "1/5 — Mes logements",
+    text: "C’est votre parc unique : biens propres, biens en sous-location ou biens de propriétaires clients. Chaque logement porte sa rentabilité, son calendrier et ses recommandations EVA."
   },
   {
-    sel: "[onclick*=\"calendrier\"]",
+    sel: "[onclick*="scanner"]",
+    page: "scanner",
+    emoji: "📍",
+    title: "2/5 — Scanner EVA",
+    text: "Avant d’ajouter ou de signer un bien, Scanner EVA évalue l’adresse, le potentiel LCD et la cohérence du prix."
+  },
+  {
+    sel: "[onclick*="calendrier"]",
     page: "calendrier",
     emoji: "📅",
-    title: "2/5 — Calendrier",
-    text: "Visualise tes périodes libres, réservées et les opportunités à venir. Clique sur n’importe quel jour pour voir le détail et les missions ménage."
+    title: "3/5 — Calendrier global",
+    text: "Visualisez toutes les réservations, check-in, check-out, disponibilités et périodes à risque sur l’ensemble du parc."
   },
   {
-    sel: "[onclick*=\"pricing\"]",
-    page: "pricing",
-    emoji: "🧠",
-    title: "3/5 — EVA Pricing",
-    text: "EVA analyse ton logement, les événements locaux et la demande pour suggérer le bon prix. Tu valides chaque ajustement avant qu’il soit appliqué."
+    sel: "[onclick*="clean"]",
+    page: "clean",
+    emoji: "🧹",
+    title: "4/5 — CleanyQ",
+    text: "Organisez les missions de ménage et de préparation pour éviter les urgences opérationnelles."
   },
   {
-    sel: "[onclick*=\"events\"]",
-    page: "events",
-    emoji: "🎉",
-    title: "4/5 — Événements",
-    text: "Repère les concerts, salons et pics de demande qui peuvent augmenter tes revenus. EVA détecte automatiquement les opportunités dans tes villes."
-  },
-  {
-    sel: "[onclick*=\"finances\"]",
-    page: "finances",
-    emoji: "💰",
-    title: "5/5 — Finances",
-    text: "Suis ta rentabilité nette et comprends ce qui te rapporte vraiment. Le prévisionnel sur 12 mois t’aide à anticiper tes revenus futurs."
+    sel: "[onclick*="smoobu"]",
+    page: "smoobu",
+    emoji: "🔗",
+    title: "5/5 — Smoobu",
+    text: "Connectez Smoobu pour synchroniser les logements, récupérer les réservations et pousser les tarifs recommandés vers Airbnb et Booking."
   }
 ];
 
@@ -5588,10 +5490,10 @@ function rqTourGoTo(idx) {
 function rqTourNext() {
   if (rqTourStep === RQ_TOUR_STEPS.length - 1) {
     rqTourClose();
-    const evaBtn = document.querySelector('[onclick*="pricing"]');
-    if (evaBtn && typeof goTo === 'function') goTo('pricing', evaBtn);
+    const evaBtn = document.querySelector('[onclick*="parc"]');
+    if (evaBtn && typeof goTo === 'function') goTo('parc', evaBtn);
     const t = document.getElementById('toast');
-    if (t) { t.textContent = '🤖 EVA est prête — analysez vos recommandations !'; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
+    if (t) { t.textContent = '🏠 Ajoutez ou ouvrez un logement pour lancer EVA'; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
   } else {
     rqTourGoTo(rqTourStep + 1);
   }
@@ -5914,18 +5816,6 @@ function eva360BuildDetect(data){
 }
 /* ===== end EVA AUDIT 360 ===== */
 
-
-function switchPropertyTab(tab){
-  document.querySelectorAll('.rq-property-tab').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.rq-property-tab-panel').forEach(p=>p.classList.remove('active'));
-  const btns=[...document.querySelectorAll('.rq-property-tab')];
-  const idx={overview:0,audit:1,pricing:2,calendar:3,charges:4}[tab]||0;
-  if(btns[idx])btns[idx].classList.add('active');
-  const panel=document.getElementById('rq-tab-'+tab);
-  if(panel)panel.classList.add('active');
-}
-
 </script>
 </body>
 </html>
-
