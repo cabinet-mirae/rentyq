@@ -840,6 +840,44 @@ tr:hover td{background:#FCF8FF!important;}
 @media(max-width:640px){.eva360-upload-grid{grid-template-columns:1fr}.eva360-kpis{grid-template-columns:1fr}.eva360-net-row{grid-template-columns:68px 1fr 78px}.eva360-action{grid-template-columns:34px 1fr}.eva360-impact{text-align:left;grid-column:2}}
 /* ===== end EVA AUDIT 360 ===== */
 
+
+
+/* ===== EVA COCKPIT CLARIFIÉ — porte d’entrée RentyQ ===== */
+.eva-cockpit-hero{position:relative;overflow:hidden;border-radius:24px;padding:22px;margin-bottom:16px;background:linear-gradient(135deg,#20104F 0%,#7C3AED 48%,#EC4899 100%);color:white;box-shadow:0 24px 70px rgba(124,58,237,.20)}
+.eva-cockpit-hero:after{content:"";position:absolute;right:-90px;top:-110px;width:330px;height:330px;background:radial-gradient(circle,rgba(255,255,255,.24),transparent 62%);pointer-events:none}
+.eva-cockpit-kicker{position:relative;z-index:1;font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:900;color:rgba(255,255,255,.72);margin-bottom:8px}
+.eva-cockpit-title{position:relative;z-index:1;font-size:31px;line-height:1.05;font-weight:950;letter-spacing:-1px;margin-bottom:8px}
+.eva-cockpit-sub{position:relative;z-index:1;font-size:14px;line-height:1.65;color:rgba(255,255,255,.82);max-width:900px}
+.eva-cockpit-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.eva-module-card{background:white;border:1px solid rgba(139,92,246,.16);border-radius:18px;padding:16px;box-shadow:0 14px 38px rgba(69,39,120,.07);display:flex;flex-direction:column;gap:12px;min-height:250px}
+.eva-module-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.eva-module-icon{width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,#F3E8FF,#FCE7F3);display:flex;align-items:center;justify-content:center;font-size:25px;flex-shrink:0}
+.eva-module-title{font-size:17px;font-weight:950;color:#17122E;letter-spacing:-.3px;margin-bottom:4px}
+.eva-module-role{font-size:12px;color:#7C3AED;font-weight:900;text-transform:uppercase;letter-spacing:.65px}
+.eva-module-desc{font-size:13px;color:#5E5573;line-height:1.55;flex:1}
+.eva-module-list{display:grid;gap:7px;font-size:12px;color:#3A3150;line-height:1.35}
+.eva-module-list span{display:flex;gap:6px;align-items:flex-start}
+.eva-module-list b{color:#17122E}
+.eva-module-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:auto;padding-top:10px;border-top:1px solid #F0EBF9}
+.eva-module-tag{font-size:11px;font-weight:900;border-radius:999px;padding:4px 9px;background:#F3E8FF;color:#7C3AED;white-space:nowrap}
+.eva-priority-layout{display:grid;grid-template-columns:1.05fr .95fr;gap:14px;margin-bottom:16px;align-items:start}
+.eva-now-card{background:white;border:1px solid rgba(139,92,246,.15);border-radius:18px;padding:16px;box-shadow:0 14px 38px rgba(69,39,120,.06)}
+.eva-now-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}
+.eva-now-title{font-size:16px;font-weight:950;color:#17122E;letter-spacing:-.25px}
+.eva-now-sub{font-size:12px;color:#8A8A99;margin-top:3px;line-height:1.4}
+.eva-signal-list{display:grid;gap:9px}
+.eva-signal{display:grid;grid-template-columns:7px 1fr auto;gap:11px;align-items:center;padding:12px;border:1px solid rgba(139,92,246,.12);border-radius:14px;background:linear-gradient(180deg,#fff,#FFFCFF)}
+.eva-signal-bar{height:100%;min-height:48px;border-radius:999px;background:#7C3AED}
+.eva-signal-bar.red{background:#EF4444}.eva-signal-bar.orange{background:#F59E0B}.eva-signal-bar.green{background:#10B981}.eva-signal-bar.purple{background:#7C3AED}
+.eva-signal-title{font-size:13px;font-weight:900;color:#17122E;margin-bottom:4px}.eva-signal-text{font-size:12px;color:#7B708F;line-height:1.4}.eva-signal-value{font-size:14px;font-weight:950;color:#17122E;text-align:right;white-space:nowrap}
+.eva-mini-kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.eva-mini-kpi{background:white;border:1px solid rgba(139,92,246,.14);border-radius:16px;padding:13px;box-shadow:0 12px 30px rgba(69,39,120,.05)}
+.eva-mini-label{font-size:10px;text-transform:uppercase;letter-spacing:.75px;color:#8A8A99;font-weight:900;margin-bottom:6px}.eva-mini-value{font-size:24px;font-weight:950;color:#17122E;letter-spacing:-.8px;line-height:1}.eva-mini-help{font-size:12px;color:#7B708F;margin-top:6px;line-height:1.3}
+.eva-flow-card{background:linear-gradient(135deg,#F3E8FF,#FFF1F9);border:1px solid rgba(168,85,247,.22);border-radius:18px;padding:16px;margin-bottom:16px}
+.eva-flow-title{font-size:15px;font-weight:950;color:#17122E;margin-bottom:10px}.eva-flow-steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}.eva-flow-step{background:white;border:1px solid rgba(139,92,246,.10);border-radius:14px;padding:12px;text-align:center}.eva-flow-emoji{font-size:22px;margin-bottom:5px}.eva-flow-name{font-size:12px;font-weight:900;color:#17122E}.eva-flow-desc{font-size:11px;color:#7B708F;line-height:1.35;margin-top:4px}
+@media(max-width:1100px){.eva-cockpit-grid,.eva-priority-layout{grid-template-columns:1fr}.eva-mini-kpi-row{grid-template-columns:repeat(2,1fr)}.eva-flow-steps{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.eva-mini-kpi-row,.eva-flow-steps{grid-template-columns:1fr}.eva-cockpit-title{font-size:24px}.eva-signal{grid-template-columns:6px 1fr}.eva-signal-value{text-align:left}}
+/* ===== end EVA COCKPIT CLARIFIÉ ===== */
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
@@ -1376,10 +1414,11 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       <!-- COCKPIT -->
       <div class="page active" id="page-cockpit">
         <div class="page-header">
-          <div><div class="page-title">Cockpit</div><div class="page-sub" id="cockpit-date"></div></div>
+          <div><div class="page-title">Cockpit RentyQ</div><div class="page-sub" id="cockpit-date">Votre tour de contrôle : revenus, risques et prochaines actions EVA</div></div>
           <div class="actions">
-            <button class="btn" onclick="goTo('events',document.querySelectorAll('.nav-item')[4])">🎯 Événements</button>
-            <button class="btn btn-ai" onclick="goTo('pricing',document.querySelectorAll('.nav-item')[3])">🤖 EVA</button>
+            <button class="btn btn-ai" onclick="goTo('eva-audit',document.querySelector('[onclick*=eva-audit]'))">📊 Lancer EVA Audit</button>
+            <button class="btn" onclick="goTo('pricing',document.querySelector('[onclick*=pricing]'))">🧠 EVA Pricing</button>
+            <button class="btn" onclick="goTo('scanner',document.querySelector('[onclick*=scanner]'))">📍 Scanner EVA</button>
           </div>
         </div>
         <div id="cockpit-dash"></div>
@@ -2310,146 +2349,121 @@ function genAlerts(apts){
 
 function renderCockpit(){
   const dash=document.getElementById('cockpit-dash');if(!dash)return;
-  const apts=apparts;
+  const apts=apparts||[];
   const booked=apts.filter(a=>a.booked);
   const free=apts.filter(a=>!a.booked);
   const month=new Date().toISOString().slice(0,7);
   const monthRes=reservations.filter(r=>r.date_from&&r.date_from.startsWith(month));
   const monthRev=monthRes.reduce((s,r)=>s+(r.price_total||0),0);
-  const hotCount=Object.values(eventsCache).flat().filter(e=>e.hot).length;
-  const total=apts.length||1;
-  initTodos(apts);
-  const alerts=genAlerts(apts);
+  const hotEvents=Object.values(eventsCache||{}).flat().filter(e=>e.hot);
+  const avgPrice=apts.length?Math.round(apts.reduce((s,a)=>s+(Number(a.price)||0),0)/apts.length):0;
+  const occPct=apts.length?Math.round(booked.length/apts.length*100):0;
+  const hasAuditData=!!(window.eva360LastResult||localStorage.getItem('eva360_last_result'));
+  let auditNet='À lancer';
+  let auditScore='—';
+  try{
+    const saved=window.eva360LastResult||JSON.parse(localStorage.getItem('eva360_last_result')||'null');
+    if(saved){
+      auditNet=(saved.netTotal!==undefined?Math.round(saved.netTotal)+'€':'Calculé');
+      auditScore=saved.score||'78';
+    }
+  }catch(e){}
+  const scannerReady=apts.filter(a=>a.address||a.lat||a.lng).length;
+  const pricingOpps=genAlerts(apts).slice(0,4);
+  const freeLbl=free.length?`${free.length} libre${free.length>1?'s':''}`:'Tout loué';
 
-  let h='';
+  let h=`
+  <div class="eva-cockpit-hero">
+    <div class="eva-cockpit-kicker">RentyQ intelligence cockpit</div>
+    <div class="eva-cockpit-title">Votre prochaine décision rentable doit être évidente.</div>
+    <div class="eva-cockpit-sub">Le cockpit ne remplace pas les modules EVA : il les coordonne. EVA Pricing agit sur les prix à court terme, Scanner EVA analyse le potentiel d’une adresse, EVA Audit explique la rentabilité nette et les actions structurelles à mener.</div>
+  </div>
 
-  // KPIs
-  h+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:1.25rem">
-    <div class="kpi"><div class="kpi-label">Ce soir</div><div class="kpi-value" style="color:${free.length>0?'#D85A30':'#1D9E75'}">${booked.length}/${apts.length}</div><div class="kpi-delta" style="color:${free.length>0?'#D85A30':'#1D9E75'}">${free.length>0?free.length+' libre'+(free.length>1?'s':''):'Tout loué ✓'}</div></div>
-    <div class="kpi"><div class="kpi-label">Revenus mois</div><div class="kpi-value">${monthRev}€</div><div class="kpi-delta" style="color:#059669">${monthRes.length} résa${monthRes.length>1?'s':''}</div></div>
-    <div class="kpi"><div class="kpi-label">Occupation</div><div class="kpi-value" style="color:${Math.round(booked.length/total*100)<50?'#D85A30':'#1D9E75'}">${Math.round(booked.length/total*100)}%</div><div class="kpi-delta" style="color:#8A8A99">objectif 65%</div></div>
-    ${hotCount>0?`<div class="kpi" style="border-color:#FCD34D;background:#FFFBEB"><div class="kpi-label">Événements</div><div class="kpi-value" style="color:#BA7517">${hotCount}</div><div class="kpi-delta" style="color:#BA7517">🔥 boost dispo</div></div>`:''}
-  </div>`;
+  <div class="eva-mini-kpi-row">
+    <div class="eva-mini-kpi"><div class="eva-mini-label">État ce soir</div><div class="eva-mini-value">${booked.length}/${apts.length}</div><div class="eva-mini-help">${freeLbl}</div></div>
+    <div class="eva-mini-kpi"><div class="eva-mini-label">Revenus mois</div><div class="eva-mini-value">${monthRev}€</div><div class="eva-mini-help">${monthRes.length} réservation${monthRes.length>1?'s':''}</div></div>
+    <div class="eva-mini-kpi"><div class="eva-mini-label">Occupation instantanée</div><div class="eva-mini-value">${occPct}%</div><div class="eva-mini-help">Sur le parc actif</div></div>
+    <div class="eva-mini-kpi"><div class="eva-mini-label">Événements chauds</div><div class="eva-mini-value">${hotEvents.length}</div><div class="eva-mini-help">Opportunités de prix</div></div>
+  </div>
 
-  // Layout 2 colonnes : Actions + Apparts
-  h+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;align-items:start" class="grid-2">`;
+  <div class="eva-cockpit-grid">
+    <div class="eva-module-card">
+      <div class="eva-module-top"><div><div class="eva-module-role">Prix jour par jour</div><div class="eva-module-title">EVA Pricing</div></div><div class="eva-module-icon">🧠</div></div>
+      <div class="eva-module-desc">Utilisé quand le logement existe déjà et qu’il faut décider quoi faire sur les prochaines nuits disponibles.</div>
+      <div class="eva-module-list">
+        <span>✓ <b>Analyse les nuits libres</b> et les événements proches.</span>
+        <span>✓ <b>Compare prix actuel vs prix conseillé</b>.</span>
+        <span>✓ <b>Donne une action immédiate</b> : augmenter, baisser ou maintenir.</span>
+      </div>
+      <div class="eva-module-footer"><span class="eva-module-tag">Action court terme</span><button class="btn btn-ai btn-sm" onclick="goTo('pricing',document.querySelector('[onclick*=pricing]'))">Ouvrir</button></div>
+    </div>
 
-  // To-do prioritaire (colonne gauche)
-  if(cockpitTodos.length){
-    h+=`<div><div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Actions prioritaires</div>
-    <div style="background:white;border-radius:12px;border:0.5px solid #EEEEF5;padding:.5rem">`;
-    cockpitTodos.slice(0,5).forEach(t=>{
-      const col=t.urgency==='urgent'?'#993C1D':t.urgency==='today'?'#854F0B':'#534AB7';
-      const bg=t.urgency==='urgent'?'#FAECE7':t.urgency==='today'?'#FAEEDA':'#EEEDFE';
-      const lbl=t.urgency==='urgent'?'Urgent':t.urgency==='today'?"Aujourd'hui":'Bientôt';
-      h+=`<div style="display:flex;align-items:center;gap:10px;padding:.6rem .5rem;border-bottom:0.5px solid #EEEEF5" id="todo-${t.id}">
-        <div onclick="toggleCockpitTodo('${t.id}')" style="width:18px;height:18px;border-radius:5px;border:0.5px solid #D1D1D8;flex-shrink:0;cursor:pointer;background:${t.done?'#1D9E75':'white'};display:flex;align-items:center;justify-content:center">
-          ${t.done?'<i class="ti ti-check" style="font-size:11px;color:white" aria-hidden="true"></i>':''}
-        </div>
-        <div style="flex:1;font-size:13px;${t.done?'text-decoration:line-through;color:#8A8A99':''}">${t.text}</div>
-        <span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:100px;background:${bg};color:${col};flex-shrink:0">${lbl}</span>
-      </div>`;
-    });
-    h+=`</div></div>`;
-  } else {
-    h+=`<div>`;
-  }
+    <div class="eva-module-card">
+      <div class="eva-module-top"><div><div class="eva-module-role">Potentiel adresse</div><div class="eva-module-title">Scanner EVA</div></div><div class="eva-module-icon">📍</div></div>
+      <div class="eva-module-desc">Utilisé pour comprendre si l’emplacement et le prix actuel sont cohérents avec la demande locale.</div>
+      <div class="eva-module-list">
+        <span>✓ <b>Score emplacement</b> : transports, commerces, tourisme, business.</span>
+        <span>✓ <b>Score prix actuel</b> selon le potentiel détecté.</span>
+        <span>✓ <b>Diagnostic locatif</b> : sous-exploité, cohérent ou trop cher.</span>
+      </div>
+      <div class="eva-module-footer"><span class="eva-module-tag">Analyse du bien</span><button class="btn btn-ai btn-sm" onclick="goTo('scanner',document.querySelector('[onclick*=scanner]'))">Scanner</button></div>
+    </div>
 
-  // Etat apparts (colonne droite)
-  h+=`<div><div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">État de chaque appartement</div>
-  <div style="display:flex;flex-direction:column;gap:8px">`;
+    <div class="eva-module-card">
+      <div class="eva-module-top"><div><div class="eva-module-role">Rentabilité nette</div><div class="eva-module-title">EVA Audit 360°</div></div><div class="eva-module-icon">📊</div></div>
+      <div class="eva-module-desc">Utilisé pendant l’onboarding ou chaque mois pour comprendre ce que le logement rapporte vraiment.</div>
+      <div class="eva-module-list">
+        <span>✓ <b>CSV réservations</b> : revenus, occupation, durée de séjour.</span>
+        <span>✓ <b>CSV bancaire</b> : charges fixes, ménage, maintenance.</span>
+        <span>✓ <b>Plan d’action</b> pour améliorer la marge nette.</span>
+      </div>
+      <div class="eva-module-footer"><span class="eva-module-tag">Audit stratégique</span><button class="btn btn-ai btn-sm" onclick="goTo('eva-audit',document.querySelector('[onclick*=eva-audit]'))">Auditer</button></div>
+    </div>
+  </div>
+
+  <div class="eva-flow-card">
+    <div class="eva-flow-title">Le rôle de chaque module EVA dans RentyQ</div>
+    <div class="eva-flow-steps">
+      <div class="eva-flow-step"><div class="eva-flow-emoji">📥</div><div class="eva-flow-name">Importer</div><div class="eva-flow-desc">CSV réservations, CSV bancaire, adresse.</div></div>
+      <div class="eva-flow-step"><div class="eva-flow-emoji">📊</div><div class="eva-flow-name">Auditer</div><div class="eva-flow-desc">EVA Audit mesure la marge réelle.</div></div>
+      <div class="eva-flow-step"><div class="eva-flow-emoji">📍</div><div class="eva-flow-name">Positionner</div><div class="eva-flow-desc">Scanner EVA juge l’adresse et le prix.</div></div>
+      <div class="eva-flow-step"><div class="eva-flow-emoji">🧠</div><div class="eva-flow-name">Pricer</div><div class="eva-flow-desc">EVA Pricing ajuste les nuits à venir.</div></div>
+      <div class="eva-flow-step"><div class="eva-flow-emoji">✅</div><div class="eva-flow-name">Agir</div><div class="eva-flow-desc">RentyQ priorise ce qui augmente le net.</div></div>
+    </div>
+  </div>
+
+  <div class="eva-priority-layout">
+    <div class="eva-now-card">
+      <div class="eva-now-head"><div><div class="eva-now-title">Ce que RentyQ recommande maintenant</div><div class="eva-now-sub">Priorités générées à partir du parc, des réservations, événements et données EVA disponibles.</div></div><span class="eva-pill eva-pill-purple">Pilotage</span></div>
+      <div class="eva-signal-list">`;
+
+  const signals=[];
   if(!apts.length){
-    h+=`<div style="text-align:center;padding:1.5rem;color:#8A8A99;background:white;border-radius:12px;border:0.5px solid #EEEEF5">
-      <div style="font-size:28px;margin-bottom:6px">🏠</div>
-      <button class="btn btn-purple btn-sm" onclick="openAddModal()">+ Ajouter</button>
-    </div>`;
+    signals.push({c:'purple',t:'Ajouter votre premier logement',d:'Sans logement, EVA ne peut pas scanner l’adresse ni analyser les prix.',v:'Démarrer',go:"openAddModal()"});
+  } else {
+    if(!hasAuditData) signals.push({c:'purple',t:'Lancer EVA Audit 360°',d:'Importez CSV réservations + CSV bancaire pour obtenir la rentabilité nette et les actions structurelles.',v:'Audit',go:"goTo('eva-audit',document.querySelector('[onclick*=eva-audit]'))"});
+    if(scannerReady<apts.length) signals.push({c:'orange',t:'Compléter les adresses des logements',d:'Scanner EVA devient beaucoup plus pertinent avec une adresse précise pour chaque bien.',v:`${scannerReady}/${apts.length}`,go:"goTo('parc',document.querySelector('[onclick*=parc]'))"});
+    if(hotEvents.length) signals.push({c:'red',t:'Événements locaux détectés',d:'Des pics de demande peuvent justifier une hausse temporaire des prix.',v:`${hotEvents.length} event`,go:"goTo('pricing',document.querySelector('[onclick*=pricing]'))"});
+    if(free.length) signals.push({c:'orange',t:'Nuits libres à optimiser',d:'EVA Pricing doit vérifier si les prix actuels permettent de remplir sans brader.',v:`${free.length} libre`,go:"goTo('pricing',document.querySelector('[onclick*=pricing]'))"});
+    if(!signals.length) signals.push({c:'green',t:'Situation saine',d:'Le parc est cohérent. Surveillez les prochains événements et relancez un audit mensuel.',v:'OK',go:"goTo('events',document.querySelector('[onclick*=events]'))"});
   }
-  apts.forEach(a=>{
-    const fl=floor(a);const safe=a.price>=fl;
-    const city=a.city||extractCity(a.zone,null)||'';
-    const cityEvs=eventsCache[city]||[];const hotEvs=cityEvs.filter(e=>e.hot);
-    const brdColor=!a.booked?'#F0997B':hotEvs.length?'#AFA9EC':'#5DCAA5';
-    const statusBg=!a.booked?'#FAECE7':hotEvs.length?'#EEEDFE':'#E1F5EE';
-    const statusCol=!a.booked?'#993C1D':hotEvs.length?'#3C3489':'#0F6E56';
-    const statusLbl=a.booked?'Loué':'Libre';
-    h+=`<div style="background:white;border-radius:10px;border:0.5px solid ${brdColor};padding:.75rem;position:relative;overflow:hidden">
-      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${brdColor}"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div style="display:flex;align-items:center;gap:6px">
-          <span style="font-size:14px">${a.emoji||'🏠'}</span>
-          <div><div style="font-size:12px;font-weight:500">${a.name}</div><div style="font-size:10px;color:#8A8A99">${city}</div></div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-size:15px;font-weight:600">${a.price||0}€</div>
-          <span style="font-size:9px;padding:2px 6px;border-radius:100px;background:${statusBg};color:${statusCol}">${statusLbl}</span>
-        </div>
-      </div>
-      ${hotEvs.length>0?'<div style="font-size:10px;padding:2px 6px;border-radius:4px;background:#FAEEDA;color:#854F0B;margin-top:4px">🔥 '+hotEvs[0].name.slice(0,25)+'</div>':''}
-    </div>`;
+  signals.slice(0,5).forEach(sg=>{
+    h+=`<div class="eva-signal"><div class="eva-signal-bar ${sg.c}"></div><div><div class="eva-signal-title">${sg.t}</div><div class="eva-signal-text">${sg.d}</div></div><button class="btn btn-sm" onclick="${sg.go}">${sg.v}</button></div>`;
   });
-  h+=`</div></div>`;
-  h+=`</div>`; // fermer grid-2
 
-  // Alertes (pleine largeur en dessous)
-  if(alerts.length){
-    h+=`<div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Alertes intelligentes</div>`;
-    alerts.forEach(a=>{
-      const col=a.type==='urgent'?'#993C1D':a.type==='warning'?'#854F0B':'#534AB7';
-      const bg=a.type==='urgent'?'#FAECE7':a.type==='warning'?'#FAEEDA':'#EEEDFE';
-      const brd=a.type==='urgent'?'#D85A30':a.type==='warning'?'#BA7517':'#534AB7';
-      h+=`<div style="display:flex;align-items:flex-start;gap:10px;padding:.75rem 1rem;border-radius:10px;border:0.5px solid #EEEEF5;border-left:3px solid ${brd};background:white;margin-bottom:7px">
-        <div style="width:30px;height:30px;border-radius:8px;background:${bg};display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <i class="ti ${a.icon}" style="font-size:15px;color:${col}" aria-hidden="true"></i>
-        </div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:500;margin-bottom:2px">${a.title}</div>
-          <div style="font-size:12px;color:#8A8A99;line-height:1.4">${a.desc}</div>
-        </div>
-        <button onclick="goTo('pricing',document.querySelectorAll('.nav-item')[3])" style="flex-shrink:0;padding:5px 10px;border-radius:8px;font-size:11px;font-weight:500;border:0.5px solid ${brd};background:${bg};color:${col};cursor:pointer;font-family:inherit">${a.action} →</button>
-      </div>`;
-    });
-  }
-
-  // (Apparts déplacés dans le grid 2 colonnes)
-
-    // Taux occupation
-  if(apts.length){
-    h+=`<div style="font-size:11px;font-weight:500;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Taux d'occupation ce mois</div>
-    <div style="background:white;border-radius:12px;border:0.5px solid #EEEEF5;padding:1rem;margin-bottom:1.25rem">`;
-    apts.forEach(a=>{
-      const monthRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(new Date().toISOString().slice(0,7)));
-      const pct=Math.min(Math.round((monthRes.length/8)*100),100)||0;
-      const col=pct>=65?'#1D9E75':pct>=50?'#BA7517':'#D85A30';
-      h+=`<div style="display:flex;align-items:center;gap:10px;padding:.5rem 0;border-bottom:0.5px solid #EEEEF5">
-        <div style="font-size:13px;font-weight:500;width:140px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.name}</div>
-        <div style="flex:1;height:6px;background:#F0F0F0;border-radius:100px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${col};border-radius:100px"></div></div>
-        <div style="font-size:12px;font-weight:500;width:36px;text-align:right;color:${col}">${pct}%</div>
-      </div>`;
-    });
-    h+=`</div>`;
-  }
-
-  // EVA — brief
-  const hotAlerts=genAlerts(apts).filter(a=>a.type==='urgent');
-  if(hotAlerts.length){
-    h+=`<div style="background:#F5F0FF;border:0.5px solid #C4B5FD;border-radius:12px;padding:1rem">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem;font-size:13px;font-weight:500;color:#6B3FA0">
-        <div style="width:7px;height:7px;border-radius:50%;background:#6B3FA0;animation:pulse 1.5s infinite"></div>
-        EVA — actions immédiates
+  h+=`</div></div>
+    <div class="eva-now-card">
+      <div class="eva-now-head"><div><div class="eva-now-title">Synthèse des modules EVA</div><div class="eva-now-sub">Une séparation claire pour éviter la confusion produit.</div></div></div>
+      <div class="eva-signal-list">
+        <div class="eva-signal"><div class="eva-signal-bar purple"></div><div><div class="eva-signal-title">EVA Audit = pourquoi je gagne ou perds de l’argent</div><div class="eva-signal-text">Analyse passée : occupation, revenus, charges, marge nette, actions à mener dans le logement.</div></div><div class="eva-signal-value">360°</div></div>
+        <div class="eva-signal"><div class="eva-signal-bar orange"></div><div><div class="eva-signal-title">Scanner EVA = est-ce que ce logement a du potentiel ?</div><div class="eva-signal-text">Analyse du bien : adresse, attractivité, cible locataire, cohérence du prix actuel.</div></div><div class="eva-signal-value">Score</div></div>
+        <div class="eva-signal"><div class="eva-signal-bar green"></div><div><div class="eva-signal-title">EVA Pricing = que dois-je faire sur mes prix ?</div><div class="eva-signal-text">Action future : nuits libres, événements, prix recommandé, validation avant application.</div></div><div class="eva-signal-value">€ / nuit</div></div>
       </div>
-      <div style="font-size:13px;color:#3A3A50;line-height:1.65">`;
-    hotAlerts.slice(0,3).forEach((a,i)=>{
-      h+=`<div style="display:flex;gap:8px;margin-bottom:6px;align-items:flex-start">
-        <span style="font-size:11px;font-weight:500;background:white;border:0.5px solid #C4B5FD;border-radius:100px;padding:1px 7px;flex-shrink:0;margin-top:2px;color:#6B3FA0">${i+1}</span>
-        <span>${a.desc}</span>
-      </div>`;
-    });
-    h+=`</div></div>`;
-  }
+    </div>
+  </div>`;
 
   dash.innerHTML=h;
 }
-
 function toggleCockpitTodo(id){
   cockpitTodos=cockpitTodos.map(t=>t.id===id?{...t,done:!t.done}:t);
   renderCockpit();
