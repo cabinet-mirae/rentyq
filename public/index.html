@@ -910,6 +910,21 @@ tr:hover td{background:#FCF8FF!important;}
 @media(max-width:980px){.rq-context-layout{grid-template-columns:1fr}.rq-audit-upload{grid-template-columns:1fr}}
 /* ===== end RentyQ V2 ===== */
 
+
+/* ===== RentyQ x Easy Concierge API - Step 1 safe demo ===== */
+.rq-api-intel-card{margin-top:16px;border:1px solid rgba(16,185,129,.22)!important;background:linear-gradient(135deg,#ECFDF5 0%,#FFFFFF 55%,#F8F4FF 100%)!important}
+.rq-api-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.rq-api-badge{display:inline-flex;align-items:center;gap:7px;border-radius:999px;background:#DCFCE7;color:#047857;font-size:11px;font-weight:900;padding:5px 10px}
+.rq-api-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:12px 0 14px}
+.rq-api-tile{background:rgba(255,255,255,.82);border:1px solid rgba(139,92,246,.12);border-radius:14px;padding:12px}
+.rq-api-label{font-size:9px;text-transform:uppercase;letter-spacing:.75px;color:#8A8A99;font-weight:900;margin-bottom:6px}
+.rq-api-value{font-size:24px;font-weight:950;color:#17122E;letter-spacing:-.6px;line-height:1}
+.rq-api-help{font-size:11px;color:#7B708F;margin-top:6px;line-height:1.35}
+.rq-api-insights{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.rq-api-insight{background:white;border:1px solid rgba(139,92,246,.12);border-radius:14px;padding:12px;font-size:12px;line-height:1.5;color:#4B425F}
+.rq-api-insight b{display:block;color:#17122E;font-size:13px;margin-bottom:4px}
+.rq-api-source{font-size:11px;color:#7B708F;margin-top:10px}
+
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
@@ -2784,6 +2799,33 @@ function showApartDetail(id){
             </div>
           </section>
         </div>
+
+        <section class="rq-context-card rq-api-intel-card">
+          <div class="rq-api-top">
+            <div>
+              <div class="rq-context-title">🔗 Données API Easy Concierge détectées</div>
+              <div class="rq-context-sub">Simulation basée sur les flux PMS : réservations, calendrier journalier, performance annonce, avis, photos et historique tarifaire. Objectif : transformer RentyQ en option premium de rentabilité, branchée sur les données Easy Concierge.</div>
+            </div>
+            <span class="rq-api-badge">API PMS prête pour EVA</span>
+          </div>
+          <div class="rq-api-grid">
+            <div class="rq-api-tile"><div class="rq-api-label">Réservations confirmées</div><div class="rq-api-value">26</div><div class="rq-api-help">74 nuits vendues</div></div>
+            <div class="rq-api-tile"><div class="rq-api-label">Occupation calendrier</div><div class="rq-api-value">80%</div><div class="rq-api-help">74 nuits réservées / 92 jours</div></div>
+            <div class="rq-api-tile"><div class="rq-api-label">ADR vendu</div><div class="rq-api-value">78€</div><div class="rq-api-help">Prix moyen logement hors ménage</div></div>
+            <div class="rq-api-tile"><div class="rq-api-label">Net PMS</div><div class="rq-api-value">6 074€</div><div class="rq-api-help">Payout propriétaire avant charges RentyQ</div></div>
+            <div class="rq-api-tile"><div class="rq-api-label">Lead time moyen</div><div class="rq-api-value">33j</div><div class="rq-api-help">Délai moyen réservation → arrivée</div></div>
+            <div class="rq-api-tile"><div class="rq-api-label">Performance annonce</div><div class="rq-api-value">4 195</div><div class="rq-api-help">vues · 575 clics · 50 conversions</div></div>
+            <div class="rq-api-tile"><div class="rq-api-label">Avis moyen</div><div class="rq-api-value">4.6/5</div><div class="rq-api-help">Qualité perçue voyageurs</div></div>
+            <div class="rq-api-tile"><div class="rq-api-label">Score photos IA</div><div class="rq-api-value">73/100</div><div class="rq-api-help">Optimisable via EVA Vision</div></div>
+          </div>
+          <div class="rq-api-insights">
+            <div class="rq-api-insight"><b>1. EVA peut expliquer la performance</b>On ne regarde plus seulement le CA : on croise occupation, lead time, prix vendu, canal OTA et commissions pour comprendre pourquoi le bien performe ou stagne.</div>
+            <div class="rq-api-insight"><b>2. EVA Pricing devient actionnable</b>Grâce au calendrier journalier et à l’historique tarifaire, EVA peut proposer des prix par date puis les pousser via Easy Concierge / Smoobu vers Airbnb, Booking et VRBO.</div>
+            <div class="rq-api-insight"><b>3. EVA Audit devient plus crédible</b>Les avis, photos et performances d’annonce permettent de dire si le problème vient du prix, de l’annonce, des photos, de l’emplacement ou de l’exploitation.</div>
+          </div>
+          <div class="rq-api-source">Étape 1 : affichage démo sécurisé. Étape 2 : brancher ces chiffres sur les vraies réponses API par logement.</div>
+        </section>
+
         <section class="rq-context-card" style="margin-top:16px">
           <div class="rq-context-title">Taux d’occupation par mois</div>
           <div class="rq-context-sub">Vue simple propriétaire : part des nuits réservées vs disponibles.</div>
