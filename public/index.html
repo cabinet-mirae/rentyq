@@ -713,6 +713,68 @@ tr:hover td{background:#FCF8FF!important;}
 @media(max-width:640px){.eva-side-stack{grid-template-columns:1fr}.eva-hero-title{font-size:24px}.eva-money-big{font-size:34px}.eva-action-grid{grid-template-columns:1fr}}
 /* ===== end EVA PRICING VISUAL REFRESH ===== */
 
+
+
+/* ===== RentyQ Property Detail Cockpit V2 — fiche bien uniquement ===== */
+.rq-detail-v2{display:flex;flex-direction:column;gap:16px}
+.rq-detail-top{display:flex;align-items:center;gap:10px;margin-bottom:2px}
+.rq-back-btn{width:38px;height:38px;border-radius:12px;border:1px solid rgba(139,92,246,.16);background:#fff;color:#5B4B7A;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 24px rgba(69,39,120,.06)}
+.rq-detail-hero{position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(135deg,#211051 0%,#7C3AED 45%,#EC4899 100%);color:#fff;padding:22px;box-shadow:0 24px 70px rgba(124,58,237,.22)}
+.rq-detail-hero:after{content:"";position:absolute;right:-70px;top:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(255,255,255,.24),transparent 62%);pointer-events:none}
+.rq-detail-hero-main{position:relative;z-index:1;display:grid;grid-template-columns:1fr auto;gap:18px;align-items:start}
+.rq-detail-title-row{display:flex;align-items:center;gap:14px;min-width:0}
+.rq-detail-emoji{width:58px;height:58px;border-radius:18px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;font-size:30px;border:1px solid rgba(255,255,255,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+.rq-detail-name{font-size:31px;font-weight:950;letter-spacing:-1px;line-height:1.04;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rq-detail-address{font-size:13px;color:rgba(255,255,255,.76);margin-top:5px;line-height:1.4}
+.rq-health-badge{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:7px 11px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.16);font-size:12px;font-weight:900;white-space:nowrap;color:#fff}
+.rq-health-dot{width:9px;height:9px;border-radius:50%;background:#10B981;box-shadow:0 0 0 4px rgba(16,185,129,.16)}
+.rq-health-badge.warn .rq-health-dot{background:#F59E0B;box-shadow:0 0 0 4px rgba(245,158,11,.16)}
+.rq-health-badge.danger .rq-health-dot{background:#EF4444;box-shadow:0 0 0 4px rgba(239,68,68,.16)}
+.rq-score-ring{width:112px;height:112px;border-radius:50%;background:conic-gradient(#fff var(--score),rgba(255,255,255,.19) 0);display:flex;align-items:center;justify-content:center;padding:7px;position:relative;z-index:1}
+.rq-score-ring-inner{width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,rgba(36,16,92,.95),rgba(124,58,237,.72));display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.18)}
+.rq-score-num{font-size:30px;font-weight:950;letter-spacing:-1px;line-height:1;color:#fff}
+.rq-score-label{font-size:10px;color:rgba(255,255,255,.72);text-transform:uppercase;letter-spacing:.7px;font-weight:850;margin-top:4px}
+.rq-hero-kpis{position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:18px}
+.rq-hero-kpi{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:12px;backdrop-filter:blur(10px)}
+.rq-hero-kpi-label{font-size:10px;text-transform:uppercase;letter-spacing:.75px;color:rgba(255,255,255,.68);font-weight:850;margin-bottom:6px}
+.rq-hero-kpi-value{font-size:24px;font-weight:950;letter-spacing:-.5px;line-height:1;color:#fff}
+.rq-hero-kpi-sub{font-size:11px;color:rgba(255,255,255,.72);margin-top:6px;line-height:1.25}
+.rq-detail-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);gap:16px;align-items:start}
+.rq-card-v2{background:#fff;border:1px solid rgba(139,92,246,.14);box-shadow:0 16px 42px rgba(69,39,120,.07);border-radius:22px;padding:16px;overflow:hidden}
+.rq-card-head-v2{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:13px}
+.rq-card-title-v2{font-size:16px;font-weight:950;color:#17122E;letter-spacing:-.25px}
+.rq-card-sub-v2{font-size:12px;color:#8A8A99;margin-top:3px;line-height:1.4}
+.rq-reco-card{position:relative;border-radius:22px;padding:18px;background:linear-gradient(135deg,#FFF7ED,#FFF,#F5F0FF);border:1px solid rgba(245,158,11,.20);box-shadow:0 16px 42px rgba(69,39,120,.06);overflow:hidden}
+.rq-reco-card.down{background:linear-gradient(135deg,#FFF1F2,#FFF,#F8F4FF);border-color:rgba(239,68,68,.20)}
+.rq-reco-card.up{background:linear-gradient(135deg,#FFFBEB,#FFF,#F8F4FF);border-color:rgba(245,158,11,.24)}
+.rq-reco-main{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}
+.rq-reco-kicker{font-size:11px;text-transform:uppercase;letter-spacing:.8px;font-weight:950;color:#7C3AED;margin-bottom:6px}
+.rq-reco-title{font-size:24px;font-weight:950;color:#17122E;letter-spacing:-.7px;line-height:1.1}
+.rq-reco-price{font-size:44px;font-weight:950;letter-spacing:-1.6px;color:#17122E;line-height:.9;text-align:right}
+.rq-reco-price span{font-size:14px;color:#8A8A99;letter-spacing:0;font-weight:800}
+.rq-reason-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin-top:14px}
+.rq-reason-item{border-radius:12px;background:rgba(255,255,255,.72);border:1px solid rgba(139,92,246,.10);padding:9px 10px;font-size:12px;color:#493D5F;line-height:1.35;font-weight:700}
+.rq-reason-item b{color:#17122E}
+.rq-reco-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
+.rq-impact-pill{display:inline-flex;align-items:center;gap:6px;background:#DCFCE7;color:#047857;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:950}
+.rq-button-primary{border:0;background:linear-gradient(135deg,#7C3AED,#EC4899);color:#fff;border-radius:12px;padding:10px 14px;font-size:13px;font-weight:900;cursor:pointer;box-shadow:0 10px 24px rgba(124,58,237,.18);font-family:inherit}
+.rq-button-secondary{border:1px solid rgba(139,92,246,.18);background:#fff;color:#6D43B4;border-radius:12px;padding:10px 14px;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit}
+.rq-finance-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.rq-finance-line{border-radius:16px;padding:12px;background:linear-gradient(180deg,#fff,#FFFBFF);border:1px solid rgba(139,92,246,.10)}
+.rq-finance-label{font-size:10px;text-transform:uppercase;letter-spacing:.75px;color:#8A8A99;font-weight:900;margin-bottom:7px}
+.rq-finance-value{font-size:24px;font-weight:950;letter-spacing:-.7px;color:#17122E;line-height:1}
+.rq-finance-value.good{color:#059669}.rq-finance-value.bad{color:#DC2626}
+.rq-mini-bars{height:116px;display:flex;align-items:flex-end;gap:4px;background:#FAF8FF;border-radius:16px;padding:12px;margin-top:12px;overflow:hidden}
+.rq-mini-bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}.rq-mini-bar-val{font-size:8px;color:#8A8A99;white-space:nowrap}.rq-mini-bar-shape{width:100%;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#7C3AED,#EC4899);min-height:4px}.rq-mini-bar-label{font-size:8px;color:#8A8A99}
+.rq-nights-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}.rq-night-card{border-radius:14px;padding:9px 6px;text-align:center;border:1px solid transparent;min-height:76px;display:flex;flex-direction:column;justify-content:center}.rq-night-card.free{background:#FEF2F2;color:#991B1B;border-color:#FECACA}.rq-night-card.booked{background:#ECFDF5;color:#047857;border-color:#BBF7D0}.rq-night-card.event{background:#FFFBEB;color:#92400E;border-color:#FDE68A}.rq-night-day{font-size:10px;font-weight:950;text-transform:uppercase;letter-spacing:.4px}.rq-night-price{font-size:18px;font-weight:950;letter-spacing:-.5px;margin:5px 0 2px}.rq-night-status{font-size:10px;font-weight:800;line-height:1.2}
+.rq-actions-list{display:grid;gap:9px}.rq-action-v2{display:grid;grid-template-columns:38px 1fr auto;gap:10px;align-items:center;border-radius:16px;border:1px solid rgba(139,92,246,.11);padding:11px;background:linear-gradient(180deg,#fff,#FFFCFF)}.rq-action-v2.urgent{border-color:rgba(239,68,68,.22);background:linear-gradient(135deg,#FFF7F7,#fff)}.rq-action-v2.warn{border-color:rgba(245,158,11,.22);background:linear-gradient(135deg,#FFFBEB,#fff)}.rq-action-icon{width:38px;height:38px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;background:#F3E8FF}.rq-action-title{font-size:13px;font-weight:950;color:#17122E}.rq-action-desc{font-size:12px;color:#7B708F;margin-top:2px;line-height:1.35}
+.rq-timeline{position:relative;display:grid;gap:10px}.rq-timeline:before{content:"";position:absolute;left:18px;top:8px;bottom:8px;width:2px;background:#EEE9FF}.rq-timeline-item{position:relative;display:grid;grid-template-columns:38px 1fr;gap:10px;align-items:start}.rq-time-dot{position:relative;z-index:1;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#F3E8FF;border:3px solid #fff;box-shadow:0 8px 18px rgba(69,39,120,.09)}.rq-time-title{font-size:13px;font-weight:950;color:#17122E}.rq-time-desc{font-size:12px;color:#7B708F;margin-top:2px;line-height:1.35}.rq-time-date{font-size:10px;text-transform:uppercase;color:#A094B8;font-weight:900;letter-spacing:.65px;margin-bottom:2px}
+.rq-events-list,.rq-clean-list{display:grid;gap:8px}.rq-event-v2,.rq-clean-v2{display:flex;align-items:center;gap:10px;border-radius:16px;padding:11px;background:#FAF8FF;border:1px solid rgba(139,92,246,.10)}.rq-event-emoji,.rq-clean-avatar{width:40px;height:40px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#F3E8FF,#FCE7F3);font-size:20px;flex-shrink:0}.rq-clean-avatar{background:linear-gradient(135deg,#0EA5E9,#10B981);color:white;font-weight:950;font-size:14px}.rq-event-main,.rq-clean-main{flex:1;min-width:0}.rq-event-title,.rq-clean-title{font-size:13px;font-weight:950;color:#17122E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rq-event-meta,.rq-clean-meta{font-size:11px;color:#8A8A99;margin-top:3px}.rq-boost-badge{background:#FFEDD5;color:#C2410C;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:950;white-space:nowrap}
+.rq-edit-panel{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.rq-edit-tile{border-radius:16px;border:1px solid rgba(139,92,246,.11);background:#FAF8FF;padding:13px;cursor:pointer;transition:transform .12s,box-shadow .12s}.rq-edit-tile:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(69,39,120,.08)}.rq-edit-icon{font-size:22px;margin-bottom:7px}.rq-edit-title{font-size:13px;font-weight:950;color:#17122E}.rq-edit-sub{font-size:11px;color:#8A8A99;margin-top:3px;line-height:1.3}
+@media(max-width:1000px){.rq-detail-hero-main{grid-template-columns:1fr}.rq-score-ring{width:96px;height:96px}.rq-hero-kpis{grid-template-columns:repeat(2,1fr)}.rq-detail-grid{grid-template-columns:1fr}.rq-edit-panel{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.rq-detail-hero{padding:16px}.rq-detail-title-row{align-items:flex-start}.rq-detail-name{font-size:24px;white-space:normal}.rq-hero-kpis{grid-template-columns:1fr}.rq-reco-main{grid-template-columns:1fr}.rq-reco-price{text-align:left}.rq-nights-grid{grid-template-columns:repeat(2,1fr)}.rq-finance-grid{grid-template-columns:1fr}.rq-action-v2{grid-template-columns:38px 1fr}.rq-action-v2 .rq-button-secondary{grid-column:1 / -1}.rq-edit-panel{grid-template-columns:1fr}}
+/* ===== end Property Detail Cockpit V2 ===== */
+
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
@@ -2282,157 +2344,191 @@ function renderParcTable(){
 }
 
 function showApartDetail(id){
-  const a=apparts.find(x=>x.id===id);if(!a)return;
+  const a=apparts.find(x=>String(x.id)===String(id));if(!a)return;
   document.getElementById('parc-list-view').style.display='none';
   document.getElementById('parc-map-view').style.display='none';
   document.getElementById('parc-detail-view').style.display='block';
 
-  const mois=new Date().toISOString().slice(0,7);
-  const city=a.city||'';
+  const esc=(v)=>{try{return escapeHtml(String(v??''));}catch(e){return String(v??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}};
+  const today=new Date();
+  const mois=today.toISOString().slice(0,7);
+  const city=a.city||extractCity(a.zone,null)||'';
   const cityEvs=eventsCache[city]||[];
-  const hotEvs=cityEvs.filter(e=>e.hot);
-  const aptRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(mois));
-  const rev=aptRes.reduce((s,r)=>s+(r.price_total||0),0);
-  const aptCharges=chargesData.filter(c=>c.appartement_id===a.id);
-  const totalFixes=aptCharges.filter(c=>c.type==='fixe').reduce((s,c)=>s+(c.amount||0),0);
-  const totalVars=aptCharges.filter(c=>c.type==='variable'&&c.category!=='commission_plateforme').reduce((s,c)=>s+(c.amount||0),0)*(aptRes.length||1);
+  const hotEvs=cityEvs.filter(e=>e.hot).slice(0,5);
+  const aptRes=reservations.filter(r=>String(r.appartement_id)===String(a.id));
+  const monthRes=aptRes.filter(r=>r.date_from&&r.date_from.startsWith(mois));
+  const rev=monthRes.reduce((s,r)=>s+(+r.price_total||0),0);
+  const aptCharges=chargesData.filter(c=>String(c.appartement_id)===String(a.id));
+  const totalFixes=aptCharges.filter(c=>c.type==='fixe').reduce((s,c)=>s+(+c.amount||0),0);
+  const totalVars=aptCharges.filter(c=>c.type==='variable'&&c.category!=='commission_plateforme').reduce((s,c)=>s+(+c.amount||0),0)*(monthRes.length||1);
   const commPct=aptCharges.find(c=>c.category==='commission_plateforme')?.amount||0;
-  const net=rev-totalFixes-totalVars-Math.round(rev*commPct/100);
-  const occ=Math.min(Math.round((aptRes.length/8)*100),100)||0;
+  const commissions=Math.round(rev*(+commPct||0)/100);
+  const charges=totalFixes+totalVars+commissions;
+  const net=rev-charges;
+  const profitability=rev>0?Math.round(net/rev*100):0;
   const note=a.note||'—';
   const fl=floor(a);
+  const currentPrice=getCurrentDegPrice(a)||(+a.price||0);
+  const basePrice=+a.price||currentPrice||0;
   const freeTonight=!a.booked;
-  const aptMissions=missionsData.filter(m=>m.appartement_id===a.id);
-  const pendingM=aptMissions.filter(m=>m.status==='en_attente'||m.status==='acceptee');
+  const aptMissions=missionsData.filter(m=>String(m.appartement_id)===String(a.id));
+  const pendingM=aptMissions.filter(m=>['en_attente','acceptee','assignee'].includes(m.status)).sort((x,y)=>(x.date||'').localeCompare(y.date||''));
+
+  function iso(d){return d.toISOString().slice(0,10)}
+  function add(n){const d=new Date();d.setDate(d.getDate()+n);return d}
+  function covers(r,date){return r&&r.date_from&&r.date_to&&r.date_from<=date&&r.date_to>date}
+  function dayName(d){return d.toLocaleDateString('fr-FR',{weekday:'short'}).replace('.','')}
+  function dayNum(d){return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})}
+
+  const days14=Array.from({length:14},(_,i)=>{
+    const d=add(i),date=iso(d);
+    const booked=aptRes.some(r=>covers(r,date));
+    const evs=hotEvs.filter(e=>(e.date||'').slice(0,10)===date);
+    const weekend=[5,6].includes(d.getDay());
+    const urgency=i<=2&&!booked;
+    let rec=basePrice;
+    if(!booked){
+      if(evs.length)rec=Math.round(basePrice*(1+(evs[0].boost||10)/100));
+      else if(i===0)rec=Math.max(fl,Math.round(basePrice*.82));
+      else if(i<=2)rec=Math.max(fl,Math.round(basePrice*.88));
+      else if(i<=5)rec=Math.max(fl,Math.round(basePrice*.94));
+      if(weekend&&!evs.length&&i>2)rec=Math.max(rec,Math.round(basePrice*1.06));
+    }
+    return {i,d,date,booked,evs,weekend,urgency,rec};
+  });
+  const free14=days14.filter(d=>!d.booked).length;
+  const occ14=Math.round(((14-free14)/14)*100);
+  const occMonth=Math.min(Math.round((monthRes.length/8)*100),100)||0;
+  const occ=Math.max(occ14,occMonth);
+  const lostNights72=days14.filter(d=>d.i<=2&&!d.booked).length;
+  const potential=days14.filter(d=>!d.booked).reduce((s,d)=>s+d.rec,0);
+  const eventPotential=days14.filter(d=>!d.booked&&d.evs.length).reduce((s,d)=>s+Math.max(0,d.rec-basePrice),0);
+
+  let score=55;
+  score+=Math.min(25,Math.round(occ14*.25));
+  if(net>0)score+=12;else if(net<0)score-=12;
+  if(note!=='—'&&+note>=4.5)score+=8;else if(note!=='—'&&+note<4)score-=10;
+  if(!freeTonight)score+=8;else score-=14;
+  if(pendingM.length)score+=5;else score-=5;
+  if(hotEvs.length)score+=4;
+  score=Math.max(8,Math.min(98,score));
+  const healthClass=score<50?'danger':score<75?'warn':'';
+  const healthLabel=score<50?'Action urgente':score<75?'À surveiller':'Bonne santé';
+  const healthText=score<50?'Ce bien peut récupérer du revenu rapidement.':score<75?'Quelques actions peuvent améliorer la performance.':'Le bien est correctement piloté.';
+
+  const recoReasons=[];
+  let recoDirection='maintain';
+  let recoTitle='Maintenir le prix actuel';
+  let recoPrice=currentPrice||basePrice;
+  let recoClass='';
+  let impactText='Performance stable';
+  if(freeTonight||lostNights72>0||occ14<50){
+    recoDirection='down';recoClass='down';
+    const discount=freeTonight?0.82:(lostNights72?0.88:0.94);
+    recoPrice=Math.max(fl,Math.round(basePrice*discount));
+    recoTitle=`Baisser à ${recoPrice}€ pour remplir`;
+    impactText=freeTonight?'+ forte chance de sauver la nuit':`+${lostNights72} nuit${lostNights72>1?'s':''} à sauver`;
+  }
+  if(hotEvs.length&&occ14>=55){
+    recoDirection='up';recoClass='up';
+    recoPrice=Math.max(basePrice,Math.round(basePrice*(1+(hotEvs[0].boost||10)/100)));
+    recoTitle=`Monter à ${recoPrice}€ sur l’événement`;
+    impactText=`+${hotEvs[0].boost||10}% sur forte demande locale`;
+  }
+  if(freeTonight)recoReasons.push(['Nuit proche non louée','Mieux vaut louer moins cher que rester vide.']);
+  if(occ14<50)recoReasons.push(['Occupation faible','Seulement '+occ14+'% sur les 14 prochains jours.']);
+  if(hotEvs.length)recoReasons.push(['Événement détecté',hotEvs[0].name.slice(0,42)+' · +'+(hotEvs[0].boost||10)+'%.']);
+  if(fl>0)recoReasons.push(['Prix plancher protégé','EVA ne descend jamais sous '+fl+'€.']);
+  if(recoReasons.length<3)recoReasons.push(['Objectif prioritaire','Maximiser le taux d’occupation avant le prix parfait.']);
 
   // Revenue bars for 12 months
   let revBars='';
   const months=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
-  const now=new Date();
+  const maxRev=Math.max(200,...Array.from({length:12},(_,i)=>{
+    const d=new Date(today.getFullYear(),today.getMonth()-11+i,1);const m=d.toISOString().slice(0,7);
+    return aptRes.filter(r=>r.date_from&&r.date_from.startsWith(m)).reduce((s,r)=>s+(+r.price_total||0),0);
+  }));
   for(let i=11;i>=0;i--){
-    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const d=new Date(today.getFullYear(),today.getMonth()-i,1);
     const m=d.toISOString().slice(0,7);
-    const mRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(m));
-    const mRev=mRes.reduce((s,r)=>s+(r.price_total||0),0);
-    const maxH=80;const h=Math.max(Math.min(mRev/200*maxH,maxH),4);
-    const col=mRev>totalFixes?'#5DCAA5':mRev>0?'#FAC775':'#F09595';
-    const isCurrent=i===0;
-    revBars+=`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
-      <div style="font-size:8px;color:#8A8A99">${mRev>0?mRev+'€':''}</div>
-      <div style="width:100%;background:${col};border-radius:3px 3px 0 0;height:${h}px"></div>
-      <div style="font-size:8px;${isCurrent?'font-weight:500;color:#1A1A2E':'color:#8A8A99'}">${months[d.getMonth()]}</div>
-    </div>`;
+    const mRev=aptRes.filter(r=>r.date_from&&r.date_from.startsWith(m)).reduce((s,r)=>s+(+r.price_total||0),0);
+    const h=Math.max(Math.min(mRev/maxRev*78,78),5);
+    revBars+=`<div class="rq-mini-bar"><div class="rq-mini-bar-val">${mRev?mRev+'€':''}</div><div class="rq-mini-bar-shape" style="height:${h}px;opacity:${mRev?1:.28}"></div><div class="rq-mini-bar-label">${months[d.getMonth()]}</div></div>`;
   }
 
-  // Next 7 nights
-  let nightsHtml='';
-  const jours=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
-  for(let i=0;i<7;i++){
-    const d=new Date(Date.now()+i*86400000);
-    const ds=d.toISOString().split('T')[0];
-    const hasRes=reservations.some(r=>r.appartement_id===a.id&&r.date_from<=ds&&r.date_to>=ds);
-    const dayEv=hotEvs.find(e=>e.date===ds);
-    let bg='#FCEBEB';let col='#A32D2D';let status='libre';let price=a.price||0;
-    if(hasRes){bg='#E1F5EE';col='#085041';status='loué';}
-    else if(dayEv){bg='#FAEEDA';col='#854F0B';status='🔥 evt';price=Math.round(price*(1+(dayEv.boost||5)/100));}
-    nightsHtml+=`<div style="flex:1;text-align:center;padding:6px 2px;border-radius:6px;background:${bg}">
-      <div style="font-size:8px;color:${col}">${jours[d.getDay()]}</div>
-      <div style="font-size:13px;font-weight:500;color:${col}">${price}€</div>
-      <div style="font-size:8px;color:${col}">${status}</div>
-    </div>`;
-  }
+  const nightsHtml=days14.slice(0,7).map(d=>{
+    const cls=d.booked?'booked':d.evs.length?'event':'free';
+    const status=d.booked?'Réservé':d.evs.length?'Événement':'Libre';
+    const icon=d.booked?'✓':d.evs.length?'🎉':'!';
+    return `<div class="rq-night-card ${cls}" ${d.booked?'':`onclick="applyAI('${a.id}',${d.rec})"`} title="${esc(status)} · ${d.date}">
+      <div class="rq-night-day">${dayName(d.d)}</div><div class="rq-night-price">${d.booked?icon:d.rec+'€'}</div><div class="rq-night-status">${status}</div></div>`;
+  }).join('');
 
-  // Actions
-  let actionsHtml='';
-  if(freeTonight)actionsHtml+=`<div style="background:#FCEBEB;padding:8px 10px;font-size:12px;color:#A32D2D;border-left:3px solid #E24B4A;border-radius:0 8px 8px 0;margin-bottom:4px"><b>⚠ Libre ce soir</b> — baisser le prix pour remplir</div>`;
-  if(note!=='—'&&note<4.0)actionsHtml+=`<div style="background:#FCEBEB;padding:8px 10px;font-size:12px;color:#A32D2D;border-left:3px solid #E24B4A;border-radius:0 8px 8px 0;margin-bottom:4px"><b>⚠ Note ${note}/5</b> — revoir le ménage ou l'annonce</div>`;
-  if(occ<50)actionsHtml+=`<div style="background:#FAEEDA;padding:8px 10px;font-size:12px;color:#854F0B;border-left:3px solid #BA7517;border-radius:0 8px 8px 0;margin-bottom:4px"><b>📊 Occupation ${occ}%</b> — optimiser le prix pour remplir</div>`;
-  if(hotEvs.length)actionsHtml+=`<div style="background:#FAEEDA;padding:8px 10px;font-size:12px;color:#854F0B;border-left:3px solid #BA7517;border-radius:0 8px 8px 0;margin-bottom:4px"><b>🔥 ${hotEvs[0].name.slice(0,30)}</b> — hausser le prix (+${hotEvs[0].boost}%)</div>`;
-  if(!actionsHtml)actionsHtml='<div style="background:#E1F5EE;padding:8px 10px;font-size:12px;color:#085041;border-radius:8px">✓ Aucune action urgente — tout est en ordre</div>';
+  const actions=[];
+  if(freeTonight)actions.push({type:'urgent',icon:'🚨',title:`Sauver la nuit de ce soir`,desc:`Prix conseillé ${recoPrice}€ au lieu de ${basePrice}€ pour éviter une nuit vide.`,btn:'Appliquer',rec:recoPrice});
+  if(lostNights72>0&&!freeTonight)actions.push({type:'urgent',icon:'⏱️',title:`${lostNights72} nuit${lostNights72>1?'s':''} à sauver sous 72h`,desc:`Baisser légèrement maintenant pour favoriser le remplissage.`,btn:'Appliquer',rec:recoPrice});
+  if(occ14<50)actions.push({type:'warn',icon:'📉',title:`Occupation à ${occ14}%`,desc:`Le bien manque de réservations sur les 14 prochains jours. Priorité au remplissage.`,btn:'Voir pricing',rec:recoPrice});
+  if(hotEvs.length)actions.push({type:'warn',icon:'🎉',title:`Événement local : ${hotEvs[0].name.slice(0,28)}…`,desc:`Hausse possible de ${hotEvs[0].boost||10}% sur les dates concernées.`,btn:'Appliquer',rec:Math.max(recoPrice,Math.round(basePrice*(1+(hotEvs[0].boost||10)/100)))});
+  if(note!=='—'&&+note<4)actions.push({type:'urgent',icon:'⭐',title:`Note Airbnb basse : ${note}/5`,desc:`Contrôler ménage, photos ou annonce avant d’augmenter les prix.`,btn:'Modifier',edit:true});
+  if(!pendingM.length)actions.push({type:'warn',icon:'🧹',title:'Aucun ménage prévu',desc:'Créer une mission CleanyQ pour sécuriser l’exploitation.',btn:'Créer',mission:true});
+  if(!actions.length)actions.push({type:'',icon:'✅',title:'Aucune action urgente',desc:'Le bien est correctement piloté pour les prochains jours.',btn:'Modifier',edit:true});
+  const actionsHtml=actions.slice(0,5).map(x=>`<div class="rq-action-v2 ${x.type}"><div class="rq-action-icon">${x.icon}</div><div><div class="rq-action-title">${esc(x.title)}</div><div class="rq-action-desc">${esc(x.desc)}</div></div><button class="rq-button-secondary" onclick="${x.mission?'openMissionModal()':x.edit?`openEdit('${a.id}')`:`applyAI('${a.id}',${x.rec||recoPrice})`}">${esc(x.btn)}</button></div>`).join('');
 
-  // CleanyQ
+  const timelineItems=[];
+  timelineItems.push({date:'Aujourd’hui',icon:freeTonight?'🔴':'🟢',title:freeTonight?'Nuit libre à remplir':'Bien réservé ce soir',desc:freeTonight?`Action prioritaire : passer à ${recoPrice}€.`:'Aucune urgence immédiate.'});
+  const nextMission=pendingM[0];
+  if(nextMission){const cl=cleanersData.find(c=>String(c.id)===String(nextMission.cleaner_id));timelineItems.push({date:formatEventDate(nextMission.date),icon:'🧹',title:'Mission ménage',desc:`${cl?cl.name:'Non assigné'} · ${nextMission.heure||'heure à confirmer'} · ${nextMission.status||'à faire'}`});}
+  else timelineItems.push({date:'À planifier',icon:'🧹',title:'Ménage non programmé',desc:'Créer une mission si un départ arrive bientôt.'});
+  if(hotEvs[0])timelineItems.push({date:hotEvs[0].date_label||formatEventDate(hotEvs[0].date),icon:hotEvs[0].emoji||'🎉',title:'Événement local',desc:`${hotEvs[0].name.slice(0,50)} · boost +${hotEvs[0].boost||10}%`});
+  const nextFree=days14.find(d=>!d.booked&&d.i>0);if(nextFree)timelineItems.push({date:dayNum(nextFree.d),icon:'💸',title:'Prochaine nuit libre',desc:`Prix recommandé : ${nextFree.rec}€.`});
+  const timelineHtml=timelineItems.slice(0,5).map(t=>`<div class="rq-timeline-item"><div class="rq-time-dot">${t.icon}</div><div><div class="rq-time-date">${esc(t.date)}</div><div class="rq-time-title">${esc(t.title)}</div><div class="rq-time-desc">${esc(t.desc)}</div></div></div>`).join('');
+
   let cleanHtml='';
-  const assignedCleaners=cleanersData.filter(c=>aptMissions.some(m=>m.cleaner_id===c.id));
   if(pendingM.length){
-    pendingM.forEach(m=>{
-      const cl=cleanersData.find(c=>c.id===m.cleaner_id);
-      cleanHtml+=`<div style="background:#F8F7FF;border-radius:8px;padding:8px 10px;font-size:12px;display:flex;align-items:center;gap:8px;margin-bottom:4px">
-        <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#0EA5E9,#5DCAA5);display:flex;align-items:center;justify-content:center;font-weight:500;font-size:11px;color:white">${cl?(cl.name||'?').charAt(0):'?'}</div>
-        <div style="flex:1"><div style="font-weight:500">${cl?cl.name:'Non assigné'}</div><div style="font-size:11px;color:#8A8A99">${m.date} · ${m.heure}</div></div>
-        <span style="padding:2px 8px;border-radius:100px;font-size:10px;background:${m.status==='acceptee'?'#E1F5EE;color:#085041':'#FAEEDA;color:#854F0B'}">${m.status==='acceptee'?'✓ Confirmé':'⏳ En attente'}</span>
-      </div>`;
-    });
-  } else {
-    cleanHtml=`<div style="background:#FCEBEB;padding:8px 10px;font-size:12px;color:#A32D2D;border-left:3px solid #E24B4A;border-radius:0 8px 8px 0">
-      <b>⚠ Pas de mission de ménage</b> prévue
-      <button onclick="openMissionModal()" style="margin-left:8px;padding:3px 8px;border-radius:6px;background:#E24B4A;color:white;border:none;font-size:11px;cursor:pointer">+ Créer</button>
-    </div>`;
-  }
+    cleanHtml=pendingM.slice(0,3).map(m=>{const cl=cleanersData.find(c=>String(c.id)===String(m.cleaner_id));return `<div class="rq-clean-v2"><div class="rq-clean-avatar">${cl?(cl.name||'?').charAt(0).toUpperCase():'?'}</div><div class="rq-clean-main"><div class="rq-clean-title">${esc(cl?cl.name:'Non assigné')}</div><div class="rq-clean-meta">${esc(m.date||'date à confirmer')} · ${esc(m.heure||'heure à confirmer')}</div></div><span class="rq-boost-badge" style="background:${m.status==='acceptee'?'#DCFCE7':'#FFEDD5'};color:${m.status==='acceptee'?'#047857':'#C2410C'}">${m.status==='acceptee'?'Confirmé':'En attente'}</span></div>`}).join('');
+  }else cleanHtml=`<div class="rq-clean-v2"><div class="rq-clean-avatar">!</div><div class="rq-clean-main"><div class="rq-clean-title">Aucun ménage prévu</div><div class="rq-clean-meta">Planifiez une mission pour éviter les urgences.</div></div><button class="rq-button-secondary" onclick="openMissionModal()">Créer</button></div>`;
 
-  // Events
-  let evsHtml='';
-  if(hotEvs.length){
-    hotEvs.slice(0,4).forEach(e=>{
-      evsHtml+=`<div style="background:#F8F7FF;border-radius:6px;padding:6px 10px;font-size:11px;display:flex;align-items:center;gap:6px;margin-bottom:4px">
-        <span>${e.emoji||'🎯'}</span><span style="flex:1">${e.name.slice(0,35)}</span><span style="font-size:11px;color:#8A8A99">${e.date_label}</span><span style="font-weight:500;color:#BA7517">+${e.boost}%</span>
-      </div>`;
-    });
-  } else {
-    evsHtml='<div style="font-size:12px;color:#8A8A99;padding:0.5rem">Aucun événement détecté à proximité</div>';
-  }
+  const eventsHtml=hotEvs.length?hotEvs.slice(0,4).map(e=>`<div class="rq-event-v2"><div class="rq-event-emoji">${e.emoji||'🎯'}</div><div class="rq-event-main"><div class="rq-event-title">${esc(e.name)}</div><div class="rq-event-meta">${esc(e.date_label||formatEventDate(e.date))} · ${esc(e.venue||city||'local')}</div></div><span class="rq-boost-badge">+${e.boost||10}%</span></div>`).join(''):`<div class="rq-event-v2"><div class="rq-event-emoji">📍</div><div class="rq-event-main"><div class="rq-event-title">Aucun événement majeur détecté</div><div class="rq-event-meta">EVA utilisera surtout l’occupation et les nuits libres.</div></div></div>`;
 
   document.getElementById('parc-detail').innerHTML=`
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.25rem">
-      <button onclick="closeApartDetail()" style="background:none;border:none;font-size:20px;color:#8A8A99;cursor:pointer;padding:4px">←</button>
-      <div style="font-size:22px">${a.emoji||'🏠'}</div>
-      <div style="flex:1">
-        <div style="font-size:20px;font-weight:500">${a.name}</div>
-        <div style="font-size:12px;color:#8A8A99">${a.address||city}</div>
-      </div>
-      <span style="padding:5px 14px;border-radius:100px;font-size:12px;font-weight:500;background:${freeTonight?'#FCEBEB;color:#A32D2D':'#E1F5EE;color:#085041'}">${freeTonight?'Libre ce soir':'Loué'}</span>
-      <button onclick="openEdit('${a.id}')" style="padding:6px 14px;border-radius:8px;border:0.5px solid #E8E8EE;background:white;font-size:12px;cursor:pointer;font-family:inherit">✏️ Modifier</button>
-    </div>
+    <div class="rq-detail-v2">
+      <div class="rq-detail-top"><button class="rq-back-btn" onclick="closeApartDetail()">←</button><button class="rq-button-secondary" onclick="openEdit('${a.id}')">✏️ Modifier le bien</button></div>
+      <section class="rq-detail-hero">
+        <div class="rq-detail-hero-main">
+          <div>
+            <div class="rq-detail-title-row"><div class="rq-detail-emoji">${a.emoji||'🏠'}</div><div style="min-width:0"><div class="rq-detail-name">${esc(a.name||'Appartement')}</div><div class="rq-detail-address">${esc(a.address||city||'Adresse à compléter')}</div></div></div>
+            <div style="margin-top:14px"><span class="rq-health-badge ${healthClass}"><span class="rq-health-dot"></span>${healthLabel}</span><span style="display:inline-block;margin-left:10px;color:rgba(255,255,255,.74);font-size:13px">${healthText}</span></div>
+          </div>
+          <div class="rq-score-ring" style="--score:${score}%"><div class="rq-score-ring-inner"><div class="rq-score-num">${score}</div><div class="rq-score-label">EVA Score</div></div></div>
+        </div>
+        <div class="rq-hero-kpis">
+          <div class="rq-hero-kpi"><div class="rq-hero-kpi-label">Net ce mois</div><div class="rq-hero-kpi-value">${net>=0?'+':''}${net}€</div><div class="rq-hero-kpi-sub">CA ${rev}€ · charges ${charges}€</div></div>
+          <div class="rq-hero-kpi"><div class="rq-hero-kpi-label">Occupation 14j</div><div class="rq-hero-kpi-value">${occ14}%</div><div class="rq-hero-kpi-sub">${14-free14}/14 nuits réservées</div></div>
+          <div class="rq-hero-kpi"><div class="rq-hero-kpi-label">Revenu à récupérer</div><div class="rq-hero-kpi-value">${potential}€</div><div class="rq-hero-kpi-sub">sur nuits libres proches</div></div>
+          <div class="rq-hero-kpi"><div class="rq-hero-kpi-label">Actions</div><div class="rq-hero-kpi-value">${actions.filter(x=>x.type).length}</div><div class="rq-hero-kpi-sub">priorités opérationnelles</div></div>
+        </div>
+      </section>
 
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:1.25rem">
-      <div style="background:#F8F7FF;border-radius:8px;padding:0.6rem;text-align:center">
-        <div style="font-size:9px;color:#8A8A99">Prix/nuit</div><div style="font-size:18px;font-weight:500">${getCurrentDegPrice(a)}€</div>
-      </div>
-      <div style="background:#F8F7FF;border-radius:8px;padding:0.6rem;text-align:center">
-        <div style="font-size:9px;color:#8A8A99">★ Airbnb</div><div style="font-size:18px;font-weight:500;color:${note!=='—'&&note<4.0?'#E24B4A':'#1A1A2E'}">${note}</div>
-      </div>
-      <div style="background:#F8F7FF;border-radius:8px;padding:0.6rem;text-align:center">
-        <div style="font-size:9px;color:#8A8A99">Occupation</div><div style="font-size:18px;font-weight:500;color:${occ>=65?'#1D9E75':occ>=40?'#BA7517':'#E24B4A'}">${occ}%</div>
-      </div>
-      <div style="background:#F8F7FF;border-radius:8px;padding:0.6rem;text-align:center">
-        <div style="font-size:9px;color:#8A8A99">Net/mois</div><div style="font-size:18px;font-weight:500;color:${net>=0?'#1D9E75':'#E24B4A'}">${net>=0?'+':''}${net}€</div>
-      </div>
-      <div style="background:#F8F7FF;border-radius:8px;padding:0.6rem;text-align:center">
-        <div style="font-size:9px;color:#8A8A99">Plancher</div><div style="font-size:18px;font-weight:500">${fl}€</div>
-      </div>
-    </div>
+      <section class="rq-reco-card ${recoClass}">
+        <div class="rq-reco-main"><div><div class="rq-reco-kicker">🎯 EVA recommande</div><div class="rq-reco-title">${esc(recoTitle)}</div></div><div class="rq-reco-price">${recoPrice}€<br><span>prix conseillé</span></div></div>
+        <div class="rq-reason-list">${recoReasons.slice(0,4).map(r=>`<div class="rq-reason-item"><b>${esc(r[0])}</b><br>${esc(r[1])}</div>`).join('')}</div>
+        <div class="rq-reco-footer"><span class="rq-impact-pill">💰 ${esc(impactText)}</span><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="rq-button-primary" onclick="applyAI('${a.id}',${recoPrice})">Appliquer ${recoPrice}€</button><button class="rq-button-secondary" onclick="openEdit('${a.id}')">Ajuster</button></div></div>
+      </section>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
-      <div>
-        <div style="font-size:10px;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.4rem">Revenus 12 derniers mois</div>
-        <div style="background:#F8F7FF;border-radius:8px;padding:0.75rem;display:flex;align-items:flex-end;gap:3px;height:120px">${revBars}</div>
+      <div class="rq-detail-grid">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">📅 7 prochaines nuits</div><div class="rq-card-sub-v2">Cliquez une nuit libre pour appliquer son prix conseillé.</div></div><span class="rq-health-badge ${freeTonight?'danger':(free14>4?'warn':'')}" style="color:#17122E;background:#F8F4FF"><span class="rq-health-dot"></span>${free14} libres / 14j</span></div><div class="rq-nights-grid">${nightsHtml}</div></section>
+          <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">🎯 Actions du jour</div><div class="rq-card-sub-v2">Priorité au remplissage : une nuit vide rapporte 0€.</div></div></div><div class="rq-actions-list">${actionsHtml}</div></section>
+          <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">💰 Finances du bien</div><div class="rq-card-sub-v2">Lecture simple : chiffre d’affaires, charges et résultat.</div></div><span class="rq-boost-badge" style="background:${net>=0?'#DCFCE7':'#FEE2E2'};color:${net>=0?'#047857':'#B91C1C'}">${net>=0?'Rentable':'Sous-performant'}</span></div><div class="rq-finance-grid"><div class="rq-finance-line"><div class="rq-finance-label">CA généré</div><div class="rq-finance-value">${rev}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Charges</div><div class="rq-finance-value">${charges}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Résultat net</div><div class="rq-finance-value ${net>=0?'good':'bad'}">${net>=0?'+':''}${net}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Rentabilité</div><div class="rq-finance-value ${profitability>=0?'good':'bad'}">${profitability}%</div></div></div><div class="rq-mini-bars">${revBars}</div></section>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">🧭 Timeline opérationnelle</div><div class="rq-card-sub-v2">Ce qui arrive sur ce logement.</div></div></div><div class="rq-timeline">${timelineHtml}</div></section>
+          <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">🧹 CleanyQ</div><div class="rq-card-sub-v2">Ménage et préparation du bien.</div></div></div><div class="rq-clean-list">${cleanHtml}</div></section>
+          <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">🎉 Événements proches</div><div class="rq-card-sub-v2">Opportunités de hausse locale.</div></div></div><div class="rq-events-list">${eventsHtml}</div></section>
+        </div>
       </div>
-      <div>
-        <div style="font-size:10px;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.4rem">7 prochaines nuits</div>
-        <div style="background:#F8F7FF;border-radius:8px;padding:0.75rem"><div style="display:flex;gap:4px">${nightsHtml}</div></div>
-      </div>
-    </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-      <div>
-        <div style="font-size:10px;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.4rem">Actions à faire</div>
-        ${actionsHtml}
-      </div>
-      <div>
-        <div style="font-size:10px;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.4rem">Ménage — CleanyQ</div>
-        ${cleanHtml}
-        <div style="font-size:10px;color:#8A8A99;text-transform:uppercase;letter-spacing:0.8px;margin:0.75rem 0 0.4rem">Événements proches</div>
-        ${evsHtml}
-      </div>
+      <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">⚙️ Modifier / compléter le bien</div><div class="rq-card-sub-v2">Accès rapide aux réglages importants.</div></div></div><div class="rq-edit-panel"><div class="rq-edit-tile" onclick="openEdit('${a.id}')"><div class="rq-edit-icon">🏠</div><div class="rq-edit-title">Informations</div><div class="rq-edit-sub">Nom, ville, adresse, emoji.</div></div><div class="rq-edit-tile" onclick="openEdit('${a.id}')"><div class="rq-edit-icon">💸</div><div class="rq-edit-title">Pricing</div><div class="rq-edit-sub">Prix actuel, plancher, dégressif.</div></div><div class="rq-edit-tile" onclick="openMissionModal()"><div class="rq-edit-icon">🧹</div><div class="rq-edit-title">Ménage</div><div class="rq-edit-sub">Créer une mission CleanyQ.</div></div><div class="rq-edit-tile" onclick="goTo('smoobu',document.querySelectorAll('.nav-item')[6])"><div class="rq-edit-icon">🔗</div><div class="rq-edit-title">Synchronisation</div><div class="rq-edit-sub">Smoobu, réservations, prix.</div></div></div></section>
     </div>`;
 }
 
