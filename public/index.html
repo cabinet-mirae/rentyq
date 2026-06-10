@@ -1017,6 +1017,20 @@ tr:hover td{background:#FCF8FF!important;}
 
 
 
+
+/* ===== Step 6 Actions EVA - corrected placement ===== */
+.rq-actions-panel{margin-top:16px;border:1px solid rgba(249,115,22,.25)!important;background:linear-gradient(135deg,#FFF7ED 0%,#FFFFFF 45%,#FEF2F2 100%)!important}
+.rq-actions-grid{display:grid;gap:12px;margin-top:14px}
+.rq-action{display:grid;grid-template-columns:70px 1fr 120px;gap:14px;align-items:center;background:white;border:1px solid rgba(249,115,22,.12);border-radius:16px;padding:14px}
+.rq-rank{font-size:30px;font-weight:900;color:#EA580C;text-align:center}
+.rq-action-title{font-weight:900;color:#17122E;margin-bottom:4px}
+.rq-action-desc{font-size:12px;color:#5E5573;line-height:1.45}
+.rq-impact{text-align:right}
+.rq-impact-value{font-size:20px;font-weight:900;color:#059669}
+.rq-impact-label{font-size:11px;color:#7B708F}
+@media(max-width:800px){.rq-action{grid-template-columns:1fr}.rq-rank,.rq-impact{text-align:left}}
+/* ===== end Step 6 Actions EVA ===== */
+
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
@@ -3083,7 +3097,67 @@ function showApartDetail(id){
         </section>
 
 
-        <section class="rq-context-card rq-profit-panel">
+        <section class="rq-context-card rq-actions-panel">
+<div class="rq-api-top">
+<div>
+<div class="rq-context-title">🎯 Actions EVA prioritaires</div>
+<div class="rq-context-sub">Les recommandations les plus rentables à mettre en œuvre maintenant.</div>
+</div>
+<span class="rq-api-badge">Étape 6</span>
+</div>
+
+<div class="rq-actions-grid">
+<div class="rq-action">
+<div class="rq-rank">1</div>
+<div>
+<div class="rq-action-title">Augmenter les prix des week-ends de juin</div>
+<div class="rq-action-desc">La demande locale est forte et le logement se vend rapidement.</div>
+</div>
+<div class="rq-impact">
+<div class="rq-impact-value">+420€/an</div>
+<div class="rq-impact-label">Impact estimé</div>
+</div>
+</div>
+
+<div class="rq-action">
+<div class="rq-rank">2</div>
+<div>
+<div class="rq-action-title">Optimiser les coûts de ménage</div>
+<div class="rq-action-desc">Le ménage représente une part supérieure aux références EVA.</div>
+</div>
+<div class="rq-impact">
+<div class="rq-impact-value">+620€/an</div>
+<div class="rq-impact-label">Impact estimé</div>
+</div>
+</div>
+
+<div class="rq-action">
+<div class="rq-rank">3</div>
+<div>
+<div class="rq-action-title">Développer les réservations directes</div>
+<div class="rq-action-desc">Réduire la dépendance aux OTA améliore la marge nette.</div>
+</div>
+<div class="rq-impact">
+<div class="rq-impact-value">+780€/an</div>
+<div class="rq-impact-label">Impact estimé</div>
+</div>
+</div>
+
+<div class="rq-action">
+<div class="rq-rank">4</div>
+<div>
+<div class="rq-action-title">Créer un coin télétravail</div>
+<div class="rq-action-desc">Permet d'attirer une clientèle professionnelle mieux valorisée.</div>
+</div>
+<div class="rq-impact">
+<div class="rq-impact-value">+4% occ.</div>
+<div class="rq-impact-label">Impact estimé</div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="rq-context-card rq-profit-panel">
           <div class="rq-api-top">
             <div>
               <div class="rq-context-title">💎 Rentabilité nette réelle</div>
@@ -6274,66 +6348,6 @@ function switchPropertyTab(tab){
 }
 
 </script>
-
-<section class="rq-context-card rq-actions-panel">
-<div class="rq-api-top">
-<div>
-<div class="rq-context-title">🎯 Actions EVA prioritaires</div>
-<div class="rq-context-sub">Les recommandations les plus rentables à mettre en œuvre maintenant.</div>
-</div>
-<span class="rq-api-badge">Étape 6</span>
-</div>
-
-<div class="rq-actions-grid">
-<div class="rq-action">
-<div class="rq-rank">1</div>
-<div>
-<div class="rq-action-title">Augmenter les prix des week-ends de juin</div>
-<div class="rq-action-desc">La demande locale est forte et le logement se vend rapidement.</div>
-</div>
-<div class="rq-impact">
-<div class="rq-impact-value">+420€/an</div>
-<div class="rq-impact-label">Impact estimé</div>
-</div>
-</div>
-
-<div class="rq-action">
-<div class="rq-rank">2</div>
-<div>
-<div class="rq-action-title">Optimiser les coûts de ménage</div>
-<div class="rq-action-desc">Le ménage représente une part supérieure aux références EVA.</div>
-</div>
-<div class="rq-impact">
-<div class="rq-impact-value">+620€/an</div>
-<div class="rq-impact-label">Impact estimé</div>
-</div>
-</div>
-
-<div class="rq-action">
-<div class="rq-rank">3</div>
-<div>
-<div class="rq-action-title">Développer les réservations directes</div>
-<div class="rq-action-desc">Réduire la dépendance aux OTA améliore la marge nette.</div>
-</div>
-<div class="rq-impact">
-<div class="rq-impact-value">+780€/an</div>
-<div class="rq-impact-label">Impact estimé</div>
-</div>
-</div>
-
-<div class="rq-action">
-<div class="rq-rank">4</div>
-<div>
-<div class="rq-action-title">Créer un coin télétravail</div>
-<div class="rq-action-desc">Permet d'attirer une clientèle professionnelle mieux valorisée.</div>
-</div>
-<div class="rq-impact">
-<div class="rq-impact-value">+4% occ.</div>
-<div class="rq-impact-label">Impact estimé</div>
-</div>
-</div>
-</div>
-</section>
 
 </body>
 </html>
