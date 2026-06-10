@@ -639,6 +639,80 @@ tr:hover td{background:#FCF8FF!important;}
 .scanner-muted{font-size:12px;color:rgba(255,255,255,.78);margin-top:8px;position:relative;z-index:1}
 /* ===== end EVA SCANNER V1 ===== */
 
+
+/* ===== EVA PRICING VISUAL REFRESH — uniquement interface, pas de changement IA ===== */
+.eva-dashboard{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;margin:0 0 14px}
+.eva-hero-card{position:relative;overflow:hidden;border-radius:22px;padding:20px;background:linear-gradient(135deg,#24105C 0%,#7C3AED 45%,#EC4899 100%);color:#fff;box-shadow:0 22px 55px rgba(124,58,237,.20)}
+.eva-hero-card:after{content:"";position:absolute;right:-70px;top:-90px;width:280px;height:280px;background:radial-gradient(circle,rgba(255,255,255,.24),transparent 62%);pointer-events:none}
+.eva-hero-kicker{position:relative;z-index:1;font-size:11px;text-transform:uppercase;letter-spacing:.9px;font-weight:850;color:rgba(255,255,255,.76);margin-bottom:8px}
+.eva-hero-title{position:relative;z-index:1;font-size:30px;line-height:1.05;font-weight:900;letter-spacing:-.9px;margin-bottom:8px}
+.eva-hero-sub{position:relative;z-index:1;font-size:13px;line-height:1.55;color:rgba(255,255,255,.82);max-width:720px}
+.eva-hero-money{position:relative;z-index:1;display:flex;align-items:flex-end;gap:12px;margin-top:18px}
+.eva-money-big{font-size:42px;font-weight:950;letter-spacing:-1.4px;line-height:.9}
+.eva-money-label{font-size:12px;color:rgba(255,255,255,.75);line-height:1.35}
+.eva-side-stack{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.eva-metric-card{border-radius:18px;background:rgba(255,255,255,.92);border:1px solid rgba(139,92,246,.14);box-shadow:0 14px 34px rgba(69,39,120,.07);padding:14px;min-height:112px}
+.eva-metric-label{font-size:10px;text-transform:uppercase;letter-spacing:.75px;color:#8A8A99;font-weight:850;margin-bottom:7px}
+.eva-metric-value{font-size:28px;font-weight:900;letter-spacing:-.8px;color:#17122E;line-height:1}
+.eva-metric-help{font-size:12px;color:#7B708F;line-height:1.35;margin-top:8px}
+.eva-progress{height:8px;background:#EEE9FF;border-radius:999px;overflow:hidden;margin-top:10px}
+.eva-progress span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#7C3AED,#EC4899)}
+.eva-actions-panel{background:white;border:1px solid rgba(139,92,246,.16);border-radius:20px;box-shadow:0 14px 40px rgba(69,39,120,.07);padding:16px;margin-bottom:14px}
+.eva-panel-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}
+.eva-panel-title{font-size:16px;font-weight:900;color:#17122E;letter-spacing:-.2px}
+.eva-panel-sub{font-size:12px;color:#8A8A99;margin-top:3px}
+.eva-pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 9px;font-size:11px;font-weight:850}
+.eva-pill-red{background:#FEE2E2;color:#B91C1C}
+.eva-pill-orange{background:#FFEDD5;color:#C2410C}
+.eva-pill-green{background:#DCFCE7;color:#047857}
+.eva-pill-purple{background:#F3E8FF;color:#7C3AED}
+.eva-action-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.eva-action-card{position:relative;overflow:hidden;background:linear-gradient(180deg,#fff,#FFFBFF);border:1px solid rgba(139,92,246,.12);border-radius:16px;padding:14px;box-shadow:0 10px 24px rgba(69,39,120,.05)}
+.eva-action-card.urgent{border-color:rgba(239,68,68,.28);background:linear-gradient(135deg,#FFF7F7,#fff)}
+.eva-action-card.up{border-color:rgba(245,158,11,.28);background:linear-gradient(135deg,#FFFBEB,#fff)}
+.eva-action-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:10px}
+.eva-apt-name{font-size:14px;font-weight:900;color:#17122E;line-height:1.25}
+.eva-apt-city{font-size:11px;color:#8A8A99;margin-top:3px}
+.eva-price-row{display:flex;align-items:center;gap:8px;margin:8px 0}
+.eva-price-old{font-size:18px;font-weight:800;color:#7B708F;text-decoration:line-through;text-decoration-thickness:1px}
+.eva-price-arrow{color:#B0A8C8;font-weight:900}
+.eva-price-new{font-size:28px;font-weight:950;color:#17122E;letter-spacing:-.8px}
+.eva-reason{font-size:12px;color:#5E5573;line-height:1.45;min-height:34px}
+.eva-card-footer{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px}
+.eva-impact{font-size:12px;color:#059669;font-weight:900}
+.eva-calendar-card{background:white;border-radius:20px;border:1px solid rgba(139,92,246,.14);box-shadow:0 14px 40px rgba(69,39,120,.06);padding:16px;margin-bottom:14px;overflow-x:auto}
+.eva-calendar-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.eva-calendar-grid{display:grid;gap:4px;align-items:center}
+.eva-cal-head{font-size:10px;text-align:center;color:#8A8A99;font-weight:800;line-height:1.2}
+.eva-cal-apt{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:850;color:#241A3D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eva-cal-cell{height:42px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-direction:column;font-weight:900;cursor:pointer;transition:transform .12s,filter .12s;border:1px solid transparent}
+.eva-cal-cell:hover{transform:translateY(-1px);filter:brightness(1.03)}
+.eva-cal-cell.free{background:linear-gradient(135deg,#FEE2E2,#EF4444);color:white}
+.eva-cal-cell.booked{background:#DCFCE7;color:#047857;cursor:default}
+.eva-cal-cell.event{background:linear-gradient(135deg,#F59E0B,#92400E);color:white}
+.eva-cal-cell.today{outline:2px solid #7C3AED;outline-offset:1px}
+.eva-cal-price{font-size:11px;line-height:1}
+.eva-cal-tag{font-size:8px;opacity:.9;margin-top:2px}
+.eva-pipeline-card{background:white;border:1px solid rgba(139,92,246,.14);border-radius:20px;box-shadow:0 14px 40px rgba(69,39,120,.06);padding:16px;margin-bottom:12px}
+.eva-opportunity{display:grid;grid-template-columns:7px 1fr auto auto;gap:13px;align-items:center;padding:13px;border-radius:16px;border:1px solid rgba(139,92,246,.11);background:linear-gradient(180deg,#fff,#FFFCFF);margin-bottom:9px}
+.eva-opportunity:last-child{margin-bottom:0}
+.eva-severity{height:100%;min-height:64px;border-radius:999px;background:#7C3AED}
+.eva-severity.red{background:#EF4444}
+.eva-severity.orange{background:#F59E0B}
+.eva-severity.green{background:#10B981}
+.eva-opp-main{min-width:0}
+.eva-opp-title{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:14px;font-weight:900;color:#17122E;margin-bottom:5px}
+.eva-opp-meta{font-size:12px;color:#8A8A99;line-height:1.45}
+.eva-night-pills{display:flex;gap:4px;flex-wrap:wrap;margin-top:7px}
+.eva-night-pill{font-size:11px;border-radius:7px;padding:3px 7px;background:#FEE2E2;color:#991B1B;font-weight:800}
+.eva-night-pill.event{background:#FFEDD5;color:#92400E}
+.eva-opp-money{text-align:right}
+.eva-opp-money strong{display:block;font-size:22px;color:#059669;font-weight:950;letter-spacing:-.5px}
+.eva-opp-money span{font-size:11px;color:#8A8A99}
+@media(max-width:1050px){.eva-dashboard{grid-template-columns:1fr}.eva-side-stack{grid-template-columns:repeat(2,1fr)}.eva-opportunity{grid-template-columns:6px 1fr}.eva-opp-money{text-align:left}.eva-opportunity .btn{width:100%;justify-content:center}}
+@media(max-width:640px){.eva-side-stack{grid-template-columns:1fr}.eva-hero-title{font-size:24px}.eva-money-big{font-size:34px}.eva-action-grid{grid-template-columns:1fr}}
+/* ===== end EVA PRICING VISUAL REFRESH ===== */
+
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
@@ -2515,145 +2589,152 @@ function renderPricingTable(){
   const now=new Date();
   const days=Array.from({length:horizon},(_,i)=>{
     const d=new Date(now);d.setDate(d.getDate()+i);
-    return {
-      date:d.toISOString().split('T')[0],
-      label:d.getDate(),
-      dayName:d.toLocaleDateString('fr-FR',{weekday:'short'}),
-      isToday:i===0
-    };
+    return {date:isoDate(d),label:d.getDate(),dayName:d.toLocaleDateString('fr-FR',{weekday:'short'}),isToday:i===0,offset:i};
   });
 
+  const gridEl=document.getElementById('pricing-grid');
+  const pipeEl=document.getElementById('pricing-pipeline');
+  if(!gridEl||!pipeEl)return;
+
   if(!apparts.length){
-    document.getElementById('pricing-grid').innerHTML='<div style="text-align:center;padding:2rem;color:#8A8A99">Ajoutez des appartements pour voir le planning.</div>';
-    document.getElementById('pricing-pipeline').innerHTML='';
+    gridEl.innerHTML='<div style="text-align:center;padding:2rem;color:#8A8A99">Ajoutez des appartements pour voir le planning.</div>';
+    pipeEl.innerHTML='';
     return;
   }
 
-  // ─── Données par appart / par jour ───
   const gridData=apparts.map(a=>{
     const city=a.city||extractCity(a.zone,null)||'';
     const cityEvents=eventsCache[city]||[];
     return {
       a,
+      city,
+      smart:getSmartRec(a,{horizon}),
       days:days.map(day=>{
-        const isBooked=reservations.some(r=>r.appartement_id===a.id&&r.date_from<=day.date&&r.date_to>=day.date);
-        const hotEvs=cityEvents.filter(e=>e.hot&&e.date===day.date);
-        const smart=getSmartRec(a);
-        // Ajuster le rec selon la date (+ variation hebdo)
+        const isBooked=getAptReservations(a).some(r=>bookingCoversDate(r,day.date));
+        const hotEvs=cityEvents.filter(e=>e.hot&&e.date&&Math.abs((new Date(e.date)-new Date(day.date))/(1000*60*60*24))<=1);
+        const smart=getSmartRec(a,{date:day.date,horizon});
         const dow=new Date(day.date).getDay();
-        const weekendBoost=dow===5||dow===6?1.08:1;
-        const recPrice=Math.round(smart.rec*weekendBoost*(1+(hotEvs.length?0.12:0)));
-        return {date:day.date,label:day.label,dayName:day.dayName,isToday:day.isToday,isBooked,hotEvs,recPrice,currentPrice:a.price||0};
+        const weekend=dow===5||dow===6;
+        const recPrice=Math.round(smart.rec*(weekend&&!hotEvs.length?1.02:1)*(hotEvs.length?1.06:1));
+        return {...day,isBooked,hotEvs,recPrice,currentPrice:Number(a.price||0),smart};
       })
     };
   });
 
-  // ─── KPIs ───
-  const totalFreeNights=gridData.reduce((s,g)=>s+g.days.filter(d=>!d.isBooked).length,0);
-  const totalPotential=gridData.reduce((s,g)=>s+g.days.filter(d=>!d.isBooked).reduce((ss,d)=>ss+d.recPrice,0),0);
-  const eventNights=gridData.reduce((s,g)=>s+g.days.filter(d=>d.hotEvs.length>0).length,0);
-  document.getElementById('pricing-sub').innerHTML=
-    `<span style="color:#E24B4A;font-weight:500">${totalFreeNights}</span> nuits libres sur ${horizon}j &nbsp;·&nbsp; potentiel <span style="color:#1D9E75;font-weight:500">${totalPotential}€</span>&nbsp;·&nbsp; <span style="color:#854F0B">${eventNights} avec événement</span>`;
-  document.getElementById('btn-apply-all').style.display=totalFreeNights>0?'inline-flex':'none';
+  const freeCells=gridData.flatMap(g=>g.days.filter(d=>!d.isBooked).map(d=>({g,d})));
+  const totalFreeNights=freeCells.length;
+  const totalPotential=freeCells.reduce((s,x)=>s+x.d.recPrice,0);
+  const eventNights=freeCells.filter(x=>x.d.hotEvs.length>0).length;
+  const urgentNights=freeCells.filter(x=>x.d.offset<=2).length;
+  const occ=Math.round(((gridData.length*horizon-totalFreeNights)/(gridData.length*horizon||1))*100);
+  const score=Math.max(0,Math.min(100,Math.round(occ*0.75 + (100-Math.min(100,urgentNights*8))*0.25)));
 
-  // ─── GRILLE CALENDRIER ───
-  const COL_W=horizon<=7?48:horizon<=14?38:28;
-  const APT_W=140;
-  let grid=`<div style="display:grid;grid-template-columns:${APT_W}px ${days.map(()=>COL_W+'px').join(' ')};gap:2px;min-width:${APT_W+days.length*(COL_W+2)}px">`;
+  const sub=document.getElementById('pricing-sub');
+  if(sub)sub.innerHTML=`<span style="color:#EF4444;font-weight:800">${totalFreeNights}</span> nuits libres · <span style="color:#059669;font-weight:800">+${totalPotential}€</span> à sécuriser · <span style="color:#7C3AED;font-weight:800">Score EVA ${score}/100</span>`;
+  const applyBtn=document.getElementById('btn-apply-all');
+  if(applyBtn)applyBtn.style.display=totalFreeNights>0?'inline-flex':'none';
 
-  // Header jours
-  grid+=`<div style="padding:4px 6px;font-size:11px;font-weight:500;color:#8A8A99"></div>`;
-  days.forEach(d=>{
-    grid+=`<div style="text-align:center;padding:3px 0;font-size:${COL_W<38?'9':'10'}px;color:${d.isToday?'#534AB7':'#8A8A99'};font-weight:${d.isToday?'500':'400'}">
-      <div>${d.dayName}</div><div style="font-weight:${d.isToday?'600':'400'};font-size:${COL_W<38?'10':'11'}px">${d.label}</div>
+  const urgentApps=gridData.filter(g=>g.smart.priority==='urgent').length;
+  const baisseApps=gridData.filter(g=>g.smart.direction==='BAISSER').length;
+  const hausseApps=gridData.filter(g=>g.smart.direction==='AUGMENTER').length;
+
+  if(!document.getElementById('global-result')?.innerHTML.trim()){
+    document.getElementById('global-result').innerHTML=`<div class="eva-dashboard">
+      <div class="eva-hero-card">
+        <div class="eva-hero-kicker">EVA Pricing · mode action</div>
+        <div class="eva-hero-title">${urgentApps?urgentApps+' bien'+(urgentApps>1?'s':'')+' à remplir vite':'Vos prix sont prêts à piloter'}</div>
+        <div class="eva-hero-sub">${occ<45?'Le portefeuille est trop vide : EVA privilégie les baisses intelligentes sur les dates proches.':occ<65?'Il faut améliorer le remplissage avant de chercher les hausses.':'Bon remplissage : hausse possible sur week-ends et événements.'}</div>
+        <div class="eva-hero-money"><div class="eva-money-big">+${totalPotential}€</div><div class="eva-money-label">potentiel sur ${horizon} jours<br>si les nuits libres sont vendues</div></div>
+      </div>
+      <div class="eva-side-stack">
+        <div class="eva-metric-card"><div class="eva-metric-label">Occupation</div><div class="eva-metric-value">${occ}%</div><div class="eva-progress"><span style="width:${Math.max(5,occ)}%"></span></div><div class="eva-metric-help">Objectif : 65–75%</div></div>
+        <div class="eva-metric-card"><div class="eva-metric-label">Urgences 72h</div><div class="eva-metric-value">${urgentNights}</div><div class="eva-metric-help">Nuits proches à vendre</div></div>
+        <div class="eva-metric-card"><div class="eva-metric-label">Baisses utiles</div><div class="eva-metric-value">${baisseApps}</div><div class="eva-metric-help">Pour éviter 0€ de CA</div></div>
+        <div class="eva-metric-card"><div class="eva-metric-label">Hausses possibles</div><div class="eva-metric-value">${hausseApps}</div><div class="eva-metric-help">Week-end / événement / forte demande</div></div>
+      </div>
+    </div>`;
+  }
+
+  const topActions=gridData
+    .map(g=>({a:g.a,city:g.city,smart:g.smart,free:g.days.filter(d=>!d.isBooked),potential:g.days.filter(d=>!d.isBooked).reduce((s,d)=>s+d.recPrice,0),hasEvent:g.days.some(d=>d.hotEvs.length)}))
+    .filter(x=>x.free.length)
+    .sort((x,y)=>{
+      const rank={urgent:4,important:3,'opportunité':2,normal:1};
+      return (rank[y.smart.priority]||0)-(rank[x.smart.priority]||0)||y.potential-x.potential;
+    });
+
+  let mission=`<div class="eva-actions-panel">
+    <div class="eva-panel-head">
+      <div><div class="eva-panel-title">🔥 Actions prioritaires</div><div class="eva-panel-sub">L’objectif : vendre les nuits vides avant qu’elles ne valent 0€.</div></div>
+      <span class="eva-pill ${urgentNights?'eva-pill-red':'eva-pill-green'}">${urgentNights?urgentNights+' nuits urgentes':'aucune urgence'}</span>
+    </div>
+    <div class="eva-action-grid">`;
+  topActions.slice(0,4).forEach(o=>{
+    const cls=o.smart.priority==='urgent'?'urgent':(o.smart.direction==='AUGMENTER'?'up':'');
+    const badge=o.smart.priority==='urgent'?'<span class="eva-pill eva-pill-red">🚨 à remplir</span>':o.hasEvent?'<span class="eva-pill eva-pill-orange">🎉 événement</span>':'<span class="eva-pill eva-pill-purple">🎯 optimiser</span>';
+    mission+=`<div class="eva-action-card ${cls}">
+      <div class="eva-action-top"><div><div class="eva-apt-name">${o.a.emoji||'🏠'} ${escapeHtml(o.a.name||'Appartement')}</div><div class="eva-apt-city">${escapeHtml(o.city||'')}</div></div>${badge}</div>
+      <div class="eva-price-row"><span class="eva-price-old">${o.a.price||0}€</span><span class="eva-price-arrow">→</span><span class="eva-price-new">${o.smart.rec}€</span></div>
+      <div class="eva-reason">${escapeHtml((o.smart.reasons&&o.smart.reasons[0])||o.smart.reason)}</div>
+      <div class="eva-card-footer"><span class="eva-impact">+${o.potential}€ potentiel</span><button class="btn btn-sm btn-purple" onclick="applyAI('${o.a.id}',${o.smart.rec})">Appliquer</button></div>
     </div>`;
   });
+  mission+=`</div></div>`;
 
-  // Lignes apparts
+  const COL_W=horizon<=7?58:horizon<=14?46:34;
+  const APT_W=160;
+  let cal=`<div class="eva-calendar-card">
+    <div class="eva-calendar-title">
+      <div><div class="eva-panel-title">📅 Calendrier des nuits à vendre</div><div class="eva-panel-sub">Rouge = libre, vert = réservé, orange = opportunité événement.</div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="eva-pill eva-pill-green">Réservé</span><span class="eva-pill eva-pill-red">Libre</span><span class="eva-pill eva-pill-orange">Événement</span></div>
+    </div>
+    <div class="eva-calendar-grid" style="grid-template-columns:${APT_W}px ${days.map(()=>COL_W+'px').join(' ')};min-width:${APT_W+days.length*(COL_W+4)}px">`;
+  cal+=`<div></div>`;
+  days.forEach(d=>{cal+=`<div class="eva-cal-head"><div>${d.dayName}</div><div style="font-size:13px;color:${d.isToday?'#7C3AED':'inherit'}">${d.label}</div></div>`;});
   gridData.forEach(({a,days:aptDays})=>{
-    grid+=`<div style="display:flex;align-items:center;gap:5px;padding:3px 4px;font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${a.name} — ${a.city||''}">
-      <span style="font-size:13px">${a.emoji||'🏠'}</span>
-      <span style="overflow:hidden;text-overflow:ellipsis">${a.name}</span>
-    </div>`;
+    cal+=`<div class="eva-cal-apt"><span>${a.emoji||'🏠'}</span><span style="overflow:hidden;text-overflow:ellipsis">${escapeHtml(a.name||'Appartement')}</span></div>`;
     aptDays.forEach(d=>{
-      const isEvt=d.hotEvs.length>0;
-      let bg,txt,click,cursor;
-      if(d.isBooked){
-        bg='#E1F5EE';txt='';click='';cursor='default';
-      } else if(isEvt){
-        bg='#854F0B';txt=`<span style="font-size:${COL_W<38?'8':'9'}px;color:white;font-weight:500">${d.recPrice}€</span>`;
-        click=`onclick="applyAI('${a.id}',${d.recPrice})"`;cursor='pointer';
-      } else {
-        bg='#E24B4A';txt=`<span style="font-size:${COL_W<38?'8':'9'}px;color:white;font-weight:500">${d.recPrice}€</span>`;
-        click=`onclick="applyAI('${a.id}',${d.recPrice})"`;cursor='pointer';
-      }
-      grid+=`<div ${click} style="height:36px;background:${bg};border-radius:3px;display:flex;align-items:center;justify-content:center;cursor:${cursor};transition:opacity .1s;border:${d.isToday?'1.5px solid #534AB7':'none'}" ${click?'onmouseover="this.style.opacity=\'0.8\'"onmouseout="this.style.opacity=\'1\'"':''}>${txt}</div>`;
+      const cls=d.isBooked?'booked':(d.hotEvs.length?'event':'free');
+      const tag=d.isBooked?'OK':(d.hotEvs.length?'evt':'libre');
+      const click=d.isBooked?'':`onclick="applyAI('${a.id}',${d.recPrice})"`;
+      cal+=`<div class="eva-cal-cell ${cls} ${d.isToday?'today':''}" ${click} title="${escapeHtml(a.name||'Appartement')} · ${d.date}">
+        <div class="eva-cal-price">${d.isBooked?'✓':d.recPrice+'€'}</div>
+        <div class="eva-cal-tag">${tag}</div>
+      </div>`;
     });
   });
-  grid+=`</div>`;
-  document.getElementById('pricing-grid').innerHTML=grid;
+  cal+=`</div></div>`;
+  gridEl.innerHTML=mission+cal;
 
-  // ─── PIPELINE OPPORTUNITÉS ───
-  const opportunities=gridData.map(({a,days:aptDays})=>{
-    const freeDays=aptDays.filter(d=>!d.isBooked);
-    const potential=freeDays.reduce((s,d)=>s+d.recPrice,0);
-    const hasEvent=freeDays.some(d=>d.hotEvs.length>0);
-    const freeTonight=freeDays[0]?.isToday;
-    const urgency=freeTonight?3:hasEvent?2:potential>200?1:0;
-    return {a,freeDays,potential,hasEvent,freeTonight,urgency};
-  }).filter(o=>o.freeDays.length>0).sort((a,b)=>b.urgency-a.urgency||b.potential-a.potential);
-
-  if(!opportunities.length){
-    document.getElementById('pricing-pipeline').innerHTML='<div class="card" style="text-align:center;padding:2rem;color:#1D9E75"><i class="ti ti-check" style="font-size:24px;vertical-align:-4px" aria-hidden="true"></i> Tous vos biens sont réservés sur la période !</div>';
+  if(!topActions.length){
+    pipeEl.innerHTML='<div class="eva-pipeline-card" style="text-align:center;color:#059669;font-weight:850">✅ Tous vos biens sont réservés sur la période.</div>';
     return;
   }
 
-  const urgencyColors=['#534AB7','#E24B4A','#854F0B','#E24B4A'];
-  const urgencyLabels=['Opportunité','Urgent — libre ce soir','Événement détecté','Urgent — libre ce soir'];
-
-  let pipe=`<div class="card">
-    <div class="card-head" style="margin-bottom:0.75rem">
-      <div class="card-title">Pipeline d'opportunités</div>
-      <div style="font-size:12px;color:#8A8A99">Trié par impact · ${opportunities.length} bien${opportunities.length>1?'s':''} avec nuits libres</div>
+  let pipe=`<div class="eva-pipeline-card">
+    <div class="eva-panel-head">
+      <div><div class="eva-panel-title">💰 Pipeline d’opportunités</div><div class="eva-panel-sub">Trié par urgence puis par revenu récupérable.</div></div>
+      <span class="eva-pill eva-pill-purple">${topActions.length} bien${topActions.length>1?'s':''}</span>
     </div>`;
-
-  opportunities.forEach(({a,freeDays,potential,hasEvent,freeTonight,urgency})=>{
-    const city=a.city||extractCity(a.zone,null)||'';
-    const smart=getSmartRec(a);
-    const urgColor=urgencyColors[urgency];
-    // Résumé des nuits: J, J+1, J+3…
-    const nightsSummary=freeDays.slice(0,4).map(d=>{
-      const evtMark=d.hotEvs.length?` <span style="color:#854F0B;font-size:10px">evt</span>`:'';
-      return `<span style="padding:2px 6px;background:${d.hotEvs.length?'#FAEEDA':'#FCEBEB'};border-radius:4px;font-size:11px;color:${d.hotEvs.length?'#854F0B':'#A32D2D'};margin-right:3px">${d.label}/${(new Date(d.date).getMonth()+1)}: <strong>${d.recPrice}€</strong>${evtMark}</span>`;
-    }).join('')+(freeDays.length>4?`<span style="font-size:11px;color:#8A8A99">+${freeDays.length-4} nuits</span>`:'');
-
-    pipe+=`<div style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;border:0.5px solid #EEEEF5;margin-bottom:6px;background:white;transition:background .1s" onmouseover="this.style.background='#FAFAFF'" onmouseout="this.style.background='white'">
-      <div style="width:5px;min-height:48px;background:${urgColor};border-radius:3px;flex-shrink:0"></div>
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">
-          <span style="font-size:13px;font-weight:500">${a.emoji||'🏠'} ${a.name}</span>
-          <span style="font-size:12px;color:#8A8A99">${city}</span>
-          ${freeTonight?`<span style="font-size:11px;padding:2px 7px;border-radius:4px;background:#FCEBEB;color:#A32D2D">Libre ce soir</span>`:''}
-          ${hasEvent?`<span style="font-size:11px;padding:2px 7px;border-radius:4px;background:#FAEEDA;color:#854F0B">Événement</span>`:''}
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <span style="font-size:11px;color:#8A8A99">Prix actuel: ${a.price||0}€ · EVA: ${smart.rec}€ · Nuits libres:</span>
-          ${nightsSummary}
-        </div>
-        <div style="font-size:11px;color:#8A8A99;margin-top:3px">${smart.reason}</div>
+  topActions.forEach(o=>{
+    const sev=o.smart.priority==='urgent'?'red':(o.hasEvent?'orange':(o.smart.direction==='AUGMENTER'?'green':''));
+    const nights=o.free.slice(0,5).map(d=>`<span class="eva-night-pill ${d.hotEvs.length?'event':''}">${d.label}/${new Date(d.date).getMonth()+1} · ${d.recPrice}€</span>`).join('')+(o.free.length>5?`<span class="eva-night-pill">+${o.free.length-5}</span>`:'');
+    pipe+=`<div class="eva-opportunity">
+      <div class="eva-severity ${sev}"></div>
+      <div class="eva-opp-main">
+        <div class="eva-opp-title">${o.a.emoji||'🏠'} ${escapeHtml(o.a.name||'Appartement')} ${o.smart.priority==='urgent'?'<span class="eva-pill eva-pill-red">urgent</span>':''} ${o.hasEvent?'<span class="eva-pill eva-pill-orange">événement</span>':''}</div>
+        <div class="eva-opp-meta">Prix actuel ${o.a.price||0}€ · Reco EVA ${o.smart.rec}€ · ${escapeHtml(o.smart.reason)}</div>
+        <div class="eva-night-pills">${nights}</div>
       </div>
-      <div style="text-align:right;flex-shrink:0">
-        <div style="font-size:20px;font-weight:500;color:#1D9E75">+${potential}€</div>
-        <div style="font-size:11px;color:#8A8A99">potentiel ${freeDays.length}n</div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
-        <button class="btn btn-sm btn-purple" onclick="applyAllForApt('${a.id}')">Appliquer tout</button>
-        <button class="btn btn-sm" onclick="askAI('${a.id}')"><i class="ti ti-sparkles" aria-hidden="true"></i> Analyse</button>
+      <div class="eva-opp-money"><strong>+${o.potential}€</strong><span>${o.free.length} nuit${o.free.length>1?'s':''} libre${o.free.length>1?'s':''}</span></div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button class="btn btn-sm btn-purple" onclick="applyAllForApt('${o.a.id}')">Appliquer tout</button>
+        <button class="btn btn-sm" onclick="askAI('${o.a.id}')">Détail</button>
       </div>
     </div>`;
   });
   pipe+=`</div>`;
-  document.getElementById('pricing-pipeline').innerHTML=pipe;
+  pipeEl.innerHTML=pipe;
 }
 
 function applyAllForApt(aptId){
@@ -3056,16 +3137,79 @@ function buildGlobalRulesAnalysis(){
   const baisse=rows.filter(r=>r.smart.direction==='BAISSER');
   const hausse=rows.filter(r=>r.smart.direction==='AUGMENTER');
   const occ=portfolioOccupancy();
-  let html=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head"><div class="ai-dot"></div> EVA Rules Engine — analyse sans IA payante</div><div class="ai-bubble-text">`;
-  html+=`<strong>Diagnostic global</strong><br>`;
-  html+=`Occupation portefeuille estimée : <strong>${occ}%</strong>. `;
-  if(occ<45)html+=`Priorité absolue : remplir les nuits vides, même avec une baisse contrôlée.<br><br>`;
-  else if(occ<65)html+=`Objectif : améliorer le remplissage avant de chercher à augmenter les prix.<br><br>`;
-  else html+=`Le remplissage est correct : vous pouvez protéger davantage vos prix sur les bonnes dates.<br><br>`;
-  if(urgent.length){html+=`<strong>Actions urgentes</strong><br>`+urgent.slice(0,5).map(r=>`• ${r.a.name} : ${r.smart.rec}€ (${r.smart.deltaPct}%) — ${r.smart.reason}`).join('<br>')+`<br><br>`;}
-  if(baisse.length){html+=`<strong>Baisses recommandées pour vendre les nuits libres</strong><br>`+baisse.slice(0,6).map(r=>`• ${r.a.name} : ${r.a.price||0}€ → <strong>${r.smart.rec}€</strong> — ${r.smart.reason}`).join('<br>')+`<br><br>`;}
-  if(hausse.length){html+=`<strong>Hausses possibles</strong><br>`+hausse.slice(0,6).map(r=>`• ${r.a.name} : ${r.a.price||0}€ → <strong>${r.smart.rec}€</strong> — ${r.smart.reason}`).join('<br>')+`<br><br>`;}
-  html+=`<strong>Règle RentyQ</strong><br>Une nuit vide vaut 0€. EVA privilégie donc le taux d’occupation sur les dates proches, tout en respectant le prix plancher.`;
+  const horizon=+(document.getElementById('pricing-horizon')?.value||14);
+  const now=new Date();
+  const freeTotal=apparts.reduce((sum,a)=>{
+    return sum+Array.from({length:horizon},(_,i)=>{
+      const d=new Date(now);d.setDate(d.getDate()+i);
+      const date=isoDate(d);
+      return !getAptReservations(a).some(r=>bookingCoversDate(r,date));
+    }).filter(Boolean).length;
+  },0);
+  const recoverable=rows.reduce((s,r)=>s+Math.max(0,r.smart.rec||0),0);
+  const score=Math.max(0,Math.min(100,Math.round(occ*0.7 + (100-Math.min(100,urgent.length*20))*0.3)));
+  const top=rows.slice(0,4);
+
+  let html=`<div class="eva-dashboard">
+    <div class="eva-hero-card">
+      <div class="eva-hero-kicker">EVA Rules Engine · sans IA payante</div>
+      <div class="eva-hero-title">${urgent.length?urgent.length+' action'+(urgent.length>1?'s':'')+' à faire maintenant':'Portefeuille sous contrôle'}</div>
+      <div class="eva-hero-sub">${occ<45?'Priorité absolue : remplir les nuits proches. Une nuit vide vaut 0€, donc EVA privilégie l’occupation avant la marge.':occ<65?'Objectif : sécuriser plus de réservations sur les 14 prochains jours avant de remonter les prix.':'Le remplissage est correct : EVA peut protéger les prix sur les dates fortes.'}</div>
+      <div class="eva-hero-money">
+        <div class="eva-money-big">+${recoverable}€</div>
+        <div class="eva-money-label">revenu théorique à sécuriser<br>en appliquant les recommandations</div>
+      </div>
+    </div>
+    <div class="eva-side-stack">
+      <div class="eva-metric-card">
+        <div class="eva-metric-label">Occupation</div>
+        <div class="eva-metric-value">${occ}%</div>
+        <div class="eva-progress"><span style="width:${Math.max(5,Math.min(100,occ))}%"></span></div>
+        <div class="eva-metric-help">Objectif minimum : 65%</div>
+      </div>
+      <div class="eva-metric-card">
+        <div class="eva-metric-label">Nuits libres</div>
+        <div class="eva-metric-value">${freeTotal}</div>
+        <div class="eva-metric-help">Sur les ${horizon} prochains jours</div>
+      </div>
+      <div class="eva-metric-card">
+        <div class="eva-metric-label">Score EVA</div>
+        <div class="eva-metric-value">${score}/100</div>
+        <div class="eva-progress"><span style="width:${score}%"></span></div>
+        <div class="eva-metric-help">${score<50?'Plan d’action urgent':score<75?'Optimisation en cours':'Bonne dynamique'}</div>
+      </div>
+      <div class="eva-metric-card">
+        <div class="eva-metric-label">Baisses utiles</div>
+        <div class="eva-metric-value">${baisse.length}</div>
+        <div class="eva-metric-help">Pour vendre plutôt que laisser vide</div>
+      </div>
+    </div>
+  </div>`;
+
+  html+=`<div class="eva-actions-panel">
+    <div class="eva-panel-head">
+      <div><div class="eva-panel-title">🎯 Missions EVA prioritaires</div><div class="eva-panel-sub">Lisible en 3 secondes : quoi faire, combien, pourquoi.</div></div>
+      <span class="eva-pill ${urgent.length?'eva-pill-red':'eva-pill-green'}">${urgent.length?urgent.length+' urgent'+(urgent.length>1?'s':''):'OK'}</span>
+    </div>
+    <div class="eva-action-grid">`;
+
+  const cards=top.length?top:rows.slice(0,3);
+  cards.forEach(({a,smart})=>{
+    const urgentClass=smart.priority==='urgent'?'urgent':(smart.direction==='AUGMENTER'?'up':'');
+    const badge=smart.priority==='urgent'?'<span class="eva-pill eva-pill-red">🚨 urgent</span>':smart.direction==='AUGMENTER'?'<span class="eva-pill eva-pill-orange">💰 opportunité</span>':'<span class="eva-pill eva-pill-purple">🎯 à optimiser</span>';
+    html+=`<div class="eva-action-card ${urgentClass}">
+      <div class="eva-action-top">
+        <div><div class="eva-apt-name">${a.emoji||'🏠'} ${escapeHtml(a.name||'Appartement')}</div><div class="eva-apt-city">${escapeHtml(a.city||extractCity(a.zone,null)||'')}</div></div>
+        ${badge}
+      </div>
+      <div class="eva-price-row"><span class="eva-price-old">${a.price||0}€</span><span class="eva-price-arrow">→</span><span class="eva-price-new">${smart.rec}€</span></div>
+      <div class="eva-reason">${escapeHtml((smart.reasons&&smart.reasons[0])||smart.reason||'Prix cohérent avec les données disponibles')}</div>
+      <div class="eva-card-footer">
+        <span class="eva-impact">${smart.delta<0?'Mieux vaut louer moins cher que vide':'Revenu à capter'}</span>
+        <button class="btn btn-sm btn-purple" onclick="applyAI('${a.id}',${smart.rec})">Appliquer</button>
+      </div>
+    </div>`;
+  });
   html+=`</div></div>`;
   return html;
 }
