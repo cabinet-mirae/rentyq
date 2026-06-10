@@ -968,6 +968,33 @@ tr:hover td{background:#FCF8FF!important;}
 @media(max-width:760px){.rq-review-columns{grid-template-columns:1fr}.rq-quality-action{grid-template-columns:8px 1fr}.rq-quality-impact{grid-column:2}}
 /* ===== end Step 3 Avis & Qualité ===== */
 
+/* ===== RentyQ x Easy Concierge API - Step 4 Rentabilité nette ===== */
+.rq-profit-panel{margin-top:16px;border:1px solid rgba(16,185,129,.22)!important;background:linear-gradient(135deg,#FFFFFF 0%,#ECFDF5 48%,#F8F4FF 100%)!important}
+.rq-profit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0 14px}
+.rq-profit-tile{background:white;border:1px solid rgba(139,92,246,.11);border-radius:15px;padding:12px;box-shadow:0 10px 22px rgba(69,39,120,.045)}
+.rq-profit-label{font-size:9px;text-transform:uppercase;letter-spacing:.75px;color:#8A8A99;font-weight:900;margin-bottom:6px}
+.rq-profit-value{font-size:25px;font-weight:950;color:#17122E;letter-spacing:-.6px;line-height:1}
+.rq-profit-help{font-size:11px;color:#7B708F;line-height:1.35;margin-top:7px}
+.rq-profit-main{display:grid;grid-template-columns:1.05fr .95fr;gap:12px;margin-top:12px}
+.rq-profit-box{background:white;border:1px solid rgba(139,92,246,.11);border-radius:16px;padding:13px}
+.rq-profit-row{display:grid;grid-template-columns:130px 1fr 80px;gap:10px;align-items:center;margin-bottom:9px}
+.rq-profit-row:last-child{margin-bottom:0}
+.rq-profit-month{font-size:12px;font-weight:950;color:#241A3D}
+.rq-profit-track{height:10px;background:#EDE9FE;border-radius:999px;overflow:hidden}
+.rq-profit-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#10B981,#7C3AED);width:var(--w)}
+.rq-profit-amount{text-align:right;font-size:12px;font-weight:950;color:#059669}
+.rq-profit-breakdown{display:grid;gap:8px}
+.rq-profit-line{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border-radius:12px;background:#FAF8FF;border:1px solid rgba(139,92,246,.08);font-size:12px}
+.rq-profit-line b{color:#17122E}.rq-profit-line span{font-weight:950;color:#241A3D}
+.rq-profit-alert{display:grid;grid-template-columns:8px 1fr auto;gap:10px;align-items:center;margin-top:12px;padding:12px;border-radius:15px;background:linear-gradient(135deg,#ECFDF5,#FFFFFF);border:1px solid rgba(16,185,129,.24)}
+.rq-profit-sev{width:8px;height:100%;min-height:48px;border-radius:999px;background:#10B981}
+.rq-profit-alert-title{font-size:13px;font-weight:950;color:#17122E}
+.rq-profit-alert-text{font-size:12px;color:#5E5573;line-height:1.45;margin-top:3px}
+.rq-profit-impact{font-size:18px;font-weight:950;color:#059669;white-space:nowrap}
+@media(max-width:900px){.rq-profit-main{grid-template-columns:1fr}.rq-profit-alert{grid-template-columns:8px 1fr}.rq-profit-impact{grid-column:2}.rq-profit-row{grid-template-columns:78px 1fr 70px}}
+/* ===== end Step 4 Rentabilité nette ===== */
+
+
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
@@ -2982,6 +3009,56 @@ function showApartDetail(id){
             <div class="rq-quality-impact">+3 à 7%</div>
           </div>
         </section>
+
+
+        <section class="rq-context-card rq-profit-panel">
+          <div class="rq-api-top">
+            <div>
+              <div class="rq-context-title">💎 Rentabilité nette réelle</div>
+              <div class="rq-context-sub">EVA croise le net PMS Easy Concierge avec les charges RentyQ pour répondre à la vraie question : combien reste-t-il vraiment sur ce logement ?</div>
+            </div>
+            <span class="rq-api-badge">Nouveau · Étape 4</span>
+          </div>
+
+          <div class="rq-profit-grid">
+            <div class="rq-profit-tile"><div class="rq-profit-label">Net PMS</div><div class="rq-profit-value">6 074€</div><div class="rq-profit-help">Payout propriétaire avant charges fixes</div></div>
+            <div class="rq-profit-tile"><div class="rq-profit-label">Charges RentyQ</div><div class="rq-profit-value">3 538€</div><div class="rq-profit-help">Loyer, ménage, énergie, internet, maintenance</div></div>
+            <div class="rq-profit-tile"><div class="rq-profit-label">Résultat net</div><div class="rq-profit-value">2 536€</div><div class="rq-profit-help">Rentabilité estimée sur la période</div></div>
+            <div class="rq-profit-tile"><div class="rq-profit-label">Marge nette</div><div class="rq-profit-value">41.8%</div><div class="rq-profit-help">Résultat net / net PMS</div></div>
+          </div>
+
+          <div class="rq-profit-main">
+            <div class="rq-profit-box">
+              <div class="rq-review-title">Rentabilité nette mensuelle</div>
+              <div class="rq-profit-row"><div class="rq-profit-month">Mars</div><div class="rq-profit-track"><div class="rq-profit-fill" style="--w:52%"></div></div><div class="rq-profit-amount">643€</div></div>
+              <div class="rq-profit-row"><div class="rq-profit-month">Avril</div><div class="rq-profit-track"><div class="rq-profit-fill" style="--w:78%"></div></div><div class="rq-profit-amount">964€</div></div>
+              <div class="rq-profit-row"><div class="rq-profit-month">Mai</div><div class="rq-profit-track"><div class="rq-profit-fill" style="--w:100%"></div></div><div class="rq-profit-amount">1 238€</div></div>
+              <div class="rq-profit-row"><div class="rq-profit-month">Juin</div><div class="rq-profit-track"><div class="rq-profit-fill" style="--w:36%"></div></div><div class="rq-profit-amount">446€</div></div>
+            </div>
+
+            <div class="rq-profit-box">
+              <div class="rq-review-title">Répartition des coûts détectés</div>
+              <div class="rq-profit-breakdown">
+                <div class="rq-profit-line"><b>Loyer / charge structurelle</b><span>1 860€</span></div>
+                <div class="rq-profit-line"><b>Ménage</b><span>540€</span></div>
+                <div class="rq-profit-line"><b>Copropriété</b><span>234€</span></div>
+                <div class="rq-profit-line"><b>Maintenance</b><span>195€</span></div>
+                <div class="rq-profit-line"><b>Énergie + eau</b><span>218€</span></div>
+                <div class="rq-profit-line"><b>Internet / abonnements</b><span>130€</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rq-profit-alert">
+            <div class="rq-profit-sev"></div>
+            <div>
+              <div class="rq-profit-alert-title">Recommandation EVA : viser +10 points de marge nette</div>
+              <div class="rq-profit-alert-text">Le logement est rentable, mais les charges absorbent encore une part élevée du net PMS. Les deux leviers prioritaires sont le ménage et la hausse tarifaire sur les périodes fortes.</div>
+            </div>
+            <div class="rq-profit-impact">+1 200€/an</div>
+          </div>
+        </section>
+
 
         <section class="rq-context-card" style="margin-top:16px">
           <div class="rq-context-title">Taux d’occupation par mois</div>
