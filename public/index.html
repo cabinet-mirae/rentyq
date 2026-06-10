@@ -775,6 +775,71 @@ tr:hover td{background:#FCF8FF!important;}
 @media(max-width:640px){.rq-detail-hero{padding:16px}.rq-detail-title-row{align-items:flex-start}.rq-detail-name{font-size:24px;white-space:normal}.rq-hero-kpis{grid-template-columns:1fr}.rq-reco-main{grid-template-columns:1fr}.rq-reco-price{text-align:left}.rq-nights-grid{grid-template-columns:repeat(2,1fr)}.rq-finance-grid{grid-template-columns:1fr}.rq-action-v2{grid-template-columns:38px 1fr}.rq-action-v2 .rq-button-secondary{grid-column:1 / -1}.rq-edit-panel{grid-template-columns:1fr}}
 /* ===== end Property Detail Cockpit V2 ===== */
 
+
+/* ===== EVA AUDIT 360 — cockpit d'analyse immédiat ===== */
+.eva360-hero{position:relative;overflow:hidden;border-radius:24px;padding:22px;margin-bottom:16px;background:linear-gradient(135deg,#211051 0%,#7C3AED 46%,#EC4899 100%);color:#fff;box-shadow:0 24px 70px rgba(124,58,237,.22)}
+.eva360-hero:after{content:"";position:absolute;right:-80px;top:-90px;width:320px;height:320px;background:radial-gradient(circle,rgba(255,255,255,.23),transparent 62%);pointer-events:none}
+.eva360-hero h2{position:relative;z-index:1;font-size:30px;line-height:1.05;font-weight:950;letter-spacing:-1px;margin-bottom:8px}
+.eva360-hero p{position:relative;z-index:1;color:rgba(255,255,255,.82);font-size:14px;line-height:1.65;max-width:880px}
+.eva360-upload-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;margin-top:18px;position:relative;z-index:1;align-items:end}
+.eva360-field label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.8px;font-weight:850;color:rgba(255,255,255,.72);margin-bottom:6px}
+.eva360-field input{width:100%;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.13);color:#fff;padding:0 12px;font-family:inherit;font-weight:650;outline:none}
+.eva360-field input[type=file]{padding:10px 12px;font-size:12px}
+.eva360-field input::placeholder{color:rgba(255,255,255,.54)}
+.eva360-field input:focus{border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.18)}
+.eva360-btn{height:44px;border:none;border-radius:12px;padding:0 18px;background:#fff;color:#7C3AED;font-weight:900;font-family:inherit;cursor:pointer;box-shadow:0 14px 34px rgba(0,0,0,.15);white-space:nowrap}
+.eva360-btn:hover{filter:brightness(.98);transform:translateY(-1px)}
+.eva360-demo{position:relative;z-index:1;margin-top:10px;font-size:12px;color:rgba(255,255,255,.72)}
+.eva360-demo button{border:0;background:transparent;color:#fff;text-decoration:underline;font-family:inherit;cursor:pointer;font-weight:800}
+.eva360-empty{background:#fff;border:1px dashed rgba(139,92,246,.32);border-radius:20px;padding:28px;text-align:center;color:#6B5D82;box-shadow:0 14px 38px rgba(69,39,120,.05)}
+.eva360-dashboard{display:none}
+.eva360-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.eva360-kpi{background:#fff;border:1px solid rgba(139,92,246,.14);border-radius:18px;padding:16px;box-shadow:0 14px 38px rgba(69,39,120,.06)}
+.eva360-kpi-label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:900;margin-bottom:8px}
+.eva360-kpi-value{font-size:30px;font-weight:950;letter-spacing:-1px;color:#17122E;line-height:1}
+.eva360-kpi-help{font-size:12px;color:#7B708F;line-height:1.35;margin-top:8px}
+.eva360-kpi.purple{background:linear-gradient(135deg,#F3E8FF,#FFF1F9);border-color:rgba(168,85,247,.28)}
+.eva360-kpi.purple .eva360-kpi-value{color:#7C3AED}
+.eva360-section{background:#fff;border:1px solid rgba(139,92,246,.14);border-radius:20px;box-shadow:0 14px 38px rgba(69,39,120,.06);padding:18px;margin-bottom:14px}
+.eva360-section-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:14px}
+.eva360-title{font-size:17px;font-weight:950;color:#17122E;letter-spacing:-.3px}
+.eva360-sub{font-size:12px;color:#8A8A99;margin-top:4px;line-height:1.45}
+.eva360-occ-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.eva360-pie-card{border:1px solid rgba(139,92,246,.10);border-radius:16px;padding:14px;background:linear-gradient(180deg,#fff,#FFFCFF)}
+.eva360-pie-wrap{display:flex;align-items:center;gap:12px}
+.eva360-pie{width:78px;height:78px;border-radius:50%;background:conic-gradient(#7C3AED var(--occ),#EEE9FF 0);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.eva360-pie-inner{width:52px;height:52px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:950;color:#17122E}
+.eva360-pie-month{font-size:14px;font-weight:950;color:#17122E;margin-bottom:4px}
+.eva360-pie-detail{font-size:12px;color:#7B708F;line-height:1.45}
+.eva360-net-bars{display:grid;gap:10px}
+.eva360-net-row{display:grid;grid-template-columns:90px 1fr 92px;gap:12px;align-items:center}
+.eva360-net-month{font-size:13px;font-weight:900;color:#241A3D}
+.eva360-bar-track{height:14px;background:#EEE9FF;border-radius:999px;overflow:hidden}
+.eva360-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#7C3AED,#EC4899);width:var(--w)}
+.eva360-net-value{text-align:right;font-size:13px;font-weight:950;color:#17122E}
+.eva360-two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.eva360-actions{display:grid;gap:10px}
+.eva360-action{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;border:1px solid rgba(139,92,246,.12);border-radius:16px;padding:12px;background:linear-gradient(180deg,#fff,#FFFCFF)}
+.eva360-rank{width:34px;height:34px;border-radius:12px;background:linear-gradient(135deg,#7C3AED,#EC4899);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:950}
+.eva360-action-title{font-size:13px;font-weight:950;color:#17122E;line-height:1.3}
+.eva360-action-desc{font-size:12px;color:#7B708F;margin-top:3px;line-height:1.45}
+.eva360-impact{text-align:right;font-size:13px;font-weight:950;color:#059669;white-space:nowrap}
+.eva360-detect{display:grid;gap:8px}
+.eva360-detect-item{display:flex;gap:9px;align-items:flex-start;padding:10px;border-radius:14px;background:#FAF8FF;border:1px solid rgba(139,92,246,.10);font-size:13px;color:#3A3150;line-height:1.45}
+.eva360-detect-item strong{color:#17122E}
+.eva360-event-timeline{display:grid;gap:10px}
+.eva360-event-row{display:grid;grid-template-columns:92px 1fr 96px 120px;gap:12px;align-items:center;padding:12px;border-radius:16px;border:1px solid rgba(139,92,246,.12);background:linear-gradient(180deg,#fff,#FFFCFF)}
+.eva360-event-date{font-size:12px;font-weight:950;color:#7C3AED}
+.eva360-event-name{font-size:13px;font-weight:950;color:#17122E}
+.eva360-event-meta{font-size:12px;color:#7B708F;margin-top:3px}
+.eva360-event-price{font-size:12px;color:#7B708F;text-align:right}.eva360-event-price strong{display:block;font-size:18px;color:#17122E}
+.eva360-event-gap{font-size:12px;font-weight:950;color:#059669;text-align:right}
+.eva360-pill{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:900;background:#F3E8FF;color:#7C3AED}
+.eva360-error{display:none;margin-top:10px;padding:10px;border-radius:12px;background:#FEE2E2;color:#B91C1C;font-size:12px;font-weight:750;position:relative;z-index:1}
+@media(max-width:1100px){.eva360-upload-grid{grid-template-columns:1fr 1fr}.eva360-btn{width:100%}.eva360-kpis{grid-template-columns:repeat(2,1fr)}.eva360-two{grid-template-columns:1fr}.eva360-event-row{grid-template-columns:1fr}.eva360-event-price,.eva360-event-gap{text-align:left}}
+@media(max-width:640px){.eva360-upload-grid{grid-template-columns:1fr}.eva360-kpis{grid-template-columns:1fr}.eva360-net-row{grid-template-columns:68px 1fr 78px}.eva360-action{grid-template-columns:34px 1fr}.eva360-impact{text-align:left;grid-column:2}}
+/* ===== end EVA AUDIT 360 ===== */
+
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
@@ -1273,6 +1338,7 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       <div class="nav-section-label" style="color:rgba(255,255,255,0.15)">Intelligence</div>
       <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji"><i class="ti ti-sparkles" aria-hidden="true"></i></span>EVA pricing <span class="nav-badge-new">IA</span></button>
       <button class="nav-item" onclick="goTo('scanner',this)"><span class="nav-emoji"><i class="ti ti-radar-2" aria-hidden="true"></i></span>Scanner EVA <span class="nav-badge-new">NEW</span></button>
+      <button class="nav-item" onclick="goTo('eva-audit',this)"><span class="nav-emoji"><i class="ti ti-chart-pie" aria-hidden="true"></i></span>EVA Audit <span class="nav-badge-new">360°</span></button>
       <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji"><i class="ti ti-calendar-event" aria-hidden="true"></i></span>Événements <span class="nav-badge-new" id="events-badge" style="display:none">0</span></button>
       <button class="nav-item" onclick="goTo('finances',this)"><span class="nav-emoji"><i class="ti ti-wallet" aria-hidden="true"></i></span>Finances</button>
       <div class="nav-section-label" style="color:rgba(255,255,255,0.25)" id="nav-label-cleanyq">Ménage</div>
@@ -1447,6 +1513,125 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
         <div id="scanner-apart-list" class="scanner-apart-list"></div>
         <div id="scanner-result"></div>
       </div>
+
+
+      <!-- EVA AUDIT 360 -->
+      <div class="page" id="page-eva-audit">
+        <div class="page-header">
+          <div>
+            <div class="page-title">EVA Audit 360°</div>
+            <div class="page-sub">CSV réservations + CSV bancaire + adresse → cockpit immédiat de rentabilité</div>
+          </div>
+        </div>
+
+        <div class="eva360-hero">
+          <h2>Analysez le vrai potentiel net d’un logement</h2>
+          <p>EVA lit les réservations, classe les charges, calcule le taux d’occupation par mois, la rentabilité nette mensuelle, puis transforme les données en actions concrètes à appliquer dans le logement.</p>
+          <div class="eva360-upload-grid">
+            <div class="eva360-field">
+              <label>CSV réservations</label>
+              <input id="eva360-res-file" type="file" accept=".csv,text/csv"/>
+            </div>
+            <div class="eva360-field">
+              <label>CSV bancaire</label>
+              <input id="eva360-bank-file" type="file" accept=".csv,text/csv"/>
+            </div>
+            <div class="eva360-field">
+              <label>Adresse du bien</label>
+              <input id="eva360-address" type="text" placeholder="Ex : 5 rue d'Illiers, Orléans"/>
+            </div>
+            <button class="eva360-btn" onclick="runEvaAudit360()">Lancer l’analyse EVA</button>
+          </div>
+          <div class="eva360-demo">Pour tester sans fichier : <button onclick="loadEvaAuditDemo()">charger la démo Studio Orléans</button></div>
+          <div id="eva360-error" class="eva360-error"></div>
+        </div>
+
+        <div id="eva360-empty" class="eva360-empty">
+          <div style="font-size:42px;margin-bottom:10px">🤖</div>
+          <div style="font-size:18px;font-weight:950;color:#17122E;margin-bottom:6px">EVA attend vos données</div>
+          <div>Importez un CSV de réservations, un CSV bancaire et une adresse pour générer le cockpit de rentabilité.</div>
+        </div>
+
+        <div id="eva360-dashboard" class="eva360-dashboard">
+          <div class="eva360-kpis">
+            <div class="eva360-kpi purple">
+              <div class="eva360-kpi-label">Score EVA</div>
+              <div class="eva360-kpi-value" id="eva360-score">—</div>
+              <div class="eva360-kpi-help">Qualité rentabilité + potentiel local</div>
+            </div>
+            <div class="eva360-kpi">
+              <div class="eva360-kpi-label">Revenus analysés</div>
+              <div class="eva360-kpi-value" id="eva360-revenue">—</div>
+              <div class="eva360-kpi-help" id="eva360-period">—</div>
+            </div>
+            <div class="eva360-kpi">
+              <div class="eva360-kpi-label">Charges détectées</div>
+              <div class="eva360-kpi-value" id="eva360-charges">—</div>
+              <div class="eva360-kpi-help">D’après le CSV bancaire</div>
+            </div>
+            <div class="eva360-kpi">
+              <div class="eva360-kpi-label">Rentabilité nette</div>
+              <div class="eva360-kpi-value" id="eva360-net">—</div>
+              <div class="eva360-kpi-help" id="eva360-net-help">—</div>
+            </div>
+          </div>
+
+          <div class="eva360-section">
+            <div class="eva360-section-head">
+              <div>
+                <div class="eva360-title">Taux d’occupation par mois</div>
+                <div class="eva360-sub">Camembert mensuel : jours occupés vs jours disponibles.</div>
+              </div>
+              <span class="eva360-pill">Lecture propriétaire</span>
+            </div>
+            <div id="eva360-occupancy" class="eva360-occ-grid"></div>
+          </div>
+
+          <div class="eva360-section">
+            <div class="eva360-section-head">
+              <div>
+                <div class="eva360-title">Rentabilité nette mensuelle</div>
+                <div class="eva360-sub">Revenus du mois - charges du mois. C’est l’indicateur le plus important pour le propriétaire.</div>
+              </div>
+            </div>
+            <div id="eva360-net-bars" class="eva360-net-bars"></div>
+          </div>
+
+          <div class="eva360-two">
+            <div class="eva360-section">
+              <div class="eva360-section-head">
+                <div>
+                  <div class="eva360-title">Actions à mener pour améliorer la rentabilité</div>
+                  <div class="eva360-sub">Classées par impact probable et facilité d’exécution.</div>
+                </div>
+              </div>
+              <div id="eva360-actions" class="eva360-actions"></div>
+            </div>
+
+            <div class="eva360-section">
+              <div class="eva360-section-head">
+                <div>
+                  <div class="eva360-title">Préconisations pour le logement</div>
+                  <div class="eva360-sub">Ce qu’EVA comprend du bien à partir des chiffres et de l’adresse.</div>
+                </div>
+              </div>
+              <div id="eva360-detect" class="eva360-detect"></div>
+            </div>
+          </div>
+
+          <div class="eva360-section">
+            <div class="eva360-section-head">
+              <div>
+                <div class="eva360-title">Événements locaux et opportunités tarifaires</div>
+                <div class="eva360-sub">V1 : détection locale simplifiée. V2 : connexion à un calendrier événementiel jour par jour pour corréler prix, occupation et demande.</div>
+              </div>
+              <span class="eva360-pill">À corréler au pricing</span>
+            </div>
+            <div id="eva360-events" class="eva360-event-timeline"></div>
+          </div>
+        </div>
+      </div>
+
 
       <!-- EVENEMENTS -->
       <div class="page" id="page-events">
@@ -3122,6 +3307,7 @@ function goTo(page,btn){
   if(page==='proprietaires')renderProprietaires();
   if(page==='rapports'){initRapportMois();renderRapports();}
   if(page==='scanner')renderScannerPage();
+  if(page==='eva-audit'){}
 }
 
 function openAddModal(){editId=null;['m-name','m-city','m-zone','m-rent','m-clean','m-price','m-comp','m-address','m-lat','m-lng'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('m-address-preview').style.display='none';document.getElementById('m-address-results').style.display='none';document.getElementById('m-degressif-toggle').className='toggle off';document.getElementById('m-degressif-config').style.display='none';document.getElementById('m-deg-start').value='14';document.getElementById('m-deg-step').value='5';document.getElementById('m-deg-min').value='';document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
@@ -5319,6 +5505,313 @@ function rqTourClose() {
   if (overlay) overlay.style.display = 'none';
   try { localStorage.setItem(RQ_TOUR_KEY, '1'); } catch(e) {}
 }
+
+
+/* ===== EVA AUDIT 360 — moteur local MVP ===== */
+const EVA360_DEMO_RESERVATIONS = `reservation_id;platform;property_name;property_address;guest_name;booking_date;check_in;check_out;nights;guests;status;nightly_rate_eur;accommodation_subtotal_eur;cleaning_fee_eur;guest_service_fee_eur;host_service_fee_eur;tourist_tax_eur;host_payout_eur;currency
+HM20260001;Airbnb Business;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Sarah U.;2026-03-01;2026-03-11;2026-03-14;3;1;Terminée;75;225;35;38.44;7.8;4.83;257.03;EUR
+HM20260002;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Emma J.;2026-03-05;2026-03-15;2026-03-19;4;2;Terminée;65;260;35;45.72;8.85;6.48;292.63;EUR
+HM20260003;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Paul U.;2026-03-08;2026-03-19;2026-03-20;1;2;Terminée;81;81;35;18.53;3.48;1.71;114.23;EUR
+HM20260004;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Manon W.;2026-03-13;2026-03-22;2026-03-25;3;2;Terminée;63;189;35;29.53;6.72;4.63;221.91;EUR
+HM20260005;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Alex B.;2026-03-19;2026-03-27;2026-03-29;2;1;Terminée;88;176;35;28.77;6.3;3.71;201.99;EUR
+HM20260006;Airbnb Business;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Nadia C.;2026-04-01;2026-04-03;2026-04-06;3;1;Terminée;79;237;35;41.21;8.4;5.3;263.3;EUR
+HM20260007;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Louis M.;2026-04-08;2026-04-10;2026-04-14;4;2;Terminée;71;284;35;47.20;9.57;6.66;303.77;EUR
+HM20260008;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Clara T.;2026-04-12;2026-04-17;2026-04-20;3;2;Terminée;82;246;35;41.12;8.43;5.52;267.05;EUR
+HM20260009;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Mehdi R.;2026-04-18;2026-04-23;2026-04-26;3;1;Terminée;76;228;35;38.40;7.89;5.02;250.09;EUR
+HM20260010;Airbnb Business;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Victor D.;2026-05-02;2026-05-05;2026-05-09;4;1;Terminée;92;368;35;58.50;12.09;7.20;383.71;EUR
+HM20260011;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Julie P.;2026-05-04;2026-05-10;2026-05-13;3;2;Terminée;88;264;35;43.10;8.97;5.90;284.13;EUR
+HM20260012;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Hugo F.;2026-05-12;2026-05-15;2026-05-18;3;2;Terminée;95;285;35;46.40;9.60;6.10;304.30;EUR
+HM20260013;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Laura V.;2026-05-18;2026-05-21;2026-05-24;3;1;Terminée;84;252;35;41.60;8.58;5.40;273.02;EUR`;
+
+const EVA360_DEMO_BANK = `Date;Libellé;Contrepartie;Débit (€);Crédit (€);Solde impact (€)
+2026-03-02;Loyer;Prélèvement SCI Centre;620.0;;-620.0
+2026-03-02;Ménage Airbnb;Prestataire Ménage;45.0;;-45.0
+2026-03-03;Électricité;EDF;54.2;;-54.2
+2026-03-04;Assurance PNO;AXA Assurance;14.9;;-14.9
+2026-03-09;Charges copropriété;Syndic Orléans Habitat;78.0;;-78.0
+2026-03-09;Netflix;Netflix;13.49;;-13.49
+2026-03-11;Taxe séjour reversée;Orléans Métropole;42.0;;-42.0
+2026-03-11;Maintenance;Petit dépannage;65.0;;-65.0
+2026-03-13;Ménage Airbnb;Prestataire Ménage;45.0;;-45.0
+2026-03-14;Internet;Orange Internet;29.99;;-29.99
+2026-03-18;Produits d'accueil;Amazon;24.8;;-24.8
+2026-03-18;Linge / blanchisserie;Blanchisserie Orléans;38.5;;-38.5
+2026-03-25;Eau;Orléans Métropole Eau;18.5;;-18.5
+2026-03-27;Ménage Airbnb;Prestataire Ménage;45.0;;-45.0
+2026-03-28;Ménage Airbnb;Prestataire Ménage;45.0;;-45.0
+2026-04-01;Ménage Airbnb;Prestataire Ménage;45.0;;-45.0
+2026-04-02;Charges copropriété;Syndic Orléans Habitat;78.0;;-78.0
+2026-04-03;Loyer;Prélèvement SCI Centre;620.0;;-620.0
+2026-04-04;Électricité;EDF;54.2;;-54.2
+2026-04-05;Assurance PNO;AXA Assurance;14.9;;-14.9
+2026-04-09;Netflix;Netflix;13.49;;-13.49
+2026-04-11;Taxe séjour reversée;Orléans Métropole;42.0;;-42.0
+2026-04-13;Ménage Airbnb;Prestataire Ménage;45.0;;-45.0
+2026-04-14;Internet;Orange Internet;29.99;;-29.99
+2026-04-18;Produits d'accueil;Amazon;24.8;;-24.8
+2026-04-18;Linge / blanchisserie;Blanchisserie Orléans;38.5;;-38.5
+2026-04-25;Eau;Orléans Métropole Eau;18.5;;-18.5
+2026-04-27;Ménage Airbnb;Prestataire Ménage;45.0;;-45.0
+2026-05-02;Loyer;Prélèvement SCI Centre;620.0;;-620.0
+2026-05-02;Ménage Airbnb;Prestataire Ménage;45.0;;-45.0
+2026-05-03;Électricité;EDF;54.2;;-54.2
+2026-05-04;Assurance PNO;AXA Assurance;14.9;;-14.9
+2026-05-09;Charges copropriété;Syndic Orléans Habitat;78.0;;-78.0
+2026-05-09;Netflix;Netflix;13.49;;-13.49
+2026-05-11;Taxe séjour reversée;Orléans Métropole;42.0;;-42.0
+2026-05-11;Maintenance;Petit dépannage;65.0;;-65.0
+2026-05-13;Ménage Airbnb;Prestataire Ménage;45.0;;-45.0
+2026-05-14;Internet;Orange Internet;29.99;;-29.99
+2026-05-18;Produits d'accueil;Amazon;24.8;;-24.8
+2026-05-18;Linge / blanchisserie;Blanchisserie Orléans;38.5;;-38.5
+2026-05-25;Eau;Orléans Métropole Eau;18.5;;-18.5
+2026-05-27;Ménage Airbnb;Prestataire Ménage;45.0;;-45.0`;
+
+function eva360ParseCsv(raw){
+  raw = (raw || '').replace(/^\uFEFF/, '').trim();
+  if(!raw) return [];
+  const firstLine = raw.split(/\r?\n/)[0] || '';
+  const sep = (firstLine.match(/;/g)||[]).length >= (firstLine.match(/,/g)||[]).length ? ';' : ',';
+  const rows = [];
+  let row = [], cell = '', q = false;
+  for(let i=0;i<raw.length;i++){
+    const c = raw[i], n = raw[i+1];
+    if(c === '"' && q && n === '"'){ cell += '"'; i++; continue; }
+    if(c === '"'){ q = !q; continue; }
+    if(c === sep && !q){ row.push(cell); cell=''; continue; }
+    if((c === '\n' || c === '\r') && !q){
+      if(c === '\r' && n === '\n') i++;
+      row.push(cell); rows.push(row); row=[]; cell='';
+      continue;
+    }
+    cell += c;
+  }
+  row.push(cell); rows.push(row);
+  const headers = rows.shift().map(h => h.trim());
+  return rows.filter(r => r.some(x => String(x||'').trim() !== '')).map(r => {
+    const o = {};
+    headers.forEach((h,i) => o[h] = (r[i] || '').trim());
+    return o;
+  });
+}
+function eva360NormKey(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'_');}
+function eva360FindKey(row, candidates){
+  const keys = Object.keys(row || {});
+  const norm = Object.fromEntries(keys.map(k => [eva360NormKey(k), k]));
+  for(const c of candidates){ if(norm[eva360NormKey(c)]) return norm[eva360NormKey(c)]; }
+  for(const k of keys){
+    const nk = eva360NormKey(k);
+    if(candidates.some(c => nk.includes(eva360NormKey(c)))) return k;
+  }
+  return null;
+}
+function eva360Num(v){
+  if(v === null || v === undefined) return 0;
+  let s = String(v).replace(/\s/g,'').replace('€','').replace(',', '.');
+  const n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
+function eva360Date(v){
+  const d = new Date(String(v||'').trim());
+  return isNaN(d.getTime()) ? null : d;
+}
+function eva360MonthKey(d){return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');}
+function eva360MonthLabel(key){
+  const [y,m]=key.split('-').map(Number);
+  return new Date(y,m-1,1).toLocaleDateString('fr-FR',{month:'short',year:'numeric'}).replace('.', '');
+}
+function eva360DaysInMonth(key){const [y,m]=key.split('-').map(Number); return new Date(y,m,0).getDate();}
+function eva360Money(v){return Math.round(v).toLocaleString('fr-FR') + ' €';}
+function eva360ReadFile(inputId){
+  const input = document.getElementById(inputId);
+  return new Promise((resolve,reject)=>{
+    if(!input || !input.files || !input.files[0]) return reject(new Error('Fichier manquant'));
+    const fr = new FileReader();
+    fr.onload = () => resolve(String(fr.result || ''));
+    fr.onerror = () => reject(new Error('Impossible de lire le fichier'));
+    fr.readAsText(input.files[0], 'utf-8');
+  });
+}
+async function runEvaAudit360(){
+  const err = document.getElementById('eva360-error');
+  try{
+    if(err){err.style.display='none';err.textContent='';}
+    const resRaw = await eva360ReadFile('eva360-res-file');
+    const bankRaw = await eva360ReadFile('eva360-bank-file');
+    const address = (document.getElementById('eva360-address')?.value || '').trim();
+    if(!address) throw new Error('Ajoutez l’adresse du bien.');
+    eva360Render(eva360Analyze(resRaw, bankRaw, address));
+  }catch(e){
+    if(err){err.textContent = e.message || 'Erreur pendant l’analyse EVA.'; err.style.display='block';}
+  }
+}
+function loadEvaAuditDemo(){
+  const addr = document.getElementById('eva360-address');
+  if(addr) addr.value = "5 rue d'Illiers, 45000 Orléans";
+  eva360Render(eva360Analyze(EVA360_DEMO_RESERVATIONS, EVA360_DEMO_BANK, "5 rue d'Illiers, 45000 Orléans"));
+}
+function eva360Analyze(resRaw, bankRaw, address){
+  const resRows = eva360ParseCsv(resRaw);
+  const bankRows = eva360ParseCsv(bankRaw);
+  if(!resRows.length) throw new Error('Le CSV réservations est vide ou illisible.');
+  if(!bankRows.length) throw new Error('Le CSV bancaire est vide ou illisible.');
+  const r0 = resRows[0], b0 = bankRows[0];
+  const kIn = eva360FindKey(r0, ['check_in','arrivee','arrival','date_debut']);
+  const kOut = eva360FindKey(r0, ['check_out','depart','departure','date_fin']);
+  const kNights = eva360FindKey(r0, ['nights','nuits','nuitées']);
+  const kPayout = eva360FindKey(r0, ['host_payout_eur','payout','revenu','montant','accommodation_subtotal_eur']);
+  const kRate = eva360FindKey(r0, ['nightly_rate_eur','prix_nuit','adr','nightly_rate']);
+  if(!kIn || !kOut) throw new Error('EVA ne trouve pas les colonnes check_in/check_out dans le CSV réservations.');
+  const months = {};
+  let totalRevenue = 0, totalNights = 0, bookingCount = 0, rateSum = 0, rateCount = 0;
+  resRows.forEach(r=>{
+    const start = eva360Date(r[kIn]), end = eva360Date(r[kOut]);
+    if(!start || !end || end <= start) return;
+    const nights = eva360Num(kNights ? r[kNights] : 0) || Math.max(1, Math.round((end-start)/86400000));
+    const payout = eva360Num(kPayout ? r[kPayout] : 0);
+    const rate = eva360Num(kRate ? r[kRate] : 0);
+    bookingCount++; totalRevenue += payout; totalNights += nights;
+    if(rate){rateSum += rate; rateCount++;}
+    const perNight = payout && nights ? payout/nights : rate;
+    for(let d=new Date(start); d<end; d.setDate(d.getDate()+1)){
+      const key = eva360MonthKey(d);
+      months[key] ||= {month:key, revenue:0, charges:0, occupied:0, bookings:0, events:[]};
+      months[key].occupied += 1;
+      months[key].revenue += perNight;
+    }
+  });
+  const kDate = eva360FindKey(b0, ['date']);
+  const kDebit = eva360FindKey(b0, ['debit','débit']);
+  const kCredit = eva360FindKey(b0, ['credit','crédit']);
+  const kImpact = eva360FindKey(b0, ['solde impact','impact','amount','montant']);
+  const kLabel = eva360FindKey(b0, ['libelle','libellé','description','contrepartie']);
+  if(!kDate) throw new Error('EVA ne trouve pas la colonne Date dans le CSV bancaire.');
+  let totalCharges = 0, chargesByCat = {};
+  bankRows.forEach(r=>{
+    const d = eva360Date(r[kDate]); if(!d) return;
+    let amount = 0;
+    if(kDebit && eva360Num(r[kDebit])) amount = eva360Num(r[kDebit]);
+    else if(kImpact) amount = Math.abs(Math.min(0, eva360Num(r[kImpact])));
+    else amount = Math.abs(eva360Num(kCredit ? r[kCredit] : 0));
+    if(!amount) return;
+    const key = eva360MonthKey(d);
+    months[key] ||= {month:key, revenue:0, charges:0, occupied:0, bookings:0, events:[]};
+    months[key].charges += amount;
+    totalCharges += amount;
+    const cat = eva360Categorize((r[kLabel] || '') + ' ' + Object.values(r).join(' '));
+    chargesByCat[cat] = (chargesByCat[cat] || 0) + amount;
+  });
+  const allMonths = Object.keys(months).sort().map(k=>{
+    const m = months[k];
+    m.days = eva360DaysInMonth(k);
+    m.occPct = Math.min(100, Math.round((m.occupied / m.days) * 100));
+    m.net = m.revenue - m.charges;
+    return m;
+  });
+  const totalNet = totalRevenue - totalCharges;
+  const avgOcc = allMonths.length ? Math.round(allMonths.reduce((s,m)=>s+m.occPct,0)/allMonths.length) : 0;
+  const adr = rateCount ? rateSum/rateCount : (totalNights ? totalRevenue/totalNights : 0);
+  const score = Math.max(38, Math.min(92, Math.round(48 + avgOcc*.25 + (totalNet>0?16:0) + (String(address).toLowerCase().includes('orleans')||String(address).toLowerCase().includes('orléans')?8:3))));
+  const events = eva360EventsForAddress(address, allMonths, adr);
+  return {address, months:allMonths, totalRevenue, totalCharges, totalNet, avgOcc, adr, totalNights, bookingCount, chargesByCat, score, events};
+}
+function eva360Categorize(label){
+  const l = eva360NormKey(label);
+  if(l.includes('menage')) return 'Ménage';
+  if(l.includes('loyer')) return 'Loyer';
+  if(l.includes('electric') || l.includes('edf')) return 'Électricité';
+  if(l.includes('internet') || l.includes('orange')) return 'Internet';
+  if(l.includes('linge') || l.includes('blanchisserie')) return 'Linge';
+  if(l.includes('maintenance') || l.includes('depannage')) return 'Maintenance';
+  if(l.includes('copro')) return 'Copropriété';
+  if(l.includes('assurance')) return 'Assurance';
+  if(l.includes('sejour')) return 'Taxe de séjour';
+  if(l.includes('netflix')) return 'Abonnements';
+  if(l.includes('accueil') || l.includes('amazon')) return 'Produits d’accueil';
+  if(l.includes('eau')) return 'Eau';
+  return 'Autres';
+}
+function eva360EventsForAddress(address, months, adr){
+  const city = eva360NormKey(address).includes('orleans') ? 'Orléans' : 'ville';
+  const base = Math.round(adr || 75);
+  if(city === 'Orléans'){
+    return [
+      {date:'2026-05-07', name:"Fêtes de Jeanne d’Arc", type:'Patrimoine / tourisme', current:base+12, suggested:base+28, gap:16},
+      {date:'2026-05-16', name:'Week-end Loire & centre historique', type:'Tourisme urbain', current:base+5, suggested:base+18, gap:13},
+      {date:'2026-06-11', name:'Déplacements professionnels Orléans centre', type:'Business', current:base, suggested:base+14, gap:14},
+      {date:'2026-09-17', name:'Festival de Loire', type:'Événement majeur', current:base+18, suggested:base+42, gap:24}
+    ];
+  }
+  return [
+    {date:'2026-06-12', name:'Pic de demande locale', type:'Événement local', current:base, suggested:base+15, gap:15},
+    {date:'2026-07-05', name:'Période touristique', type:'Tourisme', current:base+8, suggested:base+22, gap:14}
+  ];
+}
+function eva360Render(data){
+  document.getElementById('eva360-empty').style.display='none';
+  document.getElementById('eva360-dashboard').style.display='block';
+  document.getElementById('eva360-score').textContent = data.score + '/100';
+  document.getElementById('eva360-revenue').textContent = eva360Money(data.totalRevenue);
+  document.getElementById('eva360-charges').textContent = eva360Money(data.totalCharges);
+  document.getElementById('eva360-net').textContent = eva360Money(data.totalNet);
+  document.getElementById('eva360-period').textContent = data.months.length + ' mois analysés • ' + data.bookingCount + ' réservations';
+  document.getElementById('eva360-net-help').textContent = Math.round((data.totalNet / Math.max(1,data.months.length))).toLocaleString('fr-FR') + ' €/mois en moyenne';
+  const occ = document.getElementById('eva360-occupancy');
+  occ.innerHTML = data.months.map(m=>`
+    <div class="eva360-pie-card">
+      <div class="eva360-pie-wrap">
+        <div class="eva360-pie" style="--occ:${m.occPct}%"><div class="eva360-pie-inner">${m.occPct}%</div></div>
+        <div>
+          <div class="eva360-pie-month">${eva360MonthLabel(m.month)}</div>
+          <div class="eva360-pie-detail">${m.occupied} nuits occupées<br>${m.days-m.occupied} nuits disponibles</div>
+        </div>
+      </div>
+    </div>`).join('');
+  const maxNet = Math.max(...data.months.map(m=>Math.max(0,m.net)), 1);
+  document.getElementById('eva360-net-bars').innerHTML = data.months.map(m=>`
+    <div class="eva360-net-row">
+      <div class="eva360-net-month">${eva360MonthLabel(m.month)}</div>
+      <div class="eva360-bar-track"><div class="eva360-bar-fill" style="--w:${Math.max(4,Math.round(Math.max(0,m.net)/maxNet*100))}%"></div></div>
+      <div class="eva360-net-value">${eva360Money(m.net)}</div>
+    </div>`).join('');
+  const actions = eva360BuildActions(data);
+  document.getElementById('eva360-actions').innerHTML = actions.map((a,i)=>`
+    <div class="eva360-action">
+      <div class="eva360-rank">${i+1}</div>
+      <div><div class="eva360-action-title">${a.title}</div><div class="eva360-action-desc">${a.desc}</div></div>
+      <div class="eva360-impact">${a.impact}</div>
+    </div>`).join('');
+  const detect = eva360BuildDetect(data);
+  document.getElementById('eva360-detect').innerHTML = detect.map(d=>`<div class="eva360-detect-item"><span>${d.icon}</span><div><strong>${d.title}</strong><br>${d.text}</div></div>`).join('');
+  document.getElementById('eva360-events').innerHTML = data.events.map(e=>`
+    <div class="eva360-event-row">
+      <div class="eva360-event-date">${new Date(e.date).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})}</div>
+      <div><div class="eva360-event-name">${e.name}</div><div class="eva360-event-meta">${e.type}</div></div>
+      <div class="eva360-event-price">prix actuel <strong>${e.current} €</strong></div>
+      <div class="eva360-event-gap">+${e.gap} €/nuit possible</div>
+    </div>`).join('');
+}
+function eva360BuildActions(data){
+  const topCharge = Object.entries(data.chargesByCat).sort((a,b)=>b[1]-a[1])[0] || ['charges',0];
+  const lowMonth = data.months.slice().sort((a,b)=>a.occPct-b.occPct)[0];
+  return [
+    {title:'Corréler les prix avec les événements locaux', desc:'EVA détecte des dates où le prix pratiqué semble trop bas par rapport à la demande locale.', impact:'+1 500 à +2 800 €/an'},
+    {title:'Optimiser le poste "'+topCharge[0]+'"', desc:'C’est le poste de dépense le plus visible dans les charges importées. Un audit fournisseur peut améliorer la marge.', impact:'+600 à +1 400 €/an'},
+    {title:'Travailler les mois creux', desc: lowMonth ? eva360MonthLabel(lowMonth.month)+' affiche seulement '+lowMonth.occPct+'% d’occupation. Il faut adapter le séjour minimum et les offres courtes.' : 'Adapter le séjour minimum selon la saison.', impact:'+700 à +1 200 €/an'},
+    {title:'Positionner le bien pour la clientèle business', desc:'L’adresse et les séjours courts suggèrent un potentiel professionnel à mieux exploiter.', impact:'+500 à +1 000 €/an'},
+    {title:'Créer un suivi mensuel EVA', desc:'Comparer chaque mois revenu, charges, occupation et événements pour éviter les opportunités manquées.', impact:'pilotage continu'}
+  ];
+}
+function eva360BuildDetect(data){
+  const margin = data.totalRevenue ? Math.round(data.totalNet/data.totalRevenue*100) : 0;
+  return [
+    {icon:'💰', title:'Rentabilité nette lisible', text:'Le logement conserve environ '+margin+'% des revenus après charges détectées.'},
+    {icon:'📊', title:'Occupation moyenne', text:'Le taux d’occupation moyen est de '+data.avgOcc+'% sur la période analysée.'},
+    {icon:'🏙️', title:'Adresse exploitable', text:'EVA peut relier l’adresse aux événements, zones business et périodes de demande.'},
+    {icon:'🧹', title:'Charges à surveiller', text:'Les charges variables comme ménage, linge et maintenance doivent être pilotées car elles réduisent directement la marge.'}
+  ];
+}
+/* ===== end EVA AUDIT 360 ===== */
 
 </script>
 </body>
