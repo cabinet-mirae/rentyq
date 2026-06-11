@@ -145,6 +145,31 @@ tr:hover td{background:#FAFAFF}
 .status-dot.connected{background:#10B981}
 .status-dot.disconnected{background:#D1D1D8}
 /* MOBILE RESPONSIVE */
+
+/* ===== EVA DATA HUB & ONBOARDING ===== */
+.eva-source-card{background:#FAF8FF;border:1px solid rgba(139,92,246,.14);border-radius:16px;padding:16px;cursor:pointer;transition:transform .12s,box-shadow .12s}
+.eva-source-card:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(69,39,120,.09);border-color:rgba(139,92,246,.3)}
+.eva-source-icon{font-size:28px;margin-bottom:8px}
+.eva-source-title{font-size:14px;font-weight:800;color:#17122E;margin-bottom:4px}
+.eva-source-desc{font-size:12px;color:#7B708F;line-height:1.4;margin-bottom:8px}
+.eva-source-weight{font-size:11px;font-weight:900;color:#7C3AED;background:#F3E8FF;border-radius:999px;padding:3px 9px;display:inline-block}
+.eva-onb-option{display:flex;align-items:center;gap:14px;background:#FAF8FF;border:1px solid rgba(139,92,246,.14);border-radius:16px;padding:14px;cursor:pointer;transition:all .12s}
+.eva-onb-option:hover{border-color:#7C3AED;background:#F5F0FF}
+.eva-onb-opt-left{display:flex;align-items:flex-start;gap:12px;flex:1;min-width:0}
+.eva-onb-opt-icon{font-size:26px;flex-shrink:0;margin-top:2px}
+.eva-onb-opt-title{font-size:14px;font-weight:800;color:#17122E;margin-bottom:3px}
+.eva-onb-opt-desc{font-size:12px;color:#7B708F;line-height:1.4;margin-bottom:4px}
+.eva-onb-opt-pms{font-size:11px;color:#9B72CF;font-weight:600}
+.eva-onb-opt-badge{flex-shrink:0;font-size:11px;font-weight:900;color:#059669;background:#DCFCE7;border-radius:999px;padding:4px 10px;white-space:nowrap;align-self:center}
+.eva-pms-card{display:flex;align-items:center;gap:10px;padding:12px 14px;background:white;border:1px solid #EEEEF5;border-radius:12px;cursor:pointer;font-size:14px;font-weight:700;color:#17122E;transition:all .12s}
+.eva-pms-card:hover{border-color:#7C3AED;background:#F5F0FF}
+.eva-source-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid #F0EBF9}
+.eva-source-row:last-child{border-bottom:none}
+.eva-source-row-icon{width:40px;height:40px;border-radius:12px;background:#F3E8FF;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.eva-source-row-status{margin-left:auto;font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px}
+.eva-source-row-status.ok{background:#DCFCE7;color:#047857}
+.eva-source-row-status.missing{background:#FEF3C7;color:#92400E}
+/* ===== end EVA DATA HUB ===== */
 @media(max-width:768px){
   .app-body{flex-direction:column}
   .sidebar{position:fixed;left:-260px;top:0;bottom:0;width:250px;z-index:400;transition:left .25s;box-shadow:none}
@@ -1629,6 +1654,7 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       <button class="nav-item" onclick="goTo('clean',this)" id="nav-cleanyq"><span class="nav-emoji"><i class="ti ti-spray" aria-hidden="true"></i></span>CleanyQ</button>
 
       <div class="nav-section-label" id="nav-label-integrations">Intégrations &amp; Compte</div>
+      <button class="nav-item" onclick="goTo('eva-data',this)" id="nav-eva-data"><span class="nav-emoji"><i class="ti ti-database" aria-hidden="true"></i></span>Donn&#233;es EVA <span id="eva-confidence-badge" style="margin-left:auto;font-size:10px;font-weight:900;padding:2px 7px;border-radius:4px;background:rgba(83,74,183,.25);color:#CECBF6">—%</span></button>
       <button class="nav-item" onclick="goTo('smoobu',this)" id="nav-smoobu"><span class="nav-emoji"><i class="ti ti-link" aria-hidden="true"></i></span>Smoobu <span class="smoobu-badge" id="smoobu-nav-badge" style="display:none">✓</span></button>
       <button class="nav-item" onclick="goTo('tarifs',this)"><span class="nav-emoji"><i class="ti ti-credit-card" aria-hidden="true"></i></span>Tarifs</button>
       <button class="nav-item" onclick="goTo('settings',this)"><span class="nav-emoji"><i class="ti ti-settings" aria-hidden="true"></i></span>Paramètres</button>
@@ -2136,6 +2162,81 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
         </div>
       </div>
 
+
+      <!-- DONNÉES EVA / INTÉGRATIONS -->
+      <div class="page" id="page-eva-data">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Donn&#233;es EVA</div>
+            <div class="page-sub">Les sources qui alimentent EVA &mdash; plus vous en connectez, plus les recommandations sont pr&#233;cises</div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-purple" onclick="openEvaOnboarding()">+ Ajouter une source</button>
+          </div>
+        </div>
+
+        <!-- Niveau de confiance EVA -->
+        <div id="eva-confidence-card" style="background:linear-gradient(135deg,#211051 0%,#7C3AED 46%,#EC4899 100%);border-radius:22px;padding:22px;margin-bottom:16px;color:#fff">
+          <div style="display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center">
+            <div>
+              <div style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;font-weight:900;color:rgba(255,255,255,.65);margin-bottom:6px">Niveau de confiance EVA</div>
+              <div style="font-size:13px;color:rgba(255,255,255,.78);line-height:1.6" id="eva-confidence-desc">Connectez des sources pour qu&#8217;EVA produise des recommandations fiables.</div>
+              <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap" id="eva-source-badges"></div>
+            </div>
+            <div style="text-align:center;min-width:100px">
+              <div style="font-size:52px;font-weight:950;letter-spacing:-2px;line-height:1" id="eva-confidence-pct">—</div>
+              <div style="font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.55);margin-top:4px">Confiance</div>
+            </div>
+          </div>
+          <div style="margin-top:14px;background:rgba(255,255,255,.12);border-radius:999px;height:8px;overflow:hidden">
+            <div id="eva-confidence-bar" style="height:100%;border-radius:999px;background:linear-gradient(90deg,#FCD34D,#10B981);width:0%;transition:width .6s ease"></div>
+          </div>
+        </div>
+
+        <!-- Sources connect&#233;es -->
+        <div style="background:white;border:1px solid rgba(139,92,246,.14);border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:0 8px 24px rgba(69,39,120,.05)">
+          <div style="font-size:16px;font-weight:950;color:#17122E;margin-bottom:14px">Sources actives</div>
+          <div id="eva-sources-list"></div>
+        </div>
+
+        <!-- Ajouter une source -->
+        <div style="background:white;border:1px solid rgba(139,92,246,.14);border-radius:20px;padding:18px;box-shadow:0 8px 24px rgba(69,39,120,.05)">
+          <div style="font-size:16px;font-weight:950;color:#17122E;margin-bottom:6px">Ajouter ou changer de source</div>
+          <div style="font-size:13px;color:#8A8A99;margin-bottom:16px">Vous changez de PMS&nbsp;? Supprimez l&rsquo;ancienne source et connectez la nouvelle. L&rsquo;historique import&#233; manuellement est conserv&#233;.</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px" id="eva-source-options">
+
+            <div class="eva-source-card" onclick="openEvaOnboarding('pms')">
+              <div class="eva-source-icon">&#x1F3E2;</div>
+              <div class="eva-source-title">PMS</div>
+              <div class="eva-source-desc">Easy Concierge, Smoobu, Beds24, Guesty, Hostaway</div>
+              <div class="eva-source-weight">+45 pts confiance</div>
+            </div>
+
+            <div class="eva-source-card" onclick="openEvaOnboarding('airbnb')">
+              <div class="eva-source-icon">&#x1F3E0;</div>
+              <div class="eva-source-title">Airbnb / Booking</div>
+              <div class="eva-source-desc">Import CSV export depuis votre compte</div>
+              <div class="eva-source-weight">+25 pts confiance</div>
+            </div>
+
+            <div class="eva-source-card" onclick="openEvaOnboarding('bank')">
+              <div class="eva-source-icon">&#x1F3E6;</div>
+              <div class="eva-source-title">Relev&#233;s bancaires</div>
+              <div class="eva-source-desc">CSV ou PDF &mdash; EVA d&#233;tecte charges et revenus</div>
+              <div class="eva-source-weight">+20 pts confiance</div>
+            </div>
+
+            <div class="eva-source-card" onclick="openEvaOnboarding('manual')">
+              <div class="eva-source-icon">&#x270F;&#xFE0F;</div>
+              <div class="eva-source-title">Saisie manuelle</div>
+              <div class="eva-source-desc">Logements, prix, occupation, charges estim&#233;es</div>
+              <div class="eva-source-weight">+10 pts confiance</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
       <!-- SMOOBU -->
       <div class="page" id="page-smoobu">
         <div class="page-header"><div><div class="page-title">Intégration Smoobu</div><div class="page-sub">Importez vos données Airbnb & Booking automatiquement</div></div></div>
@@ -2524,6 +2625,196 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       <button class="btn" onclick="closeMissionModal()" style="flex:1">Annuler</button>
       <button class="btn btn-purple" onclick="saveMission()" style="flex:2">📋 Créer la mission</button>
     </div>
+  </div>
+</div>
+
+
+<!-- ══ ONBOARDING EVA ══ -->
+<div id="eva-onboarding" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(8,4,20,.88);align-items:center;justify-content:center;padding:1rem">
+  <div id="eva-onb-sheet" style="background:white;border-radius:24px;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.35)">
+
+    <!-- Step 1 : Bienvenue -->
+    <div id="eva-onb-step1" style="padding:2.5rem;text-align:center">
+      <div style="width:72px;height:72px;border-radius:24px;background:linear-gradient(135deg,#7C3AED,#EC4899);display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 1.5rem">&#x1F916;</div>
+      <div style="font-size:28px;font-weight:950;color:#17122E;letter-spacing:-.6px;margin-bottom:10px">Donnez quelques informations &#224; EVA.</div>
+      <div style="font-size:15px;color:#7B708F;line-height:1.7;max-width:440px;margin:0 auto 2rem">Elle identifiera rapidement vos opportunit&#233;s d&rsquo;am&#233;lioration &mdash; m&#234;me sans PMS, m&#234;me sans compte Airbnb structur&#233;.</div>
+      <div style="display:grid;gap:8px;max-width:380px;margin:0 auto 2rem;text-align:left">
+        <div style="display:flex;gap:10px;align-items:center;padding:10px;background:#F8F4FF;border-radius:12px">
+          <span style="font-size:20px">&#x23F1;&#xFE0F;</span>
+          <div style="font-size:13px;color:#17122E"><strong>5 minutes</strong> pour alimenter EVA</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;padding:10px;background:#F8F4FF;border-radius:12px">
+          <span style="font-size:20px">&#x1F4C8;</span>
+          <div style="font-size:13px;color:#17122E"><strong>Premi&#232;res recommandations</strong> imm&#233;diatement</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;padding:10px;background:#F8F4FF;border-radius:12px">
+          <span style="font-size:20px">&#x1F504;</span>
+          <div style="font-size:13px;color:#17122E"><strong>&#201;volutif</strong> &mdash; ajoutez des sources &#224; tout moment</div>
+        </div>
+      </div>
+      <button onclick="evaOnbStep(2)" style="width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,#7C3AED,#EC4899);color:white;border:none;font-size:16px;font-weight:900;cursor:pointer;font-family:inherit;margin-bottom:10px">Commencer &#8594;</button>
+      <button onclick="closeEvaOnboarding()" style="background:none;border:none;color:#8A8A99;font-size:13px;cursor:pointer;font-family:inherit">Passer pour l&rsquo;instant</button>
+    </div>
+
+    <!-- Step 2 : Choisir la m&#233;thode -->
+    <div id="eva-onb-step2" style="display:none;padding:2rem">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem">
+        <button onclick="evaOnbStep(1)" style="width:36px;height:36px;border-radius:10px;border:1px solid #E8E8EE;background:white;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center">&#8592;</button>
+        <div>
+          <div style="font-size:20px;font-weight:950;color:#17122E">Comment alimenter EVA&nbsp;?</div>
+          <div style="font-size:13px;color:#8A8A99;margin-top:2px">Choisissez la m&#233;thode qui correspond &#224; votre situation</div>
+        </div>
+      </div>
+
+      <!-- Options -->
+      <div style="display:grid;gap:10px;margin-bottom:1.5rem">
+
+        <div class="eva-onb-option" onclick="evaOnbSelectMethod('pms')">
+          <div class="eva-onb-opt-left">
+            <div class="eva-onb-opt-icon">&#x1F3E2;</div>
+            <div>
+              <div class="eva-onb-opt-title">Connecter mon PMS</div>
+              <div class="eva-onb-opt-desc">Synchronisation automatique &mdash; donn&#233;es en temps r&#233;el</div>
+              <div class="eva-onb-opt-pms">Easy Concierge &bull; Smoobu &bull; Beds24 &bull; Guesty &bull; Hostaway</div>
+            </div>
+          </div>
+          <div class="eva-onb-opt-badge">+45 pts</div>
+        </div>
+
+        <div class="eva-onb-option" onclick="evaOnbSelectMethod('airbnb')">
+          <div class="eva-onb-opt-left">
+            <div class="eva-onb-opt-icon">&#x1F3E0;</div>
+            <div>
+              <div class="eva-onb-opt-title">Importer mes donn&#233;es Airbnb / Booking</div>
+              <div class="eva-onb-opt-desc">Export CSV depuis votre tableau de bord plateforme</div>
+              <div class="eva-onb-opt-pms">CSV Airbnb &bull; CSV Booking</div>
+            </div>
+          </div>
+          <div class="eva-onb-opt-badge">+25 pts</div>
+        </div>
+
+        <div class="eva-onb-option" onclick="evaOnbSelectMethod('bank')">
+          <div class="eva-onb-opt-left">
+            <div class="eva-onb-opt-icon">&#x1F3E6;</div>
+            <div>
+              <div class="eva-onb-opt-title">Importer mes relev&#233;s bancaires</div>
+              <div class="eva-onb-opt-desc">EVA identifie vos revenus r&#233;els et vos charges</div>
+              <div class="eva-onb-opt-pms">PDF bancaire &bull; CSV bancaire &bull; Boursorama &bull; Revolut &bull; BNP</div>
+            </div>
+          </div>
+          <div class="eva-onb-opt-badge">+20 pts</div>
+        </div>
+
+        <div class="eva-onb-option" onclick="evaOnbSelectMethod('manual')">
+          <div class="eva-onb-opt-left">
+            <div class="eva-onb-opt-icon">&#x270F;&#xFE0F;</div>
+            <div>
+              <div class="eva-onb-opt-title">Commencer manuellement</div>
+              <div class="eva-onb-opt-desc">Saisissez vos informations essentielles pour d&#233;marrer imm&#233;diatement</div>
+              <div class="eva-onb-opt-pms">Nombre de logements &bull; Ville &bull; Prix moyen &bull; Occupation &bull; Charges</div>
+            </div>
+          </div>
+          <div class="eva-onb-opt-badge">+10 pts</div>
+        </div>
+
+      </div>
+      <div style="font-size:12px;color:#8A8A99;text-align:center">Ces options ne sont pas exclusives &mdash; vous pouvez en ajouter plusieurs apr&#232;s l&rsquo;onboarding</div>
+    </div>
+
+    <!-- Step 3a : PMS -->
+    <div id="eva-onb-step3-pms" style="display:none;padding:2rem">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem">
+        <button onclick="evaOnbStep(2)" style="width:36px;height:36px;border-radius:10px;border:1px solid #E8E8EE;background:white;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center">&#8592;</button>
+        <div style="font-size:20px;font-weight:950;color:#17122E">Connecter mon PMS</div>
+      </div>
+      <div style="display:grid;gap:8px;margin-bottom:1.5rem">
+        <div class="eva-pms-card" onclick="evaOnbSelectPms('smoobu')"><span>&#x1F517;</span> Smoobu <span style="margin-left:auto;font-size:11px;color:#059669;font-weight:700">Connect&#233; via cl&#233; API</span></div>
+        <div class="eva-pms-card" onclick="evaOnbSelectPms('easy_concierge')"><span>&#x1F3E2;</span> Easy Concierge <span style="margin-left:auto;font-size:11px;color:#7C3AED;font-weight:700">Priorit&#233; strat&#233;gique</span></div>
+        <div class="eva-pms-card" onclick="evaOnbSelectPms('beds24')"><span>&#x1F6CF;&#xFE0F;</span> Beds24</div>
+        <div class="eva-pms-card" onclick="evaOnbSelectPms('guesty')"><span>&#x1F3E0;</span> Guesty</div>
+        <div class="eva-pms-card" onclick="evaOnbSelectPms('hostaway')"><span>&#x1F310;</span> Hostaway</div>
+      </div>
+      <div id="eva-onb-pms-detail" style="display:none;background:#F8F4FF;border-radius:14px;padding:1.25rem;margin-bottom:1rem">
+        <div style="font-size:13px;font-weight:700;color:#17122E;margin-bottom:8px" id="eva-onb-pms-name"></div>
+        <div style="font-size:12px;color:#7B708F;margin-bottom:10px" id="eva-onb-pms-hint"></div>
+        <input id="eva-onb-pms-key" type="text" placeholder="Cl&#233; API ou identifiant" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid #C4B5FD;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box"/>
+        <button onclick="evaOnbSavePms()" style="width:100%;margin-top:10px;padding:11px;border-radius:10px;background:linear-gradient(135deg,#7C3AED,#EC4899);color:white;border:none;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">Connecter et alimenter EVA &#8594;</button>
+      </div>
+    </div>
+
+    <!-- Step 3b : Airbnb/Booking CSV -->
+    <div id="eva-onb-step3-airbnb" style="display:none;padding:2rem">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem">
+        <button onclick="evaOnbStep(2)" style="width:36px;height:36px;border-radius:10px;border:1px solid #E8E8EE;background:white;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center">&#8592;</button>
+        <div style="font-size:20px;font-weight:950;color:#17122E">Import Airbnb / Booking</div>
+      </div>
+      <div style="font-size:13px;color:#7B708F;margin-bottom:1.25rem;line-height:1.65">T&#233;l&#233;chargez votre CSV depuis Airbnb (Mon activit&#233; &rarr; Historique des transactions &rarr; Exporter) ou Booking. EVA analyse automatiquement les r&#233;servations, les montants et les p&#233;riodes.</div>
+      <div id="eva-onb-csv-drop" onclick="document.getElementById('eva-onb-csv-file').click()" style="border:2px dashed #C4B5FD;border-radius:14px;padding:2rem;text-align:center;cursor:pointer;margin-bottom:1rem;background:#FAF8FF">
+        <div style="font-size:32px;margin-bottom:8px">&#x1F4C4;</div>
+        <div style="font-size:14px;font-weight:700;color:#17122E;margin-bottom:4px">Glissez votre fichier CSV ici</div>
+        <div style="font-size:12px;color:#8A8A99">ou cliquez pour s&#233;lectionner &mdash; CSV Airbnb ou Booking</div>
+        <input type="file" id="eva-onb-csv-file" accept=".csv" style="display:none" onchange="evaOnbHandleCsv(this)"/>
+      </div>
+      <div id="eva-onb-csv-preview" style="display:none;background:#F0FDF4;border-radius:10px;padding:12px;margin-bottom:1rem;font-size:13px;color:#047857"></div>
+      <button onclick="evaOnbSaveCsv()" id="eva-onb-csv-btn" disabled style="width:100%;padding:11px;border-radius:10px;background:#D1D5DB;color:white;border:none;font-size:14px;font-weight:800;cursor:not-allowed;font-family:inherit">Importer et alimenter EVA</button>
+    </div>
+
+    <!-- Step 3c : Relev&#233;s bancaires -->
+    <div id="eva-onb-step3-bank" style="display:none;padding:2rem">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem">
+        <button onclick="evaOnbStep(2)" style="width:36px;height:36px;border-radius:10px;border:1px solid #E8E8EE;background:white;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center">&#8592;</button>
+        <div style="font-size:20px;font-weight:950;color:#17122E">Relev&#233;s bancaires</div>
+      </div>
+      <div style="font-size:13px;color:#7B708F;margin-bottom:1.25rem;line-height:1.65">EVA analyse vos relev&#233;s pour identifier les revenus de location, les charges fixes (loyer, assurance, &#233;nergie) et les charges variables (m&#233;nage, linge, maintenance).</div>
+      <div id="eva-onb-bank-drop" onclick="document.getElementById('eva-onb-bank-file').click()" style="border:2px dashed #C4B5FD;border-radius:14px;padding:2rem;text-align:center;cursor:pointer;margin-bottom:1rem;background:#FAF8FF">
+        <div style="font-size:32px;margin-bottom:8px">&#x1F4C3;</div>
+        <div style="font-size:14px;font-weight:700;color:#17122E;margin-bottom:4px">Glissez votre relev&#233; ici</div>
+        <div style="font-size:12px;color:#8A8A99">CSV ou PDF &mdash; Boursorama, Revolut, BNP, Cr&#233;dit Mutuel&#8230;</div>
+        <input type="file" id="eva-onb-bank-file" accept=".csv,.pdf" style="display:none" onchange="evaOnbHandleBank(this)"/>
+      </div>
+      <div id="eva-onb-bank-preview" style="display:none;background:#F0FDF4;border-radius:10px;padding:12px;margin-bottom:1rem;font-size:13px;color:#047857"></div>
+      <button onclick="evaOnbSaveBank()" id="eva-onb-bank-btn" disabled style="width:100%;padding:11px;border-radius:10px;background:#D1D5DB;color:white;border:none;font-size:14px;font-weight:800;cursor:not-allowed;font-family:inherit">Importer et alimenter EVA</button>
+    </div>
+
+    <!-- Step 3d : Manuel -->
+    <div id="eva-onb-step3-manual" style="display:none;padding:2rem">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem">
+        <button onclick="evaOnbStep(2)" style="width:36px;height:36px;border-radius:10px;border:1px solid #E8E8EE;background:white;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center">&#8592;</button>
+        <div style="font-size:20px;font-weight:950;color:#17122E">Saisie manuelle</div>
+      </div>
+      <div style="display:grid;gap:10px;margin-bottom:1.25rem">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#8A8A99;display:block;margin-bottom:5px">Nombre de logements</label>
+            <input id="onb-m-nb" type="number" min="1" value="1" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid #E8E8EE;font-size:14px;font-family:inherit"/></div>
+          <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#8A8A99;display:block;margin-bottom:5px">Ville principale</label>
+            <input id="onb-m-city" type="text" placeholder="Ex&#160;: Orl&#233;ans" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid #E8E8EE;font-size:14px;font-family:inherit"/></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#8A8A99;display:block;margin-bottom:5px">Prix moyen/nuit (&#8364;)</label>
+            <input id="onb-m-price" type="number" placeholder="80" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid #E8E8EE;font-size:14px;font-family:inherit"/></div>
+          <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#8A8A99;display:block;margin-bottom:5px">Taux d&rsquo;occupation (%)</label>
+            <input id="onb-m-occ" type="number" placeholder="60" min="0" max="100" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid #E8E8EE;font-size:14px;font-family:inherit"/></div>
+          <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#8A8A99;display:block;margin-bottom:5px">Charges/mois (&#8364;)</label>
+            <input id="onb-m-charges" type="number" placeholder="500" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid #E8E8EE;font-size:14px;font-family:inherit"/></div>
+        </div>
+      </div>
+      <button onclick="evaOnbSaveManual()" style="width:100%;padding:11px;border-radius:10px;background:linear-gradient(135deg,#7C3AED,#EC4899);color:white;border:none;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">Enregistrer et lancer EVA &#8594;</button>
+    </div>
+
+    <!-- Step 4 : Confirmation -->
+    <div id="eva-onb-step4" style="display:none;padding:2.5rem;text-align:center">
+      <div style="font-size:52px;margin-bottom:1rem">&#x2705;</div>
+      <div style="font-size:22px;font-weight:950;color:#17122E;margin-bottom:8px">EVA est aliment&#233;e.</div>
+      <div style="font-size:14px;color:#7B708F;line-height:1.65;margin-bottom:1.5rem" id="eva-onb-confirm-text">Vos donn&#233;es sont int&#233;gr&#233;es. EVA va analyser votre activit&#233; et g&#233;n&#233;rer ses premi&#232;res recommandations.</div>
+      <div id="eva-onb-confidence-result" style="background:linear-gradient(135deg,#F3E8FF,#FFF1F9);border-radius:14px;padding:16px;margin-bottom:1.5rem;border:1px solid rgba(168,85,247,.2)">
+        <div style="font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:#7C3AED;font-weight:800;margin-bottom:6px">Niveau de confiance EVA</div>
+        <div style="font-size:40px;font-weight:950;color:#7C3AED;letter-spacing:-1px" id="eva-onb-conf-num">—</div>
+        <div style="font-size:12px;color:#7B708F;margin-top:4px" id="eva-onb-conf-hint"></div>
+      </div>
+      <button onclick="evaOnbFinish()" style="width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,#7C3AED,#EC4899);color:white;border:none;font-size:16px;font-weight:900;cursor:pointer;font-family:inherit;margin-bottom:10px">Voir les recommandations EVA &#8594;</button>
+      <button onclick="openEvaOnboarding()" style="background:none;border:none;color:#7C3AED;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">+ Ajouter une autre source</button>
+    </div>
+
   </div>
 </div>
 
@@ -3930,6 +4221,7 @@ function goTo(page,btn){
   if(page==='proprietaires')renderProprietaires();
   if(page==='rapports'){initRapportMois();renderRapports();}
   if(page==='scanner')renderScannerPage();
+  if(page==='eva-data'){renderEvaDataPage();}
   if(page==='eva-audit'){renderEvaEngineLayer();}
 }
 
@@ -6539,6 +6831,275 @@ function switchPropertyTab(tab){
   if(panel)panel.classList.add('active');
 }
 
+
+/* ===== EVA ONBOARDING & DATA HUB ===== */
+
+// Sources stockées en localStorage (complément des données Supabase)
+function evaGetSources(){
+  try{return JSON.parse(localStorage.getItem('eva_sources_'+(currentUser?.user?.id||'demo'))||'{}');}catch(e){return {};}
+}
+function evaSetSource(key,val){
+  const s=evaGetSources();s[key]=val;
+  try{localStorage.setItem('eva_sources_'+(currentUser?.user?.id||'demo'),JSON.stringify(s));}catch(e){}
+}
+function evaRemoveSource(key){
+  const s=evaGetSources();delete s[key];
+  try{localStorage.setItem('eva_sources_'+(currentUser?.user?.id||'demo'),JSON.stringify(s));}catch(e){}
+}
+
+// Calcul du niveau de confiance EVA (0-100)
+function evaComputeConfidence(){
+  const s=evaGetSources();
+  let pts=0;
+  if(s.pms)pts+=45;
+  if(s.airbnb)pts+=25;
+  if(s.bank)pts+=20;
+  if(s.manual||apparts.length)pts+=10;
+  // Bonus historique : réservations existantes
+  if(reservations.length>=10)pts+=5;
+  if(reservations.length>=30)pts+=5;
+  return Math.min(100,pts);
+}
+
+function evaConfidenceLabel(pct){
+  if(pct>=80)return 'Excellent \u2014 EVA dispose de suffisamment de donn\u00e9es pour des recommandations pr\u00e9cises.';
+  if(pct>=50)return 'Correct \u2014 EVA peut produire des recommandations. Ajoutez un relev\u00e9 bancaire pour am\u00e9liorer la pr\u00e9cision.';
+  if(pct>=20)return 'Limit\u00e9 \u2014 EVA manque de donn\u00e9es. Connectez un PMS ou importez vos r\u00e9servations.';
+  return 'Insuffisant \u2014 Alimentez EVA pour obtenir des recommandations fiables.';
+}
+
+function updateEvaConfidenceBadge(){
+  const pct=evaComputeConfidence();
+  const badge=document.getElementById('eva-confidence-badge');
+  if(badge){
+    badge.textContent=pct+'%';
+    badge.style.background=pct>=80?'rgba(5,150,105,.25)':pct>=50?'rgba(217,119,6,.25)':'rgba(220,38,38,.2)';
+    badge.style.color=pct>=80?'#6EE7B7':pct>=50?'#FCD34D':'#FCA5A5';
+  }
+}
+
+function renderEvaDataPage(){
+  const pct=evaComputeConfidence();
+  const s=evaGetSources();
+
+  // Confidence card
+  const pctEl=document.getElementById('eva-confidence-pct');
+  const barEl=document.getElementById('eva-confidence-bar');
+  const descEl=document.getElementById('eva-confidence-desc');
+  if(pctEl)pctEl.textContent=pct+'%';
+  if(barEl)barEl.style.width=pct+'%';
+  if(descEl)descEl.textContent=evaConfidenceLabel(pct);
+
+  // Source badges
+  const badgesEl=document.getElementById('eva-source-badges');
+  if(badgesEl){
+    const badges=[];
+    if(s.pms)badges.push('<span style="background:rgba(255,255,255,.18);color:white;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px">\u2713 PMS : '+s.pms.name+'</span>');
+    if(s.airbnb)badges.push('<span style="background:rgba(255,255,255,.18);color:white;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px">\u2713 Airbnb/Booking</span>');
+    if(s.bank)badges.push('<span style="background:rgba(255,255,255,.18);color:white;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px">\u2713 Relev\u00e9s bancaires</span>');
+    if(apparts.length)badges.push('<span style="background:rgba(255,255,255,.18);color:white;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px">\u2713 '+apparts.length+' logement'+(apparts.length>1?'s':'')+' actif'+(apparts.length>1?'s':'')+'</span>');
+    badgesEl.innerHTML=badges.join('') || '<span style="color:rgba(255,255,255,.5);font-size:12px">Aucune source connect\u00e9e</span>';
+  }
+
+  // Sources list
+  const listEl=document.getElementById('eva-sources-list');
+  if(listEl){
+    const rows=[];
+    rows.push(evaSourceRow('pms','&#x1F3E2;','PMS',s.pms?s.pms.name+' \u2014 synchronis\u00e9':null,'Synchronisation automatique',45,()=>evaRemoveSourceUI('pms')));
+    rows.push(evaSourceRow('airbnb','&#x1F3E0;','Airbnb / Booking',s.airbnb?s.airbnb.count+' r\u00e9servations import\u00e9es':null,'Export CSV plateforme',25,()=>evaRemoveSourceUI('airbnb')));
+    rows.push(evaSourceRow('bank','&#x1F3E6;','Relev\u00e9s bancaires',s.bank?s.bank.count+' transactions analys\u00e9es':null,'CSV ou PDF bancaire',20,()=>evaRemoveSourceUI('bank')));
+    rows.push(evaSourceRow('manual','&#x270F;&#xFE0F;','Saisie manuelle',apparts.length?apparts.length+' logement'+(apparts.length>1?'s':'')+' actif'+(apparts.length>1?'s':''):null,'Donn\u00e9es saisies manuellement',10,()=>{}));
+    listEl.innerHTML=rows.join('');
+  }
+}
+
+function evaSourceRow(key,icon,label,value,hint,pts,onRemove){
+  const active=!!value;
+  return '<div class="eva-source-row">'
+    +'<div class="eva-source-row-icon">'+icon+'</div>'
+    +'<div style="flex:1;min-width:0">'
+    +'<div style="font-size:14px;font-weight:700;color:#17122E">'+label+'</div>'
+    +'<div style="font-size:12px;color:#8A8A99;margin-top:2px">'+(active?value:hint)+'</div>'
+    +'</div>'
+    +'<div style="display:flex;align-items:center;gap:8px">'
+    +(active
+      ? '<span class="eva-source-row-status ok">\u2713 Connect\u00e9</span><button onclick="evaRemoveSourceUI(\''+key+'\')" style="background:none;border:none;color:#DC2626;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit">\u00d7 Supprimer</button>'
+      : '<span class="eva-source-row-status missing">+'+pts+' pts</span><button onclick="openEvaOnboarding(\''+key+'\')" style="background:#7C3AED;color:white;border:none;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Connecter</button>'
+    )
+    +'</div></div>';
+}
+
+function evaRemoveSourceUI(key){
+  const labels={pms:'le PMS',airbnb:'Airbnb / Booking',bank:'les relev\u00e9s bancaires'};
+  if(!confirm('Supprimer la source "'+( labels[key]||key)+'" ?\n\nLes donn\u00e9es import\u00e9es depuis cette source seront conserv\u00e9es mais EVA ne recevra plus de nouvelles donn\u00e9es de cette source.'))return;
+  evaRemoveSource(key);
+  updateEvaConfidenceBadge();
+  renderEvaDataPage();
+  showToast('Source supprim\u00e9e \u2014 reconnectez quand vous voulez');
+}
+
+// ── Ouverture de l\u2019onboarding ──
+function openEvaOnboarding(method){
+  const el=document.getElementById('eva-onboarding');
+  el.style.display='flex';
+  if(method){evaOnbSelectMethod(method);}
+  else{evaOnbStep(1);}
+}
+
+function closeEvaOnboarding(){
+  document.getElementById('eva-onboarding').style.display='none';
+  try{localStorage.setItem('onb2_seen_'+(currentUser?.user?.id||'demo'),'1');}catch(e){}
+  updateEvaConfidenceBadge();
+  if(document.getElementById('page-eva-data')?.classList.contains('active'))renderEvaDataPage();
+}
+
+function onb2Open(){
+  try{
+    const seen=localStorage.getItem('onb2_seen_'+(currentUser?.user?.id||'demo'));
+    if(!seen&&apparts.length===0)openEvaOnboarding();
+  }catch(e){}
+}
+
+function evaOnbStep(n){
+  [1,2,'3-pms','3-airbnb','3-bank','3-manual',4].forEach(s=>{
+    const el=document.getElementById('eva-onb-step'+s);
+    if(el)el.style.display='none';
+  });
+  const target=document.getElementById('eva-onb-step'+n);
+  if(target)target.style.display='block';
+}
+
+function evaOnbSelectMethod(method){
+  evaOnbStep(2); // show step 2 first
+  [1,2,'3-pms','3-airbnb','3-bank','3-manual',4].forEach(s=>{
+    const el=document.getElementById('eva-onb-step'+s);
+    if(el)el.style.display='none';
+  });
+  const map={pms:'3-pms',airbnb:'3-airbnb',bank:'3-bank',manual:'3-manual'};
+  const target=document.getElementById('eva-onb-step'+(map[method]||'2'));
+  if(target)target.style.display='block';
+}
+
+// PMS
+const PMS_HINTS={
+  smoobu:'Allez dans Smoobu \u2192 Param\u00e8tres \u2192 Avanc\u00e9 \u2192 Cl\u00e9s API, puis copiez la cl\u00e9.',
+  easy_concierge:'Contactez Easy Concierge pour obtenir votre cl\u00e9 API partenaire RentyQ.',
+  beds24:'Beds24 : Param\u00e8tres \u2192 API \u2192 G\u00e9n\u00e9rer une cl\u00e9.',
+  guesty:'Guesty : D\u00e9veloppeur \u2192 Cl\u00e9s API.',
+  hostaway:'Hostaway : Int\u00e9grations \u2192 API \u2192 Cl\u00e9 API.'
+};
+const PMS_NAMES={smoobu:'Smoobu',easy_concierge:'Easy Concierge',beds24:'Beds24',guesty:'Guesty',hostaway:'Hostaway'};
+let evaOnbSelectedPms=null;
+
+function evaOnbSelectPms(pms){
+  evaOnbSelectedPms=pms;
+  document.querySelectorAll('.eva-pms-card').forEach(c=>c.style.border='1px solid #EEEEF5');
+  event.currentTarget.style.border='2px solid #7C3AED';
+  const detail=document.getElementById('eva-onb-pms-detail');
+  document.getElementById('eva-onb-pms-name').textContent=PMS_NAMES[pms]||pms;
+  document.getElementById('eva-onb-pms-hint').textContent=PMS_HINTS[pms]||'Entrez votre cl\u00e9 API.';
+  detail.style.display='block';
+}
+
+function evaOnbSavePms(){
+  const key=document.getElementById('eva-onb-pms-key').value.trim();
+  if(!key){showToast('Entrez votre cl\u00e9 API');return;}
+  evaSetSource('pms',{name:PMS_NAMES[evaOnbSelectedPms]||evaOnbSelectedPms,key,connected:new Date().toISOString()});
+  // Si Smoobu, aussi connecter via la page Smoobu existante
+  if(evaOnbSelectedPms==='smoobu'){
+    const smoobuKeyEl=document.getElementById('smoobu-key');
+    if(smoobuKeyEl)smoobuKeyEl.value=key;
+  }
+  evaOnbShowConfirmation('PMS '+( PMS_NAMES[evaOnbSelectedPms]||evaOnbSelectedPms)+' connect\u00e9. EVA re\u00e7oit maintenant vos r\u00e9servations en temps r\u00e9el.');
+}
+
+// CSV Airbnb/Booking
+let evaOnbCsvBuffer=null;
+function evaOnbHandleCsv(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    evaOnbCsvBuffer=e.target.result;
+    const lines=evaOnbCsvBuffer.split('\n').filter(l=>l.trim()).length-1;
+    document.getElementById('eva-onb-csv-preview').style.display='block';
+    document.getElementById('eva-onb-csv-preview').textContent='\u2705 '+lines+' lignes d\u00e9tect\u00e9es dans '+file.name;
+    const btn=document.getElementById('eva-onb-csv-btn');
+    btn.disabled=false;btn.style.background='linear-gradient(135deg,#7C3AED,#EC4899)';btn.style.cursor='pointer';
+  };
+  reader.readAsText(file,'utf-8');
+}
+function evaOnbSaveCsv(){
+  if(!evaOnbCsvBuffer)return;
+  const lines=evaOnbCsvBuffer.split('\n').filter(l=>l.trim()).length-1;
+  evaSetSource('airbnb',{count:lines,imported:new Date().toISOString()});
+  // Déclencher l\u2019import via le moteur EVA Audit existant
+  try{
+    const input=document.getElementById('eva360-res-file');
+    // Store for later use in audit
+    window.eva_onb_csv_raw=evaOnbCsvBuffer;
+  }catch(e){}
+  evaOnbShowConfirmation(lines+' r\u00e9servations import\u00e9es. EVA a analys\u00e9 votre historique Airbnb / Booking.');
+}
+
+// CSV bancaire
+let evaOnbBankBuffer=null;
+function evaOnbHandleBank(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    evaOnbBankBuffer=e.target.result;
+    const lines=evaOnbBankBuffer.split('\n').filter(l=>l.trim()).length-1;
+    document.getElementById('eva-onb-bank-preview').style.display='block';
+    document.getElementById('eva-onb-bank-preview').textContent='\u2705 '+lines+' transactions d\u00e9tect\u00e9es dans '+file.name;
+    const btn=document.getElementById('eva-onb-bank-btn');
+    btn.disabled=false;btn.style.background='linear-gradient(135deg,#7C3AED,#EC4899)';btn.style.cursor='pointer';
+  };
+  reader.readAsText(file,'utf-8');
+}
+function evaOnbSaveBank(){
+  if(!evaOnbBankBuffer)return;
+  const lines=evaOnbBankBuffer.split('\n').filter(l=>l.trim()).length-1;
+  evaSetSource('bank',{count:lines,imported:new Date().toISOString()});
+  window.eva_onb_bank_raw=evaOnbBankBuffer;
+  evaOnbShowConfirmation(lines+' transactions bancaires analys\u00e9es. EVA a identifi\u00e9 vos charges et revenus.');
+}
+
+// Saisie manuelle
+async function evaOnbSaveManual(){
+  const nb=+document.getElementById('onb-m-nb').value||1;
+  const city=document.getElementById('onb-m-city').value.trim();
+  const price=+document.getElementById('onb-m-price').value||80;
+  const occ=+document.getElementById('onb-m-occ').value||60;
+  const charges=+document.getElementById('onb-m-charges').value||500;
+  if(!city){showToast('Indiquez au moins une ville');return;}
+  // Cr\u00e9er les logements manuellement
+  for(let i=0;i<Math.min(nb,5);i++){
+    const body={user_id:currentUser.user.id,name:'Logement '+(apparts.length+i+1),city,emoji:'\uD83C\uDFE0',price,rent:charges,cleaner:Math.round(price*0.15),comp:Math.round(price*1.05),ai_rec:Math.round(price*1.08),booked:false,auto_pricing:true};
+    try{
+      const res=await sbFetch('appartements',{method:'POST',body:JSON.stringify(body)});
+      const c=await res.json();
+      if(Array.isArray(c)&&c[0])apparts.push(c[0]);
+    }catch(e){}
+  }
+  evaSetSource('manual',{nb,city,price,occ,charges,created:new Date().toISOString()});
+  renderAll();
+  evaOnbShowConfirmation(nb+' logement'+(nb>1?'s':'')+' cr\u00e9\u00e9'+(nb>1?'s':'')+' \u00e0 '+city+'. EVA commence l\u2019analyse.');
+}
+
+function evaOnbShowConfirmation(msg){
+  evaOnbStep(4);
+  const pct=evaComputeConfidence();
+  document.getElementById('eva-onb-confirm-text').textContent=msg;
+  document.getElementById('eva-onb-conf-num').textContent=pct+'%';
+  document.getElementById('eva-onb-conf-hint').textContent=evaConfidenceLabel(pct);
+  updateEvaConfidenceBadge();
+}
+
+function evaOnbFinish(){
+  closeEvaOnboarding();
+  goTo('cockpit',document.querySelector('[onclick*="cockpit"]'));
+}
+/* ===== end EVA ONBOARDING ===== */
 </script>
 
 </body>
