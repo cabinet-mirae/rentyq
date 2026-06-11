@@ -2711,7 +2711,7 @@ function renderCockpit(){
   <div class="eva-cockpit-hero">
     <div class="eva-cockpit-kicker">RentyQ intelligence cockpit</div>
     <div class="eva-cockpit-title">Votre prochaine décision rentable doit être évidente.</div>
-    <div class="eva-cockpit-sub">Le cockpit ne remplace pas les modules EVA : il les coordonne. EVA Pricing agit sur les prix à court terme, Scanner EVA analyse le potentiel d’une adresse, EVA Audit explique la rentabilité nette et les actions structurelles à mener.</div>
+    <div class="eva-cockpit-sub">Le cockpit ne remplace pas les modules EVA : il les coordonne. EVA Pricing agit sur les prix à court terme, Scanner EVA analyse le potentiel d\u2019une adresse, EVA Audit explique la rentabilité nette et les actions structurelles à mener.</div>
   </div>
 
   <div class="eva-mini-kpi-row">
@@ -2724,7 +2724,7 @@ function renderCockpit(){
   <div class="eva-cockpit-grid">
     <div class="eva-module-card">
       <div class="eva-module-top"><div><div class="eva-module-role">Prix jour par jour</div><div class="eva-module-title">EVA Pricing</div></div><div class="eva-module-icon">🧠</div></div>
-      <div class="eva-module-desc">Utilisé quand le logement existe déjà et qu’il faut décider quoi faire sur les prochaines nuits disponibles.</div>
+      <div class="eva-module-desc">Utilisé quand le logement existe déjà et qu\u2019il faut décider quoi faire sur les prochaines nuits disponibles.</div>
       <div class="eva-module-list">
         <span>✓ <b>Analyse les nuits libres</b> et les événements proches.</span>
         <span>✓ <b>Compare prix actuel vs prix conseillé</b>.</span>
@@ -2735,7 +2735,7 @@ function renderCockpit(){
 
     <div class="eva-module-card">
       <div class="eva-module-top"><div><div class="eva-module-role">Potentiel adresse</div><div class="eva-module-title">Scanner EVA</div></div><div class="eva-module-icon">📍</div></div>
-      <div class="eva-module-desc">Utilisé pour comprendre si l’emplacement et le prix actuel sont cohérents avec la demande locale.</div>
+      <div class="eva-module-desc">Utilisé pour comprendre si l\u2019emplacement et le prix actuel sont cohérents avec la demande locale.</div>
       <div class="eva-module-list">
         <span>✓ <b>Score emplacement</b> : transports, commerces, tourisme, business.</span>
         <span>✓ <b>Score prix actuel</b> selon le potentiel détecté.</span>
@@ -2746,11 +2746,11 @@ function renderCockpit(){
 
     <div class="eva-module-card">
       <div class="eva-module-top"><div><div class="eva-module-role">Rentabilité nette</div><div class="eva-module-title">EVA Audit 360°</div></div><div class="eva-module-icon">📊</div></div>
-      <div class="eva-module-desc">Utilisé pendant l’onboarding ou chaque mois pour comprendre ce que le logement rapporte vraiment.</div>
+      <div class="eva-module-desc">Utilisé pendant l\u2019onboarding ou chaque mois pour comprendre ce que le logement rapporte vraiment.</div>
       <div class="eva-module-list">
         <span>✓ <b>CSV réservations</b> : revenus, occupation, durée de séjour.</span>
         <span>✓ <b>CSV bancaire</b> : charges fixes, ménage, maintenance.</span>
-        <span>✓ <b>Plan d’action</b> pour améliorer la marge nette.</span>
+        <span>✓ <b>Plan d\u2019action</b> pour améliorer la marge nette.</span>
       </div>
       <div class="eva-module-footer"><span class="eva-module-tag">Audit stratégique</span><button class="btn btn-ai btn-sm" onclick="goTo('eva-audit',document.querySelector('[onclick*=eva-audit]'))">Auditer</button></div>
     </div>
@@ -2761,7 +2761,7 @@ function renderCockpit(){
     <div class="eva-flow-steps">
       <div class="eva-flow-step"><div class="eva-flow-emoji">📥</div><div class="eva-flow-name">Importer</div><div class="eva-flow-desc">CSV réservations, CSV bancaire, adresse.</div></div>
       <div class="eva-flow-step"><div class="eva-flow-emoji">📊</div><div class="eva-flow-name">Auditer</div><div class="eva-flow-desc">EVA Audit mesure la marge réelle.</div></div>
-      <div class="eva-flow-step"><div class="eva-flow-emoji">📍</div><div class="eva-flow-name">Positionner</div><div class="eva-flow-desc">Scanner EVA juge l’adresse et le prix.</div></div>
+      <div class="eva-flow-step"><div class="eva-flow-emoji">📍</div><div class="eva-flow-name">Positionner</div><div class="eva-flow-desc">Scanner EVA juge l\u2019adresse et le prix.</div></div>
       <div class="eva-flow-step"><div class="eva-flow-emoji">🧠</div><div class="eva-flow-name">Pricer</div><div class="eva-flow-desc">EVA Pricing ajuste les nuits à venir.</div></div>
       <div class="eva-flow-step"><div class="eva-flow-emoji">✅</div><div class="eva-flow-name">Agir</div><div class="eva-flow-desc">RentyQ priorise ce qui augmente le net.</div></div>
     </div>
@@ -2774,7 +2774,7 @@ function renderCockpit(){
 
   const signals=[];
   if(!apts.length){
-    signals.push({c:'purple',t:'Ajouter votre premier logement',d:'Sans logement, EVA ne peut pas scanner l’adresse ni analyser les prix.',v:'Démarrer',go:"openAddModal()"});
+    signals.push({c:'purple',t:'Ajouter votre premier logement',d:'Sans logement, EVA ne peut pas scanner l\u2019adresse ni analyser les prix.',v:'Démarrer',go:"openAddModal()"});
   } else {
     if(!hasAuditData) signals.push({c:'purple',t:'Lancer EVA Audit 360°',d:'Importez CSV réservations + CSV bancaire pour obtenir la rentabilité nette et les actions structurelles.',v:'Audit',go:"goTo('eva-audit',document.querySelector('[onclick*=eva-audit]'))"});
     if(scannerReady<apts.length) signals.push({c:'orange',t:'Compléter les adresses des logements',d:'Scanner EVA devient beaucoup plus pertinent avec une adresse précise pour chaque bien.',v:`${scannerReady}/${apts.length}`,go:"goTo('parc',document.querySelector('[onclick*=parc]'))"});
@@ -2790,7 +2790,7 @@ function renderCockpit(){
     <div class="eva-now-card">
       <div class="eva-now-head"><div><div class="eva-now-title">Synthèse des modules EVA</div><div class="eva-now-sub">Une séparation claire pour éviter la confusion produit.</div></div></div>
       <div class="eva-signal-list">
-        <div class="eva-signal"><div class="eva-signal-bar purple"></div><div><div class="eva-signal-title">EVA Audit = pourquoi je gagne ou perds de l’argent</div><div class="eva-signal-text">Analyse passée : occupation, revenus, charges, marge nette, actions à mener dans le logement.</div></div><div class="eva-signal-value">360°</div></div>
+        <div class="eva-signal"><div class="eva-signal-bar purple"></div><div><div class="eva-signal-title">EVA Audit = pourquoi je gagne ou perds de l\u2019argent</div><div class="eva-signal-text">Analyse passée : occupation, revenus, charges, marge nette, actions à mener dans le logement.</div></div><div class="eva-signal-value">360°</div></div>
         <div class="eva-signal"><div class="eva-signal-bar orange"></div><div><div class="eva-signal-title">Scanner EVA = est-ce que ce logement a du potentiel ?</div><div class="eva-signal-text">Analyse du bien : adresse, attractivité, cible locataire, cohérence du prix actuel.</div></div><div class="eva-signal-value">Score</div></div>
         <div class="eva-signal"><div class="eva-signal-bar green"></div><div><div class="eva-signal-title">EVA Pricing = que dois-je faire sur mes prix ?</div><div class="eva-signal-text">Action future : nuits libres, événements, prix recommandé, validation avant application.</div></div><div class="eva-signal-value">€ / nuit</div></div>
       </div>
@@ -2966,14 +2966,14 @@ function showApartDetail(id){
   if(hotEvs.length&&occ14>=55){
     recoDirection='up';recoClass='up';
     recoPrice=Math.max(basePrice,Math.round(basePrice*(1+(hotEvs[0].boost||10)/100)));
-    recoTitle=`Monter à ${recoPrice}€ sur l’événement`;
+    recoTitle=`Monter à ${recoPrice}€ sur l\u2019événement`;
     impactText=`+${hotEvs[0].boost||10}% sur forte demande locale`;
   }
   if(freeTonight)recoReasons.push(['Nuit proche non louée','Mieux vaut louer moins cher que rester vide.']);
   if(occ14<50)recoReasons.push(['Occupation faible','Seulement '+occ14+'% sur les 14 prochains jours.']);
   if(hotEvs.length)recoReasons.push(['Événement détecté',hotEvs[0].name.slice(0,42)+' · +'+(hotEvs[0].boost||10)+'%.']);
   if(fl>0)recoReasons.push(['Prix plancher protégé','EVA ne descend jamais sous '+fl+'€.']);
-  if(recoReasons.length<3)recoReasons.push(['Objectif prioritaire','Maximiser le taux d’occupation avant le prix parfait.']);
+  if(recoReasons.length<3)recoReasons.push(['Objectif prioritaire','Maximiser le taux d\u2019occupation avant le prix parfait.']);
 
   // Revenue bars for 12 months
   let revBars='';
@@ -3003,13 +3003,13 @@ function showApartDetail(id){
   if(lostNights72>0&&!freeTonight)actions.push({type:'urgent',icon:'⏱️',title:`${lostNights72} nuit${lostNights72>1?'s':''} à sauver sous 72h`,desc:`Baisser légèrement maintenant pour favoriser le remplissage.`,btn:'Appliquer',rec:recoPrice});
   if(occ14<50)actions.push({type:'warn',icon:'📉',title:`Occupation à ${occ14}%`,desc:`Le bien manque de réservations sur les 14 prochains jours. Priorité au remplissage.`,btn:'Voir pricing',rec:recoPrice});
   if(hotEvs.length)actions.push({type:'warn',icon:'🎉',title:`Événement local : ${hotEvs[0].name.slice(0,28)}…`,desc:`Hausse possible de ${hotEvs[0].boost||10}% sur les dates concernées.`,btn:'Appliquer',rec:Math.max(recoPrice,Math.round(basePrice*(1+(hotEvs[0].boost||10)/100)))});
-  if(note!=='—'&&+note<4)actions.push({type:'urgent',icon:'⭐',title:`Note Airbnb basse : ${note}/5`,desc:`Contrôler ménage, photos ou annonce avant d’augmenter les prix.`,btn:'Modifier',edit:true});
-  if(!pendingM.length)actions.push({type:'warn',icon:'🧹',title:'Aucun ménage prévu',desc:'Créer une mission CleanyQ pour sécuriser l’exploitation.',btn:'Créer',mission:true});
+  if(note!=='—'&&+note<4)actions.push({type:'urgent',icon:'⭐',title:`Note Airbnb basse : ${note}/5`,desc:`Contrôler ménage, photos ou annonce avant d\u2019augmenter les prix.`,btn:'Modifier',edit:true});
+  if(!pendingM.length)actions.push({type:'warn',icon:'🧹',title:'Aucun ménage prévu',desc:'Créer une mission CleanyQ pour sécuriser l\u2019exploitation.',btn:'Créer',mission:true});
   if(!actions.length)actions.push({type:'',icon:'✅',title:'Aucune action urgente',desc:'Le bien est correctement piloté pour les prochains jours.',btn:'Modifier',edit:true});
   const actionsHtml=actions.slice(0,5).map(x=>`<div class="rq-action-v2 ${x.type}"><div class="rq-action-icon">${x.icon}</div><div><div class="rq-action-title">${esc(x.title)}</div><div class="rq-action-desc">${esc(x.desc)}</div></div><button class="rq-button-secondary" onclick="${x.mission?'openMissionModal()':x.edit?`openEdit('${a.id}')`:`applyAI('${a.id}',${x.rec||recoPrice})`}">${esc(x.btn)}</button></div>`).join('');
 
   const timelineItems=[];
-  timelineItems.push({date:'Aujourd’hui',icon:freeTonight?'🔴':'🟢',title:freeTonight?'Nuit libre à remplir':'Bien réservé ce soir',desc:freeTonight?`Action prioritaire : passer à ${recoPrice}€.`:'Aucune urgence immédiate.'});
+  timelineItems.push({date:'Aujourd\u2019hui',icon:freeTonight?'🔴':'🟢',title:freeTonight?'Nuit libre à remplir':'Bien réservé ce soir',desc:freeTonight?`Action prioritaire : passer à ${recoPrice}€.`:'Aucune urgence immédiate.'});
   const nextMission=pendingM[0];
   if(nextMission){const cl=cleanersData.find(c=>String(c.id)===String(nextMission.cleaner_id));timelineItems.push({date:formatEventDate(nextMission.date),icon:'🧹',title:'Mission ménage',desc:`${cl?cl.name:'Non assigné'} · ${nextMission.heure||'heure à confirmer'} · ${nextMission.status||'à faire'}`});}
   else timelineItems.push({date:'À planifier',icon:'🧹',title:'Ménage non programmé',desc:'Créer une mission si un départ arrive bientôt.'});
@@ -3022,7 +3022,7 @@ function showApartDetail(id){
     cleanHtml=pendingM.slice(0,3).map(m=>{const cl=cleanersData.find(c=>String(c.id)===String(m.cleaner_id));return `<div class="rq-clean-v2"><div class="rq-clean-avatar">${cl?(cl.name||'?').charAt(0).toUpperCase():'?'}</div><div class="rq-clean-main"><div class="rq-clean-title">${esc(cl?cl.name:'Non assigné')}</div><div class="rq-clean-meta">${esc(m.date||'date à confirmer')} · ${esc(m.heure||'heure à confirmer')}</div></div><span class="rq-boost-badge" style="background:${m.status==='acceptee'?'#DCFCE7':'#FFEDD5'};color:${m.status==='acceptee'?'#047857':'#C2410C'}">${m.status==='acceptee'?'Confirmé':'En attente'}</span></div>`}).join('');
   }else cleanHtml=`<div class="rq-clean-v2"><div class="rq-clean-avatar">!</div><div class="rq-clean-main"><div class="rq-clean-title">Aucun ménage prévu</div><div class="rq-clean-meta">Planifiez une mission pour éviter les urgences.</div></div><button class="rq-button-secondary" onclick="openMissionModal()">Créer</button></div>`;
 
-  const eventsHtml=hotEvs.length?hotEvs.slice(0,4).map(e=>`<div class="rq-event-v2"><div class="rq-event-emoji">${e.emoji||'🎯'}</div><div class="rq-event-main"><div class="rq-event-title">${esc(e.name)}</div><div class="rq-event-meta">${esc(e.date_label||formatEventDate(e.date))} · ${esc(e.venue||city||'local')}</div></div><span class="rq-boost-badge">+${e.boost||10}%</span></div>`).join(''):`<div class="rq-event-v2"><div class="rq-event-emoji">📍</div><div class="rq-event-main"><div class="rq-event-title">Aucun événement majeur détecté</div><div class="rq-event-meta">EVA utilisera surtout l’occupation et les nuits libres.</div></div></div>`;
+  const eventsHtml=hotEvs.length?hotEvs.slice(0,4).map(e=>`<div class="rq-event-v2"><div class="rq-event-emoji">${e.emoji||'🎯'}</div><div class="rq-event-main"><div class="rq-event-title">${esc(e.name)}</div><div class="rq-event-meta">${esc(e.date_label||formatEventDate(e.date))} · ${esc(e.venue||city||'local')}</div></div><span class="rq-boost-badge">+${e.boost||10}%</span></div>`).join(''):`<div class="rq-event-v2"><div class="rq-event-emoji">📍</div><div class="rq-event-main"><div class="rq-event-title">Aucun événement majeur détecté</div><div class="rq-event-meta">EVA utilisera surtout l\u2019occupation et les nuits libres.</div></div></div>`;
 
   document.getElementById('parc-detail').innerHTML=`
     <div class="rq-detail-v2">
@@ -3033,7 +3033,16 @@ function showApartDetail(id){
             <div class="rq-detail-title-row"><div class="rq-detail-emoji">${a.emoji||'🏠'}</div><div style="min-width:0"><div class="rq-detail-name">${esc(a.name||'Appartement')}</div><div class="rq-detail-address">${esc(a.address||city||'Adresse à compléter')}</div></div></div>
             <div style="margin-top:14px"><span class="rq-health-badge ${healthClass}"><span class="rq-health-dot"></span>${healthLabel}</span><span style="display:inline-block;margin-left:10px;color:rgba(255,255,255,.74);font-size:13px">${healthText}</span></div>
           </div>
-          <div class="rq-score-ring" style="--score:${score}%"><div class="rq-score-ring-inner"><div class="rq-score-num">${score}</div><div class="rq-score-label">EVA Score</div></div></div>
+          <div style="flex-shrink:0;text-align:center;min-width:120px">
+            <div style="width:110px;height:110px;border-radius:50%;background:conic-gradient(${score>=75?'#10B981':score>=50?'#F59E0B':'#EF4444'} ${score}%,rgba(255,255,255,.18) 0);display:flex;align-items:center;justify-content:center;padding:8px;margin:0 auto 6px">
+              <div style="width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,rgba(36,16,92,.97),rgba(124,58,237,.74));display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.18)">
+                <div style="font-size:34px;font-weight:950;letter-spacing:-1px;color:#fff;line-height:1">${score}</div>
+                <div style="font-size:9px;text-transform:uppercase;letter-spacing:.8px;font-weight:900;color:rgba(255,255,255,.65);margin-top:4px">EVA Score</div>
+              </div>
+            </div>
+            <div style="font-size:10px;color:rgba(255,255,255,.55);font-weight:700">${score>=75?'Bien performant':score>=50?'À optimiser':'Action requise'}</div>
+            <div style="font-size:9px;color:rgba(255,255,255,.35);margin-top:2px">EVA Engine · temps réel</div>
+          </div>
         </div>
         <div class="rq-hero-kpis">
           <div class="rq-hero-kpi"><div class="rq-hero-kpi-label">Net ce mois</div><div class="rq-hero-kpi-value">${net>=0?'+':''}${net}€</div><div class="rq-hero-kpi-sub">CA ${rev}€ · charges ${charges}€</div></div>
@@ -3042,7 +3051,7 @@ function showApartDetail(id){
           <div class="rq-hero-kpi"><div class="rq-hero-kpi-label">Actions</div><div class="rq-hero-kpi-value">${actions.filter(x=>x.type).length}</div><div class="rq-hero-kpi-sub">priorités opérationnelles</div></div>
         </div>
         <div class="rq-property-tabs">
-          <button class="rq-property-tab active" onclick="switchPropertyTab('overview')">Vue d’ensemble</button>
+          <button class="rq-property-tab active" onclick="switchPropertyTab('overview')">Vue d\u2019ensemble</button>
           <button class="rq-property-tab" onclick="switchPropertyTab('audit')">Audit 360°</button>
           <button class="rq-property-tab" onclick="switchPropertyTab('pricing')">Tarification IA</button>
           <button class="rq-property-tab" onclick="switchPropertyTab('calendar')">Calendrier</button>
@@ -3061,7 +3070,7 @@ function showApartDetail(id){
         <div style="display:flex;flex-direction:column;gap:16px">
           <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">📅 7 prochaines nuits</div><div class="rq-card-sub-v2">Cliquez une nuit libre pour appliquer son prix conseillé.</div></div><span class="rq-health-badge ${freeTonight?'danger':(free14>4?'warn':'')}" style="color:#17122E;background:#F8F4FF"><span class="rq-health-dot"></span>${free14} libres / 14j</span></div><div class="rq-nights-grid">${nightsHtml}</div></section>
           <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">🎯 Actions du jour</div><div class="rq-card-sub-v2">Priorité au remplissage : une nuit vide rapporte 0€.</div></div></div><div class="rq-actions-list">${actionsHtml}</div></section>
-          <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">💰 Finances du bien</div><div class="rq-card-sub-v2">Lecture simple : chiffre d’affaires, charges et résultat.</div></div><span class="rq-boost-badge" style="background:${net>=0?'#DCFCE7':'#FEE2E2'};color:${net>=0?'#047857':'#B91C1C'}">${net>=0?'Rentable':'Sous-performant'}</span></div><div class="rq-finance-grid"><div class="rq-finance-line"><div class="rq-finance-label">CA généré</div><div class="rq-finance-value">${rev}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Charges</div><div class="rq-finance-value">${charges}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Résultat net</div><div class="rq-finance-value ${net>=0?'good':'bad'}">${net>=0?'+':''}${net}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Rentabilité</div><div class="rq-finance-value ${profitability>=0?'good':'bad'}">${profitability}%</div></div></div><div class="rq-mini-bars">${revBars}</div></section>
+          <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">💰 Finances du bien</div><div class="rq-card-sub-v2">Lecture simple : chiffre d\u2019affaires, charges et résultat.</div></div><span class="rq-boost-badge" style="background:${net>=0?'#DCFCE7':'#FEE2E2'};color:${net>=0?'#047857':'#B91C1C'}">${net>=0?'Rentable':'Sous-performant'}</span></div><div class="rq-finance-grid"><div class="rq-finance-line"><div class="rq-finance-label">CA généré</div><div class="rq-finance-value">${rev}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Charges</div><div class="rq-finance-value">${charges}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Résultat net</div><div class="rq-finance-value ${net>=0?'good':'bad'}">${net>=0?'+':''}${net}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Rentabilité</div><div class="rq-finance-value ${profitability>=0?'good':'bad'}">${profitability}%</div></div></div><div class="rq-mini-bars">${revBars}</div></section>
         </div>
         <div style="display:flex;flex-direction:column;gap:16px">
           <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">🧭 Timeline opérationnelle</div><div class="rq-card-sub-v2">Ce qui arrive sur ce logement.</div></div></div><div class="rq-timeline">${timelineHtml}</div></section>
@@ -3073,321 +3082,73 @@ function showApartDetail(id){
       </div>
 
       <div class="rq-property-tab-panel" id="rq-tab-audit">
-        <div class="rq-context-layout">
-          <section class="rq-context-card">
-            <div class="rq-context-title">Audit 360° du logement</div>
-            <div class="rq-context-sub">Importez les données du bien pour produire l’analyse complète : réservations, charges, occupation, rentabilité nette et recommandations structurelles.</div>
-            <div class="rq-audit-upload">
-              <div class="rq-audit-input"><label>CSV réservations</label><input type="file" accept=".csv,text/csv"></div>
-              <div class="rq-audit-input"><label>CSV bancaire</label><input type="file" accept=".csv,text/csv"></div>
-              <div class="rq-audit-input"><label>Adresse</label><input value="${esc(a.address||city||'')}" placeholder="Adresse du bien"></div>
-            </div>
-            <button class="rq-button-primary" onclick="goTo('eva-audit',document.querySelector('[onclick*=eva-audit]'))">Lancer l’analyse EVA complète</button>
-          </section>
-          <section class="rq-context-card">
-            <div class="rq-context-title">Lecture immédiate</div>
-            <div class="rq-charge-grid">
-              <div class="rq-charge-tile"><div class="rq-charge-label">Score EVA</div><div class="rq-charge-value">${score}/100</div></div>
-              <div class="rq-charge-tile"><div class="rq-charge-label">Rentabilité nette</div><div class="rq-charge-value">${net>=0?'+':''}${net}€</div></div>
-              <div class="rq-charge-tile"><div class="rq-charge-label">Occupation 14j</div><div class="rq-charge-value">${occ14}%</div></div>
-              <div class="rq-charge-tile"><div class="rq-charge-label">Potentiel proche</div><div class="rq-charge-value">${potential}€</div></div>
-            </div>
-          </section>
+
+        <!-- EVA Score synthèse temps réel -->
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px">
+          <div style="background:linear-gradient(135deg,#F3E8FF,#FFF1F9);border:1px solid rgba(168,85,247,.22);border-radius:18px;padding:16px;text-align:center">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;font-weight:900;margin-bottom:8px">EVA Score</div>
+            <div style="font-size:32px;font-weight:950;color:#7C3AED;letter-spacing:-1px">${score}/100</div>
+            <div style="font-size:11px;color:#7B708F;margin-top:6px">EVA Engine · temps réel</div>
+          </div>
+          <div style="background:white;border:1px solid rgba(139,92,246,.14);border-radius:18px;padding:16px;text-align:center">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;font-weight:900;margin-bottom:8px">Rentabilité nette</div>
+            <div style="font-size:32px;font-weight:950;color:${net>=0?'#059669':'#DC2626'};letter-spacing:-1px">${net>=0?'+':''}${net}€</div>
+            <div style="font-size:11px;color:#7B708F;margin-top:6px">CA ${rev}€ − charges ${charges}€</div>
+          </div>
+          <div style="background:white;border:1px solid rgba(139,92,246,.14);border-radius:18px;padding:16px;text-align:center">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;font-weight:900;margin-bottom:8px">Occupation 14j</div>
+            <div style="font-size:32px;font-weight:950;color:${occ14>=60?'#059669':occ14>=35?'#D97706':'#DC2626'};letter-spacing:-1px">${occ14}%</div>
+            <div style="font-size:11px;color:#7B708F;margin-top:6px">${14-free14}/14 nuits réservées</div>
+          </div>
+          <div style="background:white;border:1px solid rgba(139,92,246,.14);border-radius:18px;padding:16px;text-align:center">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;font-weight:900;margin-bottom:8px">Revenu à récupérer</div>
+            <div style="font-size:32px;font-weight:950;color:#17122E;letter-spacing:-1px">${potential}€</div>
+            <div style="font-size:11px;color:#7B708F;margin-top:6px">sur nuits libres proches</div>
+          </div>
         </div>
 
-        <section class="rq-context-card rq-api-intel-card">
-          <div class="rq-api-top">
+        <!-- Import données PMS -->
+        <div style="background:linear-gradient(135deg,#211051 0%,#7C3AED 46%,#EC4899 100%);border-radius:22px;padding:22px;margin-bottom:14px;color:#fff">
+          <div style="font-size:12px;text-transform:uppercase;letter-spacing:.8px;font-weight:900;color:rgba(255,255,255,.65);margin-bottom:6px">Audit 360° — ${esc(a.name||'Ce logement')}</div>
+          <div style="font-size:22px;font-weight:950;letter-spacing:-.5px;margin-bottom:8px">Importer les données réelles du bien</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.78);margin-bottom:18px">EVA analyse les réservations, classe les charges et produit la rentabilité nette mensuelle avec des actions concrètes.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
             <div>
-              <div class="rq-context-title">🔗 Données API Easy Concierge détectées</div>
-              <div class="rq-context-sub">Simulation basée sur les flux PMS : réservations, calendrier journalier, performance annonce, avis, photos et historique tarifaire. Objectif : transformer RentyQ en option premium de rentabilité, branchée sur les données Easy Concierge.</div>
+              <label style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.65);display:block;margin-bottom:6px">Source des données (PMS)</label>
+              <select id="apt-audit-pms-${a.id}" style="height:40px;border-radius:10px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.13);color:#fff;padding:0 12px;font-family:inherit;font-size:13px;font-weight:600;width:100%;outline:none">
+                <option value="manual" style="color:#1A1A2E">📂 Import manuel (CSV)</option>
+                <option value="easy_concierge" style="color:#1A1A2E">🏢 Easy Concierge</option>
+                <option value="smoobu" style="color:#1A1A2E">🔗 Smoobu</option>
+                <option value="beds24" style="color:#1A1A2E">🛏️ Beds24</option>
+                <option value="guesty" style="color:#1A1A2E">🏠 Guesty</option>
+                <option value="hostaway" style="color:#1A1A2E">🌐 Hostaway</option>
+              </select>
             </div>
-            <span class="rq-api-badge">API PMS prête pour EVA</span>
-          </div>
-          <div class="rq-api-grid">
-            <div class="rq-api-tile"><div class="rq-api-label">Réservations confirmées</div><div class="rq-api-value">26</div><div class="rq-api-help">74 nuits vendues</div></div>
-            <div class="rq-api-tile"><div class="rq-api-label">Occupation calendrier</div><div class="rq-api-value">80%</div><div class="rq-api-help">74 nuits réservées / 92 jours</div></div>
-            <div class="rq-api-tile"><div class="rq-api-label">ADR vendu</div><div class="rq-api-value">78€</div><div class="rq-api-help">Prix moyen logement hors ménage</div></div>
-            <div class="rq-api-tile"><div class="rq-api-label">Net PMS</div><div class="rq-api-value">6 074€</div><div class="rq-api-help">Payout propriétaire avant charges RentyQ</div></div>
-            <div class="rq-api-tile"><div class="rq-api-label">Lead time moyen</div><div class="rq-api-value">33j</div><div class="rq-api-help">Délai moyen réservation → arrivée</div></div>
-            <div class="rq-api-tile"><div class="rq-api-label">Performance annonce</div><div class="rq-api-value">4 195</div><div class="rq-api-help">vues · 575 clics · 50 conversions</div></div>
-            <div class="rq-api-tile"><div class="rq-api-label">Avis moyen</div><div class="rq-api-value">4.6/5</div><div class="rq-api-help">Qualité perçue voyageurs</div></div>
-            <div class="rq-api-tile"><div class="rq-api-label">Score photos IA</div><div class="rq-api-value">73/100</div><div class="rq-api-help">Optimisable via EVA Vision</div></div>
-          </div>
-          <div class="rq-api-insights">
-            <div class="rq-api-insight"><b>1. EVA peut expliquer la performance</b>On ne regarde plus seulement le CA : on croise occupation, lead time, prix vendu, canal OTA et commissions pour comprendre pourquoi le bien performe ou stagne.</div>
-            <div class="rq-api-insight"><b>2. EVA Pricing devient actionnable</b>Grâce au calendrier journalier et à l’historique tarifaire, EVA peut proposer des prix par date puis les pousser via Easy Concierge / Smoobu vers Airbnb, Booking et VRBO.</div>
-            <div class="rq-api-insight"><b>3. EVA Audit devient plus crédible</b>Les avis, photos et performances d’annonce permettent de dire si le problème vient du prix, de l’annonce, des photos, de l’emplacement ou de l’exploitation.</div>
-          </div>
-          <div class="rq-api-source">Étape 1 : affichage démo sécurisé. Étape 2 : brancher ces chiffres sur les vraies réponses API par logement.</div>
-        </section>
-
-        <section class="rq-context-card rq-ota-panel">
-          <div class="rq-api-top">
             <div>
-              <div class="rq-context-title">📡 Performance OTA par canal</div>
-              <div class="rq-context-sub">EVA compare Airbnb, Booking, VRBO et Direct pour comprendre quels canaux remplissent le logement, lesquels coûtent le plus en commission et où se cache la meilleure marge.</div>
+              <label style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.65);display:block;margin-bottom:6px">CSV réservations</label>
+              <input id="apt-audit-res-${a.id}" type="file" accept=".csv,text/csv" style="height:40px;border-radius:10px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.13);color:#fff;padding:8px 12px;font-family:inherit;font-size:12px;width:100%"/>
             </div>
-            <span class="rq-api-badge">Nouveau · Étape 2</span>
-          </div>
-
-          <div class="rq-ota-grid">
-            <div class="rq-ota-card">
-              <div class="rq-ota-head"><div class="rq-ota-name">🏡 Airbnb</div><span class="rq-ota-badge">10 réservations</span></div>
-              <div class="rq-ota-stats">
-                <div class="rq-ota-stat"><div class="rq-ota-label">Nuits</div><div class="rq-ota-value">31</div></div>
-                <div class="rq-ota-stat"><div class="rq-ota-label">CA logement</div><div class="rq-ota-value">2 514€</div></div>
-                <div class="rq-ota-stat"><div class="rq-ota-label">Commission</div><div class="rq-ota-value">445€</div></div>
-                <div class="rq-ota-stat"><div class="rq-ota-label">Net PMS</div><div class="rq-ota-value">2 564€</div></div>
-              </div>
-              <div class="rq-ota-note">Canal principal : bon volume, mais commission élevée. À surveiller lors des périodes fortes.</div>
-            </div>
-
-            <div class="rq-ota-card">
-              <div class="rq-ota-head"><div class="rq-ota-name">🏨 Booking</div><span class="rq-ota-badge">7 réservations</span></div>
-              <div class="rq-ota-stats">
-                <div class="rq-ota-stat"><div class="rq-ota-label">Nuits</div><div class="rq-ota-value">21</div></div>
-                <div class="rq-ota-stat"><div class="rq-ota-label">CA logement</div><div class="rq-ota-value">1 644€</div></div>
-                <div class="rq-ota-stat"><div class="rq-ota-label">Commission</div><div class="rq-ota-value">333€</div></div>
-                <div class="rq-ota-stat"><div class="rq-ota-label">Net PMS</div><div class="rq-ota-value">1 660€</div></div>
-              </div>
-              <div class="rq-ota-note">Booking convertit bien, mais il faut contrôler la commission et pousser des prix plus hauts lors des pics.</div>
-            </div>
-
-            <div class="rq-ota-card">
-              <div class="rq-ota-head"><div class="rq-ota-name">🌐 VRBO</div><span class="rq-ota-badge">5 réservations</span></div>
-              <div class="rq-ota-stats">
-                <div class="rq-ota-stat"><div class="rq-ota-label">Nuits</div><div class="rq-ota-value">16</div></div>
-                <div class="rq-ota-stat"><div class="rq-ota-label">CA logement</div><div class="rq-ota-value">1 144€</div></div>
-                <div class="rq-ota-stat"><div class="rq-ota-label">Commission</div><div class="rq-ota-value">178€</div></div>
-                <div class="rq-ota-stat"><div class="rq-ota-label">Net PMS</div><div class="rq-ota-value">1 216€</div></div>
-              </div>
-              <div class="rq-ota-note">Canal secondaire intéressant, utile pour diversifier la demande et éviter la dépendance Airbnb.</div>
-            </div>
-
-            <div class="rq-ota-card">
-              <div class="rq-ota-head"><div class="rq-ota-name">🤝 Direct</div><span class="rq-ota-badge">4 réservations</span></div>
-              <div class="rq-ota-stats">
-                <div class="rq-ota-stat"><div class="rq-ota-label">Nuits</div><div class="rq-ota-value">6</div></div>
-                <div class="rq-ota-stat"><div class="rq-ota-label">CA logement</div><div class="rq-ota-value">485€</div></div>
-                <div class="rq-ota-stat"><div class="rq-ota-label">Commission</div><div class="rq-ota-value">0€</div></div>
-                <div class="rq-ota-stat"><div class="rq-ota-label">Net PMS</div><div class="rq-ota-value">634€</div></div>
-              </div>
-              <div class="rq-ota-note">Meilleure marge nette. EVA doit recommander de développer ce canal quand c’est possible.</div>
-            </div>
-          </div>
-
-          <div class="rq-ota-opportunity">
-            <div class="rq-ota-sev"></div>
             <div>
-              <div class="rq-ota-opp-title">Recommandation EVA : augmenter la part du direct</div>
-              <div class="rq-ota-opp-text">Le direct ne représente que 6 nuits sur 74, mais ne génère aucune commission OTA. Objectif : capter davantage de séjours récurrents, pros ou clients satisfaits.</div>
+              <label style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.65);display:block;margin-bottom:6px">CSV bancaire / charges</label>
+              <input id="apt-audit-bank-${a.id}" type="file" accept=".csv,text/csv" style="height:40px;border-radius:10px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.13);color:#fff;padding:8px 12px;font-family:inherit;font-size:12px;width:100%"/>
             </div>
-            <div class="rq-ota-gain">+450€/an</div>
-          </div>
-        </section>
-
-
-
-        <section class="rq-context-card rq-quality-panel">
-          <div class="rq-api-top">
             <div>
-              <div class="rq-context-title">⭐ Avis & Qualité perçue</div>
-              <div class="rq-context-sub">EVA croise les notes détaillées et les commentaires voyageurs pour détecter ce qui limite la conversion, le prix accepté et la satisfaction future.</div>
-            </div>
-            <span class="rq-api-badge">Nouveau · Étape 3</span>
-          </div>
-
-          <div class="rq-quality-grid">
-            <div class="rq-quality-score"><div class="rq-quality-label">Note globale</div><div class="rq-quality-value">4.6/5</div><div class="rq-quality-bar"><span style="width:92%"></span></div></div>
-            <div class="rq-quality-score"><div class="rq-quality-label">Propreté</div><div class="rq-quality-value">4.4/5</div><div class="rq-quality-bar"><span style="width:88%"></span></div></div>
-            <div class="rq-quality-score"><div class="rq-quality-label">Emplacement</div><div class="rq-quality-value">4.8/5</div><div class="rq-quality-bar"><span style="width:96%"></span></div></div>
-            <div class="rq-quality-score"><div class="rq-quality-label">Qualité / prix</div><div class="rq-quality-value">4.3/5</div><div class="rq-quality-bar"><span style="width:86%"></span></div></div>
-            <div class="rq-quality-score"><div class="rq-quality-label">Check-in</div><div class="rq-quality-value">4.7/5</div><div class="rq-quality-bar"><span style="width:94%"></span></div></div>
-            <div class="rq-quality-score"><div class="rq-quality-label">Communication</div><div class="rq-quality-value">4.6/5</div><div class="rq-quality-bar"><span style="width:92%"></span></div></div>
-          </div>
-
-          <div class="rq-review-columns">
-            <div class="rq-review-box">
-              <div class="rq-review-title">Ce qui aide la rentabilité</div>
-              <div class="rq-review-list">
-                <div class="rq-review-item"><b>Emplacement très fort</b> : la proximité centre-ville / cathédrale est un argument de prix.</div>
-                <div class="rq-review-item"><b>Check-in fluide</b> : bon signal pour les voyageurs business et séjours courts.</div>
-                <div class="rq-review-item"><b>Équipement pro visible</b> : workspace + Wi-Fi permettent un positionnement affaires.</div>
-              </div>
-            </div>
-            <div class="rq-review-box">
-              <div class="rq-review-title">Ce qui limite le prix accepté</div>
-              <div class="rq-review-list">
-                <div class="rq-review-item"><b>Propreté perfectible</b> : à surveiller car elle impacte directement les notes et la conversion.</div>
-                <div class="rq-review-item"><b>Qualité/prix fragile</b> : si EVA augmente les prix, il faut renforcer la valeur perçue.</div>
-                <div class="rq-review-item"><b>Photos à optimiser</b> : score IA 73/100, potentiel d'amélioration de l'annonce.</div>
-              </div>
+              <label style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.65);display:block;margin-bottom:6px">Adresse (pré-remplie)</label>
+              <input id="apt-audit-addr-${a.id}" type="text" value="${esc(a.address||city||'')}" placeholder="Adresse du bien"
+                style="height:40px;border-radius:10px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.13);color:#fff;padding:0 12px;font-family:inherit;font-size:13px;font-weight:600;width:100%;outline:none"/>
             </div>
           </div>
-
-          <div class="rq-quality-action">
-            <div class="rq-quality-sev"></div>
-            <div>
-              <div class="rq-quality-action-title">Recommandation EVA : sécuriser la propreté avant d’augmenter fortement les prix</div>
-              <div class="rq-quality-action-text">Le logement peut vendre plus cher grâce à son emplacement, mais EVA recommande de renforcer le contrôle ménage et la mise en valeur avant les hausses événementielles.</div>
-            </div>
-            <div class="rq-quality-impact">+3 à 7%</div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <button onclick="runAptAudit360('${a.id}')" style="height:42px;border:none;border-radius:12px;padding:0 20px;background:#fff;color:#7C3AED;font-weight:900;font-family:inherit;cursor:pointer;box-shadow:0 14px 34px rgba(0,0,0,.15)">Lancer l\u2019audit EVA</button>
+            <button onclick="loadAptAuditDemo('${a.id}')" style="border:0;background:transparent;color:rgba(255,255,255,.75);font-family:inherit;cursor:pointer;font-size:12px;font-weight:700;text-decoration:underline">Charger les données démo</button>
           </div>
-        </section>
+          <div id="apt-audit-error-${a.id}" style="display:none;margin-top:10px;padding:10px;border-radius:10px;background:rgba(239,68,68,.18);color:#FCA5A5;font-size:12px;font-weight:700"></div>
+        </div>
 
+        <!-- Résultat inline de l\u2019audit pour ce bien -->
+        <div id="apt-audit-result-${a.id}"></div>
 
-
-        <section class="rq-context-card rq-evascore-panel">
-          <div class="rq-api-top">
-            <div>
-              <div class="rq-context-title">🧠 Score EVA global</div>
-              <div class="rq-context-sub">Une note simple pour résumer si le logement est bien exploité, rentable et optimisable.</div>
-            </div>
-            <span class="rq-api-badge">Nouveau · Étape 5</span>
-          </div>
-
-          <div class="rq-evascore-layout">
-            <div class="rq-evascore-ring">
-              <div class="rq-evascore-inner">
-                <div class="rq-evascore-num">84</div>
-                <div class="rq-evascore-label">Score EVA</div>
-                <div class="rq-evascore-status">Bon potentiel</div>
-              </div>
-            </div>
-
-            <div class="rq-score-breakdown">
-              <div class="rq-score-row"><div class="rq-score-label">Rentabilité</div><div class="rq-score-track"><div class="rq-score-fill" style="--w:82%"></div></div><div class="rq-score-points">25/30</div></div>
-              <div class="rq-score-row"><div class="rq-score-label">Occupation</div><div class="rq-score-track"><div class="rq-score-fill" style="--w:92%"></div></div><div class="rq-score-points">23/25</div></div>
-              <div class="rq-score-row"><div class="rq-score-label">Avis voyageurs</div><div class="rq-score-track"><div class="rq-score-fill" style="--w:80%"></div></div><div class="rq-score-points">16/20</div></div>
-              <div class="rq-score-row"><div class="rq-score-label">Pricing</div><div class="rq-score-track"><div class="rq-score-fill" style="--w:73%"></div></div><div class="rq-score-points">11/15</div></div>
-              <div class="rq-score-row"><div class="rq-score-label">OTA / Direct</div><div class="rq-score-track"><div class="rq-score-fill" style="--w:90%"></div></div><div class="rq-score-points">9/10</div></div>
-            </div>
-          </div>
-
-          <div class="rq-evascore-insights">
-            <div class="rq-evascore-insight"><b>Force principale</b><span>Le taux d’occupation est solide : le bien est demandé et se vend régulièrement.</span></div>
-            <div class="rq-evascore-insight"><b>Point faible</b><span>Le pricing semble encore trop prudent sur les week-ends et périodes de demande forte.</span></div>
-            <div class="rq-evascore-insight"><b>Potentiel EVA</b><span>Gain estimé : +3 600€/an avec hausse tarifaire ciblée, réduction du ménage et amélioration du direct.</span></div>
-          </div>
-        </section>
-
-
-        <section class="rq-context-card rq-actions-panel">
-<div class="rq-api-top">
-<div>
-<div class="rq-context-title">🎯 Actions EVA prioritaires</div>
-<div class="rq-context-sub">Les recommandations les plus rentables à mettre en œuvre maintenant.</div>
-</div>
-<span class="rq-api-badge">Étape 6</span>
-</div>
-
-<div class="rq-actions-grid">
-<div class="rq-action">
-<div class="rq-rank">1</div>
-<div>
-<div class="rq-action-title">Augmenter les prix des week-ends de juin</div>
-<div class="rq-action-desc">La demande locale est forte et le logement se vend rapidement.</div>
-</div>
-<div class="rq-impact">
-<div class="rq-impact-value">+420€/an</div>
-<div class="rq-impact-label">Impact estimé</div>
-</div>
-</div>
-
-<div class="rq-action">
-<div class="rq-rank">2</div>
-<div>
-<div class="rq-action-title">Optimiser les coûts de ménage</div>
-<div class="rq-action-desc">Le ménage représente une part supérieure aux références EVA.</div>
-</div>
-<div class="rq-impact">
-<div class="rq-impact-value">+620€/an</div>
-<div class="rq-impact-label">Impact estimé</div>
-</div>
-</div>
-
-<div class="rq-action">
-<div class="rq-rank">3</div>
-<div>
-<div class="rq-action-title">Développer les réservations directes</div>
-<div class="rq-action-desc">Réduire la dépendance aux OTA améliore la marge nette.</div>
-</div>
-<div class="rq-impact">
-<div class="rq-impact-value">+780€/an</div>
-<div class="rq-impact-label">Impact estimé</div>
-</div>
-</div>
-
-<div class="rq-action">
-<div class="rq-rank">4</div>
-<div>
-<div class="rq-action-title">Créer un coin télétravail</div>
-<div class="rq-action-desc">Permet d'attirer une clientèle professionnelle mieux valorisée.</div>
-</div>
-<div class="rq-impact">
-<div class="rq-impact-value">+4% occ.</div>
-<div class="rq-impact-label">Impact estimé</div>
-</div>
-</div>
-</div>
-</section>
-
-<section class="rq-context-card rq-profit-panel">
-          <div class="rq-api-top">
-            <div>
-              <div class="rq-context-title">💎 Rentabilité nette réelle</div>
-              <div class="rq-context-sub">EVA croise le net PMS Easy Concierge avec les charges RentyQ pour répondre à la vraie question : combien reste-t-il vraiment sur ce logement ?</div>
-            </div>
-            <span class="rq-api-badge">Nouveau · Étape 4</span>
-          </div>
-
-          <div class="rq-profit-grid">
-            <div class="rq-profit-tile"><div class="rq-profit-label">Net PMS</div><div class="rq-profit-value">6 074€</div><div class="rq-profit-help">Payout propriétaire avant charges fixes</div></div>
-            <div class="rq-profit-tile"><div class="rq-profit-label">Charges RentyQ</div><div class="rq-profit-value">3 538€</div><div class="rq-profit-help">Loyer, ménage, énergie, internet, maintenance</div></div>
-            <div class="rq-profit-tile"><div class="rq-profit-label">Résultat net</div><div class="rq-profit-value">2 536€</div><div class="rq-profit-help">Rentabilité estimée sur la période</div></div>
-            <div class="rq-profit-tile"><div class="rq-profit-label">Marge nette</div><div class="rq-profit-value">41.8%</div><div class="rq-profit-help">Résultat net / net PMS</div></div>
-          </div>
-
-          <div class="rq-profit-main">
-            <div class="rq-profit-box">
-              <div class="rq-review-title">Rentabilité nette mensuelle</div>
-              <div class="rq-profit-row"><div class="rq-profit-month">Mars</div><div class="rq-profit-track"><div class="rq-profit-fill" style="--w:52%"></div></div><div class="rq-profit-amount">643€</div></div>
-              <div class="rq-profit-row"><div class="rq-profit-month">Avril</div><div class="rq-profit-track"><div class="rq-profit-fill" style="--w:78%"></div></div><div class="rq-profit-amount">964€</div></div>
-              <div class="rq-profit-row"><div class="rq-profit-month">Mai</div><div class="rq-profit-track"><div class="rq-profit-fill" style="--w:100%"></div></div><div class="rq-profit-amount">1 238€</div></div>
-              <div class="rq-profit-row"><div class="rq-profit-month">Juin</div><div class="rq-profit-track"><div class="rq-profit-fill" style="--w:36%"></div></div><div class="rq-profit-amount">446€</div></div>
-            </div>
-
-            <div class="rq-profit-box">
-              <div class="rq-review-title">Répartition des coûts détectés</div>
-              <div class="rq-profit-breakdown">
-                <div class="rq-profit-line"><b>Loyer / charge structurelle</b><span>1 860€</span></div>
-                <div class="rq-profit-line"><b>Ménage</b><span>540€</span></div>
-                <div class="rq-profit-line"><b>Copropriété</b><span>234€</span></div>
-                <div class="rq-profit-line"><b>Maintenance</b><span>195€</span></div>
-                <div class="rq-profit-line"><b>Énergie + eau</b><span>218€</span></div>
-                <div class="rq-profit-line"><b>Internet / abonnements</b><span>130€</span></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="rq-profit-alert">
-            <div class="rq-profit-sev"></div>
-            <div>
-              <div class="rq-profit-alert-title">Recommandation EVA : viser +10 points de marge nette</div>
-              <div class="rq-profit-alert-text">Le logement est rentable, mais les charges absorbent encore une part élevée du net PMS. Les deux leviers prioritaires sont le ménage et la hausse tarifaire sur les périodes fortes.</div>
-            </div>
-            <div class="rq-profit-impact">+1 200€/an</div>
-          </div>
-        </section>
-
-
-        <section class="rq-context-card" style="margin-top:16px">
-          <div class="rq-context-title">Taux d’occupation par mois</div>
-          <div class="rq-context-sub">Vue simple propriétaire : part des nuits réservées vs disponibles.</div>
-          <div class="rq-mini-pie-grid">${[0,1,2].map(i=>{const d=new Date(today.getFullYear(),today.getMonth()-2+i,1);const m=d.toISOString().slice(0,7);const booked=aptRes.filter(r=>r.date_from&&r.date_from.startsWith(m)).reduce((s,r)=>s+(+r.nights||1),0);const days=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();const pct=Math.min(100,Math.round(booked/days*100));return `<div class="rq-mini-pie"><div class="rq-pie-circle" style="--occ:${pct}%">${pct}%</div><b>${months[d.getMonth()]}</b><div style="font-size:11px;color:#8A8A99;margin-top:4px">${booked} nuits occupées · ${Math.max(0,days-booked)} libres</div></div>`}).join('')}</div>
-        </section>
       </div>
-
       <div class="rq-property-tab-panel" id="rq-tab-pricing">
         <section class="rq-context-card">
           <div class="rq-context-title">Tarification IA — propulsée par EVA Pricing</div>
@@ -3406,7 +3167,7 @@ function showApartDetail(id){
 
       <div class="rq-property-tab-panel" id="rq-tab-charges">
         <div class="rq-context-layout">
-          <section class="rq-context-card"><div class="rq-context-title">Charges et rentabilité</div><div class="rq-context-sub">Comprendre où part l’argent et combien il reste réellement.</div><div class="rq-finance-grid"><div class="rq-finance-line"><div class="rq-finance-label">CA généré</div><div class="rq-finance-value">${rev}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Charges détectées</div><div class="rq-finance-value">${charges}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Résultat net</div><div class="rq-finance-value ${net>=0?'good':'bad'}">${net>=0?'+':''}${net}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Rentabilité</div><div class="rq-finance-value ${profitability>=0?'good':'bad'}">${profitability}%</div></div></div></section>
+          <section class="rq-context-card"><div class="rq-context-title">Charges et rentabilité</div><div class="rq-context-sub">Comprendre où part l\u2019argent et combien il reste réellement.</div><div class="rq-finance-grid"><div class="rq-finance-line"><div class="rq-finance-label">CA généré</div><div class="rq-finance-value">${rev}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Charges détectées</div><div class="rq-finance-value">${charges}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Résultat net</div><div class="rq-finance-value ${net>=0?'good':'bad'}">${net>=0?'+':''}${net}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Rentabilité</div><div class="rq-finance-value ${profitability>=0?'good':'bad'}">${profitability}%</div></div></div></section>
           <section class="rq-context-card"><div class="rq-context-title">Actions charges</div><div class="rq-actions-list"><div class="rq-action-v2 warn"><div class="rq-action-icon">🧹</div><div><div class="rq-action-title">Optimiser le ménage</div><div class="rq-action-desc">Comparer coût par rotation et durée moyenne des séjours.</div></div></div><div class="rq-action-v2"><div class="rq-action-icon">⚡</div><div><div class="rq-action-title">Suivre les charges fixes</div><div class="rq-action-desc">Internet, énergie, abonnements et maintenance doivent être suivis chaque mois.</div></div></div></div></section>
         </div>
       </div>
@@ -3470,7 +3231,7 @@ function getGapRisk(a){
 function seasonalFactor(date=new Date()){
   const m=date.getMonth()+1;
   if([7,8].includes(m))return {factor:1.08,label:'haute saison été'};
-  if([11,12].includes(m))return {factor:1.06,label:'forte demande fin d’année'};
+  if([11,12].includes(m))return {factor:1.06,label:'forte demande fin d\u2019année'};
   if([1,2].includes(m))return {factor:.93,label:'saison plus faible'};
   return {factor:1,label:'saison normale'};
 }
@@ -3511,8 +3272,8 @@ function getSmartRec(a,opts={}){
 
   // Objectif n°1 : occupation. Une nuit vide vaut 0€.
   if(!isBookedToday || firstFree<=3){
-    if(firstFree===0){factor-=0.22;reasons.push('J-0 : priorité remplissage, une nuit vide vaut 0€');actions.push('Baisse agressive aujourd’hui pour déclencher une réservation');}
-    else if(firstFree===1){factor-=0.18;reasons.push('J-1 : nuit très proche non louée');actions.push('Baisser maintenant plutôt que d’attendre');}
+    if(firstFree===0){factor-=0.22;reasons.push('J-0 : priorité remplissage, une nuit vide vaut 0€');actions.push('Baisse agressive aujourd\u2019hui pour déclencher une réservation');}
+    else if(firstFree===1){factor-=0.18;reasons.push('J-1 : nuit très proche non louée');actions.push('Baisser maintenant plutôt que d\u2019attendre');}
     else if(firstFree<=3){factor-=0.12;reasons.push('J-3 : trou de calendrier proche');actions.push('Mettre une offre courte durée');}
   }
   if(occ14<35){factor-=0.12;reasons.push('occupation 14 jours faible');actions.push('Créer une remise visible pour relancer la demande');}
@@ -3531,7 +3292,7 @@ function getSmartRec(a,opts={}){
     const boost=Math.min(0.24,hotEvents.reduce((s,e)=>s+(Number(e.boost||10)/100),0));
     // si dernière minute et pas loué, on garde une hausse plus prudente
     const applied=firstFree<=2?Math.min(boost,0.08):boost;
-    factor+=applied;reasons.push(`événement local détecté : ${hotEvents[0].name||'événement'}`);actions.push('Surveiller la demande événementielle mais ne pas sacrifier l’occupation');
+    factor+=applied;reasons.push(`événement local détecté : ${hotEvents[0].name||'événement'}`);actions.push('Surveiller la demande événementielle mais ne pas sacrifier l\u2019occupation');
   }else if(anyEvents.length){factor+=0.04;reasons.push('événement local à proximité');}
 
   factor*=season.factor;
@@ -3644,7 +3405,7 @@ function renderPricingTable(){
 
   let mission=`<div class="eva-actions-panel">
     <div class="eva-panel-head">
-      <div><div class="eva-panel-title">🔥 Actions prioritaires</div><div class="eva-panel-sub">L’objectif : vendre les nuits vides avant qu’elles ne valent 0€.</div></div>
+      <div><div class="eva-panel-title">🔥 Actions prioritaires</div><div class="eva-panel-sub">L\u2019objectif : vendre les nuits vides avant qu\u2019elles ne valent 0€.</div></div>
       <span class="eva-pill ${urgentNights?'eva-pill-red':'eva-pill-green'}">${urgentNights?urgentNights+' nuits urgentes':'aucune urgence'}</span>
     </div>
     <div class="eva-action-grid">`;
@@ -3692,7 +3453,7 @@ function renderPricingTable(){
 
   let pipe=`<div class="eva-pipeline-card">
     <div class="eva-panel-head">
-      <div><div class="eva-panel-title">💰 Pipeline d’opportunités</div><div class="eva-panel-sub">Trié par urgence puis par revenu récupérable.</div></div>
+      <div><div class="eva-panel-title">💰 Pipeline d\u2019opportunités</div><div class="eva-panel-sub">Trié par urgence puis par revenu récupérable.</div></div>
       <span class="eva-pill eva-pill-purple">${topActions.length} bien${topActions.length>1?'s':''}</span>
     </div>`;
   topActions.forEach(o=>{
@@ -3824,7 +3585,7 @@ function buildLocalSeasonalEvents(city){
   const presets=[];
   const m=today.getMonth()+1;
   if([6,7,8].includes(m))presets.push({name:`Saison touristique été — ${city}`,boost:10,segment:'Saison',emoji:'☀️',date:isoDate(addDays(today,7))});
-  if([11,12].includes(m))presets.push({name:`Marchés et sorties de fin d’année — ${city}`,boost:12,segment:'Saison',emoji:'🎄',date:isoDate(addDays(today,10))});
+  if([11,12].includes(m))presets.push({name:`Marchés et sorties de fin d\u2019année — ${city}`,boost:12,segment:'Saison',emoji:'🎄',date:isoDate(addDays(today,10))});
   presets.push({name:`Week-ends à forte demande locale — ${city}`,boost:6,segment:'Demande locale',emoji:'📍',date:isoDate(addDays(today,5))});
   return presets.map(e=>({...e,hot:e.boost>=10,venue:city,date_label:formatEventDate(e.date),source:'RentyQ fallback'}));
 }
@@ -3942,7 +3703,7 @@ async function saveSmoobuKey(){
     showToast('✓ Clé Smoobu enregistrée côté serveur');
     await syncSmoobu();
   }catch(e){
-    showErr('smoobu-error',"Impossible d'enregistrer la clé Smoobu");
+    showErr('smoobu-error',"Impossible d\'enregistrer la clé Smoobu");
   }
 }
 
@@ -4134,7 +3895,7 @@ function buildGlobalRulesAnalysis(){
     <div class="eva-hero-card">
       <div class="eva-hero-kicker">EVA Rules Engine · sans IA payante</div>
       <div class="eva-hero-title">${urgent.length?urgent.length+' action'+(urgent.length>1?'s':'')+' à faire maintenant':'Portefeuille sous contrôle'}</div>
-      <div class="eva-hero-sub">${occ<45?'Priorité absolue : remplir les nuits proches. Une nuit vide vaut 0€, donc EVA privilégie l’occupation avant la marge.':occ<65?'Objectif : sécuriser plus de réservations sur les 14 prochains jours avant de remonter les prix.':'Le remplissage est correct : EVA peut protéger les prix sur les dates fortes.'}</div>
+      <div class="eva-hero-sub">${occ<45?'Priorité absolue : remplir les nuits proches. Une nuit vide vaut 0€, donc EVA privilégie l\u2019occupation avant la marge.':occ<65?'Objectif : sécuriser plus de réservations sur les 14 prochains jours avant de remonter les prix.':'Le remplissage est correct : EVA peut protéger les prix sur les dates fortes.'}</div>
       <div class="eva-hero-money">
         <div class="eva-money-big">+${recoverable}€</div>
         <div class="eva-money-label">revenu théorique à sécuriser<br>en appliquant les recommandations</div>
@@ -4156,7 +3917,7 @@ function buildGlobalRulesAnalysis(){
         <div class="eva-metric-label">Score EVA</div>
         <div class="eva-metric-value">${score}/100</div>
         <div class="eva-progress"><span style="width:${score}%"></span></div>
-        <div class="eva-metric-help">${score<50?'Plan d’action urgent':score<75?'Optimisation en cours':'Bonne dynamique'}</div>
+        <div class="eva-metric-help">${score<50?'Plan d\u2019action urgent':score<75?'Optimisation en cours':'Bonne dynamique'}</div>
       </div>
       <div class="eva-metric-card">
         <div class="eva-metric-label">Baisses utiles</div>
@@ -4197,7 +3958,7 @@ function buildGlobalRulesAnalysis(){
 function runGlobal(){
   const btn=document.getElementById('btn-global');const zone=document.getElementById('global-result');
   if(btn){btn.disabled=true;btn.textContent='⏳…';}
-  if(!apparts.length){zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">🤖</div><div class="ai-bubble-text">Ajoutez des appartements d'abord.</div></div>`;if(btn){btn.disabled=false;btn.innerHTML='🤖 Analyse globale';}return;}
+  if(!apparts.length){zone.innerHTML=`<div class="ai-bubble" style="margin-bottom:1rem"><div class="ai-bubble-head">🤖</div><div class="ai-bubble-text">Ajoutez des appartements d\u2019abord.</div></div>`;if(btn){btn.disabled=false;btn.innerHTML='🤖 Analyse globale';}return;}
   zone.innerHTML=buildGlobalRulesAnalysis();
   if(btn){btn.disabled=false;btn.innerHTML='🤖 Analyse globale';}
 }
@@ -4226,7 +3987,7 @@ async function askAI(id){
     </div>`;
   modal.classList.add('open');
 
-  // Générer l'analyse
+  // Générer l\u2019analyse
   setTimeout(()=>{
     const fl=floor(a);
     const occ=Math.min(Math.round((freeDays/8)*100),100)||0;
@@ -4246,7 +4007,7 @@ async function askAI(id){
     }
     txt+=`<strong>Action recommandée :</strong> `;
     if(!a.booked&&occ<40)txt+=`Baisser à <strong>${smart.rec}€</strong> pour remplir cette nuit libre.`;
-    else if(cityEvents.length>0)txt+=`Monter à <strong>${smart.rec}€</strong> pendant l'événement.`;
+    else if(cityEvents.length>0)txt+=`Monter à <strong>${smart.rec}€</strong> pendant l\u2019événement.`;
     else txt+=`Maintenir à <strong>${smart.rec}€</strong>, prix cohérent avec le marché.`;
     document.getElementById('ai-modal-text').innerHTML=txt;
   },800);
@@ -5874,7 +5635,7 @@ async function loadDemoData(){
   const btn=document.querySelector('[onclick="loadDemoData()"]');
   if(btn){btn.disabled=true;btn.textContent='Chargement des données démo…';}
 
-  // Fermer l'onboarding
+  // Fermer l\'onboarding
   document.getElementById('onb2').classList.remove('open');
   try{localStorage.setItem('onb2_seen_'+(currentUser?.user?.id||'demo'),'1');}catch(e){}
 
@@ -5956,7 +5717,7 @@ async function loadDemoData(){
   if(typeof cleanersData!=='undefined')cleanersData=demoCleaner;
   if(typeof missionsData!=='undefined')missionsData=demoMissions;
 
-  // Afficher l'app
+  // Afficher l\u2019app
   document.getElementById('app').style.display='flex';
   document.getElementById('auth-screen').style.display='none';
   document.getElementById('loading').style.display='none';
@@ -5986,9 +5747,9 @@ function renderTarifs(){
       <div style="font-size:36px;font-weight:700;margin-bottom:4px">29€<span style="font-size:14px;font-weight:400;color:#8A8A99">/mois</span></div>
       <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">14 jours offerts</div>
       <div style="font-size:13px;line-height:2;margin-bottom:1.25rem;color:#3A3A50">
-        ✓ Jusqu'à 5 appartements<br>✓ EVA Rules Engine<br>✓ Intégration Smoobu<br>✓ Événements Ticketmaster<br>✗ Mode conciergerie
+        ✓ Jusqu\u2019à 5 appartements<br>✓ EVA Rules Engine<br>✓ Intégration Smoobu<br>✓ Événements Ticketmaster<br>✗ Mode conciergerie
       </div>
-      <button onclick="startCheckout('starter')" class="btn btn-purple" style="width:100%;justify-content:center;padding:10px" ${isStarter?'disabled':''}>${isStarter?'Plan actuel':"Commencer l'essai gratuit"}</button>
+      <button onclick="startCheckout('starter')" class="btn btn-purple" style="width:100%;justify-content:center;padding:10px" ${isStarter?'disabled':''}>${isStarter?'Plan actuel':"Commencer l\u2019essai gratuit"}</button>
     </div>
     <div style="background:white;border-radius:14px;border:2px solid #6B3FA0;padding:1.5rem;position:relative">
       <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#6B3FA0;color:white;font-size:11px;font-weight:600;padding:3px 12px;border-radius:100px">Recommandé</div>
@@ -5998,7 +5759,7 @@ function renderTarifs(){
       <div style="font-size:13px;line-height:2;margin-bottom:1.25rem;color:#3A3A50">
         ✓ Appartements illimités<br>✓ EVA IA avancé<br>✓ Intégration Smoobu<br>✓ Événements Ticketmaster<br>✓ Mode conciergerie multi-clients
       </div>
-      <button onclick="startCheckout('pro')" class="btn btn-purple" style="width:100%;justify-content:center;padding:10px" ${isPro?'disabled':''}>${isPro?'Plan actuel':"Commencer l'essai gratuit"}</button>
+      <button onclick="startCheckout('pro')" class="btn btn-purple" style="width:100%;justify-content:center;padding:10px" ${isPro?'disabled':''}>${isPro?'Plan actuel':"Commencer l\u2019essai gratuit"}</button>
     </div>
     <div style="background:white;border-radius:14px;border:0.5px solid #EEEEF5;padding:1.5rem">
       <div style="font-size:12px;font-weight:600;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Premium</div>
@@ -6021,8 +5782,8 @@ async function startCheckout(plan){
     const res=await fetch(STRIPE_FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'createCheckout',plan,email:currentProfile?.email||''})});
     const data=await res.json();
     if(data.url){window.location.href=data.url;}
-    else{showToast('Erreur : '+(data.error||'Réessayez'));btn.disabled=false;btn.textContent="Commencer l'essai gratuit";}
-  }catch(e){showToast('Erreur de connexion');btn.disabled=false;btn.textContent="Commencer l'essai gratuit";}
+    else{showToast('Erreur : '+(data.error||'Réessayez'));btn.disabled=false;btn.textContent="Commencer l\u2019essai gratuit";}
+  }catch(e){showToast('Erreur de connexion');btn.disabled=false;btn.textContent="Commencer l\u2019essai gratuit";}
 }
 
 function checkPaymentReturn(){
@@ -6072,7 +5833,7 @@ const RQ_TOUR_STEPS = [
     page: "cockpit",
     emoji: "🏠",
     title: "1/5 — Cockpit",
-    text: "C'est votre porte d'entrée. EVA affiche le score global, le potentiel annuel détecté et les actions prioritaires du jour. Tout part d'ici."
+    text: "C\u2019est votre porte d\'entrée. EVA affiche le score global, le potentiel annuel détecté et les actions prioritaires du jour. Tout part d\u2019ici."
   },
   {
     sel: "[onclick*=\"parc\"]",
@@ -6207,19 +5968,19 @@ function rqTourClose() {
 
 /* ===== EVA AUDIT 360 — moteur local MVP ===== */
 const EVA360_DEMO_RESERVATIONS = `reservation_id;platform;property_name;property_address;guest_name;booking_date;check_in;check_out;nights;guests;status;nightly_rate_eur;accommodation_subtotal_eur;cleaning_fee_eur;guest_service_fee_eur;host_service_fee_eur;tourist_tax_eur;host_payout_eur;currency
-HM20260001;Airbnb Business;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Sarah U.;2026-03-01;2026-03-11;2026-03-14;3;1;Terminée;75;225;35;38.44;7.8;4.83;257.03;EUR
-HM20260002;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Emma J.;2026-03-05;2026-03-15;2026-03-19;4;2;Terminée;65;260;35;45.72;8.85;6.48;292.63;EUR
-HM20260003;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Paul U.;2026-03-08;2026-03-19;2026-03-20;1;2;Terminée;81;81;35;18.53;3.48;1.71;114.23;EUR
-HM20260004;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Manon W.;2026-03-13;2026-03-22;2026-03-25;3;2;Terminée;63;189;35;29.53;6.72;4.63;221.91;EUR
-HM20260005;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Alex B.;2026-03-19;2026-03-27;2026-03-29;2;1;Terminée;88;176;35;28.77;6.3;3.71;201.99;EUR
-HM20260006;Airbnb Business;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Nadia C.;2026-04-01;2026-04-03;2026-04-06;3;1;Terminée;79;237;35;41.21;8.4;5.3;263.3;EUR
-HM20260007;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Louis M.;2026-04-08;2026-04-10;2026-04-14;4;2;Terminée;71;284;35;47.20;9.57;6.66;303.77;EUR
-HM20260008;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Clara T.;2026-04-12;2026-04-17;2026-04-20;3;2;Terminée;82;246;35;41.12;8.43;5.52;267.05;EUR
-HM20260009;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Mehdi R.;2026-04-18;2026-04-23;2026-04-26;3;1;Terminée;76;228;35;38.40;7.89;5.02;250.09;EUR
-HM20260010;Airbnb Business;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Victor D.;2026-05-02;2026-05-05;2026-05-09;4;1;Terminée;92;368;35;58.50;12.09;7.20;383.71;EUR
-HM20260011;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Julie P.;2026-05-04;2026-05-10;2026-05-13;3;2;Terminée;88;264;35;43.10;8.97;5.90;284.13;EUR
-HM20260012;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Hugo F.;2026-05-12;2026-05-15;2026-05-18;3;2;Terminée;95;285;35;46.40;9.60;6.10;304.30;EUR
-HM20260013;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d'Arc, 45000 Orléans;Laura V.;2026-05-18;2026-05-21;2026-05-24;3;1;Terminée;84;252;35;41.60;8.58;5.40;273.02;EUR`;
+HM20260001;Airbnb Business;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d\u2019Arc, 45000 Orléans;Sarah U.;2026-03-01;2026-03-11;2026-03-14;3;1;Terminée;75;225;35;38.44;7.8;4.83;257.03;EUR
+HM20260002;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d\u2019Arc, 45000 Orléans;Emma J.;2026-03-05;2026-03-15;2026-03-19;4;2;Terminée;65;260;35;45.72;8.85;6.48;292.63;EUR
+HM20260003;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d\u2019Arc, 45000 Orléans;Paul U.;2026-03-08;2026-03-19;2026-03-20;1;2;Terminée;81;81;35;18.53;3.48;1.71;114.23;EUR
+HM20260004;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d\u2019Arc, 45000 Orléans;Manon W.;2026-03-13;2026-03-22;2026-03-25;3;2;Terminée;63;189;35;29.53;6.72;4.63;221.91;EUR
+HM20260005;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d\u2019Arc, 45000 Orléans;Alex B.;2026-03-19;2026-03-27;2026-03-29;2;1;Terminée;88;176;35;28.77;6.3;3.71;201.99;EUR
+HM20260006;Airbnb Business;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d\u2019Arc, 45000 Orléans;Nadia C.;2026-04-01;2026-04-03;2026-04-06;3;1;Terminée;79;237;35;41.21;8.4;5.3;263.3;EUR
+HM20260007;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d\u2019Arc, 45000 Orléans;Louis M.;2026-04-08;2026-04-10;2026-04-14;4;2;Terminée;71;284;35;47.20;9.57;6.66;303.77;EUR
+HM20260008;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d\u2019Arc, 45000 Orléans;Clara T.;2026-04-12;2026-04-17;2026-04-20;3;2;Terminée;82;246;35;41.12;8.43;5.52;267.05;EUR
+HM20260009;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d\u2019Arc, 45000 Orléans;Mehdi R.;2026-04-18;2026-04-23;2026-04-26;3;1;Terminée;76;228;35;38.40;7.89;5.02;250.09;EUR
+HM20260010;Airbnb Business;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d\u2019Arc, 45000 Orléans;Victor D.;2026-05-02;2026-05-05;2026-05-09;4;1;Terminée;92;368;35;58.50;12.09;7.20;383.71;EUR
+HM20260011;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d\u2019Arc, 45000 Orléans;Julie P.;2026-05-04;2026-05-10;2026-05-13;3;2;Terminée;88;264;35;43.10;8.97;5.90;284.13;EUR
+HM20260012;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d\u2019Arc, 45000 Orléans;Hugo F.;2026-05-12;2026-05-15;2026-05-18;3;2;Terminée;95;285;35;46.40;9.60;6.10;304.30;EUR
+HM20260013;Airbnb;Studio Hyper Centre Orléans - Cathédrale;Rue Jeanne d\u2019Arc, 45000 Orléans;Laura V.;2026-05-18;2026-05-21;2026-05-24;3;1;Terminée;84;252;35;41.60;8.58;5.40;273.02;EUR`;
 
 const EVA360_DEMO_BANK = `Date;Libellé;Contrepartie;Débit (€);Crédit (€);Solde impact (€)
 2026-03-02;Loyer;Prélèvement SCI Centre;620.0;;-620.0
@@ -6232,7 +5993,7 @@ const EVA360_DEMO_BANK = `Date;Libellé;Contrepartie;Débit (€);Crédit (€);
 2026-03-11;Maintenance;Petit dépannage;65.0;;-65.0
 2026-03-13;Ménage Airbnb;Prestataire Ménage;45.0;;-45.0
 2026-03-14;Internet;Orange Internet;29.99;;-29.99
-2026-03-18;Produits d'accueil;Amazon;24.8;;-24.8
+2026-03-18;Produits d\u2019accueil;Amazon;24.8;;-24.8
 2026-03-18;Linge / blanchisserie;Blanchisserie Orléans;38.5;;-38.5
 2026-03-25;Eau;Orléans Métropole Eau;18.5;;-18.5
 2026-03-27;Ménage Airbnb;Prestataire Ménage;45.0;;-45.0
@@ -6246,7 +6007,7 @@ const EVA360_DEMO_BANK = `Date;Libellé;Contrepartie;Débit (€);Crédit (€);
 2026-04-11;Taxe séjour reversée;Orléans Métropole;42.0;;-42.0
 2026-04-13;Ménage Airbnb;Prestataire Ménage;45.0;;-45.0
 2026-04-14;Internet;Orange Internet;29.99;;-29.99
-2026-04-18;Produits d'accueil;Amazon;24.8;;-24.8
+2026-04-18;Produits d\u2019accueil;Amazon;24.8;;-24.8
 2026-04-18;Linge / blanchisserie;Blanchisserie Orléans;38.5;;-38.5
 2026-04-25;Eau;Orléans Métropole Eau;18.5;;-18.5
 2026-04-27;Ménage Airbnb;Prestataire Ménage;45.0;;-45.0
@@ -6260,7 +6021,7 @@ const EVA360_DEMO_BANK = `Date;Libellé;Contrepartie;Débit (€);Crédit (€);
 2026-05-11;Maintenance;Petit dépannage;65.0;;-65.0
 2026-05-13;Ménage Airbnb;Prestataire Ménage;45.0;;-45.0
 2026-05-14;Internet;Orange Internet;29.99;;-29.99
-2026-05-18;Produits d'accueil;Amazon;24.8;;-24.8
+2026-05-18;Produits d\u2019accueil;Amazon;24.8;;-24.8
 2026-05-18;Linge / blanchisserie;Blanchisserie Orléans;38.5;;-38.5
 2026-05-25;Eau;Orléans Métropole Eau;18.5;;-18.5
 2026-05-27;Ménage Airbnb;Prestataire Ménage;45.0;;-45.0`;
@@ -6337,16 +6098,16 @@ async function runEvaAudit360(){
     const resRaw = await eva360ReadFile('eva360-res-file');
     const bankRaw = await eva360ReadFile('eva360-bank-file');
     const address = (document.getElementById('eva360-address')?.value || '').trim();
-    if(!address) throw new Error('Ajoutez l’adresse du bien.');
+    if(!address) throw new Error('Ajoutez l\u2019adresse du bien.');
     eva360Render(eva360Analyze(resRaw, bankRaw, address));
   }catch(e){
-    if(err){err.textContent = e.message || 'Erreur pendant l’analyse EVA.'; err.style.display='block';}
+    if(err){err.textContent = e.message || 'Erreur pendant l\u2019analyse EVA.'; err.style.display='block';}
   }
 }
 function loadEvaAuditDemo(){
   const addr = document.getElementById('eva360-address');
-  if(addr) addr.value = "5 rue d'Illiers, 45000 Orléans";
-  eva360Render(eva360Analyze(EVA360_DEMO_RESERVATIONS, EVA360_DEMO_BANK, "5 rue d'Illiers, 45000 Orléans"));
+  if(addr) addr.value = "5 rue d\'Illiers, 45000 Orléans";
+  eva360Render(eva360Analyze(EVA360_DEMO_RESERVATIONS, EVA360_DEMO_BANK, "5 rue d\u2019Illiers, 45000 Orléans"));
 }
 function eva360Analyze(resRaw, bankRaw, address){
   const resRows = eva360ParseCsv(resRaw);
@@ -6425,7 +6186,7 @@ function eva360Categorize(label){
   if(l.includes('assurance')) return 'Assurance';
   if(l.includes('sejour')) return 'Taxe de séjour';
   if(l.includes('netflix')) return 'Abonnements';
-  if(l.includes('accueil') || l.includes('amazon')) return 'Produits d’accueil';
+  if(l.includes('accueil') || l.includes('amazon')) return 'Produits d\u2019accueil';
   if(l.includes('eau')) return 'Eau';
   return 'Autres';
 }
@@ -6434,7 +6195,7 @@ function eva360EventsForAddress(address, months, adr){
   const base = Math.round(adr || 75);
   if(city === 'Orléans'){
     return [
-      {date:'2026-05-07', name:"Fêtes de Jeanne d’Arc", type:'Patrimoine / tourisme', current:base+12, suggested:base+28, gap:16},
+      {date:'2026-05-07', name:"Fêtes de Jeanne d\u2019Arc", type:'Patrimoine / tourisme', current:base+12, suggested:base+28, gap:16},
       {date:'2026-05-16', name:'Week-end Loire & centre historique', type:'Tourisme urbain', current:base+5, suggested:base+18, gap:13},
       {date:'2026-06-11', name:'Déplacements professionnels Orléans centre', type:'Business', current:base, suggested:base+14, gap:14},
       {date:'2026-09-17', name:'Festival de Loire', type:'Événement majeur', current:base+18, suggested:base+42, gap:24}
@@ -6494,9 +6255,9 @@ function eva360BuildActions(data){
   const lowMonth = data.months.slice().sort((a,b)=>a.occPct-b.occPct)[0];
   return [
     {title:'Corréler les prix avec les événements locaux', desc:'EVA détecte des dates où le prix pratiqué semble trop bas par rapport à la demande locale.', impact:'+1 500 à +2 800 €/an'},
-    {title:'Optimiser le poste "'+topCharge[0]+'"', desc:'C’est le poste de dépense le plus visible dans les charges importées. Un audit fournisseur peut améliorer la marge.', impact:'+600 à +1 400 €/an'},
-    {title:'Travailler les mois creux', desc: lowMonth ? eva360MonthLabel(lowMonth.month)+' affiche seulement '+lowMonth.occPct+'% d’occupation. Il faut adapter le séjour minimum et les offres courtes.' : 'Adapter le séjour minimum selon la saison.', impact:'+700 à +1 200 €/an'},
-    {title:'Positionner le bien pour la clientèle business', desc:'L’adresse et les séjours courts suggèrent un potentiel professionnel à mieux exploiter.', impact:'+500 à +1 000 €/an'},
+    {title:'Optimiser le poste "'+topCharge[0]+'"', desc:'C\u2019est le poste de dépense le plus visible dans les charges importées. Un audit fournisseur peut améliorer la marge.', impact:'+600 à +1 400 €/an'},
+    {title:'Travailler les mois creux', desc: lowMonth ? eva360MonthLabel(lowMonth.month)+' affiche seulement '+lowMonth.occPct+'% d\u2019occupation. Il faut adapter le séjour minimum et les offres courtes.' : 'Adapter le séjour minimum selon la saison.', impact:'+700 à +1 200 €/an'},
+    {title:'Positionner le bien pour la clientèle business', desc:'L\u2019adresse et les séjours courts suggèrent un potentiel professionnel à mieux exploiter.', impact:'+500 à +1 000 €/an'},
     {title:'Créer un suivi mensuel EVA', desc:'Comparer chaque mois revenu, charges, occupation et événements pour éviter les opportunités manquées.', impact:'pilotage continu'}
   ];
 }
@@ -6504,11 +6265,97 @@ function eva360BuildDetect(data){
   const margin = data.totalRevenue ? Math.round(data.totalNet/data.totalRevenue*100) : 0;
   return [
     {icon:'💰', title:'Rentabilité nette lisible', text:'Le logement conserve environ '+margin+'% des revenus après charges détectées.'},
-    {icon:'📊', title:'Occupation moyenne', text:'Le taux d’occupation moyen est de '+data.avgOcc+'% sur la période analysée.'},
-    {icon:'🏙️', title:'Adresse exploitable', text:'EVA peut relier l’adresse aux événements, zones business et périodes de demande.'},
+    {icon:'📊', title:'Occupation moyenne', text:'Le taux d\u2019occupation moyen est de '+data.avgOcc+'% sur la période analysée.'},
+    {icon:'🏙️', title:'Adresse exploitable', text:'EVA peut relier l\u2019adresse aux événements, zones business et périodes de demande.'},
     {icon:'🧹', title:'Charges à surveiller', text:'Les charges variables comme ménage, linge et maintenance doivent être pilotées car elles réduisent directement la marge.'}
   ];
 }
+
+/* ===== Audit 360° inline par bien (onglet Audit dans fiche logement) ===== */
+async function runAptAudit360(aptId){
+  const err=document.getElementById('apt-audit-error-'+aptId);
+  const result=document.getElementById('apt-audit-result-'+aptId);
+  if(err)err.style.display='none';
+  if(result)result.innerHTML='<div class="ai-bubble"><div class="ai-bubble-head"><div class="ai-dot"></div> EVA analyse les données du bien…</div><div class="ai-bubble-text"><div class="typing"><span></span><span></span><span></span></div></div></div>';
+  try{
+    const resInput=document.getElementById('apt-audit-res-'+aptId);
+    const bankInput=document.getElementById('apt-audit-bank-'+aptId);
+    const address=(document.getElementById('apt-audit-addr-'+aptId)?.value||'').trim();
+    if(!address)throw new Error('L\'adresse du bien est requise.');
+    const resRaw=await new Promise((res,rej)=>{
+      if(!resInput||!resInput.files||!resInput.files[0])return rej(new Error('Importez un CSV de réservations.'));
+      const fr=new FileReader();fr.onload=()=>res(String(fr.result||''));fr.onerror=()=>rej(new Error('Impossible de lire le fichier réservations.'));fr.readAsText(resInput.files[0],'utf-8');
+    });
+    const bankRaw=await new Promise((res,rej)=>{
+      if(!bankInput||!bankInput.files||!bankInput.files[0])return rej(new Error('Importez un CSV bancaire.'));
+      const fr=new FileReader();fr.onload=()=>res(String(fr.result||''));fr.onerror=()=>rej(new Error('Impossible de lire le fichier bancaire.'));fr.readAsText(bankInput.files[0],'utf-8');
+    });
+    const data=eva360Analyze(resRaw,bankRaw,address);
+    renderAptAudit360Result(aptId,data);
+  }catch(e){
+    if(err){err.textContent=e.message||'Erreur pendant l\'analyse.';err.style.display='block';}
+    if(result)result.innerHTML='';
+  }
+}
+
+function loadAptAuditDemo(aptId){
+  const addrEl=document.getElementById('apt-audit-addr-'+aptId);
+  if(addrEl&&!addrEl.value)addrEl.value="5 rue d\'Illiers, 45000 Orléans";
+  const addr=addrEl?.value||"5 rue d\u2019Illiers, 45000 Orléans";
+  try{
+    const data=eva360Analyze(EVA360_DEMO_RESERVATIONS,EVA360_DEMO_BANK,addr);
+    renderAptAudit360Result(aptId,data);
+  }catch(e){
+    const err=document.getElementById('apt-audit-error-'+aptId);
+    if(err){err.textContent=e.message;err.style.display='block';}
+  }
+}
+
+function renderAptAudit360Result(aptId,data){
+  const result=document.getElementById('apt-audit-result-'+aptId);
+  if(!result)return;
+  const money=v=>Math.round(v).toLocaleString('fr-FR')+' €';
+  const monthLabel=key=>{const[y,m]=key.split('-').map(Number);return new Date(y,m-1,1).toLocaleDateString('fr-FR',{month:'short',year:'numeric'}).replace('.','');};
+  const maxNet=Math.max(...data.months.map(m=>Math.max(0,m.net)),1);
+  const actions=eva360BuildActions(data);
+  const detect=eva360BuildDetect(data);
+
+  result.innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px">
+      <div class="eva360-kpi purple"><div class="eva360-kpi-label">Score EVA</div><div class="eva360-kpi-value">${data.score}/100</div><div class="eva360-kpi-help">Qualité rentabilité + potentiel local</div></div>
+      <div class="eva360-kpi"><div class="eva360-kpi-label">Revenus analysés</div><div class="eva360-kpi-value">${money(data.totalRevenue)}</div><div class="eva360-kpi-help">${data.months.length} mois · ${data.bookingCount} réservations</div></div>
+      <div class="eva360-kpi"><div class="eva360-kpi-label">Charges détectées</div><div class="eva360-kpi-value">${money(data.totalCharges)}</div><div class="eva360-kpi-help">D\u2019après le CSV bancaire</div></div>
+      <div class="eva360-kpi"><div class="eva360-kpi-label">Rentabilité nette</div><div class="eva360-kpi-value">${money(data.totalNet)}</div><div class="eva360-kpi-help">${Math.round(data.totalNet/Math.max(1,data.months.length)).toLocaleString('fr-FR')} €/mois en moyenne</div></div>
+    </div>
+    <div class="eva360-section">
+      <div class="eva360-section-head"><div><div class="eva360-title">Rentabilité nette mensuelle</div><div class="eva360-sub">Revenus − charges par mois.</div></div></div>
+      <div class="eva360-net-bars">
+        ${data.months.map(m=>`<div class="eva360-net-row"><div class="eva360-net-month">${monthLabel(m.month)}</div><div class="eva360-bar-track"><div class="eva360-bar-fill" style="--w:${Math.max(4,Math.round(Math.max(0,m.net)/maxNet*100))}%"></div></div><div class="eva360-net-value">${money(m.net)}</div></div>`).join('')}
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div class="eva360-section">
+        <div class="eva360-section-head"><div><div class="eva360-title">Actions à mener</div><div class="eva360-sub">Classées par impact probable.</div></div></div>
+        <div class="eva360-actions">
+          ${actions.map((a,i)=>`<div class="eva360-action"><div class="eva360-rank">${i+1}</div><div><div class="eva360-action-title">${a.title}</div><div class="eva360-action-desc">${a.desc}</div></div><div class="eva360-impact">${a.impact}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="eva360-section">
+        <div class="eva360-section-head"><div><div class="eva360-title">Préconisations EVA</div></div></div>
+        <div class="eva360-detect">
+          ${detect.map(d=>`<div class="eva360-detect-item"><span>${d.icon}</span><div><strong>${d.title}</strong><br>${d.text}</div></div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="eva360-section" style="margin-top:14px">
+      <div class="eva360-section-head"><div><div class="eva360-title">Événements locaux et opportunités tarifaires</div></div><span class="eva360-pill">À corréler au pricing</span></div>
+      <div class="eva360-event-timeline">
+        ${data.events.map(e=>`<div class="eva360-event-row"><div class="eva360-event-date">${new Date(e.date).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})}</div><div><div class="eva360-event-name">${e.name}</div><div class="eva360-event-meta">${e.type}</div></div><div class="eva360-event-price">actuel <strong>${e.current} €</strong></div><div class="eva360-event-gap">+${e.gap} €/nuit possible</div></div>`).join('')}
+      </div>
+    </div>`;
+}
+/* ===== end Audit 360° inline ===== */
+
 /* ===== end EVA AUDIT 360 ===== */
 
 
