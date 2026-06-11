@@ -1071,84 +1071,109 @@ function scannerAptHasCoords(a){
 }
 
 function renderScannerPage(){
-  const sel=document.getElementById('scanner-apt-select');
-  const empty=document.getElementById('scanner-empty');
-  const res=document.getElementById('scanner-result');
-  const list=document.getElementById('scanner-apart-list');
-  if(!sel||!empty||!res)return;
-  const apts=scannerApartments();
-  if(!apts.length){
-    empty.style.display='block';
-    res.innerHTML='';
-    sel.innerHTML='<option value="">Aucun appartement dans le parc</option>';
-    if(list)list.innerHTML='';
-    return;
-  }
-  empty.style.display='none';
-  const currentValue=sel.value;
-  sel.innerHTML=apts.map(a=>`<option value="${a.id}">${scannerAptTitle(a)} — ${scannerAptPlace(a)}</option>`).join('');
-  if(currentValue&&apts.some(a=>String(a.id)===String(currentValue)))sel.value=currentValue;
-  if(list){
-    list.innerHTML=apts.map(a=>{
-      const coords=scannerAptHasCoords(a);
-      const price=Number(a.price||0);
-      const rec=a.ai_rec||Math.round((price||80)*1.08);
-      return `<div class="scanner-apart-card ${String(sel.value)===String(a.id)?'active':''}" onclick="selectScannerApt('${a.id}')">
-        <div class="scanner-apart-top">
-          <div class="scanner-apart-emoji">${a.emoji||'🏠'}</div>
-          <div style="min-width:0;flex:1">
-            <div class="scanner-apart-name">${escapeHtml(a.name||'Appartement')}</div>
-            <div class="scanner-apart-meta">${escapeHtml(scannerAptPlace(a))}</div>
-          </div>
-        </div>
-        <div class="scanner-apart-stats">
-          <div class="scanner-mini-stat"><div class="scanner-mini-label">Prix actuel</div><div class="scanner-mini-value">${price||'—'}${price?'€':''}</div></div>
-          <div class="scanner-mini-stat"><div class="scanner-mini-label">Reco actuelle</div><div class="scanner-mini-value">${rec||'—'}${rec?'€':''}</div></div>
-        </div>
-        <div class="scanner-apart-actions">
-          <span class="scanner-location-badge ${coords?'':'missing'}">${coords?'📍 Localisé':'⚠️ Adresse à compléter'}</span>
-          <button class="btn btn-ai btn-sm" onclick="event.stopPropagation();selectScannerApt('${a.id}');runEvaScanner();"><i class="ti ti-radar-2"></i> Scanner</button>
-        </div>
-      </div>`;
-    }).join('');
-  }
-  if(!res.innerHTML.trim()){
-    res.innerHTML=`<div class="scanner-diagnostic"><div class="scanner-verdict"><div class="scanner-verdict-icon">🧠</div><div><div class="scanner-verdict-title">Vos logements sont prêts à être scannés</div><div class="scanner-verdict-text">EVA reprend maintenant automatiquement les appartements déjà créés dans “Le parc”. Choisissez un logement dans la liste ci-dessus ou cliquez directement sur “Scanner”.</div></div></div></div>`;
-  }
-}
-
-function selectScannerApt(id){
-  const sel=document.getElementById('scanner-apt-select');
-  if(sel)sel.value=id;
-  document.querySelectorAll('.scanner-apart-card').forEach(c=>c.classList.remove('active'));
-  renderScannerPage();
-}
-
-function getSelectedScannerApt(){
-  const apts=scannerApartments();
-  const sel=document.getElementById('scanner-apt-select');
-  if(!sel)return apts[0];
-  return apts.find(a=>String(a.id)===String(sel.value))||apts[0];
+  // Scanner V2 : outil de prospection libre, sans biens du parc
 }
 
 function aptLat(a){return parseFloat(a.lat||a.latitude||a.y||0)}
 function aptLng(a){return parseFloat(a.lng||a.lon||a.longitude||a.x||0)}
 
-async function runEvaScanner(){
-  const a=getSelectedScannerApt();
+// Autocomplete adresse libre pour le scanner
+let scannerAddressTimer=null;
+function scannerAddressSearch(val){
+  clearTimeout(scannerAddressTimer);
+  const box=document.getElementById('scanner-address-results');
+  if(!val||val.length<4){if(box)box.style.display='none';return;}
+  scannerAddressTimer=setTimeout(async()=>{
+    try{
+      const r=await fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(val)+'&limit=5');
+      const d=await r.json();
+      if(!d.features||!d.features.length){box.style.display='none';return;}
+      box.innerHTML=d.features.map(f=>`<div onclick="scannerSelectAddress('${f.properties.label.replace(/'/g,"\\'")}',${f.geometry.coordinates[1]},${f.geometry.coordinates[0]})"
+        style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid #F0F0F5;color:#1A1A2E"
+        onmouseover="this.style.background='#F5F4FF'" onmouseout="this.style.background=''">${f.properties.label}</div>`).join('');
+      box.style.display='block';
+    }catch(e){box.style.display='none';}
+  },280);
+}
+
+function scannerSelectAddress(label,lat,lng){
+  const inp=document.getElementById('scanner-free-address');
+  const box=document.getElementById('scanner-address-results');
+  const latEl=document.getElementById('scanner-free-lat');
+  const lngEl=document.getElementById('scanner-free-lng');
+  if(inp)inp.value=label;
+  if(latEl)latEl.value=lat;
+  if(lngEl)lngEl.value=lng;
+  if(box)box.style.display='none';
+}
+
+async function runEvaScannerFree(){
+  const address=(document.getElementById('scanner-free-address')?.value||'').trim();
+  const priceInput=+(document.getElementById('scanner-free-price')?.value||0);
   const res=document.getElementById('scanner-result');
-  if(!a){renderScannerPage();return;}
-  const lat=aptLat(a),lng=aptLng(a);
+  const latEl=document.getElementById('scanner-free-lat');
+  const lngEl=document.getElementById('scanner-free-lng');
+  if(!address){res.innerHTML='<div class="scanner-warning">Entrez une adresse pour lancer l\'analyse EVA.</div>';return;}
+  let lat=parseFloat(latEl?.value||0),lng=parseFloat(lngEl?.value||0);
   if(!lat||!lng){
-    res.innerHTML=`<div class="scanner-warning">Adresse incomplète pour <strong>${a.name||'ce logement'}</strong>. Ouvrez le logement dans “Le parc”, sélectionnez une adresse dans la recherche, puis relancez le scanner.</div>`;
-    return;
+    res.innerHTML='<div class="ai-bubble"><div class="ai-bubble-head"><div class="ai-dot"></div> EVA localise l\'adresse\u2026</div><div class="ai-bubble-text"><div class="typing"><span></span><span></span><span></span></div></div></div>';
+    try{
+      const r=await fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(address)+'&limit=1');
+      const d=await r.json();
+      const feat=d.features?.[0];
+      if(!feat){res.innerHTML='<div class="scanner-warning">Adresse introuvable. V\u00e9rifiez et r\u00e9essayez.</div>';return;}
+      lat=feat.geometry.coordinates[1];lng=feat.geometry.coordinates[0];
+      if(latEl)latEl.value=lat;if(lngEl)lngEl.value=lng;
+    }catch(e){res.innerHTML='<div class="scanner-warning">Impossible de g\u00e9olocaliser cette adresse.</div>';return;}
   }
-  res.innerHTML=`<div class="ai-bubble"><div class="ai-bubble-head"><div class="ai-dot"></div> EVA scanne l’environnement local…</div><div class="ai-bubble-text"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
+  res.innerHTML='<div class="ai-bubble"><div class="ai-bubble-head"><div class="ai-dot"></div> EVA scanne l\'environnement local\u2026</div><div class="ai-bubble-text"><div class="typing"><span></span><span></span><span></span></div></div></div>';
+  const fakeApt={id:'scanner-free',name:address,address,lat,lng,price:priceInput||null,comp:null,city:address.split(',').slice(-1)[0]?.trim()||'',zone:'',emoji:'\uD83D\uDD0D'};
   const rawPois=await fetchEvaNearbyPois(lat,lng).catch(()=>[]);
-  const pois=enrichEvaLocalPois(a,rawPois);
-  const analysis=computeEvaScannerAnalysis(a,pois);
-  renderEvaScannerResult(a,analysis,pois);
-  setTimeout(()=>drawEvaScannerMap(a,analysis,pois),120);
+  const pois=enrichEvaLocalPois(fakeApt,rawPois);
+  const analysis=computeEvaScannerAnalysis(fakeApt,pois);
+  renderEvaScannerFreeResult(fakeApt,analysis,pois,address,priceInput);
+  setTimeout(()=>drawEvaScannerMap(fakeApt,analysis,pois),120);
+}
+
+async function runEvaScanner(){runEvaScannerFree();}
+
+function renderEvaScannerFreeResult(a,analysis,pois,address,priceInput){
+  const topPois=pois.filter(p=>['transport','food','shops','tourism','parking'].includes(p.type)).slice(0,9);
+  const scoreColor=analysis.locationScore>=75?'#059669':analysis.locationScore>=55?'#D97706':'#DC2626';
+  const verdictIcon=analysis.locationScore>=75?'\u2705':analysis.locationScore>=55?'\u26A0\uFE0F':'\u274C';
+  const decision=analysis.locationScore>=75?'Potentiel fort \u2014 \u00e0 prendre en gestion':analysis.locationScore>=55?'Potentiel correct \u2014 \u00e0 n\u00e9gocier selon les conditions':'Emplacement difficile \u2014 conditions favorables indispensables';
+  document.getElementById('scanner-result').innerHTML=`
+    <div class="scanner-score-grid">
+      <div class="scanner-kpi"><div class="scanner-kpi-label">Score emplacement</div><div class="scanner-kpi-value" style="color:${scoreColor}">${analysis.locationScore}/100</div><div class="scanner-kpi-desc">Potentiel locatif de l'adresse</div></div>
+      ${priceInput?`<div class="scanner-kpi"><div class="scanner-kpi-label">Prix envisag\u00e9</div><div class="scanner-kpi-value">${priceInput}\u20ac</div><div class="scanner-kpi-desc">Tarif saisi</div></div>
+      <div class="scanner-kpi"><div class="scanner-kpi-label">Reco EVA</div><div class="scanner-kpi-value" style="color:#7C3AED">${analysis.recommended}\u20ac</div><div class="scanner-kpi-desc">${analysis.diff>=0?'+':''}${analysis.diff}\u20ac / nuit \u00b7 ${analysis.diffPct>=0?'+':''}${analysis.diffPct}%</div></div>`
+      :`<div class="scanner-kpi"><div class="scanner-kpi-label">Prix march\u00e9 EVA</div><div class="scanner-kpi-value" style="color:#7C3AED">${analysis.recommended}\u20ac</div><div class="scanner-kpi-desc">Estimation EVA pour cette adresse</div></div>`}
+      <div class="scanner-kpi" style="background:${analysis.locationScore>=75?'#ECFDF5':analysis.locationScore>=55?'#FFFBEB':'#FEF2F2'}">
+        <div class="scanner-kpi-label">D\u00e9cision EVA</div>
+        <div class="scanner-kpi-value" style="font-size:18px">${verdictIcon}</div>
+        <div class="scanner-kpi-desc" style="font-weight:700;color:${scoreColor}">${decision}</div>
+      </div>
+    </div>
+    <div class="scanner-grid">
+      <div class="scanner-map-card"><div id="scanner-map"></div></div>
+      <div>
+        <div class="scanner-diagnostic">
+          <div class="scanner-verdict">
+            <div class="scanner-verdict-icon">${verdictIcon}</div>
+            <div><div class="scanner-verdict-title">Diagnostic EVA : ${escapeHtml(address)}</div><div class="scanner-verdict-text">${analysis.verdict}</div></div>
+          </div>
+          <div class="scanner-breakdown">
+            ${Object.entries(analysis.sub).map(([k,v])=>`<div class="scanner-row"><div class="scanner-row-label">${EVA_POI_CONFIG[k]?.label||k}</div><div class="scanner-bar"><span style="width:${Math.round(v/(EVA_POI_CONFIG[k]?.score||20)*100)}%"></span></div><div class="scanner-row-score">${Math.round(v)}</div></div>`).join('')}
+          </div>
+        </div>
+        <div class="scanner-diagnostic">
+          <div class="card-title">Ce qu'EVA a d\u00e9tect\u00e9 autour de l'adresse</div>
+          <div class="scanner-poi-list">
+            ${topPois.length?topPois.map(p=>`<div class="scanner-poi-item"><strong>${EVA_POI_CONFIG[p.type]?.icon||'\uD83D\uDCCD'} ${escapeHtml(p.name)}</strong><span>${p.distance} m</span></div>`).join(''):'<div class="scanner-warning">Peu de points d\'int\u00e9r\u00eat d\u00e9tect\u00e9s \u00e0 moins de 1,5 km. EVA consid\u00e8re l\'emplacement comme plus difficile \u00e0 valoriser.</div>'}
+          </div>
+        </div>
+      </div>
+    </div>`;
 }
 
 async function fetchEvaNearbyPois(lat,lng){
@@ -1753,23 +1778,47 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       <!-- SCANNER EVA -->
       <div class="page" id="page-scanner">
         <div class="page-header">
-          <div><div class="page-title">Scanner EVA</div><div class="page-sub">Score emplacement, score prix actuel et diagnostic locatif par adresse</div></div>
-        </div>
-        <div class="scanner-hero">
-          <div class="scanner-hero-title">Analysez le vrai potentiel d’un logement</div>
-          <div class="scanner-hero-sub">EVA croise l’adresse, les transports, les commerces, les restaurants, les événements proches et votre prix actuel pour détecter si votre appartement est sous-exploité, bien positionné ou trop cher.</div>
-          <div class="scanner-controls">
-            <select id="scanner-apt-select" onchange="renderScannerPage()"></select>
-            <button class="btn btn-ai" onclick="runEvaScanner()"><i class="ti ti-radar-2"></i> Scanner l’appartement sélectionné</button>
-            <button class="btn" onclick="openAddModal()">+ Ajouter un logement</button>
+          <div>
+            <div class="page-title">Scanner EVA</div>
+            <div class="page-sub">Outil de décision d’acquisition — analysez n’importe quel bien avant de le prendre</div>
           </div>
-          <div class="scanner-muted">Les appartements affichés ici viennent directement de votre parc existant.</div>
         </div>
-        <div id="scanner-empty" class="scanner-warning" style="display:none">Ajoutez d’abord un appartement dans “Le parc” pour lancer le Scanner EVA.</div>
-        <div id="scanner-apart-list" class="scanner-apart-list"></div>
-        <div id="scanner-result"></div>
-      </div>
 
+        <div class="scanner-hero">
+          <div class="scanner-hero-title">Est-ce que ce bien vaut le coup ?</div>
+          <div class="scanner-hero-sub">Entrez l’adresse d’un logement que vous envisagez de prendre en gestion. EVA analyse l’emplacement, les transports, les commerces, les événements proches et le marché local pour vous donner une vision critique et chiffrée.</div>
+
+          <div class="scanner-controls" style="display:grid;grid-template-columns:1fr 140px auto;gap:10px;align-items:end">
+            <div style="display:flex;flex-direction:column;gap:5px;position:relative">
+              <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.65)">Adresse du bien à analyser</label>
+              <input type="text" id="scanner-free-address" placeholder="Ex : 12 rue Bannier, 45000 Orléans" autocomplete="off" oninput="scannerAddressSearch(this.value)"
+                style="height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.13);color:#fff;padding:0 14px;font-family:inherit;font-size:14px;font-weight:500;outline:none;width:100%"/>
+              <div id="scanner-address-results" style="display:none;position:absolute;z-index:50;background:white;border:1px solid #E8E8EE;border-radius:10px;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:340px;top:68px;left:0"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.65)">Prix envisagé (€/nuit)</label>
+              <input type="number" id="scanner-free-price" placeholder="Ex : 85"
+                style="height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.13);color:#fff;padding:0 14px;font-family:inherit;font-size:14px;font-weight:500;outline:none;width:100%"/>
+            </div>
+            <button class="btn btn-ai" onclick="runEvaScannerFree()" style="height:44px;margin-top:19px">
+              <i class="ti ti-radar-2"></i> Analyser ce bien
+            </button>
+          </div>
+
+          <input type="hidden" id="scanner-free-lat" value=""/>
+          <input type="hidden" id="scanner-free-lng" value=""/>
+          <div class="scanner-muted" style="margin-top:10px">Ce scanner est indépendant de votre parc. Analysez n’importe quelle adresse avant de prendre une décision.</div>
+        </div>
+
+        <div id="scanner-empty" class="scanner-warning" style="display:none">Entrez une adresse pour lancer l’analyse EVA.</div>
+        <div id="scanner-result">
+          <div class="scanner-diagnostic" style="text-align:center;padding:2rem">
+            <div style="font-size:40px;margin-bottom:12px">🧠</div>
+            <div class="scanner-verdict-title">EVA est prêt à analyser</div>
+            <div class="scanner-verdict-text" style="max-width:480px;margin:0 auto">Entrez l’adresse d’un bien que vous envisagez de gérer. EVA croise les données de localisation, le marché local et les événements pour vous dire si le bien a du potentiel.</div>
+          </div>
+        </div>
+      </div>
 
       <!-- EVA AUDIT 360 -->
       <div class="page" id="page-eva-audit">
