@@ -1128,11 +1128,17 @@ async function runEvaScannerFree(){
   }
   res.innerHTML='<div class="ai-bubble"><div class="ai-bubble-head"><div class="ai-dot"></div> EVA scanne l\'environnement local\u2026</div><div class="ai-bubble-text"><div class="typing"><span></span><span></span><span></span></div></div></div>';
   const fakeApt={id:'scanner-free',name:address,address,lat,lng,price:priceInput||null,comp:null,city:address.split(',').slice(-1)[0]?.trim()||'',zone:'',emoji:'\uD83D\uDD0D'};
-  const rawPois=await fetchEvaNearbyPois(lat,lng).catch(()=>[]);
-  const pois=enrichEvaLocalPois(fakeApt,rawPois);
-  const analysis=computeEvaScannerAnalysis(fakeApt,pois);
-  renderEvaScannerFreeResult(fakeApt,analysis,pois,address,priceInput);
-  setTimeout(()=>drawEvaScannerMap(fakeApt,analysis,pois),120);
+  let rawPois=[];
+  try{rawPois=await fetchEvaNearbyPois(lat,lng);}catch(e){console.warn('Overpass indisponible',e);}
+  try{
+    const pois=enrichEvaLocalPois(fakeApt,rawPois);
+    const analysis=computeEvaScannerAnalysis(fakeApt,pois);
+    renderEvaScannerFreeResult(fakeApt,analysis,pois,address,priceInput);
+    setTimeout(()=>drawEvaScannerMap(fakeApt,analysis,pois),120);
+  }catch(e){
+    console.error('Scanner EVA error',e);
+    document.getElementById('scanner-result').innerHTML='<div class="scanner-warning">EVA a rencontré une erreur lors de l\'analyse. Vérifiez l\'adresse et réessayez. (' + e.message + ')</div>';
+  }
 }
 
 async function runEvaScanner(){runEvaScannerFree();}
@@ -1190,7 +1196,10 @@ async function fetchEvaNearbyPois(lat,lng){
     nwr(around:${radius},${lat},${lng})["historic"];
   );out center 180;`;
   const url='https://overpass-api.de/api/interpreter?data='+encodeURIComponent(query);
-  const r=await fetch(url);
+  const ctrl=new AbortController();
+  const tid=setTimeout(()=>ctrl.abort(),22000);
+  let r;
+  try{r=await fetch(url,{signal:ctrl.signal});}finally{clearTimeout(tid);}
   if(!r.ok)throw new Error('Overpass indisponible');
   const data=await r.json();
   const seen=new Set();
@@ -1367,7 +1376,7 @@ function computeEvaScannerAnalysis(a,pois){
 function buildEvaScannerVerdict(locationScore,priceScore,status,diffPct,nearest,hotEvents,pois,sub={}){
   let level=locationScore>=85?'Adresse premium très forte':locationScore>=75?'Très bon potentiel locatif':locationScore>=55?'Potentiel locatif correct':'Potentiel à surveiller';
   let env=pois.filter(p=>p.distance<=800).length>=18?'l’environnement est très dense, vivant et facilement valorisable':pois.filter(p=>p.distance<=800).length>=7?'l’environnement est correctement équipé':'l’environnement détecté par la cartographie reste limité';
-  if(isOrleansApt(getSelectedScannerApt?.()||{}) && sub.localMarket>=10)env='EVA reconnaît un signal local orléanais fort : hyper-centre, mobilité, commerces, sorties et attractivité patrimoniale renforcent la valeur courte durée';
+  if(sub.localMarket>=10)env='EVA reconnaît un signal local orléanais fort : hyper-centre, mobilité, commerces, sorties et attractivité patrimoniale renforcent la valeur courte durée';
   if(sub.prestige>=16)env='l’adresse bénéficie d’un signal premium exceptionnel, avec une forte attractivité touristique, business et commerciale';
   let price=status==='sous-évalué'?`Le prix actuel semble trop bas : EVA détecte une marge de hausse d’environ +${Math.abs(diffPct)}%.`:status==='trop élevé'?`Le prix actuel semble ambitieux : EVA recommande de réduire ou de justifier le tarif par la qualité du logement.`:`Le prix actuel est proche de la zone recommandée par EVA.`;
   let ev=hotEvents.length?` Des événements chauds proches renforcent temporairement la demande.`:'';
