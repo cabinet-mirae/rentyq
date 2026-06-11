@@ -1590,7 +1590,7 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
     </div>
   </div>
   <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
-  <div class="beta-banner" style="background:#0F172A;font-size:12px;padding:8px 20px"><i class="ti ti-sparkles" style="margin-right:4px;vertical-align:-1px"></i> <strong>Beta</strong> — EVA Pricing + Smoobu + Événements</div>
+  <div class="beta-banner" style="background:#0F172A;font-size:12px;padding:8px 20px"><i class="ti ti-sparkles" style="margin-right:4px;vertical-align:-1px"></i> <strong>Beta</strong> — EVA Pricing + Smoobu + Opportunités EVA</div>
   <div class="app-body">
     <div class="sidebar" style="background:#0F172A;border-right:1px solid rgba(255,255,255,0.08)">
       <div class="sidebar-brand">
@@ -1624,7 +1624,6 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       <div class="nav-section-label">EVA</div>
       <button class="nav-item" onclick="goTo('eva-audit',this)"><span class="nav-emoji"><i class="ti ti-chart-dots-3" aria-hidden="true"></i></span>EVA Audit 360° <span class="nav-badge-new">Nouveau</span></button>
       <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji"><i class="ti ti-sparkles" aria-hidden="true"></i></span>EVA Pricing</button>
-      <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji"><i class="ti ti-calendar-event" aria-hidden="true"></i></span>Événements</button>
 
       <div class="nav-section-label">Opérations</div>
       <button class="nav-item" onclick="goTo('clean',this)" id="nav-cleanyq"><span class="nav-emoji"><i class="ti ti-spray" aria-hidden="true"></i></span>CleanyQ</button>
@@ -1644,7 +1643,6 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji"><i class="ti ti-sparkles" aria-hidden="true"></i></span>EVA pricing</button>
       <button class="nav-item" onclick="goTo('scanner',this)"><span class="nav-emoji"><i class="ti ti-radar-2" aria-hidden="true"></i></span>Scanner EVA</button>
       <button class="nav-item" onclick="goTo('eva-audit',this)"><span class="nav-emoji"><i class="ti ti-chart-dots-3" aria-hidden="true"></i></span>Audit EVA</button>
-      <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji"><i class="ti ti-calendar-event" aria-hidden="true"></i></span>Événements</button>
       <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Intégrations</div>
       <button class="nav-item" onclick="goTo('smoobu',this)"><span class="nav-emoji"><i class="ti ti-link" aria-hidden="true"></i></span>Smoobu</button>
       </div>
@@ -2007,8 +2005,9 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       </div>
 
 
-      <!-- EVENEMENTS -->
-      <div class="page" id="page-events">
+      <!-- EVENEMENTS — masqué V2 : intelligence réinjectée dans Cockpit + Pricing -->
+      <!-- EVA Signals V3 : météo + tendances + historique PMS -->
+      <div class="page" id="page-events" style="display:none!important">
         <div class="page-header">
           <div><div class="page-title">Événements</div><div class="page-sub" id="events-sub">Détectés automatiquement selon vos villes</div></div>
           <div class="actions">
@@ -2246,7 +2245,7 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
           <div class="setting-row"><div><div class="setting-label">Mode automatique</div><div class="setting-desc">EVA ajuste sans confirmation</div></div><button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button></div>
           <div class="setting-row"><div><div class="setting-label">Alertes événements</div><div class="setting-desc">Notifier lors d'un événement détecté</div></div><button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button></div>
           <div style="margin-top:1rem" class="settings-section-title">Abonnement</div>
-          <div class="setting-row"><div><div class="setting-label" id="set-plan">Plan Starter</div><div class="setting-desc">Appartements illimités · EVA · Smoobu · Événements</div></div><button class="btn btn-purple btn-sm">Upgrader →</button></div>
+          <div class="setting-row"><div><div class="setting-label" id="set-plan">Plan Starter</div><div class="setting-desc">Appartements illimités · EVA · Smoobu · Opportunités EVA</div></div><button class="btn btn-purple btn-sm">Upgrader →</button></div>
           <button class="btn btn-purple" onclick="saveProfile()" style="margin-top:1rem">✓ Sauvegarder</button>
         </div>
       </div>
@@ -2676,7 +2675,7 @@ function genAlerts(apts){
     const fl=floor(a);const city=a.city||extractCity(a.zone,null)||'';
     const cityEvs=eventsCache[city]||[];const hotEvs=cityEvs.filter(e=>e.hot);
     if(!a.booked)alerts.push({type:'urgent',icon:'ti-moon',title:`${a.name} — libre ce soir`,desc:`Prix ${a.price||0}€ vs concurrent ${a.comp||0}€. Baissez pour remplir ou activez EVA.`,action:'Ajuster'});
-    if(hotEvs.length>0)alerts.push({type:'warning',icon:'ti-sparkles',title:`Événement détecté — ${a.name} (${city})`,desc:`${hotEvs[0].name} · EVA suggère ${a.ai_rec||Math.round((a.price||0)*1.08)}€ (+${(a.ai_rec||Math.round((a.price||0)*1.08))-(a.price||0)}€).`,action:'Appliquer'});
+    if(hotEvs.length>0)alerts.push({type:'warning',icon:'ti-sparkles',title:`Opportunité EVA — ${a.name} (+${(a.ai_rec||Math.round((a.price||0)*1.08))-(a.price||0)}€ détectés)`,desc:`Signal local détecté · EVA conseille ${a.ai_rec||Math.round((a.price||0)*1.08)}€ soit +${(a.ai_rec||Math.round((a.price||0)*1.08))-(a.price||0)}€/nuit supplémentaires.`,action:'Appliquer'});
     if((a.price||0)<fl)alerts.push({type:'urgent',icon:'ti-alert-triangle',title:`Prix sous plancher — ${a.name}`,desc:`${a.price||0}€/nuit < plancher ${fl}€. Perte sur chaque nuit vendue.`,action:'Corriger'});
   });
   return alerts.slice(0,5);
@@ -2752,10 +2751,10 @@ function renderCockpit(){
       color:'#7C3AED',
       bg:'#F5F0FF',
       border:'rgba(124,58,237,.18)',
-      title:`${hotEvents.length} événement${hotEvents.length>1?'s':''} à exploiter`,
-      desc:'Des pics de demande locale détectés — ajustez les prix avant la concurrence',
+      title:`${hotEvents.length} opportunité${hotEvents.length>1?'s':''} de revenus détectée${hotEvents.length>1?'s':''}`,
+      desc:'EVA a détecté des pics de demande locale — appliquer les prix conseillés pour capter ces revenus',
       gain:`Opportunité de hausse`,
-      action:"goTo('events',document.querySelector('[onclick*=events]'))",
+      action:"goTo('pricing',document.querySelector('[onclick*=pricing]'))",
       btn:'Voir'
     });
   }
@@ -2840,9 +2839,9 @@ function renderCockpit(){
         <div style="font-size:12px;color:#7B708F;margin-top:6px">${free.length?free.length+' libre'+(free.length>1?'s':''):'Tout loué ✓'}</div>
       </div>
       <div style="background:white;border:1px solid rgba(139,92,246,.14);border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(69,39,120,.05)">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;font-weight:900;margin-bottom:8px">Événements chauds</div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;font-weight:900;margin-bottom:8px">Opportunités EVA</div>
         <div style="font-size:28px;font-weight:950;color:${hotEvents.length?'#D97706':'#17122E'};letter-spacing:-.8px">${hotEvents.length}</div>
-        <div style="font-size:12px;color:#7B708F;margin-top:6px">${hotEvents.length?'Opportunité de hausse':'Aucun cette semaine'}</div>
+        <div style="font-size:12px;color:#7B708F;margin-top:6px">${hotEvents.length?hotEvents.length+' signal'+( hotEvents.length>1?'s':'')+' EVA':'Aucune cette semaine'}</div>
       </div>
     </div>`;
 }
@@ -3157,7 +3156,7 @@ function showApartDetail(id){
         <div style="display:flex;flex-direction:column;gap:16px">
           <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">🧭 Timeline opérationnelle</div><div class="rq-card-sub-v2">Ce qui arrive sur ce logement.</div></div></div><div class="rq-timeline">${timelineHtml}</div></section>
           <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">🧹 CleanyQ</div><div class="rq-card-sub-v2">Ménage et préparation du bien.</div></div></div><div class="rq-clean-list">${cleanHtml}</div></section>
-          <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">🎉 Événements proches</div><div class="rq-card-sub-v2">Opportunités de hausse locale.</div></div></div><div class="rq-events-list">${eventsHtml}</div></section>
+          <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">💡 Opportunités EVA</div><div class="rq-card-sub-v2">Revenus supplémentaires détectés.</div></div></div><div class="rq-events-list">${eventsHtml}</div></section>
         </div>
       </div>
 
@@ -3444,7 +3443,7 @@ function renderPricingTable(){
       action=`Baisser à ${smart.rec}€ ce soir`;actionColor='#DC2626';actionBg='#FEF2F2';impact=`+${potential}€`;
     } else if(hotEvs.length&&smart.direction==='AUGMENTER'){
       const ev=hotEvs[0];
-      action=`+${Math.round((smart.rec-(a.price||0)))}€ sur ${ev.name.slice(0,22)}…`;
+      action=`+${Math.round((smart.rec-(a.price||0)))}€ sur signal local`;
       actionColor='#D97706';actionBg='#FFFBEB';impact=`+${potential}€`;
     } else if(smart.direction==='AUGMENTER'){
       action=`Monter à ${smart.rec}€`;actionColor='#7C3AED';actionBg='#F5F0FF';impact=`+${potential}€`;
@@ -3475,7 +3474,7 @@ function renderPricingTable(){
       </td>
       <td style="padding:14px 12px">
         <span style="display:inline-block;background:${r.actionBg};color:${r.actionColor};border-radius:999px;padding:5px 12px;font-size:12px;font-weight:800">${escapeHtml(r.action)}</span>
-        ${r.hotEvs.length?`<div style="font-size:10px;color:#D97706;margin-top:4px;font-weight:700">🎉 ${escapeHtml(r.hotEvs[0].name.slice(0,30))}…</div>`:''}
+        ${r.hotEvs.length?`<div style="font-size:10px;color:#D97706;margin-top:4px;font-weight:700">💡 Signal EVA · +${Math.round((r.smart.rec-(r.a.price||0)))}€/nuit conseillé</div>`:''}
       </td>
       <td style="padding:14px 12px;text-align:right">
         <div style="font-size:16px;font-weight:950;color:${r.impact==='—'?'#8A8A99':'#059669'}">${r.impact}</div>
@@ -3531,7 +3530,7 @@ function renderPricingTable(){
       const cls=d.isBooked?'booked':(d.isEv?'event':'free');
       cal+=`<div class="eva-cal-cell ${cls} ${d.isToday?'today':''}" ${d.isBooked?'':` onclick="applyAI('${a.id}',${d.recPrice})"`} title="${escapeHtml(a.name||'')} · ${d.date}">
         <div class="eva-cal-price">${d.isBooked?'✓':d.recPrice+'€'}</div>
-        <div class="eva-cal-tag">${d.isBooked?'OK':d.isEv?'evt':'libre'}</div>
+        <div class="eva-cal-tag">${d.isBooked?'OK':d.isEv?'signal':'libre'}</div>
       </div>`;
     });
   });
@@ -3821,6 +3820,8 @@ function goTo(page,btn){
   if(btn)btn.classList.add('active');
   if(page==='calendrier')renderCalendar();
   if(page==='events'&&apparts.length&&!Object.keys(eventsCache).length)loadEvents(false);
+  // Page events supprimée V2 — rediriger vers pricing
+  if(page==='events'){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-pricing').classList.add('active');renderPricingTable();return;}
   if(page==='cockpit-c')renderCockpitConcierge();
   if(page==='finances'){initFinMois();renderFinances();}
   if(page==='clean')renderCleanyQ();
@@ -5919,11 +5920,11 @@ const RQ_TOUR_STEPS = [
     text: "EVA détecte les événements locaux, analyse la demande et suggère le bon prix pour chaque nuit libre. Vous validez avant application."
   },
   {
-    sel: "[onclick*=\"events\"]",
-    page: "events",
-    emoji: "🎉",
-    title: "5/5 — Événements",
-    text: "Concerts, salons, pics de demande… EVA détecte automatiquement les opportunités dans vos villes pour ne jamais rater une hausse de tarif."
+    sel: "[onclick*=\"pricing\"]",
+    page: "pricing",
+    emoji: "💡",
+    title: "5/5 — Opportunités EVA",
+    text: "EVA détecte les pics de demande locale et les traduit directement en prix conseillés. Pas d’événements — des revenus supplémentaires à capter."
   }
 ];
 
