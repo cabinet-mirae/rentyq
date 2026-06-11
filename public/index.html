@@ -2685,120 +2685,168 @@ function genAlerts(apts){
 function renderCockpit(){
   const dash=document.getElementById('cockpit-dash');if(!dash)return;
   const apts=apparts||[];
-  const booked=apts.filter(a=>a.booked);
-  const free=apts.filter(a=>!a.booked);
   const month=new Date().toISOString().slice(0,7);
   const monthRes=reservations.filter(r=>r.date_from&&r.date_from.startsWith(month));
   const monthRev=monthRes.reduce((s,r)=>s+(r.price_total||0),0);
   const hotEvents=Object.values(eventsCache||{}).flat().filter(e=>e.hot);
-  const avgPrice=apts.length?Math.round(apts.reduce((s,a)=>s+(Number(a.price)||0),0)/apts.length):0;
-  const occPct=apts.length?Math.round(booked.length/apts.length*100):0;
-  const hasAuditData=!!(window.eva360LastResult||localStorage.getItem('eva360_last_result'));
-  let auditNet='À lancer';
-  let auditScore='—';
-  try{
-    const saved=window.eva360LastResult||JSON.parse(localStorage.getItem('eva360_last_result')||'null');
-    if(saved){
-      auditNet=(saved.netTotal!==undefined?Math.round(saved.netTotal)+'€':'Calculé');
-      auditScore=saved.score||'78';
-    }
-  }catch(e){}
-  const scannerReady=apts.filter(a=>a.address||a.lat||a.lng).length;
-  const pricingOpps=genAlerts(apts).slice(0,4);
-  const freeLbl=free.length?`${free.length} libre${free.length>1?'s':''}`:'Tout loué';
+  const free=apts.filter(a=>!a.booked);
 
-  let h=`
-  <div class="eva-cockpit-hero">
-    <div class="eva-cockpit-kicker">RentyQ intelligence cockpit</div>
-    <div class="eva-cockpit-title">Votre prochaine décision rentable doit être évidente.</div>
-    <div class="eva-cockpit-sub">Le cockpit ne remplace pas les modules EVA : il les coordonne. EVA Pricing agit sur les prix à court terme, Scanner EVA analyse le potentiel d\u2019une adresse, EVA Audit explique la rentabilité nette et les actions structurelles à mener.</div>
-  </div>
+  // ── Calcul du potentiel annuel EVA ──
+  const annualPotential=apts.reduce((sum,a)=>{
+    const city=a.city||'';
+    const cityEvs=eventsCache[city]||[];
+    const hotEvs=cityEvs.filter(e=>e.hot);
+    const basePrice=Number(a.price||0);
+    const fl=floor(a);
+    // Nuits libres estimées × écart de prix
+    const freePotential=Math.max(0,Math.round(basePrice*0.15*30));
+    const eventPotential=hotEvs.length?Math.round(hotEvs.length*(basePrice*0.12)*3):0;
+    return sum+freePotential+eventPotential;
+  },0);
+  const annualFmt=annualPotential>=1000?(Math.round(annualPotential/100)*100).toLocaleString('fr-FR'):annualPotential;
 
-  <div class="eva-mini-kpi-row">
-    <div class="eva-mini-kpi"><div class="eva-mini-label">État ce soir</div><div class="eva-mini-value">${booked.length}/${apts.length}</div><div class="eva-mini-help">${freeLbl}</div></div>
-    <div class="eva-mini-kpi"><div class="eva-mini-label">Revenus mois</div><div class="eva-mini-value">${monthRev}€</div><div class="eva-mini-help">${monthRes.length} réservation${monthRes.length>1?'s':''}</div></div>
-    <div class="eva-mini-kpi"><div class="eva-mini-label">Occupation instantanée</div><div class="eva-mini-value">${occPct}%</div><div class="eva-mini-help">Sur le parc actif</div></div>
-    <div class="eva-mini-kpi"><div class="eva-mini-label">Événements chauds</div><div class="eva-mini-value">${hotEvents.length}</div><div class="eva-mini-help">Opportunités de prix</div></div>
-  </div>
-
-  <div class="eva-cockpit-grid">
-    <div class="eva-module-card">
-      <div class="eva-module-top"><div><div class="eva-module-role">Prix jour par jour</div><div class="eva-module-title">EVA Pricing</div></div><div class="eva-module-icon">🧠</div></div>
-      <div class="eva-module-desc">Utilisé quand le logement existe déjà et qu\u2019il faut décider quoi faire sur les prochaines nuits disponibles.</div>
-      <div class="eva-module-list">
-        <span>✓ <b>Analyse les nuits libres</b> et les événements proches.</span>
-        <span>✓ <b>Compare prix actuel vs prix conseillé</b>.</span>
-        <span>✓ <b>Donne une action immédiate</b> : augmenter, baisser ou maintenir.</span>
-      </div>
-      <div class="eva-module-footer"><span class="eva-module-tag">Action court terme</span><button class="btn btn-ai btn-sm" onclick="goTo('pricing',document.querySelector('[onclick*=pricing]'))">Ouvrir</button></div>
-    </div>
-
-    <div class="eva-module-card">
-      <div class="eva-module-top"><div><div class="eva-module-role">Potentiel adresse</div><div class="eva-module-title">Scanner EVA</div></div><div class="eva-module-icon">📍</div></div>
-      <div class="eva-module-desc">Utilisé pour comprendre si l\u2019emplacement et le prix actuel sont cohérents avec la demande locale.</div>
-      <div class="eva-module-list">
-        <span>✓ <b>Score emplacement</b> : transports, commerces, tourisme, business.</span>
-        <span>✓ <b>Score prix actuel</b> selon le potentiel détecté.</span>
-        <span>✓ <b>Diagnostic locatif</b> : sous-exploité, cohérent ou trop cher.</span>
-      </div>
-      <div class="eva-module-footer"><span class="eva-module-tag">Analyse du bien</span><button class="btn btn-ai btn-sm" onclick="goTo('scanner',document.querySelector('[onclick*=scanner]'))">Scanner</button></div>
-    </div>
-
-    <div class="eva-module-card">
-      <div class="eva-module-top"><div><div class="eva-module-role">Rentabilité nette</div><div class="eva-module-title">EVA Audit 360°</div></div><div class="eva-module-icon">📊</div></div>
-      <div class="eva-module-desc">Utilisé pendant l\u2019onboarding ou chaque mois pour comprendre ce que le logement rapporte vraiment.</div>
-      <div class="eva-module-list">
-        <span>✓ <b>CSV réservations</b> : revenus, occupation, durée de séjour.</span>
-        <span>✓ <b>CSV bancaire</b> : charges fixes, ménage, maintenance.</span>
-        <span>✓ <b>Plan d\u2019action</b> pour améliorer la marge nette.</span>
-      </div>
-      <div class="eva-module-footer"><span class="eva-module-tag">Audit stratégique</span><button class="btn btn-ai btn-sm" onclick="goTo('eva-audit',document.querySelector('[onclick*=eva-audit]'))">Auditer</button></div>
-    </div>
-  </div>
-
-  <div class="eva-flow-card">
-    <div class="eva-flow-title">Le rôle de chaque module EVA dans RentyQ</div>
-    <div class="eva-flow-steps">
-      <div class="eva-flow-step"><div class="eva-flow-emoji">📥</div><div class="eva-flow-name">Importer</div><div class="eva-flow-desc">CSV réservations, CSV bancaire, adresse.</div></div>
-      <div class="eva-flow-step"><div class="eva-flow-emoji">📊</div><div class="eva-flow-name">Auditer</div><div class="eva-flow-desc">EVA Audit mesure la marge réelle.</div></div>
-      <div class="eva-flow-step"><div class="eva-flow-emoji">📍</div><div class="eva-flow-name">Positionner</div><div class="eva-flow-desc">Scanner EVA juge l\u2019adresse et le prix.</div></div>
-      <div class="eva-flow-step"><div class="eva-flow-emoji">🧠</div><div class="eva-flow-name">Pricer</div><div class="eva-flow-desc">EVA Pricing ajuste les nuits à venir.</div></div>
-      <div class="eva-flow-step"><div class="eva-flow-emoji">✅</div><div class="eva-flow-name">Agir</div><div class="eva-flow-desc">RentyQ priorise ce qui augmente le net.</div></div>
-    </div>
-  </div>
-
-  <div class="eva-priority-layout">
-    <div class="eva-now-card">
-      <div class="eva-now-head"><div><div class="eva-now-title">Ce que RentyQ recommande maintenant</div><div class="eva-now-sub">Priorités générées à partir du parc, des réservations, événements et données EVA disponibles.</div></div><span class="eva-pill eva-pill-purple">Pilotage</span></div>
-      <div class="eva-signal-list">`;
-
-  const signals=[];
-  if(!apts.length){
-    signals.push({c:'purple',t:'Ajouter votre premier logement',d:'Sans logement, EVA ne peut pas scanner l\u2019adresse ni analyser les prix.',v:'Démarrer',go:"openAddModal()"});
-  } else {
-    if(!hasAuditData) signals.push({c:'purple',t:'Lancer EVA Audit 360°',d:'Importez CSV réservations + CSV bancaire pour obtenir la rentabilité nette et les actions structurelles.',v:'Audit',go:"goTo('eva-audit',document.querySelector('[onclick*=eva-audit]'))"});
-    if(scannerReady<apts.length) signals.push({c:'orange',t:'Compléter les adresses des logements',d:'Scanner EVA devient beaucoup plus pertinent avec une adresse précise pour chaque bien.',v:`${scannerReady}/${apts.length}`,go:"goTo('parc',document.querySelector('[onclick*=parc]'))"});
-    if(hotEvents.length) signals.push({c:'red',t:'Événements locaux détectés',d:'Des pics de demande peuvent justifier une hausse temporaire des prix.',v:`${hotEvents.length} event`,go:"goTo('pricing',document.querySelector('[onclick*=pricing]'))"});
-    if(free.length) signals.push({c:'orange',t:'Nuits libres à optimiser',d:'EVA Pricing doit vérifier si les prix actuels permettent de remplir sans brader.',v:`${free.length} libre`,go:"goTo('pricing',document.querySelector('[onclick*=pricing]'))"});
-    if(!signals.length) signals.push({c:'green',t:'Situation saine',d:'Le parc est cohérent. Surveillez les prochains événements et relancez un audit mensuel.',v:'OK',go:"goTo('events',document.querySelector('[onclick*=events]'))"});
-  }
-  signals.slice(0,5).forEach(sg=>{
-    h+=`<div class="eva-signal"><div class="eva-signal-bar ${sg.c}"></div><div><div class="eva-signal-title">${sg.t}</div><div class="eva-signal-text">${sg.d}</div></div><button class="btn btn-sm" onclick="${sg.go}">${sg.v}</button></div>`;
+  // ── Génération des 3 priorités ──
+  const priorities=[];
+  // Priorité 1 : biens avec événement chaud → monter les prix
+  const aptsWithHotEvent=apts.filter(a=>{
+    const city=a.city||'';
+    return (eventsCache[city]||[]).some(e=>e.hot);
   });
+  if(aptsWithHotEvent.length){
+    const gain=aptsWithHotEvent.reduce((s,a)=>{
+      const city=a.city||'';
+      const ev=(eventsCache[city]||[]).find(e=>e.hot);
+      return s+Math.round((Number(a.price||0))*(ev?.boost||10)/100)*3;
+    },0);
+    priorities.push({
+      icon:'🔥',
+      color:'#FF6B35',
+      bg:'#FFF3EE',
+      border:'rgba(255,107,53,.18)',
+      title:`Augmenter les prix sur ${aptsWithHotEvent.length} bien${aptsWithHotEvent.length>1?'s':''}`,
+      desc:`${aptsWithHotEvent.map(a=>a.name).join(', ')} — événement local détecté`,
+      gain:`+${gain}€ estimés`,
+      action:"goTo('pricing',document.querySelector('[onclick*=pricing]'))",
+      btn:'Pricer'
+    });
+  }
+  // Priorité 2 : biens libres ce soir → sous-performance
+  if(free.length){
+    const lostRev=free.reduce((s,a)=>s+Math.round(Number(a.price||0)*0.82),0);
+    priorities.push({
+      icon:'⚠️',
+      color:'#DC2626',
+      bg:'#FEF2F2',
+      border:'rgba(220,38,38,.18)',
+      title:`${free.length} bien${free.length>1?'s':''} libre${free.length>1?'s':''} ce soir`,
+      desc:`${free.map(a=>a.name).join(', ')} — aucune réservation ce soir`,
+      gain:`${lostRev}€ en jeu`,
+      action:"goTo('pricing',document.querySelector('[onclick*=pricing]'))",
+      btn:'Agir'
+    });
+  }
+  // Priorité 3 : événements à venir non encore pricés
+  if(hotEvents.length){
+    priorities.push({
+      icon:'🎉',
+      color:'#7C3AED',
+      bg:'#F5F0FF',
+      border:'rgba(124,58,237,.18)',
+      title:`${hotEvents.length} événement${hotEvents.length>1?'s':''} à exploiter`,
+      desc:'Des pics de demande locale détectés — ajustez les prix avant la concurrence',
+      gain:`Opportunité de hausse`,
+      action:"goTo('events',document.querySelector('[onclick*=events]'))",
+      btn:'Voir'
+    });
+  }
+  // Si rien d\u2019urgent
+  if(!priorities.length){
+    priorities.push({
+      icon:'✅',
+      color:'#059669',
+      bg:'#ECFDF5',
+      border:'rgba(5,150,105,.18)',
+      title:'Situation saine',
+      desc:'Tous vos biens sont correctement pilotés. Relancez un audit mensuel.',
+      gain:'',
+      action:"goTo('eva-audit',document.querySelector('[onclick*=eva-audit]'))",
+      btn:'Audit'
+    });
+  }
 
-  h+=`</div></div>
-    <div class="eva-now-card">
-      <div class="eva-now-head"><div><div class="eva-now-title">Synthèse des modules EVA</div><div class="eva-now-sub">Une séparation claire pour éviter la confusion produit.</div></div></div>
-      <div class="eva-signal-list">
-        <div class="eva-signal"><div class="eva-signal-bar purple"></div><div><div class="eva-signal-title">EVA Audit = pourquoi je gagne ou perds de l\u2019argent</div><div class="eva-signal-text">Analyse passée : occupation, revenus, charges, marge nette, actions à mener dans le logement.</div></div><div class="eva-signal-value">360°</div></div>
-        <div class="eva-signal"><div class="eva-signal-bar orange"></div><div><div class="eva-signal-title">Scanner EVA = est-ce que ce logement a du potentiel ?</div><div class="eva-signal-text">Analyse du bien : adresse, attractivité, cible locataire, cohérence du prix actuel.</div></div><div class="eva-signal-value">Score</div></div>
-        <div class="eva-signal"><div class="eva-signal-bar green"></div><div><div class="eva-signal-title">EVA Pricing = que dois-je faire sur mes prix ?</div><div class="eva-signal-text">Action future : nuits libres, événements, prix recommandé, validation avant application.</div></div><div class="eva-signal-value">€ / nuit</div></div>
+  // Compléter à 3 priorités si besoin
+  if(apts.length&&priorities.length<3){
+    priorities.push({
+      icon:'📊',
+      color:'#6B3FA0',
+      bg:'#F5F0FF',
+      border:'rgba(107,63,160,.18)',
+      title:'Lancer l\u2019audit mensuel',
+      desc:'Comprenez ce que chaque bien rapporte vraiment après charges.',
+      gain:'',
+      action:"goTo('eva-audit',document.querySelector('[onclick*=eva-audit]'))",
+      btn:'Lancer'
+    });
+  }
+
+  const prioritiesHtml=priorities.slice(0,3).map((p,i)=>`
+    <div style="display:grid;grid-template-columns:44px 1fr auto;gap:14px;align-items:center;background:${p.bg};border:1px solid ${p.border};border-radius:18px;padding:16px">
+      <div style="width:44px;height:44px;border-radius:14px;background:white;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 12px rgba(0,0,0,.06)">${p.icon}</div>
+      <div>
+        <div style="font-size:14px;font-weight:800;color:#17122E;margin-bottom:3px">${i+1}. ${p.title}</div>
+        <div style="font-size:12px;color:#7B708F;line-height:1.4">${p.desc}</div>
+        ${p.gain?`<div style="font-size:12px;font-weight:900;color:${p.color};margin-top:4px">${p.gain}</div>`:''}
+      </div>
+      <button onclick="${p.action}" style="border:none;border-radius:10px;padding:8px 14px;background:${p.color};color:white;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap">${p.btn}</button>
+    </div>`).join('');
+
+  dash.innerHTML=`
+    <!-- Hero EVA -->
+    <div style="background:linear-gradient(135deg,#211051 0%,#7C3AED 46%,#EC4899 100%);border-radius:24px;padding:28px;margin-bottom:16px;color:#fff;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-80px;top:-90px;width:320px;height:320px;background:radial-gradient(circle,rgba(255,255,255,.18),transparent 62%);pointer-events:none"></div>
+      <div style="position:relative;z-index:1">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:900;color:rgba(255,255,255,.65);margin-bottom:10px">EVA Engine · ${new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</div>
+        <div style="font-size:clamp(22px,3vw,32px);font-weight:950;letter-spacing:-.8px;line-height:1.1;margin-bottom:8px">EVA a trouvé <span style="color:#FCD34D">${annualFmt} €</span><br>de potentiel cette année.</div>
+        <div style="font-size:14px;color:rgba(255,255,255,.75);margin-bottom:20px">Sur ${apts.length} logement${apts.length>1?'s':''} · ${hotEvents.length} événement${hotEvents.length>1?'s':''} détecté${hotEvents.length>1?'s':''} · ${free.length} nuit${free.length>1?'s':''} libre${free.length>1?'s':''} ce soir</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button onclick="goTo('pricing',document.querySelector('[onclick*=pricing]'))" style="border:none;border-radius:12px;padding:10px 18px;background:white;color:#7C3AED;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit">🧠 EVA Pricing</button>
+          <button onclick="goTo('eva-audit',document.querySelector('[onclick*=eva-audit]'))" style="border:none;border-radius:12px;padding:10px 18px;background:rgba(255,255,255,.15);color:white;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit;border:1px solid rgba(255,255,255,.25)">📊 Lancer l\u2019audit</button>
+        </div>
       </div>
     </div>
-  </div>`;
 
-  dash.innerHTML=h;
+    <!-- Les 3 priorités -->
+    <div style="background:white;border:1px solid rgba(139,92,246,.14);border-radius:22px;padding:20px;margin-bottom:16px;box-shadow:0 14px 40px rgba(69,39,120,.06)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div>
+          <div style="font-size:18px;font-weight:950;color:#17122E;letter-spacing:-.3px">Les 3 priorités du jour</div>
+          <div style="font-size:12px;color:#8A8A99;margin-top:3px">Ce que EVA recommande de faire maintenant</div>
+        </div>
+        <span style="font-size:11px;font-weight:900;background:#F3E8FF;color:#7C3AED;border-radius:999px;padding:4px 10px">EVA Engine</span>
+      </div>
+      <div style="display:grid;gap:10px">${prioritiesHtml}</div>
+    </div>
+
+    <!-- 3 KPIs essentiels seulement -->
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">
+      <div style="background:white;border:1px solid rgba(139,92,246,.14);border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(69,39,120,.05)">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;font-weight:900;margin-bottom:8px">Revenus ce mois</div>
+        <div style="font-size:28px;font-weight:950;color:#17122E;letter-spacing:-.8px">${monthRev}€</div>
+        <div style="font-size:12px;color:#7B708F;margin-top:6px">${monthRes.length} réservation${monthRes.length>1?'s':''}</div>
+      </div>
+      <div style="background:white;border:1px solid rgba(139,92,246,.14);border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(69,39,120,.05)">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;font-weight:900;margin-bottom:8px">État ce soir</div>
+        <div style="font-size:28px;font-weight:950;color:${free.length?'#DC2626':'#059669'};letter-spacing:-.8px">${apts.length-free.length}/${apts.length}</div>
+        <div style="font-size:12px;color:#7B708F;margin-top:6px">${free.length?free.length+' libre'+(free.length>1?'s':''):'Tout loué ✓'}</div>
+      </div>
+      <div style="background:white;border:1px solid rgba(139,92,246,.14);border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(69,39,120,.05)">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;font-weight:900;margin-bottom:8px">Événements chauds</div>
+        <div style="font-size:28px;font-weight:950;color:${hotEvents.length?'#D97706':'#17122E'};letter-spacing:-.8px">${hotEvents.length}</div>
+        <div style="font-size:12px;color:#7B708F;margin-top:6px">${hotEvents.length?'Opportunité de hausse':'Aucun cette semaine'}</div>
+      </div>
+    </div>`;
 }
+
 function toggleCockpitTodo(id){
   cockpitTodos=cockpitTodos.map(t=>t.id===id?{...t,done:!t.done}:t);
   renderCockpit();
@@ -2817,7 +2865,8 @@ function renderParcTable(){
 
   const mois=new Date().toISOString().slice(0,7);
 
-  cards.innerHTML=apparts.map(a=>{
+  // Calculer l\u2019EVA Priority Score pour chaque bien
+  const enriched=apparts.map(a=>{
     const aptCharges=chargesData.filter(c=>c.appartement_id===a.id);
     const aptRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(mois));
     const rev=aptRes.reduce((s,r)=>s+(r.price_total||0),0);
@@ -2826,51 +2875,84 @@ function renderParcTable(){
     const commPct=aptCharges.find(c=>c.category==='commission_plateforme')?.amount||0;
     const net=rev-totalFixes-totalVars-Math.round(rev*commPct/100);
     const occ=Math.min(Math.round((aptRes.length/8)*100),100)||0;
-    const note=a.note||'—';
     const city=a.city||'';
     const cityEvs=eventsCache[city]||[];
     const hotEvs=cityEvs.filter(e=>e.hot);
-    const pendingMissions=missionsData.filter(m=>m.appartement_id===a.id&&m.status==='en_attente').length;
     const freeTonight=!a.booked;
+    const basePrice=Number(a.price||0);
 
-    let alertText='';let alertBg='#E1F5EE;color:#085041';
-    let actions=0;
-    if(freeTonight){actions++;alertText='⚠ Libre ce soir';alertBg='#FCEBEB;color:#A32D2D';}
-    if(occ<50){actions++;if(!alertText)alertText='⚠ Occupation faible ('+occ+'%)';}
-    if(note!=='—'&&note<4.0){actions++;if(!alertText)alertText='⚠ Note basse ('+note+')';}
-    if(hotEvs.length&&!alertText){alertText='🔥 '+hotEvs[0].name.slice(0,25)+'…';alertBg='#FAEEDA;color:#854F0B';}
-    if(pendingMissions>0&&!alertText){alertText='🧹 '+pendingMissions+' ménage en attente';alertBg='#FAEEDA;color:#854F0B';}
-    if(!alertText){alertText='✓ Tout est en ordre';alertBg='#E1F5EE;color:#085041';}
-    if(actions>1)alertText='⚠ '+actions+' actions urgentes';
+    // EVA Score simplifié vert/orange/rouge
+    let evaScore=55;
+    evaScore+=Math.min(25,Math.round(occ*.25));
+    if(net>0)evaScore+=12;else if(net<0)evaScore-=12;
+    if(!freeTonight)evaScore+=8;else evaScore-=14;
+    if(hotEvs.length)evaScore+=4;
+    evaScore=Math.max(8,Math.min(98,evaScore));
 
-    const barColor=freeTonight?'#E24B4A':'#1D9E75';
-    const borderColor=freeTonight?'#F09595':actions>0?'#FAC775':'#E8E8EE';
+    // Gain potentiel estimé
+    const eventGain=hotEvs.length?Math.round(hotEvs.reduce((s,e)=>s+(basePrice*(e.boost||10)/100),0)*3):0;
+    const freeGain=freeTonight?Math.round(basePrice*.82):0;
+    const totalPotential=eventGain+freeGain+(occ<50?Math.round(basePrice*0.12*8):0);
 
-    return`<div onclick="showApartDetail('${a.id}')" style="background:white;border-radius:12px;border:0.5px solid ${borderColor};padding:1rem;cursor:pointer;position:relative;overflow:hidden;transition:transform .1s,box-shadow .1s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${barColor}"></div>
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
-        <div>
-          <div style="font-size:14px;font-weight:500">${a.emoji||'🏠'} ${a.name}</div>
-          <div style="font-size:11px;color:#8A8A99">${city}</div>
+    // Priorité EVA (pour le tri)
+    let evaPriority=0;
+    if(freeTonight)evaPriority+=100;
+    if(hotEvs.length)evaPriority+=80;
+    if(occ<50)evaPriority+=60;
+    if(net<0)evaPriority+=40;
+
+    return{a,net,occ,hotEvs,freeTonight,evaScore,totalPotential,evaPriority,rev};
+  });
+
+  // Tri par priorité EVA décroissante
+  enriched.sort((x,y)=>y.evaPriority-x.evaPriority);
+
+  cards.innerHTML=enriched.map(({a,net,occ,hotEvs,freeTonight,evaScore,totalPotential,rev})=>{
+    // Couleur EVA Score vert/orange/rouge
+    const scoreColor=evaScore>=80?'#059669':evaScore>=60?'#D97706':'#DC2626';
+    const scoreBg=evaScore>=80?'#ECFDF5':evaScore>=60?'#FFFBEB':'#FEF2F2';
+    const scoreLabel=evaScore>=80?'Bon':evaScore>=60?'À opt.':'Urgent';
+
+    // Badge statut principal
+    let statusIcon,statusText,statusBg,borderColor;
+    if(freeTonight){
+      statusIcon='⚠️';statusText='Libre ce soir';
+      statusBg='#FEF2F2';borderColor='rgba(220,38,38,.25)';
+    } else if(hotEvs.length){
+      statusIcon='🔥';statusText='Événement proche';
+      statusBg='#FFFBEB';borderColor='rgba(217,119,6,.25)';
+    } else if(occ<50){
+      statusIcon='📉';statusText='Occupation faible';
+      statusBg='#FFFBEB';borderColor='rgba(217,119,6,.2)';
+    } else {
+      statusIcon='✅';statusText='Situation stable';
+      statusBg='#ECFDF5';borderColor='rgba(5,150,105,.15)';
+    }
+
+    return`<div onclick="showApartDetail('${a.id}')" style="background:white;border-radius:16px;border:1px solid ${borderColor};padding:16px;cursor:pointer;transition:transform .12s,box-shadow .12s;overflow:hidden" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.08)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+
+      <!-- Header: nom + score EVA -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <div style="min-width:0;flex:1">
+          <div style="font-size:15px;font-weight:700;color:#17122E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.emoji||'🏠'} ${a.name}</div>
+          <div style="font-size:11px;color:#8A8A99;margin-top:2px">${a.city||''}</div>
         </div>
-        <span style="font-size:10px;padding:2px 8px;border-radius:100px;background:${freeTonight?'#FCEBEB;color:#A32D2D':'#E1F5EE;color:#085041'};font-weight:500">${freeTonight?'Libre':'Loué'}</span>
+        <div style="flex-shrink:0;text-align:center;margin-left:10px;background:${scoreBg};border-radius:10px;padding:6px 10px;min-width:54px">
+          <div style="font-size:18px;font-weight:950;color:${scoreColor};letter-spacing:-.5px;line-height:1">${evaScore}</div>
+          <div style="font-size:9px;font-weight:800;color:${scoreColor};text-transform:uppercase;letter-spacing:.4px">${scoreLabel}</div>
+        </div>
       </div>
-      <div style="display:flex;gap:6px;margin-bottom:10px">
-        <div style="flex:1;background:#F8F7FF;border-radius:8px;padding:6px;text-align:center">
-          <div style="font-size:15px;font-weight:500;color:${note!=='—'&&note<4.0?'#E24B4A':'#1A1A2E'}">${note}</div>
-          <div style="font-size:9px;color:#8A8A99">★ Airbnb</div>
-        </div>
-        <div style="flex:1;background:#F8F7FF;border-radius:8px;padding:6px;text-align:center">
-          <div style="font-size:15px;font-weight:500;color:${occ>=65?'#1D9E75':occ>=40?'#BA7517':'#E24B4A'}">${occ}%</div>
-          <div style="font-size:9px;color:#8A8A99">Occup.</div>
-        </div>
-        <div style="flex:1;background:#F8F7FF;border-radius:8px;padding:6px;text-align:center">
-          <div style="font-size:15px;font-weight:500;color:${net>=0?'#1D9E75':'#E24B4A'}">${net>=0?'+':''}${net}€</div>
-          <div style="font-size:9px;color:#8A8A99">Net</div>
-        </div>
-      </div>
-      <div style="font-size:18px;font-weight:500;margin-bottom:6px">${getCurrentDegPrice(a)}€<span style="font-size:11px;font-weight:400;color:#8A8A99">/nuit</span></div>
-      <div style="font-size:11px;padding:4px 8px;border-radius:6px;background:${alertBg}">${alertText}</div>
+
+      <!-- Gain potentiel EVA -->
+      ${totalPotential>0?`<div style="background:linear-gradient(135deg,#F3E8FF,#FFF1F9);border-radius:10px;padding:8px 12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:11px;font-weight:700;color:#7C3AED">💰 Potentiel détecté</div>
+        <div style="font-size:15px;font-weight:950;color:#7C3AED">+${totalPotential}€</div>
+      </div>`:`<div style="background:#F5F4FF;border-radius:10px;padding:8px 12px;margin-bottom:10px">
+        <div style="font-size:11px;color:#8A8A99">Revenus ce mois : <strong style="color:#17122E">${rev}€</strong></div>
+      </div>`}
+
+      <!-- Statut principal -->
+      <div style="background:${statusBg};border-radius:8px;padding:7px 10px;font-size:12px;font-weight:700;color:#17122E">${statusIcon} ${statusText}</div>
     </div>`;
   }).join('');
 
@@ -3326,155 +3408,135 @@ function getSmartRec(a,opts={}){
 
 function renderPricingTable(){
   const horizon=+(document.getElementById('pricing-horizon')?.value||14);
-  const now=new Date();
-  const days=Array.from({length:horizon},(_,i)=>{
-    const d=new Date(now);d.setDate(d.getDate()+i);
-    return {date:isoDate(d),label:d.getDate(),dayName:d.toLocaleDateString('fr-FR',{weekday:'short'}),isToday:i===0,offset:i};
-  });
-
   const gridEl=document.getElementById('pricing-grid');
   const pipeEl=document.getElementById('pricing-pipeline');
   if(!gridEl||!pipeEl)return;
 
   if(!apparts.length){
-    gridEl.innerHTML='<div style="text-align:center;padding:2rem;color:#8A8A99">Ajoutez des appartements pour voir le planning.</div>';
-    pipeEl.innerHTML='';
-    return;
+    gridEl.innerHTML='<div style="text-align:center;padding:2rem;color:#8A8A99">Ajoutez des appartements pour voir les recommandations EVA.</div>';
+    pipeEl.innerHTML='';return;
   }
 
-  const gridData=apparts.map(a=>{
+  const now=new Date();
+  const days=Array.from({length:horizon},(_,i)=>{
+    const d=new Date(now);d.setDate(d.getDate()+i);
+    return{date:isoDate(d),label:d.getDate(),dayName:d.toLocaleDateString('fr-FR',{weekday:'short'}),isToday:i===0,offset:i};
+  });
+
+  // Construire le tableau action/impact par bien
+  const rows=apparts.map(a=>{
     const city=a.city||extractCity(a.zone,null)||'';
     const cityEvents=eventsCache[city]||[];
-    return {
-      a,
-      city,
-      smart:getSmartRec(a,{horizon}),
-      days:days.map(day=>{
-        const isBooked=getAptReservations(a).some(r=>bookingCoversDate(r,day.date));
-        const hotEvs=cityEvents.filter(e=>e.hot&&e.date&&Math.abs((new Date(e.date)-new Date(day.date))/(1000*60*60*24))<=1);
-        const smart=getSmartRec(a,{date:day.date,horizon});
-        const dow=new Date(day.date).getDay();
-        const weekend=dow===5||dow===6;
-        const recPrice=Math.round(smart.rec*(weekend&&!hotEvs.length?1.02:1)*(hotEvs.length?1.06:1));
-        return {...day,isBooked,hotEvs,recPrice,currentPrice:Number(a.price||0),smart};
-      })
-    };
-  });
+    const hotEvs=cityEvents.filter(e=>e.hot);
+    const smart=getSmartRec(a,{horizon});
+    const freeDays=days.filter(d=>!getAptReservations(a).some(r=>bookingCoversDate(r,d.date)));
+    const potential=freeDays.reduce((s,d)=>{
+      const isEv=hotEvs.some(e=>e.date&&Math.abs((new Date(e.date)-new Date(d.date))/(86400000))<=1);
+      return s+Math.round(smart.rec*(isEv?1.08:1));
+    },0);
+    const occ=Math.round(((horizon-freeDays.length)/horizon)*100);
+    const urgent=freeDays.filter(d=>d.offset<=2).length;
 
-  const freeCells=gridData.flatMap(g=>g.days.filter(d=>!d.isBooked).map(d=>({g,d})));
-  const totalFreeNights=freeCells.length;
-  const totalPotential=freeCells.reduce((s,x)=>s+x.d.recPrice,0);
-  const eventNights=freeCells.filter(x=>x.d.hotEvs.length>0).length;
-  const urgentNights=freeCells.filter(x=>x.d.offset<=2).length;
-  const occ=Math.round(((gridData.length*horizon-totalFreeNights)/(gridData.length*horizon||1))*100);
-  const score=Math.max(0,Math.min(100,Math.round(occ*0.75 + (100-Math.min(100,urgentNights*8))*0.25)));
+    let action, actionColor, actionBg, impact;
+    if(freeDays.length===0){
+      action='Rien à faire';actionColor='#059669';actionBg='#ECFDF5';impact='—';
+    } else if(urgent>0){
+      action=`Baisser à ${smart.rec}€ ce soir`;actionColor='#DC2626';actionBg='#FEF2F2';impact=`+${potential}€`;
+    } else if(hotEvs.length&&smart.direction==='AUGMENTER'){
+      const ev=hotEvs[0];
+      action=`+${Math.round((smart.rec-(a.price||0)))}€ sur ${ev.name.slice(0,22)}…`;
+      actionColor='#D97706';actionBg='#FFFBEB';impact=`+${potential}€`;
+    } else if(smart.direction==='AUGMENTER'){
+      action=`Monter à ${smart.rec}€`;actionColor='#7C3AED';actionBg='#F5F0FF';impact=`+${potential}€`;
+    } else {
+      action=`Baisser à ${smart.rec}€`;actionColor='#D97706';actionBg='#FFFBEB';impact=`+${potential}€`;
+    }
+
+    return{a,action,actionColor,actionBg,impact,potential,freeDays,occ,urgent,hotEvs,smart};
+  }).sort((x,y)=>(y.urgent-x.urgent)||(y.potential-x.potential));
+
+  const totalFreeNights=rows.reduce((s,r)=>s+r.freeDays.length,0);
+  const totalPotential=rows.reduce((s,r)=>s+r.potential,0);
+  const occ=Math.round(((apparts.length*horizon-totalFreeNights)/(apparts.length*horizon||1))*100);
+  const score=Math.max(0,Math.min(100,Math.round(occ*0.75+(100-Math.min(100,rows.reduce((s,r)=>s+r.urgent,0)*8))*0.25)));
 
   const sub=document.getElementById('pricing-sub');
-  if(sub)sub.innerHTML=`<span style="color:#EF4444;font-weight:800">${totalFreeNights}</span> nuits libres · <span style="color:#059669;font-weight:800">+${totalPotential}€</span> à sécuriser · <span style="color:#7C3AED;font-weight:800">Score EVA ${score}/100</span>`;
+  if(sub)sub.textContent=`${totalFreeNights} nuit${totalFreeNights>1?'s':''} libres · +${totalPotential}€ à sécuriser · Score EVA ${score}/100`;
   const applyBtn=document.getElementById('btn-apply-all');
   if(applyBtn)applyBtn.style.display=totalFreeNights>0?'inline-flex':'none';
+  document.getElementById('global-result').innerHTML='';
 
-  const urgentApps=gridData.filter(g=>g.smart.priority==='urgent').length;
-  const baisseApps=gridData.filter(g=>g.smart.direction==='BAISSER').length;
-  const hausseApps=gridData.filter(g=>g.smart.direction==='AUGMENTER').length;
+  // ── Tableau action/impact ──
+  const tableRows=rows.map(r=>`
+    <tr style="border-bottom:1px solid #F0EBF9">
+      <td style="padding:14px 12px">
+        <div style="font-size:14px;font-weight:700;color:#17122E">${r.a.emoji||'🏠'} ${escapeHtml(r.a.name||'Appartement')}</div>
+        <div style="font-size:11px;color:#8A8A99;margin-top:2px">${escapeHtml(r.a.city||'')} · ${r.occ}% occupé</div>
+      </td>
+      <td style="padding:14px 12px">
+        <span style="display:inline-block;background:${r.actionBg};color:${r.actionColor};border-radius:999px;padding:5px 12px;font-size:12px;font-weight:800">${escapeHtml(r.action)}</span>
+        ${r.hotEvs.length?`<div style="font-size:10px;color:#D97706;margin-top:4px;font-weight:700">🎉 ${escapeHtml(r.hotEvs[0].name.slice(0,30))}…</div>`:''}
+      </td>
+      <td style="padding:14px 12px;text-align:right">
+        <div style="font-size:16px;font-weight:950;color:${r.impact==='—'?'#8A8A99':'#059669'}">${r.impact}</div>
+        ${r.freeDays.length?`<div style="font-size:10px;color:#8A8A99;margin-top:2px">${r.freeDays.length} nuit${r.freeDays.length>1?'s':''} libres</div>`:''}
+      </td>
+      <td style="padding:14px 12px;text-align:right;white-space:nowrap">
+        ${r.freeDays.length?`<button class="btn btn-sm btn-purple" onclick="applyAI('${r.a.id}',${r.smart.rec})">Appliquer</button>`:'<span style="font-size:12px;color:#059669;font-weight:700">✓ OK</span>'}
+      </td>
+    </tr>`).join('');
 
-  if(!document.getElementById('global-result')?.innerHTML.trim()){
-    document.getElementById('global-result').innerHTML=`<div class="eva-dashboard">
-      <div class="eva-hero-card">
-        <div class="eva-hero-kicker">EVA Pricing · mode action</div>
-        <div class="eva-hero-title">${urgentApps?urgentApps+' bien'+(urgentApps>1?'s':'')+' à remplir vite':'Vos prix sont prêts à piloter'}</div>
-        <div class="eva-hero-sub">${occ<45?'Le portefeuille est trop vide : EVA privilégie les baisses intelligentes sur les dates proches.':occ<65?'Il faut améliorer le remplissage avant de chercher les hausses.':'Bon remplissage : hausse possible sur week-ends et événements.'}</div>
-        <div class="eva-hero-money"><div class="eva-money-big">+${totalPotential}€</div><div class="eva-money-label">potentiel sur ${horizon} jours<br>si les nuits libres sont vendues</div></div>
-      </div>
-      <div class="eva-side-stack">
-        <div class="eva-metric-card"><div class="eva-metric-label">Occupation</div><div class="eva-metric-value">${occ}%</div><div class="eva-progress"><span style="width:${Math.max(5,occ)}%"></span></div><div class="eva-metric-help">Objectif : 65–75%</div></div>
-        <div class="eva-metric-card"><div class="eva-metric-label">Urgences 72h</div><div class="eva-metric-value">${urgentNights}</div><div class="eva-metric-help">Nuits proches à vendre</div></div>
-        <div class="eva-metric-card"><div class="eva-metric-label">Baisses utiles</div><div class="eva-metric-value">${baisseApps}</div><div class="eva-metric-help">Pour éviter 0€ de CA</div></div>
-        <div class="eva-metric-card"><div class="eva-metric-label">Hausses possibles</div><div class="eva-metric-value">${hausseApps}</div><div class="eva-metric-help">Week-end / événement / forte demande</div></div>
-      </div>
-    </div>`;
-  }
-
-  const topActions=gridData
-    .map(g=>({a:g.a,city:g.city,smart:g.smart,free:g.days.filter(d=>!d.isBooked),potential:g.days.filter(d=>!d.isBooked).reduce((s,d)=>s+d.recPrice,0),hasEvent:g.days.some(d=>d.hotEvs.length)}))
-    .filter(x=>x.free.length)
-    .sort((x,y)=>{
-      const rank={urgent:4,important:3,'opportunité':2,normal:1};
-      return (rank[y.smart.priority]||0)-(rank[x.smart.priority]||0)||y.potential-x.potential;
-    });
-
-  let mission=`<div class="eva-actions-panel">
-    <div class="eva-panel-head">
-      <div><div class="eva-panel-title">🔥 Actions prioritaires</div><div class="eva-panel-sub">L\u2019objectif : vendre les nuits vides avant qu\u2019elles ne valent 0€.</div></div>
-      <span class="eva-pill ${urgentNights?'eva-pill-red':'eva-pill-green'}">${urgentNights?urgentNights+' nuits urgentes':'aucune urgence'}</span>
+  gridEl.innerHTML=`
+    <!-- Hero résumé -->
+    <div style="background:linear-gradient(135deg,#211051 0%,#7C3AED 46%,#EC4899 100%);border-radius:20px;padding:20px;margin-bottom:14px;color:#fff">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;font-weight:900;color:rgba(255,255,255,.65);margin-bottom:6px">EVA Pricing · ${horizon} jours</div>
+      <div style="font-size:24px;font-weight:950;letter-spacing:-.5px;margin-bottom:4px">+${totalPotential}€ à sécuriser</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.72)">${totalFreeNights} nuit${totalFreeNights>1?'s':''} libres sur ${apparts.length} bien${apparts.length>1?'s':''} · Occupation ${occ}%</div>
     </div>
-    <div class="eva-action-grid">`;
-  topActions.slice(0,4).forEach(o=>{
-    const cls=o.smart.priority==='urgent'?'urgent':(o.smart.direction==='AUGMENTER'?'up':'');
-    const badge=o.smart.priority==='urgent'?'<span class="eva-pill eva-pill-red">🚨 à remplir</span>':o.hasEvent?'<span class="eva-pill eva-pill-orange">🎉 événement</span>':'<span class="eva-pill eva-pill-purple">🎯 optimiser</span>';
-    mission+=`<div class="eva-action-card ${cls}">
-      <div class="eva-action-top"><div><div class="eva-apt-name">${o.a.emoji||'🏠'} ${escapeHtml(o.a.name||'Appartement')}</div><div class="eva-apt-city">${escapeHtml(o.city||'')}</div></div>${badge}</div>
-      <div class="eva-price-row"><span class="eva-price-old">${o.a.price||0}€</span><span class="eva-price-arrow">→</span><span class="eva-price-new">${o.smart.rec}€</span></div>
-      <div class="eva-reason">${escapeHtml((o.smart.reasons&&o.smart.reasons[0])||o.smart.reason)}</div>
-      <div class="eva-card-footer"><span class="eva-impact">+${o.potential}€ potentiel</span><button class="btn btn-sm btn-purple" onclick="applyAI('${o.a.id}',${o.smart.rec})">Appliquer</button></div>
-    </div>`;
-  });
-  mission+=`</div></div>`;
 
+    <!-- Tableau action/impact -->
+    <div style="background:white;border-radius:18px;border:1px solid rgba(139,92,246,.14);overflow:hidden;box-shadow:0 8px 24px rgba(69,39,120,.06)">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:0">
+        <thead>
+          <tr style="background:#FAF8FF;border-bottom:2px solid #F0EBF9">
+            <th style="text-align:left;padding:12px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:800">Appartement</th>
+            <th style="text-align:left;padding:12px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:800">Action EVA</th>
+            <th style="text-align:right;padding:12px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:800">Impact</th>
+            <th style="padding:12px;width:100px"></th>
+          </tr>
+        </thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+    </div>`;
+
+  // Calendrier en mode "voir le détail" — masqué par défaut
   const COL_W=horizon<=7?58:horizon<=14?46:34;
   const APT_W=160;
-  let cal=`<div class="eva-calendar-card">
-    <div class="eva-calendar-title">
-      <div><div class="eva-panel-title">📅 Calendrier des nuits à vendre</div><div class="eva-panel-sub">Rouge = libre, vert = réservé, orange = opportunité événement.</div></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="eva-pill eva-pill-green">Réservé</span><span class="eva-pill eva-pill-red">Libre</span><span class="eva-pill eva-pill-orange">Événement</span></div>
-    </div>
-    <div class="eva-calendar-grid" style="grid-template-columns:${APT_W}px ${days.map(()=>COL_W+'px').join(' ')};min-width:${APT_W+days.length*(COL_W+4)}px">`;
+  let cal=`<div style="margin-top:12px">
+    <details>
+      <summary style="cursor:pointer;font-size:13px;font-weight:700;color:#7C3AED;padding:10px 0;user-select:none">📅 Voir le calendrier détaillé</summary>
+      <div style="margin-top:10px;overflow-x:auto;background:white;border-radius:14px;border:1px solid #EEEEF5;padding:12px">
+        <div class="eva-calendar-grid" style="grid-template-columns:${APT_W}px ${days.map(()=>COL_W+'px').join(' ')};min-width:${APT_W+days.length*(COL_W+4)}px">`;
   cal+=`<div></div>`;
   days.forEach(d=>{cal+=`<div class="eva-cal-head"><div>${d.dayName}</div><div style="font-size:13px;color:${d.isToday?'#7C3AED':'inherit'}">${d.label}</div></div>`;});
-  gridData.forEach(({a,days:aptDays})=>{
+  rows.forEach(({a,smart,freeDays})=>{
+    const city=a.city||'';const cityEvents=eventsCache[city]||[];const hotEvs=cityEvents.filter(e=>e.hot);
+    const daysData=days.map(d=>{
+      const isBooked=getAptReservations(a).some(r=>bookingCoversDate(r,d.date));
+      const isEv=hotEvs.some(e=>e.date&&Math.abs((new Date(e.date)-new Date(d.date))/(86400000))<=1);
+      return{...d,isBooked,isEv,recPrice:Math.round(smart.rec*(isEv?1.08:1))};
+    });
     cal+=`<div class="eva-cal-apt"><span>${a.emoji||'🏠'}</span><span style="overflow:hidden;text-overflow:ellipsis">${escapeHtml(a.name||'Appartement')}</span></div>`;
-    aptDays.forEach(d=>{
-      const cls=d.isBooked?'booked':(d.hotEvs.length?'event':'free');
-      const tag=d.isBooked?'OK':(d.hotEvs.length?'evt':'libre');
-      const click=d.isBooked?'':`onclick="applyAI('${a.id}',${d.recPrice})"`;
-      cal+=`<div class="eva-cal-cell ${cls} ${d.isToday?'today':''}" ${click} title="${escapeHtml(a.name||'Appartement')} · ${d.date}">
+    daysData.forEach(d=>{
+      const cls=d.isBooked?'booked':(d.isEv?'event':'free');
+      cal+=`<div class="eva-cal-cell ${cls} ${d.isToday?'today':''}" ${d.isBooked?'':` onclick="applyAI('${a.id}',${d.recPrice})"`} title="${escapeHtml(a.name||'')} · ${d.date}">
         <div class="eva-cal-price">${d.isBooked?'✓':d.recPrice+'€'}</div>
-        <div class="eva-cal-tag">${tag}</div>
+        <div class="eva-cal-tag">${d.isBooked?'OK':d.isEv?'evt':'libre'}</div>
       </div>`;
     });
   });
-  cal+=`</div></div>`;
-  gridEl.innerHTML=mission+cal;
-
-  if(!topActions.length){
-    pipeEl.innerHTML='<div class="eva-pipeline-card" style="text-align:center;color:#059669;font-weight:850">✅ Tous vos biens sont réservés sur la période.</div>';
-    return;
-  }
-
-  let pipe=`<div class="eva-pipeline-card">
-    <div class="eva-panel-head">
-      <div><div class="eva-panel-title">💰 Pipeline d\u2019opportunités</div><div class="eva-panel-sub">Trié par urgence puis par revenu récupérable.</div></div>
-      <span class="eva-pill eva-pill-purple">${topActions.length} bien${topActions.length>1?'s':''}</span>
-    </div>`;
-  topActions.forEach(o=>{
-    const sev=o.smart.priority==='urgent'?'red':(o.hasEvent?'orange':(o.smart.direction==='AUGMENTER'?'green':''));
-    const nights=o.free.slice(0,5).map(d=>`<span class="eva-night-pill ${d.hotEvs.length?'event':''}">${d.label}/${new Date(d.date).getMonth()+1} · ${d.recPrice}€</span>`).join('')+(o.free.length>5?`<span class="eva-night-pill">+${o.free.length-5}</span>`:'');
-    pipe+=`<div class="eva-opportunity">
-      <div class="eva-severity ${sev}"></div>
-      <div class="eva-opp-main">
-        <div class="eva-opp-title">${o.a.emoji||'🏠'} ${escapeHtml(o.a.name||'Appartement')} ${o.smart.priority==='urgent'?'<span class="eva-pill eva-pill-red">urgent</span>':''} ${o.hasEvent?'<span class="eva-pill eva-pill-orange">événement</span>':''}</div>
-        <div class="eva-opp-meta">Prix actuel ${o.a.price||0}€ · Reco EVA ${o.smart.rec}€ · ${escapeHtml(o.smart.reason)}</div>
-        <div class="eva-night-pills">${nights}</div>
-      </div>
-      <div class="eva-opp-money"><strong>+${o.potential}€</strong><span>${o.free.length} nuit${o.free.length>1?'s':''} libre${o.free.length>1?'s':''}</span></div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <button class="btn btn-sm btn-purple" onclick="applyAllForApt('${o.a.id}')">Appliquer tout</button>
-        <button class="btn btn-sm" onclick="askAI('${o.a.id}')">Détail</button>
-      </div>
-    </div>`;
-  });
-  pipe+=`</div>`;
-  pipeEl.innerHTML=pipe;
+  cal+=`</div></div></details></div>`;
+  pipeEl.innerHTML=cal;
 }
 
 function applyAllForApt(aptId){
