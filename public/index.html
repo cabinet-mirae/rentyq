@@ -1709,6 +1709,7 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
               <button id="parc-view-map" onclick="switchParcView('map')" style="padding:6px 12px;border-radius:6px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8A8A99">🗺 Carte</button>
             </div>
             <button class="btn btn-green" onclick="syncSmoobu()" id="btn-sync" style="display:none">🔄 Sync Smoobu</button>
+            <button class="btn" onclick="openArchivesView()" id="btn-archives" style="display:none">📦 Archives</button>
             <button class="btn btn-purple" onclick="openAddModal()">+ Ajouter</button>
           </div>
         </div>
@@ -1726,6 +1727,18 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
         </div>
         <div id="parc-detail-view" style="display:none">
           <div id="parc-detail"></div>
+        </div>
+
+        <!-- ARCHIVES -->
+        <div id="parc-archives-view" style="display:none">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.5rem">
+            <button onclick="closeArchivesView()" style="width:38px;height:38px;border-radius:12px;border:1px solid rgba(139,92,246,.16);background:#fff;color:#5B4B7A;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center">&#8592;</button>
+            <div>
+              <div style="font-size:18px;font-weight:700;color:#17122E">Biens archiv&#233;s</div>
+              <div style="font-size:12px;color:#8A8A99">Historique conserv&#233; &middot; Exclus d&#8217;EVA &middot; Suppression d&#233;finitive possible</div>
+            </div>
+          </div>
+          <div id="parc-archives-list"></div>
         </div>
       </div>
 
@@ -2294,6 +2307,10 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       <button class="btn" onclick="closeModal()" style="flex:1">Annuler</button>
       <button class="btn btn-purple" onclick="saveAppart()" id="btn-save-appart" style="flex:2">✓ Enregistrer</button>
     </div>
+    <div id="modal-archive-zone" style="display:none;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid #EEEEF5">
+      <button onclick="confirmArchiveAppart()" style="width:100%;padding:9px;border-radius:8px;background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">📦 Archiver ce bien</button>
+      <div style="font-size:11px;color:#8A8A99;margin-top:5px;text-align:center">L&#8217;historique est conserv&#233;. Le bien dispara&#238;t d&#8217;EVA.</div>
+    </div>
     <div class="auth-error" id="modal-error"></div>
   </div>
 </div>
@@ -2523,7 +2540,7 @@ const SMOOBU_FN=`${FUNCTIONS_URL}/smoobu-proxy`;
 const EVENTS_FN=`${FUNCTIONS_URL}/events-proxy`;
 const STRIPE_FN=`${FUNCTIONS_URL}/stripe-checkout`;
 const EVA_FN=`${FUNCTIONS_URL}/eva-analysis`;
-let currentUser=null,currentProfile=null,apparts=[],reservations=[],editId=null,smoobuConnected=false,eventsCache={};
+let currentUser=null,currentProfile=null,apparts=[],archivedApparts=[],reservations=[],editId=null,smoobuConnected=false,eventsCache={};
 
 const secureHeaders=()=>({
   'Content-Type':'application/json',
@@ -2602,7 +2619,7 @@ async function loadApp(){
     const pData=await pRes.json();
     currentProfile=(pData&&pData.length>0)?pData[0]:{id:currentUser.user.id,name:currentUser.user.email.split('@')[0],email:currentUser.user.email,type:'solo',plan:'Starter'};
     const aRes=await sbFetch(`appartements?user_id=eq.${currentUser.user.id}&select=*&order=created_at.asc`);
-    apparts=await aRes.json()||[];
+    const allApparts=await aRes.json()||[];apparts=allApparts.filter(a=>!a.archived);archivedApparts=allApparts.filter(a=>a.archived);
     try{const rRes=await sbFetch(`reservations?user_id=eq.${currentUser.user.id}&select=*&order=date_from.desc`);reservations=await rRes.json()||[];}catch(e){reservations=[];}
     document.getElementById('loading').style.display='none';
     document.getElementById('app').style.display='flex';
@@ -3257,6 +3274,90 @@ function showApartDetail(id){
     </div>`;
 }
 
+
+/* ===== ARCHIVAGE DES BIENS ===== */
+async function loadArchivedApparts(){
+  try{const res=await sbFetch(`appartements?user_id=eq.${currentUser.user.id}&archived=eq.true&select=*`);archivedApparts=await res.json()||[];}catch(e){archivedApparts=[];}
+  const btn=document.getElementById('btn-archives');
+  if(btn)btn.style.display=archivedApparts.length?'inline-flex':'none';
+}
+function confirmArchiveAppart(){
+  if(!editId)return;
+  const a=apparts.find(x=>x.id===editId);if(!a)return;
+  if(confirm('Archiver "'+a.name+'" ?\n\nLe bien dispara\u00eetra du Cockpit et des analyses EVA.\nL\u2019historique des r\u00e9servations est conserv\u00e9.'))archiveAppart(editId);
+}
+async function archiveAppart(id){
+  try{
+    await sbFetch(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({archived:true})});
+    const a=apparts.find(x=>x.id===id);
+    if(a){archivedApparts.push({...a,archived:true});apparts=apparts.filter(x=>x.id!==id);}
+    closeModal();closeApartDetail();await loadArchivedApparts();renderAll();
+    showToast('\u{1F4E6} '+(a?.name||'Bien')+' archiv\u00e9');
+  }catch(e){showToast('Erreur lors de l\u2019archivage');}
+}
+async function unarchiveAppart(id){
+  try{
+    await sbFetch(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({archived:false})});
+    const a=archivedApparts.find(x=>x.id===id);
+    if(a){apparts.push({...a,archived:false});archivedApparts=archivedApparts.filter(x=>x.id!==id);}
+    await loadArchivedApparts();renderAll();renderArchivesList();
+    showToast('\u2705 Bien remis dans le parc actif');
+  }catch(e){showToast('Erreur lors du d\u00e9sarchivage');}
+}
+async function deleteArchivedAppart(id){
+  const a=archivedApparts.find(x=>x.id===id);if(!a)return;
+  if(!confirm('Supprimer d\u00e9finitivement "'+a.name+'" ?\n\nCette action est irr\u00e9versible.'))return;
+  if(!confirm('Derni\u00e8re confirmation \u2014 "'+a.name+'" sera effac\u00e9 avec tout son historique.'))return;
+  try{
+    await sbFetch(`reservations?appartement_id=eq.${id}`,{method:'DELETE'}).catch(()=>{});
+    await sbFetch(`charges?appartement_id=eq.${id}`,{method:'DELETE'}).catch(()=>{});
+    await sbFetch(`transactions?appartement_id=eq.${id}`,{method:'DELETE'}).catch(()=>{});
+    await sbFetch(`appartements?id=eq.${id}`,{method:'DELETE'});
+    archivedApparts=archivedApparts.filter(x=>x.id!==id);
+    reservations=reservations.filter(r=>r.appartement_id!==id);
+    renderArchivesList();showToast('Bien supprim\u00e9 d\u00e9finitivement');
+  }catch(e){showToast('Erreur lors de la suppression');}
+}
+function openArchivesView(){
+  document.getElementById('parc-list-view').style.display='none';
+  document.getElementById('parc-map-view').style.display='none';
+  document.getElementById('parc-detail-view').style.display='none';
+  document.getElementById('parc-archives-view').style.display='block';
+  renderArchivesList();
+}
+function closeArchivesView(){
+  document.getElementById('parc-archives-view').style.display='none';
+  document.getElementById('parc-list-view').style.display='block';
+}
+function renderArchivesList(){
+  const list=document.getElementById('parc-archives-list');if(!list)return;
+  if(!archivedApparts.length){
+    list.innerHTML='<div style="text-align:center;padding:3rem;color:#8A8A99"><div style="font-size:48px;margin-bottom:1rem">\u{1F4E6}</div><div style="font-weight:600;margin-bottom:6px">Aucun bien archiv\u00e9</div><div style="font-size:13px">L\u2019historique est conserv\u00e9 jusqu\u2019\u00e0 suppression d\u00e9finitive.</div></div>';
+    return;
+  }
+  list.innerHTML=archivedApparts.map(a=>{
+    const aptRes=reservations.filter(r=>r.appartement_id===a.id);
+    const totalRev=aptRes.reduce((s,r)=>s+(r.price_total||0),0);
+    const dt=a.updated_at?new Date(a.updated_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'';
+    return '<div style="background:white;border:1px solid #EEEEF5;border-radius:16px;padding:16px;margin-bottom:10px;opacity:.85">'
+      +'<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">'
+      +'<div style="font-size:28px;opacity:.6">'+(a.emoji||'\uD83C\uDFE0')+'</div>'
+      +'<div style="flex:1"><div style="font-size:15px;font-weight:700">'+(a.name||'Bien archiv\u00e9')+'</div>'
+      +'<div style="font-size:11px;color:#8A8A99">'+(a.city||'')+(dt?' \u00b7 Archiv\u00e9 le '+dt:'')+'</div></div>'
+      +'<span style="font-size:10px;padding:3px 10px;border-radius:999px;background:#FEF3C7;color:#92400E;font-weight:700">\u{1F4E6} Archiv\u00e9</span></div>'
+      +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">'
+      +'<div style="background:#F8F7FF;border-radius:8px;padding:8px;text-align:center"><div style="font-size:14px;font-weight:700">'+aptRes.length+'</div><div style="font-size:10px;color:#8A8A99">R\u00e9servations</div></div>'
+      +'<div style="background:#F8F7FF;border-radius:8px;padding:8px;text-align:center"><div style="font-size:14px;font-weight:700">'+totalRev+'\u20ac</div><div style="font-size:10px;color:#8A8A99">Revenus historiques</div></div>'
+      +'<div style="background:#F8F7FF;border-radius:8px;padding:8px;text-align:center"><div style="font-size:14px;font-weight:700">'+(a.price||0)+'\u20ac</div><div style="font-size:10px;color:#8A8A99">Dernier prix</div></div>'
+      +'</div>'
+      +'<div style="display:flex;gap:8px">'
+      +'<button onclick="unarchiveAppart(\'' +a.id+ '\')" class="btn btn-sm btn-purple" style="flex:1">\u21A9 Remettre dans le parc</button>'
+      +'<button onclick="deleteArchivedAppart(\'' +a.id+ '\')" class="btn btn-sm" style="color:#DC2626;border-color:#FECACA">\uD83D\uDDD1 Supprimer d\u00e9finitivement</button>'
+      +'</div></div>';
+  }).join('');
+}
+/* ===== end ARCHIVAGE ===== */
+
 function closeApartDetail(){
   document.getElementById('parc-detail-view').style.display='none';
   document.getElementById('parc-list-view').style.display='block';
@@ -3832,11 +3933,17 @@ function goTo(page,btn){
   if(page==='eva-audit'){renderEvaEngineLayer();}
 }
 
-function openAddModal(){editId=null;['m-name','m-city','m-zone','m-rent','m-clean','m-price','m-comp','m-address','m-lat','m-lng'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('m-address-preview').style.display='none';document.getElementById('m-address-results').style.display='none';document.getElementById('m-degressif-toggle').className='toggle off';document.getElementById('m-degressif-config').style.display='none';document.getElementById('m-deg-start').value='14';document.getElementById('m-deg-step').value='5';document.getElementById('m-deg-min').value='';document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
+function openAddModal(){editId=null;['m-name','m-city','m-zone','m-rent','m-clean','m-price','m-comp','m-address','m-lat','m-lng'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('m-address-preview').style.display='none';document.getElementById('m-address-results').style.display='none';document.getElementById('m-degressif-toggle').className='toggle off';document.getElementById('m-degressif-config').style.display='none';document.getElementById('m-deg-start').value='14';document.getElementById('m-deg-step').value='5';document.getElementById('m-deg-min').value='';document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');
+  const az=document.getElementById('modal-archive-zone');if(az)az.style.display='none';
+  const mt=document.getElementById('modal-title');if(mt)mt.textContent='Ajouter un appartement';
+}
 function openEdit(id){const a=apparts.find(x=>x.id===id);if(!a)return;editId=id;document.getElementById('m-name').value=a.name||'';document.getElementById('m-city').value=a.city||'';document.getElementById('m-zone').value=a.zone||'';document.getElementById('m-address').value=a.address||'';document.getElementById('m-lat').value=a.latitude||'';document.getElementById('m-lng').value=a.longitude||'';const prev=document.getElementById('m-address-preview');if(a.address){prev.textContent='📍 '+a.address;prev.style.display='block';}else{prev.style.display='none';}
   const degToggle=document.getElementById('m-degressif-toggle');const degConfig=document.getElementById('m-degressif-config');
   if(a.auto_degressif){degToggle.className='toggle on';degConfig.style.display='block';document.getElementById('m-deg-start').value=a.degressif_start||14;document.getElementById('m-deg-step').value=a.degressif_step||5;document.getElementById('m-deg-min').value=a.degressif_min||'';updateDegPreview();}
-  else{degToggle.className='toggle off';degConfig.style.display='none';}document.getElementById('m-emoji').value=a.emoji||'🏠';document.getElementById('m-rent').value=a.rent||'';document.getElementById('m-clean').value=a.cleaner||'';document.getElementById('m-price').value=a.price||'';document.getElementById('m-comp').value=a.comp||'';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
+  else{degToggle.className='toggle off';degConfig.style.display='none';}document.getElementById('m-emoji').value=a.emoji||'🏠';document.getElementById('m-rent').value=a.rent||'';document.getElementById('m-clean').value=a.cleaner||'';document.getElementById('m-price').value=a.price||'';document.getElementById('m-comp').value=a.comp||'';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');
+  const az=document.getElementById('modal-archive-zone');if(az)az.style.display='block';
+  const mt=document.getElementById('modal-title');if(mt)mt.textContent='Modifier le bien';
+}
 function closeModal(){document.getElementById('modal').classList.remove('open')}
 function openAddResModal(){document.getElementById('mr-apt').innerHTML=apparts.map(a=>`<option value="${a.id}">${a.emoji||'🏠'} ${a.name}</option>`).join('');document.getElementById('modal-res').classList.add('open');}
 function closeResModal(){document.getElementById('modal-res').classList.remove('open')}
