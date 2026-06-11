@@ -1411,6 +1411,47 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
 .rq-impact-value{font-size:20px;font-weight:900;color:#059669}
 .rq-impact-label{font-size:11px;color:#7B708F}
 @media(max-width:800px){.rq-action{grid-template-columns:1fr}.rq-rank,.rq-impact{text-align:left}}
+
+
+/* ===== EVA ENGINE LAYER — ajout autonome RentyQ ===== */
+.rq-eva-layer{margin-bottom:18px}
+.rq-eva-layer-hero{position:relative;overflow:hidden;border-radius:26px;background:linear-gradient(135deg,#211051 0%,#7C3AED 46%,#EC4899 100%);color:#fff;padding:26px;box-shadow:0 24px 70px rgba(124,58,237,.22)}
+.rq-eva-layer-hero:after{content:"";position:absolute;right:-80px;top:-95px;width:320px;height:320px;background:radial-gradient(circle,rgba(255,255,255,.24),transparent 63%);pointer-events:none}
+.rq-eva-layer-top{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) 180px;gap:22px;align-items:center}
+.rq-eva-kicker{font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:900;color:rgba(255,255,255,.72);margin-bottom:8px}
+.rq-eva-title{font-size:34px;font-weight:950;letter-spacing:-1.2px;line-height:1.04;margin-bottom:9px}
+.rq-eva-sub{font-size:14px;line-height:1.65;color:rgba(255,255,255,.82);max-width:780px}
+.rq-eva-score-bubble{width:168px;height:168px;border-radius:50%;background:conic-gradient(#fff var(--score),rgba(255,255,255,.20) 0);display:flex;align-items:center;justify-content:center;padding:10px;margin-left:auto;box-shadow:0 18px 42px rgba(0,0,0,.18)}
+.rq-eva-score-inner{width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,rgba(36,16,92,.97),rgba(124,58,237,.74));display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.18)}
+.rq-eva-score-num{font-size:44px;font-weight:950;letter-spacing:-1.4px;line-height:.9}
+.rq-eva-score-label{font-size:10px;text-transform:uppercase;letter-spacing:.9px;font-weight:900;color:rgba(255,255,255,.72);margin-top:8px}
+.rq-eva-score-help{font-size:11px;font-weight:800;margin-top:7px;color:#E9D5FF}
+.rq-eva-money-grid{position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:22px}
+.rq-eva-money-card{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.16);border-radius:18px;padding:14px;backdrop-filter:blur(10px)}
+.rq-eva-money-label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.68);font-weight:900;margin-bottom:7px}
+.rq-eva-money-value{font-size:28px;font-weight:950;letter-spacing:-.8px;line-height:1}
+.rq-eva-money-help{font-size:12px;color:rgba(255,255,255,.72);line-height:1.35;margin-top:7px}
+.rq-eva-section{background:white;border:1px solid rgba(139,92,246,.15);border-radius:22px;box-shadow:0 14px 40px rgba(69,39,120,.07);padding:18px;margin-top:14px}
+.rq-eva-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}
+.rq-eva-section-title{font-size:18px;font-weight:950;color:#17122E;letter-spacing:-.3px}
+.rq-eva-section-sub{font-size:13px;color:#7B708F;line-height:1.45;margin-top:4px}
+.rq-eva-plan{display:grid;gap:12px}
+.rq-eva-action{display:grid;grid-template-columns:46px minmax(0,1fr) 120px;gap:14px;align-items:center;border:1px solid rgba(139,92,246,.12);border-radius:18px;padding:14px;background:linear-gradient(180deg,#fff,#FFFCFF)}
+.rq-eva-action-rank{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#7C3AED,#EC4899);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:950;box-shadow:0 12px 28px rgba(124,58,237,.18)}
+.rq-eva-action-title{font-size:15px;font-weight:950;color:#17122E;margin-bottom:4px}
+.rq-eva-action-desc{font-size:12px;color:#5E5573;line-height:1.45}
+.rq-eva-action-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.rq-eva-chip{font-size:10px;font-weight:900;border-radius:999px;padding:4px 8px;background:#F3E8FF;color:#7C3AED}
+.rq-eva-chip.high{background:#DCFCE7;color:#047857}.rq-eva-chip.medium{background:#FEF3C7;color:#B45309}.rq-eva-chip.low{background:#F1F5F9;color:#475569}
+.rq-eva-impact{text-align:right}.rq-eva-impact strong{display:block;font-size:22px;font-weight:950;color:#059669;letter-spacing:-.5px}.rq-eva-impact span{font-size:11px;color:#8A8A99}
+.rq-eva-next{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;background:linear-gradient(135deg,#F3E8FF,#FFF1F9);border:1px solid rgba(168,85,247,.22);border-radius:18px;padding:16px;margin-top:14px}
+.rq-eva-next-title{font-size:15px;font-weight:950;color:#17122E;margin-bottom:4px}.rq-eva-next-text{font-size:13px;color:#5E5573;line-height:1.5}
+.rq-eva-btn{border:0;border-radius:12px;background:linear-gradient(135deg,#7C3AED,#EC4899);color:white;font-weight:850;font-family:inherit;padding:11px 16px;cursor:pointer;box-shadow:0 12px 28px rgba(124,58,237,.20);white-space:nowrap}
+.rq-eva-btn:hover{filter:brightness(1.04)}
+@media(max-width:950px){.rq-eva-layer-top{grid-template-columns:1fr}.rq-eva-score-bubble{margin:0}.rq-eva-money-grid{grid-template-columns:repeat(2,1fr)}.rq-eva-action{grid-template-columns:42px 1fr}.rq-eva-impact{text-align:left;grid-column:2}.rq-eva-next{grid-template-columns:1fr}}
+@media(max-width:560px){.rq-eva-layer-hero{padding:20px}.rq-eva-title{font-size:27px}.rq-eva-money-grid{grid-template-columns:1fr}.rq-eva-score-bubble{width:142px;height:142px}.rq-eva-score-num{font-size:36px}}
+/* ===== end EVA ENGINE LAYER ===== */
+
 </style>
 
 </head>
@@ -1538,6 +1579,7 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       <div class="nav-section-label">RentyQ</div>
       <button class="nav-item active" onclick="goTo('parc',this)"><span class="nav-emoji"><i class="ti ti-building" aria-hidden="true"></i></span>Mes logements <span class="nav-badge" id="parc-badge">0</span></button>
       <button class="nav-item" onclick="goTo('scanner',this)"><span class="nav-emoji"><i class="ti ti-radar-2" aria-hidden="true"></i></span>Scanner EVA <span class="nav-badge-new">Investir</span></button>
+      <button class="nav-item" onclick="goTo('eva-audit',this)"><span class="nav-emoji"><i class="ti ti-chart-dots-3" aria-hidden="true"></i></span>Audit EVA <span class="nav-badge-new">Nouveau</span></button>
       <button class="nav-item" onclick="goTo('calendrier',this)"><span class="nav-emoji"><i class="ti ti-calendar" aria-hidden="true"></i></span>Calendrier global</button>
       <button class="nav-item" onclick="goTo('clean',this)" id="nav-cleanyq"><span class="nav-emoji"><i class="ti ti-spray" aria-hidden="true"></i></span>CleanyQ</button>
       <button class="nav-item" onclick="goTo('settings',this)"><span class="nav-emoji"><i class="ti ti-settings" aria-hidden="true"></i></span>Paramètres</button>
@@ -1553,6 +1595,7 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       <button class="nav-item" onclick="goTo('finances',this)"><span class="nav-emoji"><i class="ti ti-wallet" aria-hidden="true"></i></span>Finances</button>
       <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji"><i class="ti ti-sparkles" aria-hidden="true"></i></span>EVA pricing</button>
       <button class="nav-item" onclick="goTo('scanner',this)"><span class="nav-emoji"><i class="ti ti-radar-2" aria-hidden="true"></i></span>Scanner EVA</button>
+      <button class="nav-item" onclick="goTo('eva-audit',this)"><span class="nav-emoji"><i class="ti ti-chart-dots-3" aria-hidden="true"></i></span>Audit EVA</button>
       <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji"><i class="ti ti-calendar-event" aria-hidden="true"></i></span>Événements</button>
       <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Intégrations</div>
       <button class="nav-item" onclick="goTo('smoobu',this)"><span class="nav-emoji"><i class="ti ti-link" aria-hidden="true"></i></span>Smoobu</button>
@@ -1719,9 +1762,69 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
         <div class="page-header">
           <div>
             <div class="page-title">EVA Audit 360°</div>
-            <div class="page-sub">CSV réservations + CSV bancaire + adresse → cockpit immédiat de rentabilité</div>
+            <div class="page-sub">La couche EVA ajoute un score, un potentiel financier et des actions prioritaires au cockpit existant.</div>
           </div>
         </div>
+
+        <section class="rq-eva-layer" id="rq-eva-layer">
+          <div class="rq-eva-layer-hero">
+            <div class="rq-eva-layer-top">
+              <div>
+                <div class="rq-eva-kicker">RentyQ × EVA Engine</div>
+                <div class="rq-eva-title">Votre bien laisse peut-être de l’argent sur la table.</div>
+                <div class="rq-eva-sub">EVA transforme vos données en décisions simples : combien vous pouvez récupérer, pourquoi, et quelles actions appliquer en priorité.</div>
+              </div>
+              <div class="rq-eva-score-bubble" id="rq-eva-score-ring" style="--score:75%">
+                <div class="rq-eva-score-inner">
+                  <div class="rq-eva-score-num" id="rq-eva-score-num">75</div>
+                  <div class="rq-eva-score-label">EVA Score</div>
+                  <div class="rq-eva-score-help" id="rq-eva-score-help">Potentiel 100/100</div>
+                </div>
+              </div>
+            </div>
+            <div class="rq-eva-money-grid">
+              <div class="rq-eva-money-card">
+                <div class="rq-eva-money-label">Potentiel annuel</div>
+                <div class="rq-eva-money-value" id="rq-eva-annual">+5 110 €</div>
+                <div class="rq-eva-money-help">Gains estimés sur 12 mois.</div>
+              </div>
+              <div class="rq-eva-money-card">
+                <div class="rq-eva-money-label">Potentiel mensuel</div>
+                <div class="rq-eva-money-value" id="rq-eva-monthly">+426 €</div>
+                <div class="rq-eva-money-help">Gain moyen à aller chercher.</div>
+              </div>
+              <div class="rq-eva-money-card">
+                <div class="rq-eva-money-label">Actions détectées</div>
+                <div class="rq-eva-money-value" id="rq-eva-count">4</div>
+                <div class="rq-eva-money-help">Priorisées par impact.</div>
+              </div>
+              <div class="rq-eva-money-card">
+                <div class="rq-eva-money-label">Priorité n°1</div>
+                <div class="rq-eva-money-value" id="rq-eva-top-short" style="font-size:22px">Tarifs</div>
+                <div class="rq-eva-money-help" id="rq-eva-top-help">+2 160 €/an</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rq-eva-section">
+            <div class="rq-eva-section-head">
+              <div>
+                <div class="rq-eva-section-title">Plan d’action EVA</div>
+                <div class="rq-eva-section-sub">Les 3 actions à lancer en premier pour améliorer la rentabilité du bien.</div>
+              </div>
+              <span class="tag tag-ai">Source unique EVA</span>
+            </div>
+            <div class="rq-eva-plan" id="rq-eva-plan"></div>
+          </div>
+
+          <div class="rq-eva-next">
+            <div>
+              <div class="rq-eva-next-title">Étape suivante : relier cette couche aux données réelles du bien</div>
+              <div class="rq-eva-next-text">Aujourd’hui, ce bloc utilise le format standard EVA Engine. Demain, il recevra automatiquement le JSON produit par l’audit.</div>
+            </div>
+            <button class="rq-eva-btn" onclick="document.querySelector('.eva360-hero').scrollIntoView({behavior:'smooth',block:'start'})">Lancer l’audit complet</button>
+          </div>
+        </section>
 
         <div class="eva360-hero">
           <h2>Analysez le vrai potentiel net d’un logement</h2>
@@ -3830,7 +3933,7 @@ function goTo(page,btn){
   if(page==='proprietaires')renderProprietaires();
   if(page==='rapports'){initRapportMois();renderRapports();}
   if(page==='scanner')renderScannerPage();
-  if(page==='eva-audit'){}
+  if(page==='eva-audit'){renderEvaEngineLayer();}
 }
 
 function openAddModal(){editId=null;['m-name','m-city','m-zone','m-rent','m-clean','m-price','m-comp','m-address','m-lat','m-lng'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('m-address-preview').style.display='none';document.getElementById('m-address-results').style.display='none';document.getElementById('m-degressif-toggle').className='toggle off';document.getElementById('m-degressif-config').style.display='none';document.getElementById('m-deg-start').value='14';document.getElementById('m-deg-step').value='5';document.getElementById('m-deg-min').value='';document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');}
