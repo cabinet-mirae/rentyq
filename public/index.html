@@ -1577,14 +1577,28 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       <div class="sidebar-sep" style="background:rgba(255,255,255,0.08)"></div>
       <div id="nav-solo">
       <div class="nav-section-label">RentyQ</div>
-      <button class="nav-item active" onclick="goTo('parc',this)"><span class="nav-emoji"><i class="ti ti-building" aria-hidden="true"></i></span>Mes logements <span class="nav-badge" id="parc-badge">0</span></button>
+      <button class="nav-item active" onclick="goTo('cockpit',this)"><span class="nav-emoji"><i class="ti ti-layout-dashboard" aria-hidden="true"></i></span>Cockpit</button>
+
+      <div class="nav-section-label">Parc</div>
+      <button class="nav-item" onclick="goTo('parc',this)"><span class="nav-emoji"><i class="ti ti-building" aria-hidden="true"></i></span>Mes logements <span class="nav-badge" id="parc-badge">0</span></button>
       <button class="nav-item" onclick="goTo('scanner',this)"><span class="nav-emoji"><i class="ti ti-radar-2" aria-hidden="true"></i></span>Scanner EVA <span class="nav-badge-new">Investir</span></button>
-      <button class="nav-item" onclick="goTo('eva-audit',this)"><span class="nav-emoji"><i class="ti ti-chart-dots-3" aria-hidden="true"></i></span>Audit EVA <span class="nav-badge-new">Nouveau</span></button>
-      <button class="nav-item" onclick="goTo('calendrier',this)"><span class="nav-emoji"><i class="ti ti-calendar" aria-hidden="true"></i></span>Calendrier global</button>
+
+      <div class="nav-section-label">Calendrier &amp; Réservations</div>
+      <button class="nav-item" onclick="goTo('calendrier',this)"><span class="nav-emoji"><i class="ti ti-calendar" aria-hidden="true"></i></span>Calendrier</button>
+      <button class="nav-item" onclick="goTo('reservations',this)"><span class="nav-emoji"><i class="ti ti-bookmark" aria-hidden="true"></i></span>Réservations</button>
+
+      <div class="nav-section-label">EVA</div>
+      <button class="nav-item" onclick="goTo('eva-audit',this)"><span class="nav-emoji"><i class="ti ti-chart-dots-3" aria-hidden="true"></i></span>EVA Audit 360° <span class="nav-badge-new">Nouveau</span></button>
+      <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji"><i class="ti ti-sparkles" aria-hidden="true"></i></span>EVA Pricing</button>
+      <button class="nav-item" onclick="goTo('events',this)"><span class="nav-emoji"><i class="ti ti-calendar-event" aria-hidden="true"></i></span>Événements</button>
+
+      <div class="nav-section-label">Opérations</div>
       <button class="nav-item" onclick="goTo('clean',this)" id="nav-cleanyq"><span class="nav-emoji"><i class="ti ti-spray" aria-hidden="true"></i></span>CleanyQ</button>
-      <button class="nav-item" onclick="goTo('settings',this)"><span class="nav-emoji"><i class="ti ti-settings" aria-hidden="true"></i></span>Paramètres</button>
-      <div class="nav-section-label" style="color:rgba(255,255,255,0.25)" id="nav-label-integrations">Intégrations</div>
+
+      <div class="nav-section-label" id="nav-label-integrations">Intégrations &amp; Compte</div>
       <button class="nav-item" onclick="goTo('smoobu',this)" id="nav-smoobu"><span class="nav-emoji"><i class="ti ti-link" aria-hidden="true"></i></span>Smoobu <span class="smoobu-badge" id="smoobu-nav-badge" style="display:none">✓</span></button>
+      <button class="nav-item" onclick="goTo('tarifs',this)"><span class="nav-emoji"><i class="ti ti-credit-card" aria-hidden="true"></i></span>Tarifs</button>
+      <button class="nav-item" onclick="goTo('settings',this)"><span class="nav-emoji"><i class="ti ti-settings" aria-hidden="true"></i></span>Paramètres</button>
       </div>
       <div id="nav-concierge" style="display:none">
       <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Conciergerie</div>
@@ -1601,8 +1615,8 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       <button class="nav-item" onclick="goTo('smoobu',this)"><span class="nav-emoji"><i class="ti ti-link" aria-hidden="true"></i></span>Smoobu</button>
       </div>
       <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Compte</div>
-      <button class="nav-item" onclick="goTo('tarifs',this)"><span class="nav-emoji"><i class="ti ti-credit-card" aria-hidden="true"></i></span>Tarifs</button>
-      <button class="nav-item" onclick="goTo('settings',this)"><span class="nav-emoji"><i class="ti ti-settings" aria-hidden="true"></i></span>Paramètres</button>
+      <button class="nav-item" onclick="goTo('tarifs',this)" style="display:none"><span class="nav-emoji"><i class="ti ti-credit-card" aria-hidden="true"></i></span>Tarifs</button>
+      <button class="nav-item" onclick="goTo('settings',this)" style="display:none"><span class="nav-emoji"><i class="ti ti-settings" aria-hidden="true"></i></span>Paramètres</button>
       <div class="sidebar-footer" style="border-top:0.5px solid rgba(255,255,255,0.06)">
         <div class="user-row">
           <div class="user-avatar" id="s-avatar" style="border-radius:6px;background:rgba(83,74,183,0.25);color:#CECBF6;font-size:11px;width:28px;height:28px">?</div>
@@ -1615,7 +1629,7 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
     <div class="main">
 
       <!-- COCKPIT -->
-      <div class="page" id="page-cockpit">
+      <div class="page active" id="page-cockpit">
         <div class="page-header">
           <div><div class="page-title">Cockpit RentyQ</div><div class="page-sub" id="cockpit-date">Votre tour de contrôle : revenus, risques et prochaines actions EVA</div></div>
           <div class="actions">
@@ -1654,7 +1668,7 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       </div>
 
       <!-- LE PARC -->
-      <div class="page active" id="page-parc">
+      <div class="page" id="page-parc">
         <div class="page-header">
           <div><div class="page-title">Mes logements</div><div class="page-sub" id="parc-sub"></div></div>
           <div class="actions">
@@ -6000,35 +6014,35 @@ const RQ_TOUR_STEPS = [
     page: "cockpit",
     emoji: "🏠",
     title: "1/5 — Cockpit",
-    text: "Ici, tu vois les priorités du jour : logements libres, revenus, occupation et alertes importantes. C’est ta tour de contrôle quotidienne."
+    text: "C'est votre porte d'entrée. EVA affiche le score global, le potentiel annuel détecté et les actions prioritaires du jour. Tout part d'ici."
   },
   {
-    sel: "[onclick*=\"calendrier\"]",
-    page: "calendrier",
-    emoji: "📅",
-    title: "2/5 — Calendrier",
-    text: "Visualise tes périodes libres, réservées et les opportunités à venir. Clique sur n’importe quel jour pour voir le détail et les missions ménage."
+    sel: "[onclick*=\"parc\"]",
+    page: "parc",
+    emoji: "🏢",
+    title: "2/5 — Mes logements",
+    text: "Retrouvez tous vos biens, leur score EVA individuel, leur rentabilité et les recommandations spécifiques à chaque logement."
+  },
+  {
+    sel: "[onclick*=\"eva-audit\"]",
+    page: "eva-audit",
+    emoji: "📊",
+    title: "3/5 — EVA Audit 360°",
+    text: "EVA analyse vos données réelles : réservations, charges, occupation, rentabilité nette. Il transforme les chiffres en décisions concrètes et chiffrées."
   },
   {
     sel: "[onclick*=\"pricing\"]",
     page: "pricing",
     emoji: "🧠",
-    title: "3/5 — EVA Pricing",
-    text: "EVA analyse ton logement, les événements locaux et la demande pour suggérer le bon prix. Tu valides chaque ajustement avant qu’il soit appliqué."
+    title: "4/5 — EVA Pricing",
+    text: "EVA détecte les événements locaux, analyse la demande et suggère le bon prix pour chaque nuit libre. Vous validez avant application."
   },
   {
     sel: "[onclick*=\"events\"]",
     page: "events",
     emoji: "🎉",
-    title: "4/5 — Événements",
-    text: "Repère les concerts, salons et pics de demande qui peuvent augmenter tes revenus. EVA détecte automatiquement les opportunités dans tes villes."
-  },
-  {
-    sel: "[onclick*=\"finances\"]",
-    page: "finances",
-    emoji: "💰",
-    title: "5/5 — Finances",
-    text: "Suis ta rentabilité nette et comprends ce qui te rapporte vraiment. Le prévisionnel sur 12 mois t’aide à anticiper tes revenus futurs."
+    title: "5/5 — Événements",
+    text: "Concerts, salons, pics de demande… EVA détecte automatiquement les opportunités dans vos villes pour ne jamais rater une hausse de tarif."
   }
 ];
 
