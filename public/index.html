@@ -7130,43 +7130,183 @@ async function loadDemoData(){
 
 // STRIPE & TARIFS
 function renderTarifs(){
-  const content=document.getElementById('tarifs-content');if(!content)return;
-  const plan=currentProfile?.plan||'Starter';
-  const isStarter=plan==='Starter';const isPro=plan==='Pro';
-  content.innerHTML=`
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-bottom:1.5rem">
-    <div style="background:white;border-radius:14px;border:0.5px solid #EEEEF5;padding:1.5rem">
-      <div style="font-size:12px;font-weight:600;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Starter</div>
-      <div style="font-size:36px;font-weight:700;margin-bottom:4px">29€<span style="font-size:14px;font-weight:400;color:#8A8A99">/mois</span></div>
-      <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">14 jours offerts</div>
-      <div style="font-size:13px;line-height:2;margin-bottom:1.25rem;color:#3A3A50">
-        ✓ Jusqu\u2019à 5 appartements<br>✓ EVA Rules Engine<br>✓ Intégration Smoobu<br>✓ Événements Ticketmaster<br>✗ Mode conciergerie
+  const el=document.getElementById('tarifs-content');if(!el)return;
+  const plan=currentProfile?.plan||'';
+
+  el.innerHTML=`
+  <!-- HERO -->
+  <div style="text-align:center;padding:3rem 1rem 2rem;max-width:680px;margin:0 auto">
+    <div style="display:inline-block;background:linear-gradient(135deg,#F3E8FF,#FCE7F3);border-radius:999px;padding:6px 16px;font-size:12px;font-weight:800;color:#6D28D9;font-family:Sora,sans-serif;letter-spacing:.5px;margin-bottom:16px;text-transform:uppercase">Essai gratuit 30 jours</div>
+    <h1 style="font-family:Sora,sans-serif;font-size:clamp(26px,3vw,38px);font-weight:900;color:#0B0722;letter-spacing:-.8px;line-height:1.15;margin-bottom:14px">Combien EVA peut-elle vous faire gagner\u00a0?</h1>
+    <p style="font-size:15px;color:#7B708F;line-height:1.7;margin-bottom:2rem">Essayez RentyQ gratuitement pendant 30 jours sur votre premier logement.<br><strong style="color:#0B0722">Sans carte bancaire. Sans engagement.</strong></p>
+    <div style="display:inline-flex;gap:0;background:#F3E8FF;border-radius:14px;padding:16px 24px;text-align:left">
+      <div style="display:grid;gap:10px;font-size:13px;color:#4B3B6B">
+        ${['1 logement','EVA analyse vos donn\u00e9es','D\u00e9couvrez votre potentiel','D\u00e9cidez ensuite'].map((s,i)=>`
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#6D28D9,#EC4899);color:white;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</div>
+            <span style="font-weight:${i===0||i===3?'700':'500'};color:${i===3?'#6D28D9':'#0B0722'}">${s}</span>
+          </div>`).join('')}
       </div>
-      <button onclick="startCheckout('starter')" class="btn btn-purple" style="width:100%;justify-content:center;padding:10px" ${isStarter?'disabled':''}>${isStarter?'Plan actuel':"Commencer l\u2019essai gratuit"}</button>
-    </div>
-    <div style="background:white;border-radius:14px;border:2px solid #6B3FA0;padding:1.5rem;position:relative">
-      <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#6B3FA0;color:white;font-size:11px;font-weight:600;padding:3px 12px;border-radius:100px">Recommandé</div>
-      <div style="font-size:12px;font-weight:600;color:#6B3FA0;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Pro</div>
-      <div style="font-size:36px;font-weight:700;margin-bottom:4px">79€<span style="font-size:14px;font-weight:400;color:#8A8A99">/mois</span></div>
-      <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">14 jours offerts</div>
-      <div style="font-size:13px;line-height:2;margin-bottom:1.25rem;color:#3A3A50">
-        ✓ Appartements illimités<br>✓ EVA IA avancé<br>✓ Intégration Smoobu<br>✓ Événements Ticketmaster<br>✓ Mode conciergerie multi-clients
-      </div>
-      <button onclick="startCheckout('pro')" class="btn btn-purple" style="width:100%;justify-content:center;padding:10px" ${isPro?'disabled':''}>${isPro?'Plan actuel':"Commencer l\u2019essai gratuit"}</button>
-    </div>
-    <div style="background:white;border-radius:14px;border:0.5px solid #EEEEF5;padding:1.5rem">
-      <div style="font-size:12px;font-weight:600;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem">Premium</div>
-      <div style="font-size:36px;font-weight:700;margin-bottom:4px">Sur devis</div>
-      <div style="font-size:13px;color:#8A8A99;margin-bottom:1.25rem">Sur mesure pour les grandes conciergeries</div>
-      <div style="font-size:13px;line-height:2;margin-bottom:1.25rem;color:#3A3A50">
-        ✓ Multi-comptes<br>✓ API dédiée<br>✓ Support prioritaire<br>✓ Onboarding personnalisé<br>✓ Dashboard custom
-      </div>
-      <button onclick="window.location.href='mailto:contact@rentyq.fr'" class="btn" style="width:100%;justify-content:center;padding:10px">Nous contacter</button>
     </div>
   </div>
-  <div style="background:#F5F4FF;border-radius:12px;padding:1rem;font-size:13px;color:#6B3FA0;text-align:center">
-    🔒 Paiement sécurisé par Stripe · Annulation à tout moment · Aucun engagement
-  </div>`;
+
+  <!-- OFFRES -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:3rem">
+
+    <!-- Starter -->
+    <div style="background:white;border-radius:20px;border:1.5px solid rgba(109,40,217,.18);padding:24px;display:flex;flex-direction:column">
+      <div style="font-family:Sora,sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#8A8A99;margin-bottom:8px">Starter</div>
+      <div style="font-family:Sora,sans-serif;font-size:40px;font-weight:900;color:#0B0722;line-height:1;margin-bottom:4px">49\u20ac<span style="font-size:14px;font-weight:500;color:#8A8A99">/mois</span></div>
+      <div style="font-size:12px;color:#7B708F;margin-bottom:4px">Pour les investisseurs qui pilotent leurs biens</div>
+      <div style="font-size:11px;font-weight:700;color:#059669;background:#DCFCE7;border-radius:999px;padding:3px 10px;display:inline-block;margin-bottom:18px">30 jours gratuits</div>
+      <div style="font-size:13px;line-height:1.9;color:#3A3A50;flex:1;margin-bottom:20px">
+        \u2713 Jusqu\u2019\u00e0 <strong>5 logements</strong><br>
+        \u2713 Cockpit EVA<br>
+        \u2713 Audit 360\u00b0 &amp; Profit 360\u00b0<br>
+        \u2713 Scanner EVA<br>
+        \u2713 Import Airbnb / Booking<br>
+        \u2713 Recommandations EVA<br>
+        \u2717 <span style="color:#C0BAD0">Mode conciergerie</span>
+      </div>
+      <button onclick="startCheckout('starter')" class="btn btn-purple" style="width:100%;justify-content:center;padding:12px;font-family:Sora,sans-serif;font-size:14px;font-weight:800" ${plan==='starter'?'disabled':''}>
+        ${plan==='starter'?'Plan actuel':'Commencer l\u2019essai gratuit'}
+      </button>
+    </div>
+
+    <!-- Pro -->
+    <div style="background:white;border-radius:20px;border:1.5px solid rgba(109,40,217,.18);padding:24px;display:flex;flex-direction:column">
+      <div style="font-family:Sora,sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#8A8A99;margin-bottom:8px">Pro</div>
+      <div style="font-family:Sora,sans-serif;font-size:40px;font-weight:900;color:#0B0722;line-height:1;margin-bottom:4px">99\u20ac<span style="font-size:14px;font-weight:500;color:#8A8A99">/mois</span></div>
+      <div style="font-size:12px;color:#7B708F;margin-bottom:4px">Conciergeries de 5 \u00e0 30 lots</div>
+      <div style="font-size:11px;font-weight:700;color:#059669;background:#DCFCE7;border-radius:999px;padding:3px 10px;display:inline-block;margin-bottom:18px">30 jours gratuits</div>
+      <div style="font-size:13px;line-height:1.9;color:#3A3A50;flex:1;margin-bottom:20px">
+        \u2713 Jusqu\u2019\u00e0 <strong>30 logements</strong><br>
+        \u2713 Tout Starter<br>
+        \u2713 Connexion PMS<br>
+        \u2713 Mode conciergerie<br>
+        \u2713 Gestion multi-propri\u00e9taires<br>
+        \u2713 Calendrier intelligent EVA<br>
+        \u2713 Opportunit\u00e9s EVA avanc\u00e9es
+      </div>
+      <button onclick="startCheckout('pro')" class="btn btn-purple" style="width:100%;justify-content:center;padding:12px;font-family:Sora,sans-serif;font-size:14px;font-weight:800" ${plan==='pro'?'disabled':''}>
+        ${plan==='pro'?'Plan actuel':'Commencer l\u2019essai gratuit'}
+      </button>
+    </div>
+
+    <!-- Conciergerie — RECOMMANDÉ -->
+    <div style="background:linear-gradient(180deg,#F8F4FF 0%,white 100%);border-radius:20px;border:2px solid #6D28D9;padding:24px;display:flex;flex-direction:column;position:relative;box-shadow:0 20px 50px rgba(109,40,217,.16)">
+      <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#6D28D9,#EC4899);color:white;font-size:11px;font-weight:800;padding:4px 16px;border-radius:999px;font-family:Sora,sans-serif;white-space:nowrap">RECOMMAND\u00c9</div>
+      <div style="font-family:Sora,sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#6D28D9;margin-bottom:8px">Conciergerie</div>
+      <div style="font-family:Sora,sans-serif;font-size:40px;font-weight:900;color:#0B0722;line-height:1;margin-bottom:4px">199\u20ac<span style="font-size:14px;font-weight:500;color:#8A8A99">/mois</span></div>
+      <div style="font-size:12px;color:#7B708F;margin-bottom:4px">Conciergeries de 30 \u00e0 100 lots</div>
+      <div style="font-size:11px;font-weight:700;color:#059669;background:#DCFCE7;border-radius:999px;padding:3px 10px;display:inline-block;margin-bottom:18px">30 jours gratuits</div>
+      <div style="font-size:13px;line-height:1.9;color:#3A3A50;flex:1;margin-bottom:20px">
+        \u2713 Jusqu\u2019\u00e0 <strong>100 logements</strong><br>
+        \u2713 Tout Pro<br>
+        \u2713 Historique EVA avanc\u00e9<br>
+        \u2713 Rapports multi-clients<br>
+        \u2713 Support prioritaire<br>
+        \u2713 Scanner EVA illimit\u00e9<br>
+        \u2713 Profit 360\u00b0 avanc\u00e9
+      </div>
+      <button onclick="startCheckout('conciergerie')" class="btn btn-purple" style="width:100%;justify-content:center;padding:12px;font-family:Sora,sans-serif;font-size:14px;font-weight:800;box-shadow:0 8px 20px rgba(109,40,217,.28)" ${plan==='conciergerie'?'disabled':''}>
+        ${plan==='conciergerie'?'Plan actuel':'Commencer l\u2019essai'}
+      </button>
+    </div>
+
+    <!-- Enterprise -->
+    <div style="background:white;border-radius:20px;border:1.5px solid rgba(109,40,217,.18);padding:24px;display:flex;flex-direction:column">
+      <div style="font-family:Sora,sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#8A8A99;margin-bottom:8px">Enterprise</div>
+      <div style="font-family:Sora,sans-serif;font-size:32px;font-weight:900;color:#0B0722;line-height:1;margin-bottom:4px">Sur devis</div>
+      <div style="font-size:12px;color:#7B708F;margin-bottom:4px">Grandes conciergeries &amp; groupes immobiliers</div>
+      <div style="font-size:11px;font-weight:700;color:#7B708F;background:#F3F4F6;border-radius:999px;padding:3px 10px;display:inline-block;margin-bottom:18px">+100 logements</div>
+      <div style="font-size:13px;line-height:1.9;color:#3A3A50;flex:1;margin-bottom:20px">
+        \u2713 Tout Conciergerie<br>
+        \u2713 Multi-comptes<br>
+        \u2713 API d\u00e9di\u00e9e<br>
+        \u2713 Accompagnement personnalis\u00e9<br>
+        \u2713 Formation des \u00e9quipes<br>
+        \u2713 SLA d\u00e9di\u00e9
+      </div>
+      <button onclick="window.location.href='mailto:contact@rentyq.fr'" class="btn" style="width:100%;justify-content:center;padding:12px;font-family:Sora,sans-serif;font-size:14px;font-weight:700">
+        Parler \u00e0 un expert
+      </button>
+    </div>
+
+  </div>
+
+  <!-- POURQUOI PAYER -->
+  <div style="background:linear-gradient(135deg,#F8F4FF,#FFF0F7);border-radius:22px;padding:2.5rem;margin-bottom:2.5rem;border:1px solid rgba(109,40,217,.12)">
+    <div style="text-align:center;max-width:560px;margin:0 auto">
+      <div style="font-family:Sora,sans-serif;font-size:22px;font-weight:900;color:#0B0722;margin-bottom:12px">Pourquoi ajouter RentyQ \u00e0 votre PMS\u00a0?</div>
+      <p style="font-size:14px;color:#7B708F;line-height:1.7;margin-bottom:20px">Votre PMS vous aide <strong style="color:#0B0722">à g\u00e9rer</strong>. EVA vous aide <strong style="color:#6D28D9">à gagner davantage</strong>.</p>
+      <div style="background:white;border-radius:16px;padding:20px;border:1px solid rgba(109,40,217,.12);text-align:left;margin-bottom:16px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div>
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;font-weight:700;margin-bottom:6px">Co\u00fbt RentyQ</div>
+            <div style="font-family:Sora,sans-serif;font-size:24px;font-weight:900;color:#DC2626">199\u20ac<span style="font-size:13px;font-weight:500;color:#8A8A99">/mois</span></div>
+            <div style="font-size:12px;color:#8A8A99;margin-top:2px">\u2248 2 388\u20ac/an</div>
+          </div>
+          <div>
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;font-weight:700;margin-bottom:6px">Impact moyen EVA</div>
+            <div style="font-family:Sora,sans-serif;font-size:24px;font-weight:900;color:#059669">+3 000\u20ac</div>
+            <div style="font-size:12px;color:#8A8A99;margin-top:2px">jusqu\u2019\u00e0 +10 000\u20ac/an</div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:13px;color:#7B708F;font-style:italic">Si EVA ne vous aide pas \u00e0 am\u00e9liorer votre rentabilit\u00e9, il n\u2019a pas sa place dans votre activit\u00e9.</p>
+    </div>
+  </div>
+
+  <!-- COMMENT CA MARCHE -->
+  <div style="margin-bottom:2.5rem">
+    <div style="font-family:Sora,sans-serif;font-size:22px;font-weight:900;color:#0B0722;text-align:center;margin-bottom:1.5rem">Comment \u00e7a fonctionne\u00a0?</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+      ${[
+        {n:'1',icon:'\uD83D\uDD17',t:'Connectez vos donn\u00e9es',d:'PMS, Airbnb, Booking ou import manuel'},
+        {n:'2',icon:'\uD83E\uDDE0',t:'EVA analyse',d:'Revenus, charges, occupation et performance'},
+        {n:'3',icon:'\uD83D\uDCA1',t:'D\u00e9couvrez vos opportunit\u00e9s',d:'EVA identifie les actions \u00e0 fort impact'},
+        {n:'4',icon:'\uD83D\uDCC8',t:'Augmentez votre rentabilit\u00e9',d:'Prenez de meilleures d\u00e9cisions, plus rapidement'}
+      ].map(s=>`<div style="background:white;border-radius:16px;border:1px solid rgba(109,40,217,.12);padding:18px;text-align:center">
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#6D28D9,#EC4899);color:white;font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-family:Sora,sans-serif">${s.n}</div>
+        <div style="font-size:22px;margin-bottom:8px">${s.icon}</div>
+        <div style="font-family:Sora,sans-serif;font-size:13px;font-weight:800;color:#0B0722;margin-bottom:4px">${s.t}</div>
+        <div style="font-size:12px;color:#7B708F;line-height:1.4">${s.d}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div style="margin-bottom:2.5rem">
+    <div style="font-family:Sora,sans-serif;font-size:22px;font-weight:900;color:#0B0722;text-align:center;margin-bottom:1.5rem">Questions fr\u00e9quentes</div>
+    <div style="display:grid;gap:8px;max-width:700px;margin:0 auto">
+      ${[
+        ['Puis-je essayer RentyQ gratuitement\u00a0?','Oui. 30 jours gratuits sur votre premier logement, sans carte bancaire.'],
+        ['Ai-je besoin d\u2019un PMS\u00a0?','Non. EVA fonctionne avec des imports Airbnb, Booking, des relev\u00e9s bancaires ou une saisie manuelle.'],
+        ['Puis-je annuler \u00e0 tout moment\u00a0?','Oui. Sans engagement, sans frais.'],
+        ['EVA remplace-t-elle mon PMS\u00a0?','Non. Votre PMS g\u00e8re. EVA analyse et recommande pour vous faire gagner plus.'],
+        ['Mes donn\u00e9es sont-elles s\u00e9curis\u00e9es\u00a0?','Oui. Donn\u00e9es stock\u00e9es sur infrastructure s\u00e9curis\u00e9e (Supabase \u2014 ISO 27001).']
+      ].map(([q,a])=>`<details style="background:white;border:1px solid rgba(109,40,217,.12);border-radius:14px;padding:16px;cursor:pointer">
+        <summary style="font-family:Sora,sans-serif;font-size:14px;font-weight:700;color:#0B0722;list-style:none;display:flex;justify-content:space-between;align-items:center">${q}<span style="color:#6D28D9;font-size:16px">+</span></summary>
+        <div style="font-size:13px;color:#7B708F;line-height:1.65;margin-top:10px;padding-top:10px;border-top:1px solid #F0EBF9">${a}</div>
+      </details>`).join('')}
+    </div>
+  </div>
+
+  <!-- FOOTER CTA -->
+  <div style="background:linear-gradient(135deg,#6D28D9 0%,#9333EA 50%,#EC4899 100%);border-radius:22px;padding:3rem;text-align:center;color:white;margin-bottom:1rem">
+    <div style="font-family:Sora,sans-serif;font-size:26px;font-weight:900;line-height:1.2;margin-bottom:10px">Pr\u00eat \u00e0 d\u00e9couvrir le potentiel r\u00e9el de vos logements\u00a0?</div>
+    <p style="color:rgba(255,255,255,.8);font-size:14px;margin-bottom:24px">Essayez RentyQ gratuitement pendant 30 jours. Sans carte bancaire.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button onclick="startCheckout('starter')" style="padding:13px 28px;border-radius:14px;background:white;color:#6D28D9;border:none;font-size:15px;font-weight:800;cursor:pointer;font-family:Sora,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.18)">Essayer gratuitement</button>
+      <button onclick="window.location.href='mailto:contact@rentyq.fr'" style="padding:13px 28px;border-radius:14px;background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.3);font-size:15px;font-weight:700;cursor:pointer;font-family:Sora,sans-serif">Demander une d\u00e9mo</button>
+    </div>
+  </div>
+
+  <div style="text-align:center;font-size:12px;color:#8A8A99;padding:0.5rem 0 1.5rem">
+    \uD83D\uDD12 Paiement s\u00e9curis\u00e9 par Stripe &nbsp;\u00b7&nbsp; Annulation \u00e0 tout moment &nbsp;\u00b7&nbsp; Aucun engagement
+  </div>
+  `;
 }
 
 async function startCheckout(plan){
@@ -8130,34 +8270,53 @@ async function checkOAuthCallback(){
 /* ===== PROFIT 360 ===== */
 function renderProfit360(){
   const el=document.getElementById('profit360-content');if(!el)return;
-  // Sources EVA disponibles
   const sources=evaGetSources?evaGetSources():{};
   const hasPMS=!!sources.pms;
   const hasAirbnb=!!sources.airbnb;
   const hasBank=!!sources.bank;
-  const hasManual=!!sources.manual||apparts.length>0;
-  const hasAnyData=hasPMS||hasAirbnb||hasBank||hasManual||reservations.length>0;
+  const hasManual=!!(sources.manual);
+  const hasBiens=apparts.length>0;
+  const hasRes=reservations.length>0;
+  const hasCharges=chargesData&&chargesData.length>0;
 
-  // Sélecteur de période
+  // Période
   const periodEl=document.getElementById('profit360-period');
   const period=periodEl?+periodEl.value:1;
 
-  if(!hasAnyData){
-    el.innerHTML=
-      '<div style="text-align:center;padding:3rem;background:white;border-radius:20px;border:1px solid rgba(109,40,217,.14);box-shadow:0 8px 24px rgba(109,40,217,.06)">'
-      +'<div style="width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,#6D28D9,#EC4899);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 1.25rem;box-shadow:0 12px 30px rgba(109,40,217,.3)">&#x1F9E0;</div>'
-      +'<div style="font-family:Sora,sans-serif;font-size:20px;font-weight:900;color:#0B0722;margin-bottom:8px">EVA attend vos données</div>'
-      +'<div style="font-size:13px;color:#8A8A99;margin-bottom:1.5rem;max-width:400px;margin-left:auto;margin-right:auto">Connectez vos sources pour qu’EVA calcule votre rentabilité réelle &mdash; CA brut, charges déduites, profit net et leviers d’amélioration.</div>'
-      +'<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-width:480px;margin:0 auto">'
-      +'<button onclick="openEvaOnboarding(\'pms\'" style="padding:12px;border-radius:12px;background:#F3E8FF;color:#6D28D9;border:1px solid rgba(109,40,217,.2);font-size:13px;font-weight:700;cursor:pointer;font-family:Sora,sans-serif">&#x1F3E2; Connecter mon PMS</button>'
-      +'<button onclick="openEvaOnboarding(\'airbnb\'" style="padding:12px;border-radius:12px;background:#F3E8FF;color:#6D28D9;border:1px solid rgba(109,40,217,.2);font-size:13px;font-weight:700;cursor:pointer;font-family:Sora,sans-serif">&#x1F3E0; Importer réservations</button>'
-      +'<button onclick="openEvaOnboarding(\'bank\'" style="padding:12px;border-radius:12px;background:#F3E8FF;color:#6D28D9;border:1px solid rgba(109,40,217,.2);font-size:13px;font-weight:700;cursor:pointer;font-family:Sora,sans-serif">&#x1F3E6; Importer relevé bancaire</button>'
-      +'<button onclick="loadDemoData()" style="padding:12px;border-radius:12px;background:linear-gradient(135deg,#6D28D9,#EC4899);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:Sora,sans-serif;box-shadow:0 8px 20px rgba(109,40,217,.28)">&#x1F680; Charger la démo</button>'
+  // ── ÉTAT : aucune donnée du tout ──
+  if(!hasBiens){
+    el.innerHTML='<div style="text-align:center;padding:3rem;background:white;border-radius:20px;border:1px solid rgba(109,40,217,.14)">'
+      +'<div style="font-size:40px;margin-bottom:1rem">&#x1F9E0;</div>'
+      +'<div style="font-family:Sora,sans-serif;font-size:18px;font-weight:900;color:#0B0722;margin-bottom:8px">EVA attend vos donn\u00e9es</div>'
+      +'<div style="font-size:13px;color:#8A8A99;margin-bottom:1.5rem;max-width:400px;margin:0 auto 1.5rem">Profit 360\u00b0 calcule votre rentabilit\u00e9 r\u00e9elle bien par bien.<br>Commencez par ajouter au moins un logement.</div>'
+      +'<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">'
+      +'<button onclick="openAddModal()" style="padding:11px 20px;border-radius:12px;background:linear-gradient(135deg,#6D28D9,#EC4899);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:Sora,sans-serif">+ Ajouter un logement</button>'
+      +'<button onclick="loadDemoData()" style="padding:11px 20px;border-radius:12px;background:#F3E8FF;color:#6D28D9;border:1px solid rgba(109,40,217,.2);font-size:13px;font-weight:700;cursor:pointer;font-family:Sora,sans-serif">&#x1F680; Charger la d\u00e9mo</button>'
       +'</div></div>';
     return;
   }
 
-  // Calculer la plage de dates selon la période
+  // ── ÉTAT : biens mais pas de réservations ni de charges ──
+  const hasAnyFinancial=hasRes||hasCharges||hasPMS||hasAirbnb||hasBank;
+  if(!hasAnyFinancial){
+    // Afficher un guide d\u2019alimentation clair
+    el.innerHTML='<div style="background:white;border-radius:20px;border:1px solid rgba(109,40,217,.14);padding:24px;margin-bottom:14px">'
+      +'<div style="font-family:Sora,sans-serif;font-size:18px;font-weight:900;color:#0B0722;margin-bottom:6px">&#x26A0;&#xFE0F; EVA n\u2019a pas encore de donn\u00e9es financi\u00e8res</div>'
+      +'<div style="font-size:13px;color:#7B708F;margin-bottom:18px;line-height:1.6">Vous avez <strong>'+apparts.length+' logement'+(apparts.length>1?'s':'')+'</strong> dans votre parc mais aucune r\u00e9servation ni charge enregistr\u00e9e.<br>Profit 360\u00b0 ne peut pas calculer votre rentabilit\u00e9 sans ces donn\u00e9es.</div>'
+      +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:18px">'
+      +p360SourceCard('&#x1F3E2;','Connecter un PMS','Synchronisation automatique<br>Easy Concierge, Smoobu, Beds24\u2026',"openEvaOnboarding('pms')",'#DCFCE7','#047857')
+      +p360SourceCard('&#x1F3E0;','Importer Airbnb / Booking','CSV export depuis votre compte plateforme',"openEvaOnboarding('airbnb')",'#F3E8FF','#6D28D9')
+      +p360SourceCard('&#x1F3E6;','Importer relev\u00e9s bancaires','CSV ou PDF \u2014 EVA d\u00e9tecte charges et revenus',"openEvaOnboarding('bank')",'#FEF3C7','#92400E')
+      +p360SourceCard('&#x270F;&#xFE0F;','Saisir manuellement','Entrez directement vos r\u00e9servations<br>et charges bien par bien',"p360OpenManualEntry()",'#EFF6FF','#1D4ED8')
+      +'</div>'
+      +'<div style="border-top:1px solid #F0EBF9;padding-top:14px;display:flex;justify-content:center">'
+      +'<button onclick="loadDemoData()" style="padding:10px 20px;border-radius:12px;background:#F3E8FF;color:#6D28D9;border:1px solid rgba(109,40,217,.2);font-size:13px;font-weight:700;cursor:pointer;font-family:Sora,sans-serif">&#x1F680; Tester avec les donn\u00e9es d\u00e9mo</button>'
+      +'</div></div>'
+      +'<div id="p360-manual-entry" style="display:none"></div>';
+    return;
+  }
+
+  // ── CALCULS avec données disponibles ──
   const now=new Date();
   const months=[];
   for(let i=period-1;i>=0;i--){
@@ -8168,7 +8327,6 @@ function renderProfit360(){
   let tCA=0,tCh=0,tNet=0;
   const rows=apparts.map(a=>{
     const aptRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&months.some(m=>r.date_from.startsWith(m)));
-    // Intégrer données CSV Airbnb/Booking si disponibles
     let extraRes=[];
     if(hasAirbnb&&window.eva_onb_csv_raw){
       try{
@@ -8184,8 +8342,7 @@ function renderProfit360(){
     }
     const allRes=[...aptRes,...extraRes];
     const ca=allRes.reduce((s,r)=>s+(r.price_total||0),0);
-    // Charges : base de données + CSV bancaire si disponible
-    const aptCh=chargesData.filter(c=>c.appartement_id===a.id);
+    const aptCh=chargesData?chargesData.filter(c=>c.appartement_id===a.id):[];
     const fixes=aptCh.filter(c=>c.type==='fixe').reduce((s,c)=>s+(c.amount||0),0)*period;
     const vars=aptCh.filter(c=>c.type==='variable').reduce((s,c)=>s+(c.amount||0),0)*(allRes.length||1);
     const commPct=aptCh.find(c=>c.category==='commission_plateforme')?.amount||0;
@@ -8219,32 +8376,35 @@ function renderProfit360(){
   const tmargin=tCA>0?Math.round(tNet/tCA*100):0;
   const periodLabel=period===1?'Ce mois':period===3?'3 derniers mois':period===6?'6 derniers mois':'12 derniers mois';
 
-  // Badges sources actives
-  const srcBadges=[]
-    +(hasPMS?'<span style="font-size:10px;font-weight:700;background:#DCFCE7;color:#047857;padding:3px 9px;border-radius:999px;margin-right:5px">✓ PMS</span>':'')
-    +(hasAirbnb?'<span style="font-size:10px;font-weight:700;background:#DCFCE7;color:#047857;padding:3px 9px;border-radius:999px;margin-right:5px">✓ Airbnb</span>':'')
-    +(hasBank?'<span style="font-size:10px;font-weight:700;background:#DCFCE7;color:#047857;padding:3px 9px;border-radius:999px;margin-right:5px">✓ Banque</span>':'')
-    +(!hasPMS&&!hasAirbnb?'<span style="font-size:10px;font-weight:700;background:#FEF3C7;color:#92400E;padding:3px 9px;border-radius:999px;margin-right:5px">⚠ Données partielles</span>':'');
+  // Badges sources
+  const srcBadges=''
+    +(hasPMS?'<span style="font-size:10px;font-weight:700;background:#DCFCE7;color:#047857;padding:3px 9px;border-radius:999px;margin-right:5px">\u2713 PMS</span>':'')
+    +(hasAirbnb?'<span style="font-size:10px;font-weight:700;background:#DCFCE7;color:#047857;padding:3px 9px;border-radius:999px;margin-right:5px">\u2713 Airbnb/Booking</span>':'')
+    +(hasBank?'<span style="font-size:10px;font-weight:700;background:#DCFCE7;color:#047857;padding:3px 9px;border-radius:999px;margin-right:5px">\u2713 Banque</span>':'')
+    +(hasRes?'<span style="font-size:10px;font-weight:700;background:#DCFCE7;color:#047857;padding:3px 9px;border-radius:999px;margin-right:5px">\u2713 '+reservations.length+' r\u00e9sa</span>':'')
+    +(!hasPMS&&!hasAirbnb&&!hasBank?'<span style="font-size:10px;font-weight:700;background:#FEF3C7;color:#92400E;padding:3px 9px;border-radius:999px;margin-right:5px">\u26A0 Donn\u00e9es partielles &mdash; <button onclick="p360OpenManualEntry()" style="background:none;border:none;color:#92400E;font-weight:800;cursor:pointer;font-family:inherit;text-decoration:underline">Compl\u00e9ter</button></span>':'');
 
   const tRows=rows.map(r=>{
     const nc=r.net>=0?'#059669':'#DC2626';
     const margin=r.ca>0?Math.round(r.net/r.ca*100):0;
     return '<tr style="border-bottom:1px solid #F0EBF9">'
-      +'<td style="padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0B0722;font-family:Sora,sans-serif">'+(r.a.emoji||'??')+' '+escapeHtml(r.a.name||'Bien')+'</div>'
-      +'<div style="font-size:11px;color:#8A8A99;margin-top:2px">'+(r.a.city||'')+' · '+r.occ+'% occ. · ADR '+r.adr+'€ · '+r.allRes.length+' résa</div></td>'
-      +'<td style="padding:14px 12px;text-align:right;font-size:14px;font-weight:700;color:#0B0722">'+r.ca+'€</td>'
-      +'<td style="padding:14px 12px;text-align:right;font-size:14px;font-weight:700;color:#DC2626">−'+r.charges+'€</td>'
-      +'<td style="padding:14px 12px;text-align:right;font-size:15px;font-weight:950;color:'+nc+'">'+(r.net>=0?'+':'')+r.net+'€</td>'
-      +'<td style="padding:14px 12px;text-align:right"><span style="font-size:11px;font-weight:700;color:'+( margin>=0?'#059669':'#DC2626')+'">'+(margin>=0?'+':'')+margin+'%</span></td>'
-      +'<td style="padding:14px 16px;text-align:right"><span style="font-size:13px;font-weight:900;color:#6D28D9">+'+(r.pg+r.og+r.cg)+'€</span></td>'
+      +'<td style="padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0B0722;font-family:Sora,sans-serif">'+(r.a.emoji||'\uD83C\uDFE0')+' '+escapeHtml(r.a.name||'Bien')+'</div>'
+      +'<div style="font-size:11px;color:#8A8A99;margin-top:2px">'+(r.a.city||'')+' \u00b7 '+r.occ+'% occ. \u00b7 ADR '+r.adr+'\u20ac \u00b7 '+r.allRes.length+' r\u00e9sa</div></td>'
+      +'<td style="padding:14px 12px;text-align:right;font-size:14px;font-weight:700;color:#0B0722">'+r.ca+'\u20ac</td>'
+      +'<td style="padding:14px 12px;text-align:right;font-size:14px;font-weight:700;color:#DC2626">\u2212'+r.charges+'\u20ac</td>'
+      +'<td style="padding:14px 12px;text-align:right;font-size:15px;font-weight:950;color:'+nc+'">'+(r.net>=0?'+':'')+r.net+'\u20ac</td>'
+      +'<td style="padding:14px 12px;text-align:right"><span style="font-size:11px;font-weight:700;color:'+(margin>=0?'#059669':'#DC2626')+'">'+(margin>=0?'+':'')+margin+'%</span></td>'
+      +'<td style="padding:14px 16px;text-align:right"><span style="font-size:13px;font-weight:900;color:#6D28D9">+'+(r.pg+r.og+r.cg)+'\u20ac</span></td>'
       +'</tr>';
   }).join('');
+
+  const ml=new Date().toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
 
   el.innerHTML=
     '<div style="background:linear-gradient(135deg,#6D28D9 0%,#9333EA 50%,#EC4899 100%);border-radius:22px;padding:24px;margin-bottom:16px;color:#fff">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">'
     +'<div>'
-    +'<div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:800;color:rgba(255,255,255,.65);font-family:Sora,sans-serif">Profit 360°</div>'
+    +'<div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:800;color:rgba(255,255,255,.65);font-family:Sora,sans-serif">Profit 360\u00b0</div>'
     +'<div style="font-size:20px;font-weight:900;font-family:Sora,sans-serif;margin-top:4px">'+periodLabel+'</div>'
     +'<div style="margin-top:8px">'+srcBadges+'</div>'
     +'</div>'
@@ -8255,17 +8415,17 @@ function renderProfit360(){
     +'<option value="12"'+(period===12?' selected':'')+'>12 mois</option>'
     +'</select></div>'
     +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px">'
-    +'<div><div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px;font-family:Sora,sans-serif;text-transform:uppercase;letter-spacing:.6px">CA brut</div><div style="font-size:26px;font-weight:950;font-family:Sora,sans-serif">'+tCA+'€</div></div>'
-    +'<div><div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px;font-family:Sora,sans-serif;text-transform:uppercase;letter-spacing:.6px">Charges</div><div style="font-size:26px;font-weight:950;font-family:Sora,sans-serif;color:#FCA5A5">−'+tCh+'€</div></div>'
-    +'<div><div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px;font-family:Sora,sans-serif;text-transform:uppercase;letter-spacing:.6px">Profit réel</div><div style="font-size:26px;font-weight:950;font-family:Sora,sans-serif;color:#6EE7B7">'+tNet+'€</div></div>'
+    +'<div><div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px;font-family:Sora,sans-serif;text-transform:uppercase;letter-spacing:.6px">CA brut</div><div style="font-size:26px;font-weight:950;font-family:Sora,sans-serif">'+tCA+'\u20ac</div></div>'
+    +'<div><div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px;font-family:Sora,sans-serif;text-transform:uppercase;letter-spacing:.6px">Charges</div><div style="font-size:26px;font-weight:950;font-family:Sora,sans-serif;color:#FCA5A5">\u2212'+tCh+'\u20ac</div></div>'
+    +'<div><div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px;font-family:Sora,sans-serif;text-transform:uppercase;letter-spacing:.6px">Profit r\u00e9el</div><div style="font-size:26px;font-weight:950;font-family:Sora,sans-serif;color:#6EE7B7">'+tNet+'\u20ac</div></div>'
     +'<div><div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px;font-family:Sora,sans-serif;text-transform:uppercase;letter-spacing:.6px">Marge nette</div><div style="font-size:26px;font-weight:950;font-family:Sora,sans-serif;color:#FCD34D">'+(tmargin>=0?'+':'')+tmargin+'%</div></div>'
     +'</div>'
     +'<div style="background:rgba(255,255,255,.12);border-radius:14px;padding:14px">'
-    +'<div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.85);margin-bottom:10px;font-family:Sora,sans-serif">Leviers EVA — +'+tPot+'€ peuvent être générés sur la période</div>'
+    +'<div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.85);margin-bottom:10px;font-family:Sora,sans-serif">Leviers EVA \u2014 +'+tPot+'\u20ac peuvent \u00eatre g\u00e9n\u00e9r\u00e9s</div>'
     +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">'
-    +'<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:950;color:#FCD34D;font-family:Sora,sans-serif">+'+tPG+'€</div><div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px">Pricing</div></div>'
-    +'<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:950;color:#FCD34D;font-family:Sora,sans-serif">+'+tOG+'€</div><div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px">Occupation</div></div>'
-    +'<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:950;color:#FCD34D;font-family:Sora,sans-serif">+'+tCG+'€</div><div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px">Réduction charges</div></div>'
+    +'<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:950;color:#FCD34D;font-family:Sora,sans-serif">+'+tPG+'\u20ac</div><div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px">Pricing</div></div>'
+    +'<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:950;color:#FCD34D;font-family:Sora,sans-serif">+'+tOG+'\u20ac</div><div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px">Occupation</div></div>'
+    +'<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:950;color:#FCD34D;font-family:Sora,sans-serif">+'+tCG+'\u20ac</div><div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px">R\u00e9duction charges</div></div>'
     +'</div></div></div>'
     +'<div style="background:white;border:1px solid rgba(109,40,217,.14);border-radius:20px;overflow:hidden;box-shadow:0 8px 24px rgba(109,40,217,.06)">'
     +'<table style="width:100%;border-collapse:collapse;font-family:Inter,sans-serif">'
@@ -8279,7 +8439,66 @@ function renderProfit360(){
     +'</tr></thead>'
     +'<tbody>'+tRows+'</tbody></table></div>';
 }
+
+function p360SourceCard(icon,title,desc,action,bg,color){
+  return '<div onclick="'+action+'" style="background:'+bg+';border-radius:14px;padding:14px;cursor:pointer;border:1px solid rgba(0,0,0,.06);transition:transform .12s" onmouseover="this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.transform=\'\'">'
+    +'<div style="font-size:24px;margin-bottom:8px">'+icon+'</div>'
+    +'<div style="font-size:13px;font-weight:800;color:#0B0722;font-family:Sora,sans-serif;margin-bottom:4px">'+title+'</div>'
+    +'<div style="font-size:11px;color:#7B708F;line-height:1.45">'+desc+'</div>'
+    +'</div>';
+}
+
+function p360OpenManualEntry(){
+  const el=document.getElementById('p360-manual-entry');
+  if(!el)return;
+  if(el.style.display!=='none'){el.style.display='none';return;}
+  el.style.display='block';
+  if(!apparts.length){el.innerHTML='<div style="padding:1rem;color:#8A8A99;font-size:13px">Ajoutez d\u2019abord un logement dans Mon Parc.</div>';return;}
+  el.innerHTML='<div style="background:white;border:1px solid rgba(109,40,217,.14);border-radius:20px;padding:20px;margin-top:14px">'
+    +'<div style="font-family:Sora,sans-serif;font-size:16px;font-weight:900;color:#0B0722;margin-bottom:4px">Saisie manuelle des donn\u00e9es financi\u00e8res</div>'
+    +'<div style="font-size:12px;color:#8A8A99;margin-bottom:16px">Entrez vos revenus et charges mensuels pour chaque bien. EVA calculera imm\u00e9diatement votre Profit 360\u00b0.</div>'
+    +apparts.map(a=>'<div style="border:1px solid rgba(109,40,217,.1);border-radius:14px;padding:14px;margin-bottom:10px">'
+      +'<div style="font-size:14px;font-weight:700;color:#0B0722;margin-bottom:10px">'+(a.emoji||'\uD83C\uDFE0')+' '+escapeHtml(a.name||'Bien')+'</div>'
+      +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">'
+      +'<div><label style="font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:#8A8A99;font-weight:700;display:block;margin-bottom:4px">CA ce mois (\u20ac)</label><input type="number" id="p360-ca-'+a.id+'" placeholder="1500" style="width:100%;padding:8px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit"/></div>'
+      +'<div><label style="font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:#8A8A99;font-weight:700;display:block;margin-bottom:4px">Charges (\u20ac)</label><input type="number" id="p360-ch-'+a.id+'" placeholder="600" style="width:100%;padding:8px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit"/></div>'
+      +'<div><label style="font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:#8A8A99;font-weight:700;display:block;margin-bottom:4px">Nuits lou\u00e9es</label><input type="number" id="p360-nuits-'+a.id+'" placeholder="18" style="width:100%;padding:8px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit"/></div>'
+      +'</div></div>').join('')
+    +'<button onclick="p360ApplyManual()" style="margin-top:14px;padding:11px 22px;border-radius:12px;background:linear-gradient(135deg,#6D28D9,#EC4899);color:white;border:none;font-size:14px;font-weight:800;cursor:pointer;font-family:Sora,sans-serif;width:100%">Calculer mon Profit 360\u00b0 &#x2192;</button>'
+    +'</div>';
+}
+
+function p360ApplyManual(){
+  apparts.forEach(a=>{
+    const ca=+( document.getElementById('p360-ca-'+a.id)?.value||0);
+    const ch=+(document.getElementById('p360-ch-'+a.id)?.value||0);
+    const nuits=+(document.getElementById('p360-nuits-'+a.id)?.value||0);
+    if(ca>0||nuits>0){
+      // Injecter comme réservations manuelles
+      const now=new Date();
+      const month=now.toISOString().slice(0,7);
+      // Supprimer les réservations manuelles précédentes pour ce bien ce mois
+      reservations=reservations.filter(r=>!(r.appartement_id===a.id&&r._manual&&r.date_from&&r.date_from.startsWith(month)));
+      if(nuits>0&&ca>0){
+        const pricePerNight=Math.round(ca/nuits);
+        for(let i=0;i<Math.min(nuits,30);i++){
+          const d=new Date(now.getFullYear(),now.getMonth(),i+1);
+          reservations.push({id:'manual_'+a.id+'_'+i,appartement_id:a.id,_manual:true,date_from:d.toISOString().slice(0,10),date_to:new Date(d.getTime()+86400000).toISOString().slice(0,10),price_total:pricePerNight,platform:'manual',status:'confirmed',nights:1});
+        }
+      }
+      // Injecter charges manuelles
+      if(ch>0&&chargesData){
+        chargesData=chargesData.filter(c=>!(c.appartement_id===a.id&&c._manual));
+        chargesData.push({id:'manual_ch_'+a.id,appartement_id:a.id,_manual:true,type:'fixe',category:'charges',amount:ch,label:'Charges saisies manuellement'});
+      }
+    }
+  });
+  document.getElementById('p360-manual-entry').style.display='none';
+  renderProfit360();
+  showToast('\u2705 Profit 360\u00b0 calcul\u00e9 avec vos donn\u00e9es');
+}
 /* ===== end PROFIT 360 ===== */
+
 
 </script>
 
