@@ -1599,10 +1599,51 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       <div style="display:none"><input type="checkbox" id="r-mod-solo" checked/><input type="checkbox" id="r-mod-concierge"/></div>
       <button id="btn-register" class="rq-primary" onclick="doRegister()">Cr&eacute;er mon compte</button>
       <div class="auth-error rq-message" id="register-error"></div>
-      <div class="auth-success rq-message" id="register-success"></div>
       <button type="button" class="rq-back" onclick="switchTab('login')">&larr; D&eacute;j&agrave; un compte ?</button>
     </div>
   </section>
+</div>
+
+<!-- ══ OVERLAY CONFIRMATION EMAIL ══ -->
+<div id="email-confirm-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(8,4,20,.92);align-items:center;justify-content:center;padding:1rem">
+  <div style="background:white;border-radius:24px;width:100%;max-width:480px;padding:2.5rem;text-align:center;box-shadow:0 32px 80px rgba(0,0,0,.4)">
+
+    <!-- Icone animée -->
+    <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#EC4899);display:flex;align-items:center;justify-content:center;font-size:38px;margin:0 auto 1.5rem;box-shadow:0 12px 32px rgba(124,58,237,.35)">&#x1F4E7;</div>
+
+    <div style="font-size:24px;font-weight:950;color:#17122E;letter-spacing:-.5px;margin-bottom:10px">V&eacute;rifiez votre bo&icirc;te mail</div>
+
+    <div style="font-size:15px;color:#7B708F;line-height:1.7;margin-bottom:6px">Un email de confirmation a &eacute;t&eacute; envoy&eacute; &agrave;</div>
+    <div style="font-size:15px;font-weight:800;color:#7C3AED;margin-bottom:1.5rem" id="confirm-email-display"></div>
+
+    <!-- Étapes -->
+    <div style="display:grid;gap:8px;margin-bottom:2rem;text-align:left">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#F8F4FF;border-radius:12px">
+        <div style="width:28px;height:28px;border-radius:50%;background:#7C3AED;color:white;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
+        <div style="font-size:13px;color:#17122E">Ouvrez l&rsquo;email re&ccedil;u de RentyQ</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#F8F4FF;border-radius:12px">
+        <div style="width:28px;height:28px;border-radius:50%;background:#7C3AED;color:white;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
+        <div style="font-size:13px;color:#17122E">Cliquez sur le lien de confirmation</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#F8F4FF;border-radius:12px">
+        <div style="width:28px;height:28px;border-radius:50%;background:#7C3AED;color:white;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
+        <div style="font-size:13px;color:#17122E">Revenez ici et connectez-vous avec votre email</div>
+      </div>
+    </div>
+
+    <!-- CTA principal -->
+    <button onclick="showLoginAfterConfirm()" style="width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,#7C3AED,#EC4899);color:white;border:none;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;margin-bottom:12px">
+      J&rsquo;ai confirm&eacute; mon email &rarr; Se connecter
+    </button>
+
+    <!-- Note spam -->
+    <div style="font-size:12px;color:#8A8A99;background:#F9FAFB;border-radius:10px;padding:10px;line-height:1.5">
+      &#x1F4EC; Pas re&ccedil;u ? V&eacute;rifiez vos spams ou dossier &quot;Promotions&quot;.<br>
+      <button onclick="resendConfirmEmail()" style="background:none;border:none;color:#7C3AED;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px">Renvoyer l&rsquo;email de confirmation</button>
+    </div>
+
+  </div>
 </div>
 
 <div class="app" id="app">
@@ -2890,7 +2931,7 @@ async function doRegister(){
     const res=await authFetch('signup',{email,password:pwd,data:{name,type,modules:modules.join(',')}});
     const data=await res.json();
     if(data.error){showErr('register-error',data.error);btn.disabled=false;btn.textContent='✨ Créer mon compte';return}
-    showOk('register-success','<div style="text-align:center"><div style="font-size:28px;margin-bottom:8px">📧</div><div style="font-size:15px;font-weight:600;color:#1a1a2e;margin-bottom:6px">V&#233;rifiez votre boîte mail !</div><div style="font-size:13px;color:#374151;line-height:1.6;margin-bottom:8px">Un email de confirmation vous a &#233;t&#233; envoy&#233;.<br>Cliquez sur le lien pour activer votre compte.</div><div style="font-size:12px;color:#6B7280;padding:8px;background:#F9FAFB;border-radius:8px">💡 Pas re&#231;u ? V&#233;rifiez vos spams</div></div>');
+    showEmailConfirmOverlay(email);
     btn.disabled=false;btn.textContent='✨ Créer mon compte';
   }catch(e){showErr('register-error','Erreur réseau');btn.disabled=false;btn.textContent='✨ Créer mon compte';}
 }
@@ -7100,6 +7141,41 @@ function evaOnbFinish(){
   goTo('cockpit',document.querySelector('[onclick*="cockpit"]'));
 }
 /* ===== end EVA ONBOARDING ===== */
+
+/* ===== EMAIL CONFIRMATION OVERLAY ===== */
+function showEmailConfirmOverlay(email){
+  const overlay=document.getElementById('email-confirm-overlay');
+  const emailDisplay=document.getElementById('confirm-email-display');
+  if(emailDisplay)emailDisplay.textContent=email||'votre adresse email';
+  overlay.style.display='flex';
+  // Reset le form
+  const btn=document.getElementById('btn-register');
+  if(btn){btn.disabled=false;btn.textContent='Cr\u00e9er mon compte';}
+}
+
+function showLoginAfterConfirm(){
+  document.getElementById('email-confirm-overlay').style.display='none';
+  // Switcher vers le tab login
+  switchTab('login');
+  // Pr\u00e9-remplir l\u2019email si possible
+  const confirmedEmail=document.getElementById('confirm-email-display')?.textContent;
+  const loginEmail=document.getElementById('email');
+  if(loginEmail&&confirmedEmail&&confirmedEmail!=='votre adresse email')loginEmail.value=confirmedEmail;
+  // Afficher un message de bienvenue dans le login
+  showOk('auth-error','\u2705 Email confirm\u00e9 ! Connectez-vous maintenant.');
+}
+
+async function resendConfirmEmail(){
+  const email=document.getElementById('confirm-email-display')?.textContent;
+  if(!email||email==='votre adresse email'){showToast('Email introuvable');return;}
+  try{
+    await authFetch('resend',{type:'signup',email});
+    showToast('\u{1F4E7} Email renvoy\u00e9 \u00e0 '+email);
+  }catch(e){
+    showToast('Erreur lors du renvoi');
+  }
+}
+/* ===== end EMAIL CONFIRMATION ===== */
 </script>
 
 </body>
