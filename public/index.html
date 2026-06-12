@@ -38,6 +38,8 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A1A2E;background:#F5F4FF;f
 .sidebar-sep{height:1px;background:#EEEEF5;margin:0 1.25rem 0.75rem}
 .nav-section-label{font-size:10px;font-weight:500;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:1px;padding:0.75rem 1.25rem 0.35rem}
 .nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;margin:1px 8px;border-radius:6px;color:rgba(255,255,255,0.55);cursor:pointer;font-size:14px;font-weight:400;border:0.5px solid transparent;background:none;font-family:inherit;width:calc(100% - 16px);text-align:left;transition:all .12s}
+.nav-sub{padding:7px 10px 7px 22px;font-size:13px;color:rgba(255,255,255,.65)}
+.nav-sub .nav-emoji{font-size:13px;opacity:.75}
 .nav-item:hover{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.8)}
 .nav-item.active{background:rgba(83,74,183,0.15);border:0.5px solid rgba(83,74,183,0.25);color:white;font-weight:500;font-size:14px}
 .nav-emoji{font-size:17px;width:24px;text-align:center;flex-shrink:0;display:flex;align-items:center;justify-content:center}
@@ -1676,29 +1678,30 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       </div>
       <div class="sidebar-sep" style="background:rgba(255,255,255,0.08)"></div>
       <div id="nav-solo">
-      <div class="nav-section-label">RentyQ</div>
-      <button class="nav-item active" onclick="goTo('cockpit',this)"><span class="nav-emoji"><i class="ti ti-layout-dashboard" aria-hidden="true"></i></span>Cockpit</button>
 
-      <div class="nav-section-label">Parc</div>
-      <button class="nav-item" onclick="goTo('parc',this)"><span class="nav-emoji"><i class="ti ti-building" aria-hidden="true"></i></span>Mes logements <span class="nav-badge" id="parc-badge">0</span></button>
-      <button class="nav-item" onclick="goTo('scanner',this)"><span class="nav-emoji"><i class="ti ti-radar-2" aria-hidden="true"></i></span>Scanner EVA <span class="nav-badge-new">Investir</span></button>
+      <button class="nav-item active" onclick="goTo('cockpit',this)" style="font-weight:800;font-size:14px">
+        <span class="nav-emoji">&#x1F3E0;</span>Cockpit EVA
+      </button>
 
-      <div class="nav-section-label">Calendrier &amp; Réservations</div>
-      <button class="nav-item" onclick="goTo('calendrier',this)"><span class="nav-emoji"><i class="ti ti-calendar" aria-hidden="true"></i></span>Calendrier</button>
-      <button class="nav-item" onclick="goTo('reservations',this)"><span class="nav-emoji"><i class="ti ti-bookmark" aria-hidden="true"></i></span>Réservations</button>
+      <div class="nav-section-label" style="margin-top:10px">Mon Parc</div>
+      <button class="nav-item nav-sub" onclick="goTo('parc',this)"><span class="nav-emoji"><i class="ti ti-building"></i></span>Mes biens <span class="nav-badge" id="parc-badge">0</span></button>
+      <button class="nav-item nav-sub" onclick="goTo('scanner',this)"><span class="nav-emoji"><i class="ti ti-radar-2"></i></span>Scanner EVA</button>
+      <button class="nav-item nav-sub" onclick="goTo('eva-data',this)" id="nav-eva-data"><span class="nav-emoji"><i class="ti ti-database"></i></span>Sources EVA <span id="eva-confidence-badge" style="margin-left:auto;font-size:10px;font-weight:900;padding:2px 7px;border-radius:4px;background:rgba(83,74,183,.25);color:#CECBF6">--%</span></button>
 
-      <div class="nav-section-label">EVA</div>
-      <button class="nav-item" onclick="goTo('eva-audit',this)"><span class="nav-emoji"><i class="ti ti-chart-dots-3" aria-hidden="true"></i></span>EVA Audit 360° <span class="nav-badge-new">Nouveau</span></button>
-      <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji"><i class="ti ti-sparkles" aria-hidden="true"></i></span>EVA Pricing</button>
+      <div class="nav-section-label" style="margin-top:10px">Activit&#233;</div>
+      <button class="nav-item nav-sub" onclick="goTo('calendrier',this)"><span class="nav-emoji"><i class="ti ti-calendar"></i></span>Calendrier</button>
+      <button class="nav-item nav-sub" onclick="goTo('reservations',this)"><span class="nav-emoji"><i class="ti ti-bookmark"></i></span>R&#233;servations</button>
+      <button class="nav-item nav-sub" onclick="goTo('pricing',this)"><span class="nav-emoji"><i class="ti ti-sparkles"></i></span>Opportunit&#233;s EVA</button>
 
-      <div class="nav-section-label">Opérations</div>
-      <button class="nav-item" onclick="goTo('clean',this)" id="nav-cleanyq"><span class="nav-emoji"><i class="ti ti-spray" aria-hidden="true"></i></span>CleanyQ</button>
+      <div class="nav-section-label" style="margin-top:10px">EVA Engine</div>
+      <button class="nav-item nav-sub" onclick="goTo('eva-audit',this)"><span class="nav-emoji"><i class="ti ti-chart-dots-3"></i></span>Audit 360&#176;</button>
+      <button class="nav-item nav-sub" onclick="goTo('profit360',this)"><span class="nav-emoji"><i class="ti ti-coin"></i></span>Profit 360&#176;</button>
+      <button class="nav-item nav-sub" onclick="goTo('clean',this)" id="nav-cleanyq"><span class="nav-emoji"><i class="ti ti-spray"></i></span>CleanyQ</button>
 
-      <div class="nav-section-label" id="nav-label-integrations">Intégrations &amp; Compte</div>
-      <button class="nav-item" onclick="goTo('eva-data',this)" id="nav-eva-data"><span class="nav-emoji"><i class="ti ti-database" aria-hidden="true"></i></span>Donn&#233;es EVA <span id="eva-confidence-badge" style="margin-left:auto;font-size:10px;font-weight:900;padding:2px 7px;border-radius:4px;background:rgba(83,74,183,.25);color:#CECBF6">—%</span></button>
-      <button class="nav-item" onclick="goTo('smoobu',this)" id="nav-smoobu"><span class="nav-emoji"><i class="ti ti-link" aria-hidden="true"></i></span>Smoobu <span class="smoobu-badge" id="smoobu-nav-badge" style="display:none">✓</span></button>
-      <button class="nav-item" onclick="goTo('tarifs',this)"><span class="nav-emoji"><i class="ti ti-credit-card" aria-hidden="true"></i></span>Tarifs</button>
-      <button class="nav-item" onclick="goTo('settings',this)"><span class="nav-emoji"><i class="ti ti-settings" aria-hidden="true"></i></span>Paramètres</button>
+      <div class="nav-section-label" style="margin-top:10px">Param&#232;tres</div>
+      <button class="nav-item nav-sub" onclick="goTo('settings',this)"><span class="nav-emoji"><i class="ti ti-settings"></i></span>Compte &amp; int&#233;grations</button>
+      <button class="nav-item nav-sub" onclick="goTo('tarifs',this)"><span class="nav-emoji"><i class="ti ti-credit-card"></i></span>Abonnement</button>
+
       </div>
       <div id="nav-concierge" style="display:none">
       <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Conciergerie</div>
@@ -2204,6 +2207,12 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
       </div>
 
 
+      <!-- PROFIT 360 -->
+      <div class="page" id="page-profit360">
+        <div class="page-header"><div><div class="page-title">Profit 360&#176;</div><div class="page-sub">Rentabilit&#233; r&#233;elle &mdash; CA brut moins toutes les charges, plus les leviers EVA</div></div></div>
+        <div id="profit360-content"></div>
+      </div>
+
       <!-- DONNÉES EVA / INTÉGRATIONS -->
       <div class="page" id="page-eva-data">
         <div class="page-header">
@@ -2424,6 +2433,16 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
     </div>
     <div id="m-address-preview" style="display:none;padding:8px;background:#F5F4FF;border-radius:8px;margin-bottom:0.75rem;font-size:12px;color:#6B3FA0"></div>
     <div class="form-group"><label>Emoji</label><select id="m-emoji"><option>🏠</option><option>🛋️</option><option>🌸</option><option>⭐</option><option>🏡</option><option>🌇</option><option>🌃</option></select></div>
+    <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#8A8A99;margin:.75rem 0 .5rem">Caract&#233;ristiques</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.5rem">
+      <div><label style="font-size:11px;color:#8A8A99;display:block;margin-bottom:4px">Type</label><select id="m-type" style="width:100%;padding:8px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit"><option value="studio">Studio/T1</option><option value="t2">T2</option><option value="t3">T3</option><option value="t4plus">T4+</option><option value="maison">Maison</option><option value="villa">Villa</option><option value="loft">Loft</option></select></div>
+      <div><label style="font-size:11px;color:#8A8A99;display:block;margin-bottom:4px">Surface (m&#178;)</label><input type="number" id="m-surface" placeholder="35" style="width:100%;padding:8px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px"/></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.75rem">
+      <div><label style="font-size:11px;color:#8A8A99;display:block;margin-bottom:4px">Couchages</label><input type="number" id="m-couchages" placeholder="2" min="1" style="width:100%;padding:8px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px"/></div>
+      <div><label style="font-size:11px;color:#8A8A99;display:block;margin-bottom:4px">Chambres</label><input type="number" id="m-chambres" placeholder="1" min="0" style="width:100%;padding:8px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px"/></div>
+    </div>
+    <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#8A8A99;margin:.25rem 0 .5rem">Finances</div>
     <div class="form-group"><label>Loyer mensuel (€)</label><input type="number" id="m-rent" placeholder="900"/></div>
     <div class="form-group"><label>Coût ménage / nuit (€)</label><input type="number" id="m-clean" placeholder="25"/></div>
     <div class="form-group"><label>Prix / nuit (€)</label><input type="number" id="m-price" placeholder="95"/></div>
@@ -4288,12 +4307,15 @@ function goTo(page,btn){
   if(page==='rapports'){initRapportMois();renderRapports();}
   if(page==='scanner')renderScannerPage();
   if(page==='eva-data'){renderEvaDataPage();}
+  if(page==='profit360'){renderProfit360();}
   if(page==='eva-audit'){renderEvaEngineLayer();}
 }
 
 function openAddModal(){editId=null;['m-name','m-city','m-zone','m-rent','m-clean','m-price','m-comp','m-address','m-lat','m-lng'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('m-address-preview').style.display='none';document.getElementById('m-address-results').style.display='none';document.getElementById('m-degressif-toggle').className='toggle off';document.getElementById('m-degressif-config').style.display='none';document.getElementById('m-deg-start').value='14';document.getElementById('m-deg-step').value='5';document.getElementById('m-deg-min').value='';document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');
   const az=document.getElementById('modal-archive-zone');if(az)az.style.display='none';
   const mt=document.getElementById('modal-title');if(mt)mt.textContent='Ajouter un appartement';
+  ['m-surface','m-couchages','m-chambres'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const mt2=document.getElementById('m-type');if(mt2)mt2.value='studio';
 }
 function openEdit(id){const a=apparts.find(x=>x.id===id);if(!a)return;editId=id;document.getElementById('m-name').value=a.name||'';document.getElementById('m-city').value=a.city||'';document.getElementById('m-zone').value=a.zone||'';document.getElementById('m-address').value=a.address||'';document.getElementById('m-lat').value=a.latitude||'';document.getElementById('m-lng').value=a.longitude||'';const prev=document.getElementById('m-address-preview');if(a.address){prev.textContent='📍 '+a.address;prev.style.display='block';}else{prev.style.display='none';}
   const degToggle=document.getElementById('m-degressif-toggle');const degConfig=document.getElementById('m-degressif-config');
@@ -4312,7 +4334,504 @@ async function saveAppart(){
   if(!city){showErr('modal-error','Ville obligatoire — nécessaire pour les événements');return}
   const btn=document.getElementById('btn-save-appart');btn.disabled=true;btn.textContent='…';
   const price=+document.getElementById('m-price').value||0;
-  const degOn=document.getElementById('m-degressif-toggle').classList.contains('on');const body={user_id:currentUser.user.id,name,city,zone:document.getElementById('m-zone').value||'',address:document.getElementById('m-address').value||'',latitude:+document.getElementById('m-lat').value||null,longitude:+document.getElementById('m-lng').value||null,emoji:document.getElementById('m-emoji').value||'🏠',rent:+document.getElementById('m-rent').value||0,cleaner:+document.getElementById('m-clean').value||0,price,comp:+document.getElementById('m-comp').value||0,ai_rec:Math.round(price*1.08),booked:false,auto_pricing:true,has_event:false,auto_degressif:degOn,degressif_start:degOn?+document.getElementById('m-deg-start').value:14,degressif_step:degOn?+document.getElementById('m-deg-step').value:5,degressif_min:degOn?+document.getElementById('m-deg-min').value||0:0};
+  const degOn=document.getElementById('m-degressif-toggle').classList.contains('on');const body={user_id:currentUser.user.id,name,city,zone:document.getElementById('m-zone').value||'',address:document.getElementById('m-address').value||'',latitude:+document.getElementById('m-lat').value||null,longitude:+document.getElementById('m-lng').value||null,type_bien:document.getElementById('m-type')?.value||'studio',surface:+document.getElementById('m-surface')?.value||null,couchages:+document.getElementById('m-couchages')?.value||null,chambres:+document.getElementById('m-chambres')?.value||null,emoji:document.getElementById('m-emoji').value||'🏠',rent:+document.getElementById('m-rent').value||0,cleaner:+document.getElementById('m-clean').value||0,price,comp:+document.getElementById('m-comp').value||0,ai_rec:Math.round(price*1.08),booked:false,auto_pricing:true,has_event:false,auto_degressif:degOn,degressif_start:degOn?+document.getElementById('m-deg-start').value:14,degressif_step:degOn?+document.getElementById('m-deg-step').value:5,degressif_min:degOn?+document.getElementById('m-deg-min').value||0:0};
+  try{
+    if(editId){await sbFetch(`appartements?id=eq.${editId}`,{method:'PATCH',body:JSON.stringify(body)});const i=apparts.findIndex(a=>a.id===editId);if(i>=0)apparts[i]={...apparts[i],...body};showToast('✓ Modifié');}
+    else{const res=await sbFetch('appartements',{method:'POST',body:JSON.stringify(body)});const c=await res.json();apparts.push(Array.isArray(c)&&c[0]?c[0]:{...body,id:Date.now().toString()});showToast('✓ Ajouté');}
+    closeModal();renderAll();
+    // Charger les événements pour la nouvelle ville
+    const cityNorm=city.charAt(0).toUpperCase()+city.slice(1).toLowerCase();
+    if(!eventsCache[cityNorm])loadEvents(false);
+  }catch(e){showErr('modal-error','Erreur');}
+  btn.disabled=false;btn.textContent='✓ Enregistrer';
+}
+
+async function saveReservation(){
+  const aptId=document.getElementById('mr-apt').value;const from=document.getElementById('mr-from').value;const to=document.getElementById('mr-to').value;
+  if(!from||!to){showErr('modal-res-error','Dates obligatoires');return}
+  const nights=Math.round((new Date(to)-new Date(from))/(1000*60*60*24));
+  const body={user_id:currentUser.user.id,appartement_id:aptId,guest_name:document.getElementById('mr-guest').value,date_from:from,date_to:to,price_total:+document.getElementById('mr-price').value||0,platform:document.getElementById('mr-platform').value,status:'confirmed',nights};
+  try{const res=await sbFetch('reservations',{method:'POST',body:JSON.stringify(body)});const c=await res.json();reservations.unshift(Array.isArray(c)&&c[0]?c[0]:{...body,id:Date.now().toString()});closeResModal();renderAll();showToast('✓ Réservation ajoutée');}
+  catch(e){showErr('modal-res-error','Erreur');}
+}
+
+async function toggleBooked(id,val){await sbFetch(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({booked:val})});const a=apparts.find(x=>x.id===id);if(a)a.booked=val;renderAll();}
+async function toggleAutoPricing(id,val){await sbFetch(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({auto_pricing:val})});const a=apparts.find(x=>x.id===id);if(a)a.auto_pricing=val;renderPricingTable();}
+async function applyAI(id,rec){
+  const a=apparts.find(x=>x.id===id);if(!a)return;
+  const maxPrice=Math.round((a.price||100)*1.25);
+  const fl=Math.round((a.rent||0)/30+(a.cleaner||0));
+  rec=Math.max(Math.min(rec,maxPrice),fl);
+  await sbFetch(`appartements?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({price:rec})});
+  a.price=rec;renderAll();
+  // Proposer push vers Smoobu si connecté
+  if(smoobuConnected&&a&&a.smoobu_id){
+    showSmoobuPush(a,rec);
+  } else {
+    showToast('✓ Prix appliqué : '+rec+'€');
+  }
+}
+
+function showSmoobuPush(apt,newPrice){
+  const modal=document.getElementById('modal');
+  const m=document.querySelector('#modal .modal');
+  m.innerHTML=`
+    <div class="modal-head"><div class="modal-title">🤖 EVA → Smoobu</div><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div style="text-align:center;padding:1rem 0">
+      <div style="font-size:40px;margin-bottom:12px">🤖→🔗</div>
+      <div style="font-size:16px;font-weight:600;margin-bottom:6px">Appliquer ${newPrice}€/nuit sur Smoobu ?</div>
+      <div style="font-size:13px;color:#8A8A99;margin-bottom:4px">${apt.emoji||'🏠'} ${apt.name}</div>
+      <div style="display:flex;justify-content:center;gap:16px;margin:16px 0">
+        <div style="background:#FCEBEB;border-radius:10px;padding:10px 20px;text-align:center">
+          <div style="font-size:11px;color:#8A8A99">Ancien prix</div>
+          <div style="font-size:20px;font-weight:700;color:#E24B4A;text-decoration:line-through">${apt.price||0}€</div>
+        </div>
+        <div style="display:flex;align-items:center;font-size:20px;color:#8A8A99">→</div>
+        <div style="background:#E1F5EE;border-radius:10px;padding:10px 20px;text-align:center">
+          <div style="font-size:11px;color:#8A8A99">Nouveau prix</div>
+          <div style="font-size:20px;font-weight:700;color:#1D9E75">${newPrice}€</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#8A8A99;margin-bottom:16px">Le prix sera modifié sur Airbnb et Booking via Smoobu</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="closeModal()" style="flex:1">Annuler</button>
+        <button class="btn btn-purple" onclick="pushToSmoobu('${apt.id}','${apt.smoobu_id}',${newPrice})" style="flex:2">✅ Confirmer et pousser</button>
+      </div>
+      <button onclick="closeModal();showToast('✓ Prix modifié dans RentyQ uniquement')" style="margin-top:10px;background:none;border:none;font-size:12px;color:#8A8A99;cursor:pointer;font-family:inherit">Modifier seulement dans RentyQ →</button>
+    </div>`;
+  modal.classList.add('open');
+}
+
+async function pushToSmoobu(aptId,smoobuId,newPrice){
+  closeModal();
+  showToast('🔄 Envoi à Smoobu…');
+  try{
+    const res=await smoobuCall('updatePrice',{apartmentId:smoobuId,price:newPrice});
+    if(res.success||res.status==='ok'){
+      showToast('✅ Prix poussé sur Smoobu : '+newPrice+'€');
+    } else {
+      showToast('⚠ Erreur Smoobu — prix modifié dans RentyQ uniquement');
+    }
+  }catch(e){
+    showToast('⚠ Erreur connexion Smoobu');
+  }
+}
+async function deleteAppart(id){if(!confirm('Supprimer ?'))return;await sbFetch(`appartements?id=eq.${id}`,{method:'DELETE'});apparts=apparts.filter(a=>a.id!==id);renderAll();}
+async function saveProfile(){const name=document.getElementById('set-name').value.trim();await sbFetch(`profiles?id=eq.${currentProfile.id}`,{method:'PATCH',body:JSON.stringify({name})});currentProfile.name=name;renderSidebar();showToast('✓ Sauvegardé');}
+
+function buildGlobalRulesAnalysis(){
+  const rows=apparts.map(a=>({a,smart:getSmartRec(a)})).sort((x,y)=>{
+    const rank={urgent:4,important:3,'opportunité':2,normal:1};
+    return (rank[y.smart.priority]||0)-(rank[x.smart.priority]||0) || Math.abs(y.smart.delta)-Math.abs(x.smart.delta);
+  });
+  const urgent=rows.filter(r=>r.smart.priority==='urgent');
+  const baisse=rows.filter(r=>r.smart.direction==='BAISSER');
+  const hausse=rows.filter(r=>r.smart.direction==='AUGMENTER');
+  const occ=portfolioOccupancy();
+  const horizon=+(document.getElementById('pricing-horizon')?.value||14);
+  const now=new Date();
+  const freeTotal=apparts.reduce((sum,a)=>{
+    return sum+Array.from({length:horizon},(_,i)=>{
+      const d=new Date(now);d.setDate(d.getDate()+i);
+      const date=isoDate(d);
+      return !getAptReservations(a).some(r=>bookingCoversDate(r,date));
+    }).filter(Boolean).length;
+  },0);
+  const recoverable=rows.reduce((s,r)=>s+Math.max(0,r.smart.rec||0),0);
+  const score=Math.max(0,Math.min(100,Math.round(occ*0.7 + (100-Math.min(100,urgent.length*20))*0.3)));
+  const top=rows.slice(0,4);
+
+  let html=`<div class="eva-dashboard">
+    <div class="eva-hero-card">
+      <div class="eva-hero-kicker">EVA Rules Engine · sans IA payante</div>
+      <div class="eva-hero-title">${urgent.length?urgent.length+' action'+(urgent.length>1?'s':'')+' à faire maintenant':'Portefeuille sous contrôle'}</div>
+      <div class="eva-hero-sub">${occ<45?'Priorité absolue : remplir les nuits proches. Une nuit vide vaut 0€, donc EVA privilégie l\u2019occupation avant la marge.':occ<65?'Objectif : sécuriser plus de réservations sur les 14 prochains jours avant de remonter les prix.':'Le remplissage est correct : EVA peut protéger les prix sur les dates fortes.'}</div>
+      <div class="eva-hero-money">
+        <div class="eva-money-big">+${recoverable}€</div>
+        <div class="eva-money-label">revenu théorique à sécuriser<br>en appliquant les recommandations</div>
+      </div>
+    </div>
+    <div class="eva-side-stack">
+      <div class="eva-metric-card">
+        <div class="eva-metric-label">Occupation</div>
+        <div class="eva-metric-value">${occ}%</div>
+        <div class="eva-progress"><span style="width:${Math.max(5,Math.min(100,occ))}%"></span></div>
+        <div class="eva-metric-help">Objectif minimum : 65%</div>
+      </div>
+      <div class="eva-metric-card">
+        <div class="eva-metric-label">Nuits libres</div>
+        <div class="eva-metric-value">${freeTotal}</div>
+        <div class="eva-metric-help">Sur les ${horizon} prochains jours</div>
+      </div>
+      <div class="eva-metric-card">
+        <div class="eva-metric-label">Score EVA</div>
+        <div class="eva-metric-value">${score}/100</div>
+        <div class="eva-progress"><span style="width:${score}%"></span></div>
+        <div class="eva-metric-help">${score<50?'Plan d\u2019action urgent':score<75?'Optimisation en cours':'Bonne dynamique'}</div>
+      </div>
+      <div class="eva-metric-card">
+        <div class="eva-metric-label">Baisses utiles</div>
+        <div class="eva-metric-value">${baisse.length}</div>
+        <div class="eva-metric-help">Pour vendre plutôt que laisser vide</div>
+      </div>
+    </div>
+  </div>`;
+
+  html+=`<div class="eva-actions-panel">
+    <div class="eva-panel-head">
+      <div><div class="eva-panel-title">🎯 Missions EVA prioritaires</div><div class="eva-panel-sub">Lisible en 3 secondes : quoi faire, combien, pourquoi.</div></div>
+      <span class="eva-pill ${urgent.length?'eva-pill-red':'eva-pill-green'}">${urgent.length?urgent.length+' urgent'+(urgent.length>1?'s':''):'OK'}</span>
+    </div>
+    <div class="eva-action-grid">`;
+
+  const cards=top.length?top:rows.slice(0,3);
+  cards.forEach(({a,smart})=>{
+    const urgentClass=smart.priority==='urgent'?'urgent':(smart.direction==='AUGMENTER'?'up':'');
+    const badge=smart.priority==='urgent'?'<span class="eva-pill eva-pill-red">🚨 urgent</span>':smart.direction==='AUGMENTER'?'<span class="eva-pill eva-pill-orange">💰 opportunité</span>':'<span class="eva-pill eva-pill-purple">🎯 à optimiser</span>';
+    html+=`<div class="eva-action-card ${urgentClass}">
+      <div class="eva-action-top">
+        <div><div class="eva-apt-name">${a.emoji||'🏠'} ${escapeHtml(a.name||'Appartement')}</div><div class="eva-apt-city">${escapeHtml(a.city||extractCity(a.zone,null)||'')}</div></div>
+        ${badge}
+      </div>
+      <div class="eva-price-row"><span class="eva-price-old">${a.price||0}€</span><span class="eva-price-arrow">→</span><span class="eva-price-new">${smart.rec}€</span></div>
+      <div class="eva-reason">${escapeHtml((smart.reasons&&smart.reasons[0])||smart.reason||'Prix cohérent avec les données disponibles')}</div>
+      <div class="eva-card-footer">
+        <span class="eva-impact">${smart.delta<0?'Mieux vaut louer moins cher que vide':'Revenu à capter'}</span>
+        <button class="btn btn-sm btn-purple" onclick="applyAI('${a.id}',${smart.rec})">Appliquer</button>
+      </div>
+    </div>`;
+  });
+  html+=`</div></div>`;
+  return html;
+}
+
+function runGlobal(){
+  const btn=document.getElementById('btn-global');const zone=document.getElementById('global-result');
+  if(btn){btn.disabled=true;btn.textContent='...';}
+  if(!apparts.length){
+    zone.innerHTML='<div style="text-align:center;padding:2rem;background:#F8F4FF;border-radius:16px;border:1px dashed rgba(124,58,237,.2)">'
+      +'<div style="font-size:32px;margin-bottom:10px">&#x1F9E0;</div>'
+      +'<div style="font-size:15px;font-weight:800;color:#17122E;margin-bottom:6px">Aucun bien dans votre parc</div>'
+      +'<div style="font-size:13px;color:#7B708F;margin-bottom:16px">Ajoutez un bien et importez vos données pour qu’EVA génère votre plan d’action.</div>'
+      +'<button onclick="openAddModal()" style="border:none;border-radius:10px;padding:10px 20px;background:#7C3AED;color:white;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">+ Ajouter mon premier bien</button>'
+      +'</div>';
+    if(btn){btn.disabled=false;btn.innerHTML='&#x1F916; Analyse globale';}return;
+  }
+  zone.innerHTML=buildGlobalRulesAnalysis();
+  if(btn){btn.disabled=false;btn.innerHTML='&#x1F916; Analyse globale';}
+}
+function applyAllEVA(){
+  const horizon=+(document.getElementById('pricing-horizon')?.value||14);
+  const now=new Date();
+  let count=0;
+  apparts.forEach(a=>{
+    const hasFreeDays=Array.from({length:horizon},(_,i)=>{
+      const d=new Date(now);d.setDate(d.getDate()+i);
+      return d.toISOString().split('T')[0];
+    }).some(date=>!reservations.some(r=>r.appartement_id===a.id&&r.date_from<=date&&r.date_to>=date));
+    if(hasFreeDays){const smart=getSmartRec(a);applyAI(a.id,smart.rec);count++;}
+  });
+  showToast(`✅ EVA appliqué sur ${count} bien${count>1?'s':''}`);
+}
+
+
+async function loadEvents(force=false){
+  const loading=document.getElementById('events-loading');
+  const empty=document.getElementById('events-empty');
+  const container=document.getElementById('events-container');
+  const btn=document.getElementById('btn-refresh-events');
+  if(!container)return;
+  const citiesMap={};
+  (apparts||[]).forEach(a=>{
+    const city=normalizeCityName(a.city||extractCity(a.zone,null)||'');
+    if(city){if(!citiesMap[city])citiesMap[city]=[];citiesMap[city].push(a);}
+  });
+  const cities=Object.keys(citiesMap);
+  if(!cities.length){
+    if(empty)empty.style.display='block';
+    if(loading)loading.style.display='none';
+    container.innerHTML='';
+    const sub=document.getElementById('events-sub');if(sub)sub.textContent='Ajoutez une ville/adresse pour détecter les événements';
+    return;
+  }
+  if(empty)empty.style.display='none';
+  if(loading)loading.style.display='block';
+  if(btn){btn.disabled=true;btn.textContent='Recherche…';}
+
+  for(const city of cities){
+    if(!force && eventsCache[city] && eventsCache[city].length)continue;
+    let events=[];
+    try{
+      // Priorité : votre Edge Function events-proxy. Elle peut agréger Ticketmaster + OpenAgenda avec clés cachées.
+      const data=await eventsCall(city);
+      events=normalizeEventsPayload(data,city);
+    }catch(e){
+      console.warn('events-proxy indisponible pour',city,e);
+      events=[];
+    }
+    if(!events.length){
+      try{events=await fetchOpenAgendaFallback(city);}catch(e){console.warn('OpenAgenda fallback indisponible',city,e);}
+    }
+    if(!events.length){
+      events=buildLocalSeasonalEvents(city);
+    }
+    eventsCache[city]=events.slice(0,30);
+  }
+  if(loading)loading.style.display='none';
+  if(btn){btn.disabled=false;btn.textContent='🔄 Actualiser';}
+  renderEventsPage(citiesMap);
+  try{renderAll();}catch(e){}
+}
+
+function normalizeEventsPayload(data,city){
+  const raw=data?.events||data?.items||data?.results||data?._embedded?.events||[];
+  if(!Array.isArray(raw))return [];
+  const now=new Date();
+  return raw.map((e,idx)=>{
+    const date=e.date||e.startDate||e.start_time||e.firstdate_begin||e.dates?.start?.localDate||e.date_start||'';
+    const name=e.name||e.title||e.label||'Événement local';
+    const venue=e.venue||e.location||e.place||e._embedded?.venues?.[0]?.name||'';
+    const segment=e.segment||e.category||e.type||e.classifications?.[0]?.segment?.name||'Local';
+    const boost=eventBoostFromName(name,segment,date,idx);
+    return {name,date,venue,segment,boost,hot:boost>=10,emoji:eventEmoji(segment,name),date_label:formatEventDate(date),source:e.source||'events-proxy'};
+  }).filter(e=>e.name).sort((a,b)=>(new Date(a.date||'2999-01-01'))-(new Date(b.date||'2999-01-01')));
+}
+
+async function fetchOpenAgendaFallback(city){
+  const start=new Date().toISOString().slice(0,10);
+  const end=addDays(new Date(),180).toISOString().slice(0,10);
+  const url=`https://api.openagenda.com/v2/agendas/events?where=${encodeURIComponent(city)}&from=${start}&to=${end}&size=20`;
+  const r=await fetch(url);
+  if(!r.ok)throw new Error('OpenAgenda HTTP '+r.status);
+  const data=await r.json();
+  const raw=data.events||data.items||[];
+  return raw.map((e,idx)=>{
+    const name=(typeof e.title==='object'?e.title.fr||Object.values(e.title)[0]:e.title)||e.name||'Événement local';
+    const date=e.firstdate_begin||e.dateRange?.[0]?.begin||e.start||'';
+    const venue=(typeof e.location?.name==='object'?e.location.name.fr||Object.values(e.location.name)[0]:e.location?.name)||e.locationName||'';
+    const segment=e.keywords?.[0]||'OpenAgenda';
+    const boost=eventBoostFromName(name,segment,date,idx);
+    return {name,date,venue,segment,boost,hot:boost>=10,emoji:eventEmoji(segment,name),date_label:formatEventDate(date),source:'OpenAgenda'};
+  }).filter(e=>e.name);
+}
+
+function buildLocalSeasonalEvents(city){
+  // Fallback métier : évite une page vide quand les APIs ne répondent pas.
+  const today=new Date();
+  const presets=[];
+  const m=today.getMonth()+1;
+  if([6,7,8].includes(m))presets.push({name:`Saison touristique été — ${city}`,boost:10,segment:'Saison',emoji:'☀️',date:isoDate(addDays(today,7))});
+  if([11,12].includes(m))presets.push({name:`Marchés et sorties de fin d\u2019année — ${city}`,boost:12,segment:'Saison',emoji:'🎄',date:isoDate(addDays(today,10))});
+  presets.push({name:`Week-ends à forte demande locale — ${city}`,boost:6,segment:'Demande locale',emoji:'📍',date:isoDate(addDays(today,5))});
+  return presets.map(e=>({...e,hot:e.boost>=10,venue:city,date_label:formatEventDate(e.date),source:'RentyQ fallback'}));
+}
+function formatEventDate(date){
+  if(!date)return 'date à confirmer';
+  try{return new Date(date).toLocaleDateString('fr-FR',{day:'numeric',month:'short'});}catch(e){return date;}
+}
+function eventEmoji(segment='',name=''){
+  const t=(segment+' '+name).toLowerCase();
+  if(/concert|music|musique|festival/.test(t))return '🎵';
+  if(/sport|match|football|rugby|basket/.test(t))return '🏟️';
+  if(/expo|museum|art|culture/.test(t))return '🎨';
+  if(/march[eé]|no[eë]l|foire|salon/.test(t))return '🎪';
+  if(/business|congr[eè]s|conf[eé]rence/.test(t))return '💼';
+  return '🎯';
+}
+function eventBoostFromName(name='',segment='',date='',idx=0){
+  const t=(name+' '+segment).toLowerCase();
+  let boost=6;
+  if(/festival|concert|match|finale|salon|congr[eè]s|foire|zenith|z[eé]nith|arena|stade/.test(t))boost=15;
+  else if(/expo|spectacle|th[eé][aâ]tre|march[eé]|course/.test(t))boost=10;
+  if(date){const days=Math.round((new Date(date)-new Date())/(1000*60*60*24));if(days>=0&&days<=14)boost+=3;}
+  return Math.min(25,boost);
+}
+
+function renderEventsPage(citiesMap){
+  const container=document.getElementById('events-container');
+  const cities=Object.keys(citiesMap);
+  let html='';
+  let totalEvents=0;
+
+  for(const city of cities){
+    const cityEvents=eventsCache[city]||[];
+    const apts=citiesMap[city];
+    totalEvents+=cityEvents.length;
+    const hotCount=cityEvents.filter(e=>e.hot).length;
+
+    html+=`<div class="city-section">
+      <div class="city-header">
+        <div class="city-name">📍 ${city}</div>
+        <div class="city-apts">${apts.map(a=>a.emoji||'🏠'+' '+a.name).join(', ')}</div>
+        <span class="city-count">${cityEvents.length} événement${cityEvents.length>1?'s':''}</span>
+        ${hotCount>0?`<span class="city-count" style="background:#FAEEDA;color:#854F0B">🔥 ${hotCount} à fort impact</span>`:``}
+      </div>`;
+
+    if(!cityEvents.length){
+      html+=`<div style="color:#8A8A99;font-size:13px;padding:1rem;background:white;border-radius:12px;border:1px solid #EEEEF5">Aucun événement trouvé pour ${city} dans les 6 prochains mois.</div>`;
+    } else {
+      html+=`<div class="events-grid">`;
+      const sorted=[...cityEvents].sort((a,b)=>(b.boost||0)-(a.boost||0));
+      sorted.slice(0,12).forEach(e=>{
+        html+=`<div class="event-card ${e.hot?'hot':''}">
+          <div class="ev-row">
+            <div class="ev-emoji">${e.emoji}</div>
+            <div class="ev-info">
+              <div class="ev-name">${e.name}</div>
+              <div class="ev-meta">${e.date_label}${e.venue?' · '+e.venue:''}</div>
+              <div style="margin-top:4px">
+                <span class="tag ${e.hot?'tag-warn':'tag-info'}">${e.hot?'🔥 Chaud':e.segment||'Événement'}</span>
+              </div>
+            </div>
+            <div>
+              <div class="ev-boost" style="color:${e.hot?'#D97706':'#6B3FA0'}">+${e.boost}%</div>
+              <div class="ev-boost-lbl">prix</div>
+            </div>
+          </div>
+        </div>`;
+      });
+      html+=`</div>`;
+    }
+    html+=`</div>`;
+  }
+
+  document.getElementById('events-sub').textContent=`${totalEvents} événements détectés dans ${cities.length} ville${cities.length>1?'s':''}`;
+  container.innerHTML=html;
+}
+
+function refreshEvents(){loadEvents(true);}
+
+// SMOOBU
+function updateSmoobuUI(connected){
+  const dot=document.getElementById('status-dot');const label=document.getElementById('status-label');
+  const badge=document.getElementById('smoobu-nav-badge');const saveBtn=document.getElementById('btn-save-smoobu');
+  if(connected){dot.className='status-dot connected';label.textContent='Connecté ✓';if(badge)badge.style.display='inline-block';if(saveBtn)saveBtn.style.display='inline-flex';document.getElementById('smoobu-data').style.display='block';}
+}
+
+async function testSmoobu(){
+  const key=document.getElementById('smoobu-key').value.trim();
+  if(!key){showErr('smoobu-error','Collez une clé API Smoobu à tester');return;}
+  const btn=document.querySelector('[onclick="testSmoobu()"]');
+  btn.disabled=true;btn.textContent='Test…';
+  try{
+    const data=await smoobuCall('testConnection',{apiKey:key});
+    if(data.success){
+      showOk('smoobu-success','Connexion Smoobu OK. Cliquez sur “Connecter” pour enregistrer la clé côté serveur.');
+      updateSmoobuUI(true);
+    }else{
+      showErr('smoobu-error','Clé invalide');
+      updateSmoobuUI(false);
+    }
+  }catch(e){
+    showErr('smoobu-error','Erreur de connexion Smoobu');
+    updateSmoobuUI(false);
+  }
+  btn.disabled=false;btn.textContent='🔌 Tester';
+}
+
+async function saveSmoobuKey(){
+  const key=document.getElementById('smoobu-key').value.trim();if(!key)return;
+  try{
+    await smoobuCall('saveKey',{apiKey:key});
+    smoobuConnected=true;
+    document.getElementById('smoobu-key').value='';
+    updateSmoobuUI(true);
+    showToast('✓ Clé Smoobu enregistrée côté serveur');
+    await syncSmoobu();
+  }catch(e){
+    showErr('smoobu-error',"Impossible d\'enregistrer la clé Smoobu");
+  }
+}
+
+async function syncSmoobu(){
+  showToast('🔄 Sync Smoobu…');
+  try{
+    const aptsData=await smoobuCall('getApartments');const smoobuApts=aptsData._embedded?.apartments||aptsData.apartments||[];
+    for(const sa of smoobuApts){
+      if(!apparts.find(a=>a.smoobu_id===String(sa.id))){
+        const city=sa.city||sa.location||'';
+        const body={user_id:currentUser.user.id,name:sa.name||'Appart Smoobu',city:city,zone:'',emoji:'🏠',rent:0,cleaner:25,price:sa.price||100,comp:0,ai_rec:Math.round((sa.price||100)*1.08),booked:false,auto_pricing:true,has_event:false,smoobu_id:String(sa.id)};
+        const res=await sbFetch('appartements',{method:'POST',body:JSON.stringify(body)});const c=await res.json();
+        if(Array.isArray(c)&&c[0])apparts.push(c[0]);
+      }
+    }
+    const bkData=await smoobuCall('getBookings');const bookings=bkData.bookings||bkData._embedded?.bookings||[];
+    const real=bookings.filter(b=>!b['is-blocked-booking']);
+    let rev=0;real.forEach(b=>rev+=b.price||0);
+    document.getElementById('sm-apts').textContent=smoobuApts.length;
+    document.getElementById('sm-bookings').textContent=real.length;
+    document.getElementById('sm-revenue').textContent=Math.round(rev)+'€';
+    renderSmoobuApts(smoobuApts);
+    renderAll();
+    if(apparts.length)loadEvents(true);
+    showToast(`✓ ${smoobuApts.length} apparts, ${real.length} réservations`);
+  }catch(e){showToast('⚠️ Erreur sync');}
+}
+
+function renderSmoobuApts(apts){
+  const t=document.getElementById('smoobu-apts-table');
+  if(!apts||!apts.length){t.innerHTML='<tr><td style="padding:1rem;color:#8A8A99">Aucun appartement</td></tr>';return}
+  t.innerHTML=`<thead><tr><th>Nom</th><th>Ville</th><th>Prix base</th></tr></thead><tbody>`+
+  apts.map(a=>`<tr><td><div class="apt-name"><div class="apt-emoji">🏠</div>${a.name||'—'}</div></td><td>${a.city||'—'}</td><td>${a.price||'—'}€</td></tr>`).join('')+`</tbody>`;
+}
+
+function toggleSidebar(){
+  const sb=document.querySelector('.sidebar');
+  const ov=document.getElementById('sidebar-overlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('open');
+}
+function closeSidebarMobile(){
+  const sb=document.querySelector('.sidebar');
+  const ov=document.getElementById('sidebar-overlay');
+  if(sb)sb.classList.remove('open');
+  if(ov)ov.classList.remove('open');
+}
+function goTo(page,btn){
+  closeSidebarMobile();
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(page==='calendrier')renderCalendar();
+  if(page==='events'&&apparts.length&&!Object.keys(eventsCache).length)loadEvents(false);
+  // Page events supprimée V2 — rediriger vers pricing
+  if(page==='events'){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-pricing').classList.add('active');renderPricingTable();return;}
+  if(page==='cockpit-c')renderCockpitConcierge();
+  if(page==='finances'){initFinMois();renderFinances();}
+  if(page==='clean')renderCleanyQ();
+  if(page==='parc-c')renderParcConcierge();
+  if(page==='proprietaires')renderProprietaires();
+  if(page==='rapports'){initRapportMois();renderRapports();}
+  if(page==='scanner')renderScannerPage();
+  if(page==='eva-data'){renderEvaDataPage();}
+  if(page==='eva-audit'){renderEvaEngineLayer();}
+}
+
+function openAddModal(){editId=null;['m-name','m-city','m-zone','m-rent','m-clean','m-price','m-comp','m-address','m-lat','m-lng'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('m-address-preview').style.display='none';document.getElementById('m-address-results').style.display='none';document.getElementById('m-degressif-toggle').className='toggle off';document.getElementById('m-degressif-config').style.display='none';document.getElementById('m-deg-start').value='14';document.getElementById('m-deg-step').value='5';document.getElementById('m-deg-min').value='';document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');
+  const az=document.getElementById('modal-archive-zone');if(az)az.style.display='none';
+  const mt=document.getElementById('modal-title');if(mt)mt.textContent='Ajouter un appartement';
+  ['m-surface','m-couchages','m-chambres'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const mt2=document.getElementById('m-type');if(mt2)mt2.value='studio';
+}
+function openEdit(id){const a=apparts.find(x=>x.id===id);if(!a)return;editId=id;document.getElementById('m-name').value=a.name||'';document.getElementById('m-city').value=a.city||'';document.getElementById('m-zone').value=a.zone||'';document.getElementById('m-address').value=a.address||'';document.getElementById('m-lat').value=a.latitude||'';document.getElementById('m-lng').value=a.longitude||'';const prev=document.getElementById('m-address-preview');if(a.address){prev.textContent='📍 '+a.address;prev.style.display='block';}else{prev.style.display='none';}
+  const degToggle=document.getElementById('m-degressif-toggle');const degConfig=document.getElementById('m-degressif-config');
+  if(a.auto_degressif){degToggle.className='toggle on';degConfig.style.display='block';document.getElementById('m-deg-start').value=a.degressif_start||14;document.getElementById('m-deg-step').value=a.degressif_step||5;document.getElementById('m-deg-min').value=a.degressif_min||'';updateDegPreview();}
+  else{degToggle.className='toggle off';degConfig.style.display='none';}document.getElementById('m-emoji').value=a.emoji||'🏠';document.getElementById('m-rent').value=a.rent||'';document.getElementById('m-clean').value=a.cleaner||'';document.getElementById('m-price').value=a.price||'';document.getElementById('m-comp').value=a.comp||'';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');
+  const az=document.getElementById('modal-archive-zone');if(az)az.style.display='block';
+  const mt=document.getElementById('modal-title');if(mt)mt.textContent='Modifier le bien';
+}
+function closeModal(){document.getElementById('modal').classList.remove('open')}
+function openAddResModal(){document.getElementById('mr-apt').innerHTML=apparts.map(a=>`<option value="${a.id}">${a.emoji||'🏠'} ${a.name}</option>`).join('');document.getElementById('modal-res').classList.add('open');}
+function closeResModal(){document.getElementById('modal-res').classList.remove('open')}
+
+async function saveAppart(){
+  const name=document.getElementById('m-name').value.trim();const city=document.getElementById('m-city').value.trim();
+  if(!name){showErr('modal-error','Nom obligatoire');return}
+  if(!city){showErr('modal-error','Ville obligatoire — nécessaire pour les événements');return}
+  const btn=document.getElementById('btn-save-appart');btn.disabled=true;btn.textContent='…';
+  const price=+document.getElementById('m-price').value||0;
+  const degOn=document.getElementById('m-degressif-toggle').classList.contains('on');const body={user_id:currentUser.user.id,name,city,zone:document.getElementById('m-zone').value||'',address:document.getElementById('m-address').value||'',latitude:+document.getElementById('m-lat').value||null,longitude:+document.getElementById('m-lng').value||null,type_bien:document.getElementById('m-type')?.value||'studio',surface:+document.getElementById('m-surface')?.value||null,couchages:+document.getElementById('m-couchages')?.value||null,chambres:+document.getElementById('m-chambres')?.value||null,emoji:document.getElementById('m-emoji').value||'🏠',rent:+document.getElementById('m-rent').value||0,cleaner:+document.getElementById('m-clean').value||0,price,comp:+document.getElementById('m-comp').value||0,ai_rec:Math.round(price*1.08),booked:false,auto_pricing:true,has_event:false,auto_degressif:degOn,degressif_start:degOn?+document.getElementById('m-deg-start').value:14,degressif_step:degOn?+document.getElementById('m-deg-step').value:5,degressif_min:degOn?+document.getElementById('m-deg-min').value||0:0};
   try{
     if(editId){await sbFetch(`appartements?id=eq.${editId}`,{method:'PATCH',body:JSON.stringify(body)});const i=apparts.findIndex(a=>a.id===editId);if(i>=0)apparts[i]={...apparts[i],...body};showToast('✓ Modifié');}
     else{const res=await sbFetch('appartements',{method:'POST',body:JSON.stringify(body)});const c=await res.json();apparts.push(Array.isArray(c)&&c[0]?c[0]:{...body,id:Date.now().toString()});showToast('✓ Ajouté');}
@@ -7261,6 +7780,77 @@ async function checkOAuthCallback(){
   }catch(e){return false;}
 }
 /* ===== end GOOGLE OAUTH ===== */
+
+/* ===== PROFIT 360 ===== */
+function renderProfit360(){
+  const el=document.getElementById('profit360-content');if(!el)return;
+  if(!apparts.length){
+    el.innerHTML='<div style="text-align:center;padding:3rem;background:#F8F4FF;border-radius:18px">'
+      +'<div style="font-size:40px;margin-bottom:12px">&#x1F4B0;</div>'
+      +'<div style="font-size:16px;font-weight:800;color:#17122E;margin-bottom:6px">Aucun bien connecté</div>'
+      +'<div style="font-size:13px;color:#7B708F">Ajoutez des biens et connectez vos sources EVA.</div></div>';
+    return;
+  }
+  const month=new Date().toISOString().slice(0,7);
+  let tCA=0,tCh=0,tNet=0;
+  const rows=apparts.map(a=>{
+    const aptRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(month));
+    const ca=aptRes.reduce((s,r)=>s+(r.price_total||0),0);
+    const aptCh=chargesData.filter(c=>c.appartement_id===a.id);
+    const fixes=aptCh.filter(c=>c.type==='fixe').reduce((s,c)=>s+(c.amount||0),0);
+    const vars=aptCh.filter(c=>c.type==='variable').reduce((s,c)=>s+(c.amount||0),0)*(aptRes.length||1);
+    const commPct=aptCh.find(c=>c.category==='commission_plateforme')?.amount||0;
+    const charges=fixes+vars+Math.round(ca*commPct/100);
+    const net=ca-charges;
+    tCA+=ca;tCh+=charges;tNet+=net;
+    const occ=Math.min(Math.round((aptRes.length/8)*100),100);
+    const pg=Math.max(0,Math.round(((a.ai_rec||a.price||0)-(a.price||0))*Math.max(0,8-aptRes.length)));
+    const og=occ<70?Math.round((a.price||0)*0.12*(8-aptRes.length)):0;
+    const cg=charges>ca*0.4?Math.round(charges*0.08):0;
+    return{a,ca,charges,net,occ,pg,og,cg};
+  });
+  const tPot=rows.reduce((s,r)=>s+r.pg+r.og+r.cg,0);
+  const tPG=rows.reduce((s,r)=>s+r.pg,0);
+  const tOG=rows.reduce((s,r)=>s+r.og,0);
+  const tCG=rows.reduce((s,r)=>s+r.cg,0);
+  const ml=new Date().toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+  const tRows=rows.map(r=>{
+    const nc=r.net>=0?'#059669':'#DC2626';
+    return '<tr style="border-bottom:1px solid #F0EBF9">'
+      +'<td style="padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#17122E">'+(r.a.emoji||'??')+' '+escapeHtml(r.a.name||'Bien')+'</div>'
+      +'<div style="font-size:11px;color:#8A8A99;margin-top:2px">'+r.occ+'% occupé · '+(r.a.city||'')+'</div></td>'
+      +'<td style="padding:14px 12px;text-align:right;font-size:14px;font-weight:700;color:#17122E">'+r.ca+'€</td>'
+      +'<td style="padding:14px 12px;text-align:right;font-size:14px;font-weight:700;color:#DC2626">−'+r.charges+'€</td>'
+      +'<td style="padding:14px 12px;text-align:right;font-size:15px;font-weight:950;color:'+nc+'">'+(r.net>=0?'+':'')+r.net+'€</td>'
+      +'<td style="padding:14px 16px;text-align:right"><span style="font-size:13px;font-weight:900;color:#7C3AED">+'+(r.pg+r.og+r.cg)+'€</span></td></tr>';
+  }).join('');
+  el.innerHTML=
+    '<div style="background:linear-gradient(135deg,#211051 0%,#7C3AED 46%,#EC4899 100%);border-radius:22px;padding:24px;margin-bottom:16px;color:#fff">'
+    +'<div style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;font-weight:900;color:rgba(255,255,255,.65);margin-bottom:8px">Profit 360° — '+ml+'</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px">'
+    +'<div><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">CA brut</div><div style="font-size:28px;font-weight:950">'+tCA+'€</div></div>'
+    +'<div><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">Charges</div><div style="font-size:28px;font-weight:950;color:#FCA5A5">−'+tCh+'€</div></div>'
+    +'<div><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">Profit réel</div><div style="font-size:28px;font-weight:950;color:#6EE7B7">'+tNet+'€</div></div>'
+    +'</div>'
+    +'<div style="background:rgba(255,255,255,.12);border-radius:14px;padding:14px">'
+    +'<div style="font-size:12px;font-weight:800;color:rgba(255,255,255,.8);margin-bottom:10px">Leviers EVA — +'+tPot+'€ peuvent être générés</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">'
+    +'<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:950;color:#FCD34D">+'+tPG+'€</div><div style="font-size:11px;color:rgba(255,255,255,.65);margin-top:3px">Pricing</div></div>'
+    +'<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:950;color:#FCD34D">+'+tOG+'€</div><div style="font-size:11px;color:rgba(255,255,255,.65);margin-top:3px">Occupation</div></div>'
+    +'<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:950;color:#FCD34D">+'+tCG+'€</div><div style="font-size:11px;color:rgba(255,255,255,.65);margin-top:3px">Réduction charges</div></div>'
+    +'</div></div></div>'
+    +'<div style="background:white;border:1px solid rgba(139,92,246,.14);border-radius:20px;overflow:hidden;box-shadow:0 8px 24px rgba(69,39,120,.05)">'
+    +'<table style="width:100%;border-collapse:collapse">'
+    +'<thead><tr style="background:#FAF8FF;border-bottom:2px solid #F0EBF9">'
+    +'<th style="text-align:left;padding:12px 16px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:800">Bien</th>'
+    +'<th style="text-align:right;padding:12px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:800">CA</th>'
+    +'<th style="text-align:right;padding:12px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:800">Charges</th>'
+    +'<th style="text-align:right;padding:12px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:800">Profit</th>'
+    +'<th style="text-align:right;padding:12px 16px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:800">Potentiel EVA</th>'
+    +'</tr></thead>'
+    +'<tbody>'+tRows+'</tbody></table></div>';
+}
+/* ===== end PROFIT 360 ===== */
 </script>
 
 </body>
