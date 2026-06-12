@@ -489,7 +489,7 @@ tr:hover td{background:#FCF8FF!important;}
   padding:clamp(28px,3.2vh,42px) clamp(32px,2.9vw,58px)!important;
   overflow:hidden!important;
   border-radius:26px!important;
-  background:linear-gradient(180deg,rgba(35,19,68,.66),rgba(8,8,29,.86))!important;
+  background:#0E0B1F!important;
   border:1px solid rgba(168,85,247,.48)!important;
   box-shadow:0 28px 90px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.10)!important;
 }
@@ -557,7 +557,7 @@ tr:hover td{background:#FCF8FF!important;}
 /* cockpit/sidebar : plus lumineux, plus RentyQ */
 .app .sidebar,
 .app .sidebar[style]{
-  background:linear-gradient(180deg,#27135B 0%,#15143F 48%,#0D122B 100%)!important;
+  background:#0E0B1F!important;
   border-right:1px solid rgba(236,72,153,.24)!important;
   box-shadow:8px 0 34px rgba(16,10,46,.18)!important;
 }
@@ -1852,26 +1852,8 @@ tr:hover td { background: #FAF6FF !important; }
   <section class="rq-login-panel" aria-label="Connexion RentyQ">
     <div class="rq-brand">
       <!-- Logo RentyQ V3 — icône R + wordmark -->
-      <svg class="rq-mark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <defs>
-          <linearGradient id="rq-icon-bg" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#6D28D9"/>
-            <stop offset="55%" stop-color="#9333EA"/>
-            <stop offset="100%" stop-color="#EC4899"/>
-          </linearGradient>
-          <linearGradient id="rq-icon-leg" x1="0.3" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="rgba(255,255,255,0.5)"/>
-            <stop offset="100%" stop-color="#EC4899"/>
-          </linearGradient>
-        </defs>
-        <rect width="100" height="100" rx="24" fill="url(#rq-icon-bg)"/>
-        <!-- Jambe du R avec gradient -->
-        <line x1="54" y1="55" x2="72" y2="83" stroke="url(#rq-icon-leg)" stroke-width="13" stroke-linecap="round"/>
-        <!-- Corps du R blanc -->
-        <path d="M24 17 L24 83" stroke="white" stroke-width="13" stroke-linecap="round"/>
-        <path d="M24 17 L57 17 C68 17 76 25 76 36 C76 47 68 55 57 55 L24 55" stroke="white" stroke-width="13" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <div class="rq-wordmark" style="font-family:'Sora',sans-serif;font-weight:900">Renty<span style="background:linear-gradient(135deg,#A855F7,#EC4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Q</span></div>
+      <img src="Logo site.png" alt="RentyQ" class="rq-mark" style="width:clamp(140px,12vw,200px);height:auto"/>
+      
     </div>
 
     <div class="rq-auth-copy">
@@ -1992,8 +1974,8 @@ tr:hover td { background: #FAF6FF !important; }
   <div class="beta-banner" style="background:#0F172A;font-size:12px;padding:8px 20px"><i class="ti ti-sparkles" style="margin-right:4px;vertical-align:-1px"></i> <strong>Beta</strong> — EVA Pricing + Smoobu + Opportunités EVA</div>
   <div class="app-body">
     <div class="sidebar" style="background:#0F172A;border-right:1px solid rgba(255,255,255,0.08)">
-      <div class="sidebar-brand" style="padding:1.2rem 1rem 1rem">
-        <img src="Logo site.png" alt="RentyQ" style="width:100%;max-width:180px;height:auto;display:block"/>
+      <div class="sidebar-brand" style="padding:0;margin:0">
+        <img src="Logo site.png" alt="RentyQ" style="width:100%;height:auto;display:block;border-radius:0"/>
       </div>
       <div id="mode-switcher" style="display:none;margin:0 .75rem .5rem;background:rgba(255,255,255,0.08);border-radius:10px;padding:3px;display:flex">
         <button id="mode-btn-solo" onclick="switchMode('solo')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:rgba(83,74,183,0.3);color:white;transition:all .15s"><i class="ti ti-building" style="margin-right:3px;font-size:13px;vertical-align:-1px" aria-hidden="true"></i>Gestion</button>
@@ -2027,17 +2009,36 @@ tr:hover td { background: #FAF6FF !important; }
 
       </div>
       <div id="nav-concierge" style="display:none">
-      <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Conciergerie</div>
-      <button class="nav-item" onclick="goTo('cockpit-c',this)"><span class="nav-emoji"><i class="ti ti-layout-dashboard" aria-hidden="true"></i></span>Dashboard</button>
-      <button class="nav-item" onclick="goTo('proprietaires',this)"><span class="nav-emoji"><i class="ti ti-users" aria-hidden="true"></i></span>Propriétaires</button>
-      <button class="nav-item" onclick="goTo('parc-c',this)"><span class="nav-emoji"><i class="ti ti-building" aria-hidden="true"></i></span>Parc géré</button>
-      <button class="nav-item" onclick="goTo('rapports',this)"><span class="nav-emoji"><i class="ti ti-chart-bar" aria-hidden="true"></i></span>Rapports</button>
-      <button class="nav-item" onclick="goTo('finances',this)"><span class="nav-emoji"><i class="ti ti-wallet" aria-hidden="true"></i></span>Finances</button>
-      <button class="nav-item" onclick="goTo('pricing',this)"><span class="nav-emoji"><i class="ti ti-sparkles" aria-hidden="true"></i></span>EVA pricing</button>
-      <button class="nav-item" onclick="goTo('scanner',this)"><span class="nav-emoji"><i class="ti ti-radar-2" aria-hidden="true"></i></span>Scanner EVA</button>
-      <button class="nav-item" onclick="goTo('eva-audit',this)"><span class="nav-emoji"><i class="ti ti-chart-dots-3" aria-hidden="true"></i></span>Audit EVA</button>
-      <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Intégrations</div>
-      <button class="nav-item" onclick="goTo('smoobu',this)"><span class="nav-emoji"><i class="ti ti-link" aria-hidden="true"></i></span>Smoobu</button>
+
+      <button class="nav-item" onclick="goTo('cockpit',this)" style="font-weight:800;font-size:14px">
+        <span class="nav-emoji">&#x1F3E0;</span>Cockpit EVA
+      </button>
+
+      <!-- Propriétaires — spécifique conciergerie -->
+      <div class="nav-section-label" style="margin-top:10px">Propri&#233;taires</div>
+      <button class="nav-item nav-sub" onclick="goTo('proprietaires',this)"><span class="nav-emoji"><i class="ti ti-users"></i></span>Mes propri&#233;taires</button>
+      <button class="nav-item nav-sub" onclick="goTo('parc-c',this)"><span class="nav-emoji"><i class="ti ti-building"></i></span>Parc g&#233;r&#233;</button>
+      <button class="nav-item nav-sub" onclick="goTo('rapports',this)"><span class="nav-emoji"><i class="ti ti-chart-bar"></i></span>Rapports propri&#233;taires</button>
+
+      <div class="nav-section-label" style="margin-top:10px">Mon Parc</div>
+      <button class="nav-item nav-sub" onclick="goTo('parc',this)"><span class="nav-emoji"><i class="ti ti-building"></i></span>Mes biens <span class="nav-badge" id="parc-badge-c">0</span></button>
+      <button class="nav-item nav-sub" onclick="goTo('scanner',this)"><span class="nav-emoji"><i class="ti ti-radar-2"></i></span>Scanner EVA</button>
+      <button class="nav-item nav-sub" onclick="goTo('eva-data',this)"><span class="nav-emoji"><i class="ti ti-database"></i></span>Sources EVA</button>
+
+      <div class="nav-section-label" style="margin-top:10px">Activit&#233;</div>
+      <button class="nav-item nav-sub" onclick="goTo('calendrier',this)"><span class="nav-emoji"><i class="ti ti-calendar"></i></span>Calendrier</button>
+      <button class="nav-item nav-sub" onclick="goTo('reservations',this)"><span class="nav-emoji"><i class="ti ti-bookmark"></i></span>R&#233;servations</button>
+      <button class="nav-item nav-sub" onclick="goTo('pricing',this)"><span class="nav-emoji"><i class="ti ti-sparkles"></i></span>Opportunit&#233;s EVA</button>
+
+      <div class="nav-section-label" style="margin-top:10px">EVA Engine</div>
+      <button class="nav-item nav-sub" onclick="goTo('eva-audit',this)"><span class="nav-emoji"><i class="ti ti-chart-dots-3"></i></span>Audit 360&#176;</button>
+      <button class="nav-item nav-sub" onclick="goTo('profit360',this)"><span class="nav-emoji"><i class="ti ti-coin"></i></span>Profit 360&#176;</button>
+      <button class="nav-item nav-sub" onclick="goTo('clean',this)"><span class="nav-emoji"><i class="ti ti-spray"></i></span>CleanyQ</button>
+
+      <div class="nav-section-label" style="margin-top:10px">Param&#232;tres</div>
+      <button class="nav-item nav-sub" onclick="goTo('settings',this)"><span class="nav-emoji"><i class="ti ti-settings"></i></span>Compte &amp; int&#233;grations</button>
+      <button class="nav-item nav-sub" onclick="goTo('tarifs',this)"><span class="nav-emoji"><i class="ti ti-credit-card"></i></span>Abonnement</button>
+
       </div>
       <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Compte</div>
       <button class="nav-item" onclick="goTo('tarifs',this)" style="display:none"><span class="nav-emoji"><i class="ti ti-credit-card" aria-hidden="true"></i></span>Tarifs</button>
@@ -2766,6 +2767,11 @@ tr:hover td { background: #FAF6FF !important; }
       <div><label style="font-size:11px;color:#8A8A99;display:block;margin-bottom:4px">Chambres</label><input type="number" id="m-chambres" placeholder="1" min="0" style="width:100%;padding:8px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px"/></div>
     </div>
     <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#8A8A99;margin:.25rem 0 .5rem">Finances</div>
+    <div id="conciergerie-commission-field" style="display:none;margin-bottom:.75rem;padding:10px 12px;background:#F3E8FF;border-radius:10px;border:1px solid rgba(109,40,217,.15)">
+      <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#6D28D9;display:block;margin-bottom:5px">Commission conciergerie (%)</label>
+      <input type="number" id="m-commission-conc" placeholder="Ex : 20" min="0" max="100" step="0.5" style="width:100%;padding:8px;border-radius:8px;border:1px solid #C4B5FD;font-size:13px;font-family:inherit"/>
+      <div style="font-size:11px;color:#8A8A99;margin-top:4px">EVA d&#233;duira ce % du CA dans le Profit 360&#176;</div>
+    </div>
     <div class="form-group"><label>Loyer mensuel (€)</label><input type="number" id="m-rent" placeholder="900"/></div>
     <div class="form-group"><label>Coût ménage / nuit (€)</label><input type="number" id="m-clean" placeholder="25"/></div>
     <div class="form-group"><label>Prix / nuit (€)</label><input type="number" id="m-price" placeholder="95"/></div>
@@ -4657,7 +4663,7 @@ async function saveAppart(){
   if(!city){showErr('modal-error','Ville obligatoire — nécessaire pour les événements');return}
   const btn=document.getElementById('btn-save-appart');btn.disabled=true;btn.textContent='…';
   const price=+document.getElementById('m-price').value||0;
-  const degOn=document.getElementById('m-degressif-toggle').classList.contains('on');const body={user_id:currentUser.user.id,name,city,zone:document.getElementById('m-zone').value||'',address:document.getElementById('m-address').value||'',latitude:+document.getElementById('m-lat').value||null,longitude:+document.getElementById('m-lng').value||null,type_bien:document.getElementById('m-type')?.value||'studio',surface:+document.getElementById('m-surface')?.value||null,couchages:+document.getElementById('m-couchages')?.value||null,chambres:+document.getElementById('m-chambres')?.value||null,emoji:document.getElementById('m-emoji').value||'🏠',rent:+document.getElementById('m-rent').value||0,cleaner:+document.getElementById('m-clean').value||0,price,comp:+document.getElementById('m-comp').value||0,ai_rec:Math.round(price*1.08),booked:false,auto_pricing:true,has_event:false,auto_degressif:degOn,degressif_start:degOn?+document.getElementById('m-deg-start').value:14,degressif_step:degOn?+document.getElementById('m-deg-step').value:5,degressif_min:degOn?+document.getElementById('m-deg-min').value||0:0};
+  const degOn=document.getElementById('m-degressif-toggle').classList.contains('on');const body={user_id:currentUser.user.id,name,city,zone:document.getElementById('m-zone').value||'',address:document.getElementById('m-address').value||'',latitude:+document.getElementById('m-lat').value||null,longitude:+document.getElementById('m-lng').value||null,commission_conc:+document.getElementById('m-commission-conc')?.value||0,type_bien:document.getElementById('m-type')?.value||'studio',surface:+document.getElementById('m-surface')?.value||null,couchages:+document.getElementById('m-couchages')?.value||null,chambres:+document.getElementById('m-chambres')?.value||null,emoji:document.getElementById('m-emoji').value||'🏠',rent:+document.getElementById('m-rent').value||0,cleaner:+document.getElementById('m-clean').value||0,price,comp:+document.getElementById('m-comp').value||0,ai_rec:Math.round(price*1.08),booked:false,auto_pricing:true,has_event:false,auto_degressif:degOn,degressif_start:degOn?+document.getElementById('m-deg-start').value:14,degressif_step:degOn?+document.getElementById('m-deg-step').value:5,degressif_min:degOn?+document.getElementById('m-deg-min').value||0:0};
   try{
     if(editId){await sbFetch(`appartements?id=eq.${editId}`,{method:'PATCH',body:JSON.stringify(body)});const i=apparts.findIndex(a=>a.id===editId);if(i>=0)apparts[i]={...apparts[i],...body};showToast('✓ Modifié');}
     else{const res=await sbFetch('appartements',{method:'POST',body:JSON.stringify(body)});const c=await res.json();apparts.push(Array.isArray(c)&&c[0]?c[0]:{...body,id:Date.now().toString()});showToast('✓ Ajouté');}
@@ -5438,6 +5444,9 @@ function applyModules(){
 
 function switchMode(mode){
   currentMode=mode;
+  // Afficher champ commission si mode conciergerie
+  const commField=document.getElementById('conciergerie-commission-field');
+  if(commField)commField.style.display=mode==='concierge'?'block':'none';
   const navSolo=document.getElementById('nav-solo');
   const navConc=document.getElementById('nav-concierge');
   const btnSolo=document.getElementById('mode-btn-solo');
@@ -8305,6 +8314,7 @@ function renderProfit360(){
     const fixes=aptCh.filter(c=>c.type==='fixe').reduce((s,c)=>s+(c.amount||0),0)*period;
     const vars=aptCh.filter(c=>c.type==='variable').reduce((s,c)=>s+(c.amount||0),0)*(allRes.length||1);
     const commPct=aptCh.find(c=>c.category==='commission_plateforme')?.amount||0;
+    const commConc=currentMode==='concierge'?(a.commission_conc||0):0;
     let bankCharges=0;
     if(hasBank&&window.eva_onb_bank_raw){
       try{
@@ -8317,7 +8327,7 @@ function renderProfit360(){
         bankCharges=Math.round(bankCharges/Math.max(1,period))*period;
       }catch(e){}
     }
-    const charges=fixes+vars+Math.round(ca*commPct/100)+(bankCharges>0?bankCharges:0);
+    const charges=fixes+vars+Math.round(ca*commPct/100)+Math.round(ca*commConc/100)+(bankCharges>0?bankCharges:0);
     const net=ca-charges;
     tCA+=ca;tCh+=charges;tNet+=net;
     const occ=Math.min(Math.round((allRes.length/(8*period))*100),100);
