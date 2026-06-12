@@ -4,6 +4,12 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>RentyQ — Stop guessing. Start earning.</title>
+<link rel="icon" type="image/png" href="favicon.png"/>
+<link rel="apple-touch-icon" href="favicon.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',system-ui,sans-serif;color:#1A1A2E;background:#F5F4FF;font-size:14px}
@@ -258,7 +264,7 @@ tr:hover td{background:#FAFAFF}
 }
 .rq-brand{display:flex;align-items:center;gap:18px;margin-bottom:clamp(24px,4vh,44px)}
 .rq-mark{width:58px;height:auto;flex:0 0 auto;filter:drop-shadow(0 12px 26px rgba(217,70,239,.24))}
-.rq-wordmark{font-size:clamp(42px,4vw,58px);font-weight:800;letter-spacing:-2px;line-height:1;color:#fff}
+.rq-wordmark{font-size:clamp(42px,4vw,58px);font-weight:900;letter-spacing:-2px;line-height:1;color:#fff;font-family:'Sora',sans-serif!important}
 .rq-wordmark span{background:linear-gradient(90deg,#C084FC 0%,#F472B6 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .rq-auth-copy h1{font-size:clamp(28px,2.45vw,38px);line-height:1.17;font-weight:750;letter-spacing:-.9px;margin-bottom:22px;color:#fff}
 .rq-auth-copy h1 span{background:linear-gradient(90deg,#A855F7 0%,#F472B6 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -1460,8 +1466,305 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
 /* ===== end EVA SCANNER V1 ===== */
 
 </script>
-
 <style>
+
+
+
+
+/* ═══════════════════════════════════════════════
+   RentyQ V3 — Design System Officiel
+   Palette : #6D28D9 #9333EA #EC4899 #0B0722 #151132 #F8FAFC
+   Typo : Sora (titres) + Inter (corps)
+   Gradient : linear-gradient(135deg, #6D28D9, #EC4899)
+   ═══════════════════════════════════════════════ */
+
+:root {
+  --rq-violet:   #6D28D9;
+  --rq-purple:   #9333EA;
+  --rq-pink:     #EC4899;
+  --rq-dark:     #0B0722;
+  --rq-dark2:    #151132;
+  --rq-light:    #F8FAFC;
+  --rq-grad:     linear-gradient(135deg, #6D28D9 0%, #9333EA 50%, #EC4899 100%);
+  --rq-grad2:    linear-gradient(135deg, #4C1D95 0%, #7C3AED 50%, #EC4899 100%);
+  --rq-grad-h:   linear-gradient(90deg,  #6D28D9 0%, #EC4899 100%);
+  --rq-shadow:   0 8px 24px rgba(109,40,217,.18);
+  --rq-shadow-lg:0 20px 50px rgba(109,40,217,.22);
+}
+
+/* ── Typo globale ── */
+body {
+  font-family: 'Inter', system-ui, sans-serif !important;
+  color: #15172E !important;
+  background: var(--rq-light) !important;
+}
+
+h1,h2,h3,.page-title,.rq-detail-name,.rq-wordmark,
+.eva-panel-title,.scanner-hero-title,.card-title,
+.eva360-title,.rq-reco-title,.rq-context-title,
+.auth-logo,.brand-logo {
+  font-family: 'Sora', system-ui, sans-serif !important;
+  font-weight: 800 !important;
+  letter-spacing: -.4px !important;
+}
+
+.page-title {
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  color: #0B0722 !important;
+  letter-spacing: -.5px !important;
+}
+
+/* ── Sidebar V3 ── */
+.app .sidebar,
+.app .sidebar[style] {
+  background: linear-gradient(180deg, #180A3C 0%, #0F0829 50%, #080516 100%) !important;
+  border-right: 1px solid rgba(236,72,153,.22) !important;
+  box-shadow: 6px 0 28px rgba(11,7,34,.3) !important;
+}
+
+.nav-section-label {
+  font-family: 'Sora', sans-serif !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.2px !important;
+  color: rgba(236,72,153,.55) !important;
+  text-transform: uppercase !important;
+  padding: 1rem 1.25rem .3rem !important;
+}
+
+.nav-item {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: rgba(255,255,255,.62) !important;
+  border-radius: 8px !important;
+  margin: 1px 6px !important;
+  padding: 8px 10px !important;
+  transition: all .14s !important;
+}
+
+.nav-item:hover {
+  background: rgba(147,51,234,.18) !important;
+  color: #fff !important;
+}
+
+.nav-item.active {
+  background: linear-gradient(90deg, rgba(109,40,217,.48), rgba(236,72,153,.26)) !important;
+  border-color: rgba(236,72,153,.28) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 6px 20px rgba(109,40,217,.22) !important;
+}
+
+.nav-sub {
+  padding: 6px 10px 6px 20px !important;
+  font-size: 12.5px !important;
+  color: rgba(255,255,255,.55) !important;
+}
+
+.nav-sub.active {
+  color: #fff !important;
+}
+
+.nav-emoji { color: rgba(236,72,153,.9) !important; }
+
+/* ── Boutons V3 ── */
+.btn-purple, .btn-ai {
+  background: var(--rq-grad) !important;
+  border: none !important;
+  color: #fff !important;
+  font-family: 'Sora', sans-serif !important;
+  font-weight: 700 !important;
+  box-shadow: var(--rq-shadow) !important;
+  letter-spacing: -.1px !important;
+}
+
+.btn-purple:hover, .btn-ai:hover {
+  filter: brightness(1.06) !important;
+  color: #fff !important;
+}
+
+.btn {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+  border-color: rgba(109,40,217,.2) !important;
+  color: #15172E !important;
+}
+
+.btn:hover {
+  border-color: var(--rq-violet) !important;
+  color: var(--rq-violet) !important;
+}
+
+/* ── Fond main ── */
+.main {
+  background: linear-gradient(135deg, #F5F1FF 0%, #F0EAFF 55%, #FFF0F7 100%) !important;
+}
+
+/* ── Cards V3 ── */
+.card, .kpi {
+  border-color: rgba(109,40,217,.12) !important;
+  box-shadow: 0 4px 16px rgba(109,40,217,.06) !important;
+}
+
+.kpi-ai, .tag-ai {
+  background: linear-gradient(135deg, #F3E8FF, #FCE7F3) !important;
+  border-color: rgba(147,51,234,.24) !important;
+  color: var(--rq-violet) !important;
+}
+
+/* ── Badge ── */
+.nav-badge {
+  background: var(--rq-grad) !important;
+  box-shadow: 0 4px 10px rgba(236,72,153,.28) !important;
+  color: #fff !important;
+}
+
+/* ── Beta banner ── */
+.beta-banner {
+  background: linear-gradient(90deg, #0B0722 0%, #3B1278 50%, #0B0722 100%) !important;
+  border-bottom: 1px solid rgba(236,72,153,.2) !important;
+  font-family: 'Sora', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  letter-spacing: .4px !important;
+}
+
+/* ── Auth screen ── */
+.rq-primary {
+  background: var(--rq-grad) !important;
+  font-family: 'Sora', sans-serif !important;
+  font-weight: 800 !important;
+  box-shadow: 0 14px 36px rgba(109,40,217,.28), 0 8px 24px rgba(236,72,153,.22) !important;
+}
+
+/* ── EVA Engine couleurs ── */
+.eva-actions-panel,
+.eva360-section,
+.rq-context-card,
+.rq-detail-hero,
+.rq-reco-card,
+.rq-card-v2 {
+  border-color: rgba(109,40,217,.14) !important;
+}
+
+/* ── Scores EVA V3 ── */
+.rq-health-badge {
+  font-family: 'Sora', sans-serif !important;
+  font-weight: 700 !important;
+}
+
+/* ── Titres sections ── */
+.rq-context-title,
+.eva-panel-title,
+.rq-reco-title,
+.scanner-hero-title {
+  font-family: 'Sora', sans-serif !important;
+  font-weight: 800 !important;
+  color: #0B0722 !important;
+}
+
+/* ── User sidebar ── */
+.user-name {
+  font-family: 'Sora', sans-serif !important;
+  font-weight: 700 !important;
+  color: #fff !important;
+}
+
+.user-plan { color: rgba(236,72,153,.85) !important; }
+
+/* ── Tables ── */
+th {
+  font-family: 'Sora', sans-serif !important;
+  font-weight: 800 !important;
+  color: #9A8AAD !important;
+}
+
+tr:hover td { background: #FAF6FF !important; }
+
+/* ── Formulaires ── */
+.form-group input:focus,
+.rq-input-wrap input:focus {
+  border-color: var(--rq-violet) !important;
+  box-shadow: 0 0 0 3px rgba(109,40,217,.12) !important;
+  outline: none !important;
+}
+
+/* ── Auth tabs ── */
+.auth-tab.active {
+  color: var(--rq-violet) !important;
+  border-bottom-color: var(--rq-violet) !important;
+}
+
+/* ═══════════════════════════════════════════════
+   Sidebar brand logo V3
+   ═══════════════════════════════════════════════ */
+.sidebar-brand {
+  padding: 1.4rem 1rem 1.1rem !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.brand-rq-icon {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, #6D28D9 0%, #9333EA 50%, #EC4899 100%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 10px 24px rgba(109,40,217,.35) !important;
+}
+
+.brand-rq-wordmark {
+  font-family: 'Sora', sans-serif !important;
+  font-size: 22px !important;
+  font-weight: 900 !important;
+  letter-spacing: -1px !important;
+  color: #fff !important;
+  line-height: 1 !important;
+}
+
+.brand-rq-q {
+  background: linear-gradient(135deg, #9333EA, #EC4899) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+.brand-tagline {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  color: rgba(255,255,255,.5) !important;
+  letter-spacing: .2px !important;
+  font-style: normal !important;
+  margin-top: 3px !important;
+}
+
+/* ═══════════════════════════════════════════════
+   Profit 360° V3
+   ═══════════════════════════════════════════════ */
+#profit360-content .p360-hero {
+  background: linear-gradient(135deg, #6D28D9 0%, #9333EA 50%, #EC4899 100%);
+  border-radius: 20px;
+  padding: 22px;
+  color: #fff;
+  margin-bottom: 14px;
+}
+
+/* ═══════════════════════════════════════════════
+   Scroll + utilities
+   ═══════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(109,40,217,.3); border-radius: 4px; }
+
+/* ═══════════════════════════════════════════════
+   end DA V3
+   ═══════════════════════════════════════════════ */
 .rq-actions-panel{margin-top:16px;border:1px solid rgba(249,115,22,.25)!important;background:linear-gradient(135deg,#FFF7ED 0%,#FFFFFF 45%,#FEF2F2 100%)!important}
 .rq-actions-grid{display:grid;gap:12px;margin-top:14px}
 .rq-action{display:grid;grid-template-columns:70px 1fr 120px;gap:14px;align-items:center;background:white;border:1px solid rgba(249,115,22,.12);border-radius:16px;padding:14px}
@@ -1513,6 +1816,7 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
 @media(max-width:560px){.rq-eva-layer-hero{padding:20px}.rq-eva-title{font-size:27px}.rq-eva-money-grid{grid-template-columns:1fr}.rq-eva-score-bubble{width:142px;height:142px}.rq-eva-score-num{font-size:36px}}
 /* ===== end EVA ENGINE LAYER ===== */
 
+
 </style>
 
 </head>
@@ -1520,12 +1824,24 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
 
 <div id="loading">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
-    <svg viewBox="0 0 42 36" xmlns="http://www.w3.org/2000/svg" style="width:36px">
-      <defs><linearGradient id="lg-load" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6B3FA0"/><stop offset="100%" stop-color="#FF6B6B"/></linearGradient></defs>
-      <rect width="42" height="36" rx="9" fill="url(#lg-load)"/>
-      <text x="4" y="26" font-family="Inter,system-ui,sans-serif" font-size="19" font-weight="700" fill="white">RyQ</text>
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width:44px;height:44px;border-radius:14px;box-shadow:0 8px 24px rgba(109,40,217,.35)">
+      <defs>
+        <linearGradient id="lg-load" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#6D28D9"/>
+          <stop offset="55%" stop-color="#9333EA"/>
+          <stop offset="100%" stop-color="#EC4899"/>
+        </linearGradient>
+        <linearGradient id="lg-load-leg" x1="0.3" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.5)"/>
+          <stop offset="100%" stop-color="#EC4899"/>
+        </linearGradient>
+      </defs>
+      <rect width="100" height="100" rx="24" fill="url(#lg-load)"/>
+      <line x1="54" y1="55" x2="72" y2="83" stroke="url(#lg-load-leg)" stroke-width="13" stroke-linecap="round"/>
+      <path d="M24 17 L24 83" stroke="white" stroke-width="13" stroke-linecap="round"/>
+      <path d="M24 17 L57 17 C68 17 76 25 76 36 C76 47 68 55 57 55 L24 55" stroke="white" stroke-width="13" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
-    <div class="loading-logo">Rent<span>yQ</span></div>
+    <div class="loading-logo" style="font-family:'Sora',sans-serif;font-weight:900;color:#0B0722;letter-spacing:-.8px">Renty<span style="background:linear-gradient(135deg,#9333EA,#EC4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Q</span></div>
   </div>
   <div class="spinner"></div>
 </div>
@@ -1535,12 +1851,27 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
   
   <section class="rq-login-panel" aria-label="Connexion RentyQ">
     <div class="rq-brand">
-      <svg class="rq-mark" viewBox="0 0 48 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <defs><linearGradient id="rq-logo-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7C3AED"/><stop offset="55%" stop-color="#D946EF"/><stop offset="100%" stop-color="#FB7185"/></linearGradient></defs>
-        <rect width="48" height="40" rx="12" fill="url(#rq-logo-grad)"/>
-        <text x="5" y="29" font-family="Inter,system-ui,sans-serif" font-size="21" font-weight="800" fill="white">RyQ</text>
+      <!-- Logo RentyQ V3 — icône R + wordmark -->
+      <svg class="rq-mark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="rq-icon-bg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#6D28D9"/>
+            <stop offset="55%" stop-color="#9333EA"/>
+            <stop offset="100%" stop-color="#EC4899"/>
+          </linearGradient>
+          <linearGradient id="rq-icon-leg" x1="0.3" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.5)"/>
+            <stop offset="100%" stop-color="#EC4899"/>
+          </linearGradient>
+        </defs>
+        <rect width="100" height="100" rx="24" fill="url(#rq-icon-bg)"/>
+        <!-- Jambe du R avec gradient -->
+        <line x1="54" y1="55" x2="72" y2="83" stroke="url(#rq-icon-leg)" stroke-width="13" stroke-linecap="round"/>
+        <!-- Corps du R blanc -->
+        <path d="M24 17 L24 83" stroke="white" stroke-width="13" stroke-linecap="round"/>
+        <path d="M24 17 L57 17 C68 17 76 25 76 36 C76 47 68 55 57 55 L24 55" stroke="white" stroke-width="13" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      <div class="rq-wordmark">Rent<span>yQ</span></div>
+      <div class="rq-wordmark" style="font-family:'Sora',sans-serif;font-weight:900">Renty<span style="background:linear-gradient(135deg,#A855F7,#EC4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Q</span></div>
     </div>
 
     <div class="rq-auth-copy">
@@ -1663,14 +1994,29 @@ function escapeHtml(str){return String(str||'').replace(/[&<>"]/g,s=>({'&':'&amp
     <div class="sidebar" style="background:#0F172A;border-right:1px solid rgba(255,255,255,0.08)">
       <div class="sidebar-brand">
         <div style="display:flex;align-items:center;gap:12px">
-          <svg viewBox="0 0 42 36" xmlns="http://www.w3.org/2000/svg" style="width:42px;flex-shrink:0">
-            <defs><linearGradient id="lg-side" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6B3FA0"/><stop offset="100%" stop-color="#FF6B6B"/></linearGradient></defs>
-            <rect width="42" height="36" rx="9" fill="url(#lg-side)"/>
-            <text x="4" y="26" font-family="Inter,system-ui,sans-serif" font-size="19" font-weight="700" fill="white">RyQ</text>
+          <!-- Logo RentyQ V3 icône R -->
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="42" height="42" style="flex-shrink:0;border-radius:14px;box-shadow:0 10px 26px rgba(109,40,217,.4)">
+            <defs>
+              <linearGradient id="sb-bg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#6D28D9"/>
+                <stop offset="55%" stop-color="#9333EA"/>
+                <stop offset="100%" stop-color="#EC4899"/>
+              </linearGradient>
+              <linearGradient id="sb-leg" x1="0.3" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="rgba(255,255,255,0.5)"/>
+                <stop offset="100%" stop-color="#EC4899"/>
+              </linearGradient>
+            </defs>
+            <rect width="100" height="100" rx="24" fill="url(#sb-bg)"/>
+            <line x1="54" y1="55" x2="72" y2="83" stroke="url(#sb-leg)" stroke-width="13" stroke-linecap="round"/>
+            <path d="M24 17 L24 83" stroke="white" stroke-width="13" stroke-linecap="round"/>
+            <path d="M24 17 L57 17 C68 17 76 25 76 36 C76 47 68 55 57 55 L24 55" stroke="white" stroke-width="13" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          <div style="font-size:22px;font-weight:600;color:white;letter-spacing:-0.4px">RentyQ</div>
+          <div>
+            <div class="brand-rq-wordmark" style="font-family:'Sora',sans-serif;font-size:19px;font-weight:900;color:#fff;letter-spacing:-.8px;line-height:1">Renty<span class="brand-rq-q" style="background:linear-gradient(135deg,#A855F7,#EC4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Q</span></div>
+            <div class="brand-tagline" style="font-family:'Inter',sans-serif;font-size:9px;font-weight:500;color:rgba(255,255,255,.42);margin-top:2px;letter-spacing:.2px">Stop guessing. Start earning.</div>
+          </div>
         </div>
-        <div class="brand-tagline" style="color:rgba(255,255,255,0.25);margin-left:54px;font-size:10px">Stop guessing.<br/>Start earning.</div>
       </div>
       <div id="mode-switcher" style="display:none;margin:0 .75rem .5rem;background:rgba(255,255,255,0.08);border-radius:10px;padding:3px;display:flex">
         <button id="mode-btn-solo" onclick="switchMode('solo')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:rgba(83,74,183,0.3);color:white;transition:all .15s"><i class="ti ti-building" style="margin-right:3px;font-size:13px;vertical-align:-1px" aria-hidden="true"></i>Gestion</button>
@@ -7784,73 +8130,157 @@ async function checkOAuthCallback(){
 /* ===== PROFIT 360 ===== */
 function renderProfit360(){
   const el=document.getElementById('profit360-content');if(!el)return;
-  if(!apparts.length){
-    el.innerHTML='<div style="text-align:center;padding:3rem;background:#F8F4FF;border-radius:18px">'
-      +'<div style="font-size:40px;margin-bottom:12px">&#x1F4B0;</div>'
-      +'<div style="font-size:16px;font-weight:800;color:#17122E;margin-bottom:6px">Aucun bien connecté</div>'
-      +'<div style="font-size:13px;color:#7B708F">Ajoutez des biens et connectez vos sources EVA.</div></div>';
+  // Sources EVA disponibles
+  const sources=evaGetSources?evaGetSources():{};
+  const hasPMS=!!sources.pms;
+  const hasAirbnb=!!sources.airbnb;
+  const hasBank=!!sources.bank;
+  const hasManual=!!sources.manual||apparts.length>0;
+  const hasAnyData=hasPMS||hasAirbnb||hasBank||hasManual||reservations.length>0;
+
+  // Sélecteur de période
+  const periodEl=document.getElementById('profit360-period');
+  const period=periodEl?+periodEl.value:1;
+
+  if(!hasAnyData){
+    el.innerHTML=
+      '<div style="text-align:center;padding:3rem;background:white;border-radius:20px;border:1px solid rgba(109,40,217,.14);box-shadow:0 8px 24px rgba(109,40,217,.06)">'
+      +'<div style="width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,#6D28D9,#EC4899);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 1.25rem;box-shadow:0 12px 30px rgba(109,40,217,.3)">&#x1F9E0;</div>'
+      +'<div style="font-family:Sora,sans-serif;font-size:20px;font-weight:900;color:#0B0722;margin-bottom:8px">EVA attend vos données</div>'
+      +'<div style="font-size:13px;color:#8A8A99;margin-bottom:1.5rem;max-width:400px;margin-left:auto;margin-right:auto">Connectez vos sources pour qu’EVA calcule votre rentabilité réelle &mdash; CA brut, charges déduites, profit net et leviers d’amélioration.</div>'
+      +'<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-width:480px;margin:0 auto">'
+      +'<button onclick="openEvaOnboarding(\'pms\'" style="padding:12px;border-radius:12px;background:#F3E8FF;color:#6D28D9;border:1px solid rgba(109,40,217,.2);font-size:13px;font-weight:700;cursor:pointer;font-family:Sora,sans-serif">&#x1F3E2; Connecter mon PMS</button>'
+      +'<button onclick="openEvaOnboarding(\'airbnb\'" style="padding:12px;border-radius:12px;background:#F3E8FF;color:#6D28D9;border:1px solid rgba(109,40,217,.2);font-size:13px;font-weight:700;cursor:pointer;font-family:Sora,sans-serif">&#x1F3E0; Importer réservations</button>'
+      +'<button onclick="openEvaOnboarding(\'bank\'" style="padding:12px;border-radius:12px;background:#F3E8FF;color:#6D28D9;border:1px solid rgba(109,40,217,.2);font-size:13px;font-weight:700;cursor:pointer;font-family:Sora,sans-serif">&#x1F3E6; Importer relevé bancaire</button>'
+      +'<button onclick="loadDemoData()" style="padding:12px;border-radius:12px;background:linear-gradient(135deg,#6D28D9,#EC4899);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:Sora,sans-serif;box-shadow:0 8px 20px rgba(109,40,217,.28)">&#x1F680; Charger la démo</button>'
+      +'</div></div>';
     return;
   }
-  const month=new Date().toISOString().slice(0,7);
+
+  // Calculer la plage de dates selon la période
+  const now=new Date();
+  const months=[];
+  for(let i=period-1;i>=0;i--){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    months.push(d.toISOString().slice(0,7));
+  }
+
   let tCA=0,tCh=0,tNet=0;
   const rows=apparts.map(a=>{
-    const aptRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(month));
-    const ca=aptRes.reduce((s,r)=>s+(r.price_total||0),0);
+    const aptRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&months.some(m=>r.date_from.startsWith(m)));
+    // Intégrer données CSV Airbnb/Booking si disponibles
+    let extraRes=[];
+    if(hasAirbnb&&window.eva_onb_csv_raw){
+      try{
+        const lines=window.eva_onb_csv_raw.split('\n').slice(1).filter(l=>l.trim());
+        lines.forEach(l=>{
+          const parts=l.split(',');
+          if(parts[2]&&months.some(m=>parts[2].startsWith(m))){
+            const amt=parseFloat((parts[4]||'0').replace(/[^0-9.]/g,''));
+            if(amt>0)extraRes.push({price_total:amt,date_from:parts[2]});
+          }
+        });
+      }catch(e){}
+    }
+    const allRes=[...aptRes,...extraRes];
+    const ca=allRes.reduce((s,r)=>s+(r.price_total||0),0);
+    // Charges : base de données + CSV bancaire si disponible
     const aptCh=chargesData.filter(c=>c.appartement_id===a.id);
-    const fixes=aptCh.filter(c=>c.type==='fixe').reduce((s,c)=>s+(c.amount||0),0);
-    const vars=aptCh.filter(c=>c.type==='variable').reduce((s,c)=>s+(c.amount||0),0)*(aptRes.length||1);
+    const fixes=aptCh.filter(c=>c.type==='fixe').reduce((s,c)=>s+(c.amount||0),0)*period;
+    const vars=aptCh.filter(c=>c.type==='variable').reduce((s,c)=>s+(c.amount||0),0)*(allRes.length||1);
     const commPct=aptCh.find(c=>c.category==='commission_plateforme')?.amount||0;
-    const charges=fixes+vars+Math.round(ca*commPct/100);
+    let bankCharges=0;
+    if(hasBank&&window.eva_onb_bank_raw){
+      try{
+        const lines=window.eva_onb_bank_raw.split('\n').slice(1).filter(l=>l.trim());
+        lines.forEach(l=>{
+          const parts=l.split(';');
+          const amt=parseFloat((parts[3]||parts[2]||'0').replace(',','.').replace(/[^0-9.-]/g,''));
+          if(amt<0)bankCharges+=Math.abs(amt);
+        });
+        bankCharges=Math.round(bankCharges/Math.max(1,period))*period;
+      }catch(e){}
+    }
+    const charges=fixes+vars+Math.round(ca*commPct/100)+(bankCharges>0?bankCharges:0);
     const net=ca-charges;
     tCA+=ca;tCh+=charges;tNet+=net;
-    const occ=Math.min(Math.round((aptRes.length/8)*100),100);
-    const pg=Math.max(0,Math.round(((a.ai_rec||a.price||0)-(a.price||0))*Math.max(0,8-aptRes.length)));
-    const og=occ<70?Math.round((a.price||0)*0.12*(8-aptRes.length)):0;
+    const occ=Math.min(Math.round((allRes.length/(8*period))*100),100);
+    const adr=allRes.length>0?Math.round(ca/allRes.length):0;
+    const pg=Math.max(0,Math.round(((a.ai_rec||a.price||0)-(a.price||0))*Math.max(0,8*period-allRes.length)));
+    const og=occ<70?Math.round((a.price||0)*0.12*(8*period-allRes.length)):0;
     const cg=charges>ca*0.4?Math.round(charges*0.08):0;
-    return{a,ca,charges,net,occ,pg,og,cg};
+    return{a,ca,charges,net,occ,adr,allRes,pg,og,cg};
   });
+
   const tPot=rows.reduce((s,r)=>s+r.pg+r.og+r.cg,0);
   const tPG=rows.reduce((s,r)=>s+r.pg,0);
   const tOG=rows.reduce((s,r)=>s+r.og,0);
   const tCG=rows.reduce((s,r)=>s+r.cg,0);
-  const ml=new Date().toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+  const tmargin=tCA>0?Math.round(tNet/tCA*100):0;
+  const periodLabel=period===1?'Ce mois':period===3?'3 derniers mois':period===6?'6 derniers mois':'12 derniers mois';
+
+  // Badges sources actives
+  const srcBadges=[]
+    +(hasPMS?'<span style="font-size:10px;font-weight:700;background:#DCFCE7;color:#047857;padding:3px 9px;border-radius:999px;margin-right:5px">✓ PMS</span>':'')
+    +(hasAirbnb?'<span style="font-size:10px;font-weight:700;background:#DCFCE7;color:#047857;padding:3px 9px;border-radius:999px;margin-right:5px">✓ Airbnb</span>':'')
+    +(hasBank?'<span style="font-size:10px;font-weight:700;background:#DCFCE7;color:#047857;padding:3px 9px;border-radius:999px;margin-right:5px">✓ Banque</span>':'')
+    +(!hasPMS&&!hasAirbnb?'<span style="font-size:10px;font-weight:700;background:#FEF3C7;color:#92400E;padding:3px 9px;border-radius:999px;margin-right:5px">⚠ Données partielles</span>':'');
+
   const tRows=rows.map(r=>{
     const nc=r.net>=0?'#059669':'#DC2626';
+    const margin=r.ca>0?Math.round(r.net/r.ca*100):0;
     return '<tr style="border-bottom:1px solid #F0EBF9">'
-      +'<td style="padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#17122E">'+(r.a.emoji||'??')+' '+escapeHtml(r.a.name||'Bien')+'</div>'
-      +'<div style="font-size:11px;color:#8A8A99;margin-top:2px">'+r.occ+'% occupé · '+(r.a.city||'')+'</div></td>'
-      +'<td style="padding:14px 12px;text-align:right;font-size:14px;font-weight:700;color:#17122E">'+r.ca+'€</td>'
+      +'<td style="padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0B0722;font-family:Sora,sans-serif">'+(r.a.emoji||'??')+' '+escapeHtml(r.a.name||'Bien')+'</div>'
+      +'<div style="font-size:11px;color:#8A8A99;margin-top:2px">'+(r.a.city||'')+' · '+r.occ+'% occ. · ADR '+r.adr+'€ · '+r.allRes.length+' résa</div></td>'
+      +'<td style="padding:14px 12px;text-align:right;font-size:14px;font-weight:700;color:#0B0722">'+r.ca+'€</td>'
       +'<td style="padding:14px 12px;text-align:right;font-size:14px;font-weight:700;color:#DC2626">−'+r.charges+'€</td>'
       +'<td style="padding:14px 12px;text-align:right;font-size:15px;font-weight:950;color:'+nc+'">'+(r.net>=0?'+':'')+r.net+'€</td>'
-      +'<td style="padding:14px 16px;text-align:right"><span style="font-size:13px;font-weight:900;color:#7C3AED">+'+(r.pg+r.og+r.cg)+'€</span></td></tr>';
+      +'<td style="padding:14px 12px;text-align:right"><span style="font-size:11px;font-weight:700;color:'+( margin>=0?'#059669':'#DC2626')+'">'+(margin>=0?'+':'')+margin+'%</span></td>'
+      +'<td style="padding:14px 16px;text-align:right"><span style="font-size:13px;font-weight:900;color:#6D28D9">+'+(r.pg+r.og+r.cg)+'€</span></td>'
+      +'</tr>';
   }).join('');
+
   el.innerHTML=
-    '<div style="background:linear-gradient(135deg,#211051 0%,#7C3AED 46%,#EC4899 100%);border-radius:22px;padding:24px;margin-bottom:16px;color:#fff">'
-    +'<div style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;font-weight:900;color:rgba(255,255,255,.65);margin-bottom:8px">Profit 360° — '+ml+'</div>'
-    +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px">'
-    +'<div><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">CA brut</div><div style="font-size:28px;font-weight:950">'+tCA+'€</div></div>'
-    +'<div><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">Charges</div><div style="font-size:28px;font-weight:950;color:#FCA5A5">−'+tCh+'€</div></div>'
-    +'<div><div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px">Profit réel</div><div style="font-size:28px;font-weight:950;color:#6EE7B7">'+tNet+'€</div></div>'
+    '<div style="background:linear-gradient(135deg,#6D28D9 0%,#9333EA 50%,#EC4899 100%);border-radius:22px;padding:24px;margin-bottom:16px;color:#fff">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">'
+    +'<div>'
+    +'<div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:800;color:rgba(255,255,255,.65);font-family:Sora,sans-serif">Profit 360°</div>'
+    +'<div style="font-size:20px;font-weight:900;font-family:Sora,sans-serif;margin-top:4px">'+periodLabel+'</div>'
+    +'<div style="margin-top:8px">'+srcBadges+'</div>'
+    +'</div>'
+    +'<select id="profit360-period" onchange="renderProfit360()" style="height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.14);color:#fff;padding:0 12px;font-size:13px;font-weight:700;font-family:Sora,sans-serif;cursor:pointer">'
+    +'<option value="1"'+(period===1?' selected':'')+'>Ce mois</option>'
+    +'<option value="3"'+(period===3?' selected':'')+'>3 mois</option>'
+    +'<option value="6"'+(period===6?' selected':'')+'>6 mois</option>'
+    +'<option value="12"'+(period===12?' selected':'')+'>12 mois</option>'
+    +'</select></div>'
+    +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px">'
+    +'<div><div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px;font-family:Sora,sans-serif;text-transform:uppercase;letter-spacing:.6px">CA brut</div><div style="font-size:26px;font-weight:950;font-family:Sora,sans-serif">'+tCA+'€</div></div>'
+    +'<div><div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px;font-family:Sora,sans-serif;text-transform:uppercase;letter-spacing:.6px">Charges</div><div style="font-size:26px;font-weight:950;font-family:Sora,sans-serif;color:#FCA5A5">−'+tCh+'€</div></div>'
+    +'<div><div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px;font-family:Sora,sans-serif;text-transform:uppercase;letter-spacing:.6px">Profit réel</div><div style="font-size:26px;font-weight:950;font-family:Sora,sans-serif;color:#6EE7B7">'+tNet+'€</div></div>'
+    +'<div><div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px;font-family:Sora,sans-serif;text-transform:uppercase;letter-spacing:.6px">Marge nette</div><div style="font-size:26px;font-weight:950;font-family:Sora,sans-serif;color:#FCD34D">'+(tmargin>=0?'+':'')+tmargin+'%</div></div>'
     +'</div>'
     +'<div style="background:rgba(255,255,255,.12);border-radius:14px;padding:14px">'
-    +'<div style="font-size:12px;font-weight:800;color:rgba(255,255,255,.8);margin-bottom:10px">Leviers EVA — +'+tPot+'€ peuvent être générés</div>'
+    +'<div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.85);margin-bottom:10px;font-family:Sora,sans-serif">Leviers EVA — +'+tPot+'€ peuvent être générés sur la période</div>'
     +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">'
-    +'<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:950;color:#FCD34D">+'+tPG+'€</div><div style="font-size:11px;color:rgba(255,255,255,.65);margin-top:3px">Pricing</div></div>'
-    +'<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:950;color:#FCD34D">+'+tOG+'€</div><div style="font-size:11px;color:rgba(255,255,255,.65);margin-top:3px">Occupation</div></div>'
-    +'<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:950;color:#FCD34D">+'+tCG+'€</div><div style="font-size:11px;color:rgba(255,255,255,.65);margin-top:3px">Réduction charges</div></div>'
+    +'<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:950;color:#FCD34D;font-family:Sora,sans-serif">+'+tPG+'€</div><div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px">Pricing</div></div>'
+    +'<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:950;color:#FCD34D;font-family:Sora,sans-serif">+'+tOG+'€</div><div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px">Occupation</div></div>'
+    +'<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:950;color:#FCD34D;font-family:Sora,sans-serif">+'+tCG+'€</div><div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px">Réduction charges</div></div>'
     +'</div></div></div>'
-    +'<div style="background:white;border:1px solid rgba(139,92,246,.14);border-radius:20px;overflow:hidden;box-shadow:0 8px 24px rgba(69,39,120,.05)">'
-    +'<table style="width:100%;border-collapse:collapse">'
-    +'<thead><tr style="background:#FAF8FF;border-bottom:2px solid #F0EBF9">'
-    +'<th style="text-align:left;padding:12px 16px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:800">Bien</th>'
+    +'<div style="background:white;border:1px solid rgba(109,40,217,.14);border-radius:20px;overflow:hidden;box-shadow:0 8px 24px rgba(109,40,217,.06)">'
+    +'<table style="width:100%;border-collapse:collapse;font-family:Inter,sans-serif">'
+    +'<thead><tr style="background:#FAF6FF;border-bottom:2px solid #F0EBF9">'
+    +'<th style="text-align:left;padding:12px 16px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#9333EA;font-weight:800;font-family:Sora,sans-serif">Bien</th>'
     +'<th style="text-align:right;padding:12px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:800">CA</th>'
     +'<th style="text-align:right;padding:12px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:800">Charges</th>'
     +'<th style="text-align:right;padding:12px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:800">Profit</th>'
-    +'<th style="text-align:right;padding:12px 16px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:800">Potentiel EVA</th>'
+    +'<th style="text-align:right;padding:12px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:800">Marge</th>'
+    +'<th style="text-align:right;padding:12px 16px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#9333EA;font-weight:800">Potentiel EVA</th>'
     +'</tr></thead>'
     +'<tbody>'+tRows+'</tbody></table></div>';
 }
 /* ===== end PROFIT 360 ===== */
+
 </script>
 
 </body>
