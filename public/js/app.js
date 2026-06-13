@@ -110,6 +110,16 @@ function doLogout(){
   document.getElementById('auth-screen').style.display='flex';
 }
 
+function showLogoutConfirm(){
+  const m=document.getElementById('logout-modal');
+  if(m){m.style.display='flex';}
+}
+
+function closeLogoutConfirm(){
+  const m=document.getElementById('logout-modal');
+  if(m){m.style.display='none';}
+}
+
 async function loadApp(){
   document.getElementById('auth-screen').style.display='none';
   document.getElementById('loading').style.display='flex';
