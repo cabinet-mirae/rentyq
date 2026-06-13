@@ -87,9 +87,26 @@ h1,h2,h3,.page-title,.rq-detail-name,.rq-wordmark,
   box-shadow:6px 0 28px rgba(11,7,34,.3);
 }
 
-/* Logo zone — hauteur fixe, jamais déplacée */
-.sidebar-logo-zone{flex-shrink:0;padding:.75rem 1rem 0;background:#040319}
-.sidebar-logo-zone img,.sidebar-logo-zone__img{width:100%;height:auto;display:block;clip-path:inset(0 0 22% 0);margin-bottom:-22%}
+/* Logo zone — hauteur fixe, aucun débordement possible */
+.sidebar-logo-zone{
+  flex-shrink:0;
+  height:72px;
+  display:flex;
+  align-items:center;
+  padding:0 1rem;
+  background:#040319;
+  overflow:hidden;
+}
+.sidebar-logo-zone img,.sidebar-logo-zone__img{
+  width:auto;
+  max-width:100%;
+  height:48px;
+  object-fit:contain;
+  object-position:left center;
+  display:block;
+  clip-path:none;
+  margin:0;
+}
 
 /* Mode switcher — sous le logo, indépendant */
 .mode-switcher-wrap{flex-shrink:0;margin:.5rem .75rem;background:rgba(255,255,255,.08);border-radius:10px;padding:3px;display:flex}
@@ -297,5 +314,3 @@ tr:hover td{background:#FAF6FF !important}
 .eva-source-row-status.ok{background:#DCFCE7;color:#047857}
 .eva-source-row-status.missing{background:#FEF3C7;color:#92400E}
 
-/* Logo image inside sidebar zone */
-.sidebar-logo-zone__img{width:100%;height:auto;display:block;clip-path:inset(0 0 22% 0);margin-bottom:-22%}
