@@ -170,21 +170,21 @@
   <div class="app-body">
     <div class="sidebar">
 
-      <!-- Zone logo — hauteur fixe, jamais touchée par le mode-switcher -->
-      <div class="sidebar-logo-zone">
-        <img src="assets/Logo site.png" alt="RentyQ" class="sidebar-logo-zone__img"/>
+      <!-- Zone 1 : Branding RentyQ -->
+      <div class="sidebar-brand-zone">
+        <img src="assets/logo horizontal.jpg" alt="RentyQ" class="sidebar-brand-logo"/>
       </div>
 
-      <!-- Zone mode Gestion / Conciergerie — sous le logo, indépendante -->
-      <div id="mode-switcher" class="mode-switcher-wrap" style="display:none">
+      <!-- Zone 2 : Gestion / Conciergerie -->
+      <div id="mode-switcher" class="sidebar-mode-zone" style="display:none">
         <button id="mode-btn-solo" onclick="switchMode('solo')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:rgba(83,74,183,0.3);color:white;transition:all .15s"><i class="ti ti-building" style="margin-right:3px;font-size:13px;vertical-align:-1px" aria-hidden="true"></i>Gestion</button>
         <button id="mode-btn-concierge" onclick="switchMode('concierge')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:rgba(255,255,255,0.4);transition:all .15s"><i class="ti ti-users" style="margin-right:3px;font-size:13px;vertical-align:-1px" aria-hidden="true"></i>Conciergerie</button>
       </div>
 
       <div class="sidebar-sep"></div>
 
-      <!-- Zone navigation — seule zone qui scrolle -->
-      <div class="sidebar-nav-scroll">
+      <!-- Zone 3 : Navigation -->
+      <div class="sidebar-nav-zone">
 
       <div id="nav-solo">
 
@@ -218,7 +218,6 @@
         <span class="nav-emoji">&#x1F3E0;</span>Cockpit EVA
       </button>
 
-      <!-- Propriétaires — spécifique conciergerie -->
       <div class="nav-section-label" style="margin-top:10px">Propri&#233;taires</div>
       <button class="nav-item nav-sub" onclick="goTo('proprietaires',this)"><span class="nav-emoji"><i class="ti ti-users"></i></span>Mes propri&#233;taires</button>
       <button class="nav-item nav-sub" onclick="goTo('parc-c',this)"><span class="nav-emoji"><i class="ti ti-building"></i></span>Parc g&#233;r&#233;</button>
@@ -245,10 +244,10 @@
 
       </div>
 
-      </div><!-- /sidebar-nav-scroll -->
+      </div><!-- /sidebar-nav-zone -->
 
-      <!-- Footer compte — toujours visible en bas -->
-      <div class="sidebar-footer">
+      <!-- Zone 4 : Compte utilisateur -->
+      <div class="sidebar-account-zone">
         <div class="user-row">
           <div class="user-avatar" id="s-avatar" style="border-radius:6px;background:rgba(83,74,183,0.25);color:#CECBF6;font-size:11px;width:28px;height:28px">?</div>
           <div><div class="user-name" id="s-name" style="font-size:12px;color:rgba(255,255,255,0.7)">…</div><div class="user-plan" id="s-plan" style="font-size:10px;color:rgba(255,255,255,0.25)">…</div></div>
@@ -1431,3 +1430,4 @@
 
 </body>
 </html>
+
