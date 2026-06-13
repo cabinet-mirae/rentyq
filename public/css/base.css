@@ -73,14 +73,34 @@ h1,h2,h3,.page-title,.rq-detail-name,.rq-wordmark,
 }
 
 /* ── Sidebar ── */
-.sidebar{width:250px;background:#040319;border-right:1px solid rgba(236,72,153,.22);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;box-shadow:6px 0 28px rgba(11,7,34,.3)}
+.sidebar{
+  width:250px;
+  height:100vh;
+  position:sticky;
+  top:0;
+  background:#040319;
+  border-right:1px solid rgba(236,72,153,.22);
+  display:flex;
+  flex-direction:column;
+  flex-shrink:0;
+  overflow:hidden;
+  box-shadow:6px 0 28px rgba(11,7,34,.3);
+}
 
-/* Logo zone — hauteur fixe, ne bouge jamais */
+/* Logo zone — hauteur fixe, jamais déplacée */
 .sidebar-logo-zone{flex-shrink:0;padding:.75rem 1rem 0;background:#040319}
-.sidebar-logo-zone img{width:100%;height:auto;display:block;clip-path:inset(0 0 22% 0);margin-bottom:-22%}
+.sidebar-logo-zone img,.sidebar-logo-zone__img{width:100%;height:auto;display:block;clip-path:inset(0 0 22% 0);margin-bottom:-22%}
 
-/* Mode switcher */
-.mode-switcher-wrap{margin:0 .75rem .5rem;background:rgba(255,255,255,.08);border-radius:10px;padding:3px;display:flex}
+/* Mode switcher — sous le logo, indépendant */
+.mode-switcher-wrap{flex-shrink:0;margin:.5rem .75rem;background:rgba(255,255,255,.08);border-radius:10px;padding:3px;display:flex}
+
+/* Zone navigation — seule zone scrollable */
+.sidebar-nav-scroll{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:rgba(109,40,217,.3) transparent;padding-bottom:.5rem}
+.sidebar-nav-scroll::-webkit-scrollbar{width:3px}
+.sidebar-nav-scroll::-webkit-scrollbar-thumb{background:rgba(109,40,217,.3);border-radius:4px}
+
+/* Footer — toujours ancré en bas */
+.sidebar-footer{flex-shrink:0;padding:.75rem 1rem;border-top:1px solid rgba(255,255,255,.06);background:#040319}
 
 .sidebar-brand{padding:1.4rem 1rem 1.1rem;position:relative;z-index:1}
 .brand-rq-icon{width:44px;height:44px;border-radius:14px;background:var(--rq-grad);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 10px 24px rgba(109,40,217,.35)}
@@ -120,7 +140,6 @@ h1,h2,h3,.page-title,.rq-detail-name,.rq-wordmark,
 .nav-badge-new{margin-left:auto;background:rgba(139,92,246,.32) !important;color:#F2D7FF !important;font-size:9px;padding:2px 7px;border-radius:4px;font-weight:500;border:1px solid rgba(168,85,247,.22) !important}
 .smoobu-badge{margin-left:auto;background:#E0F2E9;color:#059669;font-size:10px;padding:2px 8px;border-radius:100px;font-weight:700}
 
-.sidebar-footer{margin-top:auto;padding:.75rem 1rem;border-top:1px solid #EEEEF5}
 .user-row{display:flex;align-items:center;gap:8px}
 .user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6B3FA0,#FF6B6B);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:white;flex-shrink:0}
 .user-name{font-family:'Sora',sans-serif !important;font-size:13px;font-weight:700 !important;color:#fff !important}
@@ -280,4 +299,3 @@ tr:hover td{background:#FAF6FF !important}
 
 /* Logo image inside sidebar zone */
 .sidebar-logo-zone__img{width:100%;height:auto;display:block;clip-path:inset(0 0 22% 0);margin-bottom:-22%}
-
