@@ -24,36 +24,28 @@ export async function onRequestPost(context) {
   };
 
   try {
-    const { action, plan, email, customerId } = await context.request.json();
+    const { action, plan, email, customerId, priceId: bodyPriceId } = await context.request.json();
+    const body = { action, plan, email, customerId, priceId: bodyPriceId };
 
     switch (action) {
 
       case 'createCheckout': {
-        if (!plan || !PLANS[plan]) {
-          return new Response(JSON.stringify({ error: 'Plan invalide' }), { status: 400, headers });
-        }
-
-        const priceRes = await stripeRequest('POST', '/prices', {
-          currency: 'eur',
-          unit_amount: PLANS[plan].price,
-          recurring: { interval: PLANS[plan].interval },
-          product_data: { name: `RentyQ ${PLANS[plan].name}` }
-        });
-
-        if (priceRes.error) {
-          return new Response(JSON.stringify({ error: priceRes.error.message }), { status: 400, headers });
+        // Bêta : price ID fixe transmis par le frontend, ignore le plan dynamique
+        const priceId = body.priceId || null;
+        if (!priceId) {
+          return new Response(JSON.stringify({ error: 'Price ID manquant' }), { status: 400, headers });
         }
 
         const sessionData = {
           mode: 'subscription',
           payment_method_types: ['card'],
-          line_items: [{ price: priceRes.id, quantity: 1 }],
-          success_url: `${SITE_URL}?payment=success&plan=${plan}`,
+          line_items: [{ price: priceId, quantity: 1 }],
+          success_url: `${SITE_URL}?payment=success&plan=${plan || 'pro'}`,
           cancel_url: `${SITE_URL}?payment=cancelled`,
           allow_promotion_codes: true,
           subscription_data: {
-            trial_period_days: 14,
-            metadata: { plan, site: 'rentyq' }
+            trial_period_days: 30,
+            metadata: { plan: plan || 'pro', site: 'rentyq', mode: 'beta' }
           }
         };
 
