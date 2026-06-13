@@ -63,12 +63,12 @@
 
 /* ── Logo login (classe unique, sans inline style) ── */
 .login-logo{
-  display:block;
-  width:90%;
-  max-width:100%;
+  width:100%;
+  max-width:360px;
   height:auto;
-  clip-path:inset(0 0 22% 0);
-  margin-bottom:-22%;
+  display:block;
+  margin:0 auto 12px auto;
+  clip-path:none;
   filter:drop-shadow(0 14px 28px rgba(236,72,153,.28));
 }
 
@@ -185,4 +185,3 @@
 .auth-logo{font-size:26px;font-weight:700;margin-bottom:2px}
 .auth-logo span{background:#534AB7;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .auth-tagline{font-size:13px;color:#8A8A99;margin-bottom:1.5rem;font-style:italic}
-
