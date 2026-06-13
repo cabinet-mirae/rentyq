@@ -1,1 +1,797 @@
+/* ============================================================
+   RentyQ — app.css
+   Composants application : Scanner, Pricing, Detail, Audit,
+   Cockpit, CleanyQ, Profit 360, EVA Engine
+   ============================================================ */
+
+/* ===== EVA SCANNER V1 — score emplacement + prix actuel ===== */
+.scanner-hero{
+  background:linear-gradient(135deg,#1E1448 0%,#7C3AED 45%,#EC4899 100%);
+  color:#fff;border-radius:18px;padding:1.45rem;margin-bottom:1rem;
+  box-shadow:0 18px 48px rgba(124,58,237,.18);position:relative;overflow:hidden
+}
+.scanner-hero:after{content:"";position:absolute;right:-60px;top:-80px;width:260px;height:260px;background:radial-gradient(circle,rgba(255,255,255,.22),transparent 62%);pointer-events:none}
+.scanner-hero-title{font-size:26px;font-weight:850;letter-spacing:-.7px;margin-bottom:.35rem;position:relative;z-index:1}
+.scanner-hero-sub{font-size:14px;line-height:1.65;color:rgba(255,255,255,.82);max-width:820px;position:relative;z-index:1}
+.scanner-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:1rem;position:relative;z-index:1}
+.scanner-controls select{min-width:260px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:#fff;font-family:inherit;font-weight:650;outline:none}
+.scanner-controls select option{color:#111;background:#fff}
+.scanner-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:1rem;align-items:start}
+.scanner-score-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:1rem}
+.scanner-kpi{background:white;border:1px solid rgba(139,92,246,.14);border-radius:14px;padding:1rem;box-shadow:0 10px 28px rgba(69,39,120,.06)}
+.scanner-kpi-label{font-size:10px;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;font-weight:800;margin-bottom:8px}
+.scanner-kpi-value{font-size:30px;font-weight:850;letter-spacing:-1px;line-height:1;color:#17122E}
+.scanner-kpi-desc{font-size:12px;color:#8A8A99;margin-top:7px;line-height:1.35}
+.scanner-map-card{background:#fff;border:1px solid rgba(139,92,246,.16);border-radius:16px;padding:.75rem;box-shadow:0 12px 34px rgba(69,39,120,.06)}
+#scanner-map{height:520px;border-radius:13px;overflow:hidden;background:#F3EEFF}
+.scanner-diagnostic{background:white;border-radius:16px;border:1px solid rgba(139,92,246,.16);box-shadow:0 12px 34px rgba(69,39,120,.06);padding:1.15rem;margin-bottom:1rem}
+.scanner-verdict{display:flex;align-items:flex-start;gap:12px;padding:1rem;border-radius:14px;background:linear-gradient(135deg,#F3E8FF,#FFF1F9);border:1px solid rgba(168,85,247,.22);margin-bottom:1rem}
+.scanner-verdict-icon{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#7C3AED,#EC4899);display:flex;align-items:center;justify-content:center;color:white;font-size:22px;flex-shrink:0}
+.scanner-verdict-title{font-size:17px;font-weight:850;color:#17122E;margin-bottom:4px}
+.scanner-verdict-text{font-size:13px;color:#5E5573;line-height:1.55}
+.scanner-breakdown{display:grid;grid-template-columns:1fr;gap:9px}
+.scanner-row{display:flex;align-items:center;gap:10px}
+.scanner-row-label{width:120px;font-size:12px;font-weight:750;color:#3A3150}
+.scanner-bar{height:9px;background:#EEE9FF;border-radius:100px;overflow:hidden;flex:1}
+.scanner-bar span{display:block;height:100%;border-radius:100px;background:linear-gradient(90deg,#7C3AED,#EC4899)}
+.scanner-row-score{width:46px;text-align:right;font-size:12px;font-weight:850;color:#7C3AED}
+.scanner-poi-list{display:grid;gap:8px;margin-top:1rem}
+.scanner-poi-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border-radius:10px;background:#FAF8FF;border:1px solid rgba(139,92,246,.10);font-size:12px}
+.scanner-poi-item strong{color:#241A3D}.scanner-poi-item span{color:#8A8A99}
+.scanner-warning{padding:1rem;border-radius:14px;background:#FFF7ED;border:1px solid #FED7AA;color:#9A3412;font-size:13px;line-height:1.5}
+.scanner-map-marker{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#7C3AED,#EC4899);color:white;border:2px solid #fff;box-shadow:0 8px 20px rgba(124,58,237,.35);font-size:15px}
+.scanner-map-marker.poi{background:#fff;color:#7C3AED;border:2px solid #A855F7;font-size:14px}
+@media(max-width:1000px){.scanner-grid{grid-template-columns:1fr}.scanner-score-grid{grid-template-columns:repeat(2,1fr)}#scanner-map{height:420px}}
+@media(max-width:640px){.scanner-score-grid{grid-template-columns:1fr}.scanner-controls select{min-width:0;width:100%}.scanner-controls .btn{width:100%;justify-content:center}}
+
+.scanner-apart-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin:1rem 0 1rem}
+.scanner-apart-card{background:rgba(255,255,255,.96);border:1px solid rgba(139,92,246,.16);border-radius:16px;padding:1rem;box-shadow:0 12px 34px rgba(69,39,120,.06);display:flex;flex-direction:column;gap:10px;transition:transform .15s,border-color .15s,box-shadow .15s}
+.scanner-apart-card:hover{transform:translateY(-2px);border-color:rgba(168,85,247,.34);box-shadow:0 18px 42px rgba(69,39,120,.10)}
+.scanner-apart-card.active{border-color:rgba(236,72,153,.45);box-shadow:0 18px 42px rgba(236,72,153,.13)}
+.scanner-apart-top{display:flex;align-items:flex-start;gap:10px}
+.scanner-apart-emoji{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#F3E8FF,#FCE7F3);display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
+.scanner-apart-name{font-size:14px;font-weight:850;color:#17122E;line-height:1.25}
+.scanner-apart-meta{font-size:12px;color:#7B708F;line-height:1.45;margin-top:3px}
+.scanner-apart-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.scanner-mini-stat{background:#FAF8FF;border:1px solid rgba(139,92,246,.10);border-radius:11px;padding:9px}
+.scanner-mini-label{font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;font-weight:850;margin-bottom:4px}
+.scanner-mini-value{font-size:15px;font-weight:850;color:#241A3D}
+.scanner-apart-actions{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.scanner-location-badge{font-size:11px;font-weight:750;border-radius:999px;padding:4px 8px;background:#ECFDF5;color:#059669;white-space:nowrap}
+.scanner-location-badge.missing{background:#FFF7ED;color:#C2410C}
+.scanner-muted{font-size:12px;color:rgba(255,255,255,.78);margin-top:8px;position:relative;z-index:1}
+/* ===== end EVA SCANNER V1 ===== */
+
+
+/* ===== EVA PRICING VISUAL REFRESH — uniquement interface, pas de changement IA ===== */
+.eva-dashboard{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;margin:0 0 14px}
+.eva-hero-card{position:relative;overflow:hidden;border-radius:22px;padding:20px;background:linear-gradient(135deg,#24105C 0%,#7C3AED 45%,#EC4899 100%);color:#fff;box-shadow:0 22px 55px rgba(124,58,237,.20)}
+.eva-hero-card:after{content:"";position:absolute;right:-70px;top:-90px;width:280px;height:280px;background:radial-gradient(circle,rgba(255,255,255,.24),transparent 62%);pointer-events:none}
+.eva-hero-kicker{position:relative;z-index:1;font-size:11px;text-transform:uppercase;letter-spacing:.9px;font-weight:850;color:rgba(255,255,255,.76);margin-bottom:8px}
+.eva-hero-title{position:relative;z-index:1;font-size:30px;line-height:1.05;font-weight:900;letter-spacing:-.9px;margin-bottom:8px}
+.eva-hero-sub{position:relative;z-index:1;font-size:13px;line-height:1.55;color:rgba(255,255,255,.82);max-width:720px}
+.eva-hero-money{position:relative;z-index:1;display:flex;align-items:flex-end;gap:12px;margin-top:18px}
+.eva-money-big{font-size:42px;font-weight:950;letter-spacing:-1.4px;line-height:.9}
+.eva-money-label{font-size:12px;color:rgba(255,255,255,.75);line-height:1.35}
+.eva-side-stack{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.eva-metric-card{border-radius:18px;background:rgba(255,255,255,.92);border:1px solid rgba(139,92,246,.14);box-shadow:0 14px 34px rgba(69,39,120,.07);padding:14px;min-height:112px}
+.eva-metric-label{font-size:10px;text-transform:uppercase;letter-spacing:.75px;color:#8A8A99;font-weight:850;margin-bottom:7px}
+.eva-metric-value{font-size:28px;font-weight:900;letter-spacing:-.8px;color:#17122E;line-height:1}
+.eva-metric-help{font-size:12px;color:#7B708F;line-height:1.35;margin-top:8px}
+.eva-progress{height:8px;background:#EEE9FF;border-radius:999px;overflow:hidden;margin-top:10px}
+.eva-progress span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#7C3AED,#EC4899)}
+.eva-actions-panel{background:white;border:1px solid rgba(139,92,246,.16);border-radius:20px;box-shadow:0 14px 40px rgba(69,39,120,.07);padding:16px;margin-bottom:14px}
+.eva-panel-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}
+.eva-panel-title{font-size:16px;font-weight:900;color:#17122E;letter-spacing:-.2px}
+.eva-panel-sub{font-size:12px;color:#8A8A99;margin-top:3px}
+.eva-pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 9px;font-size:11px;font-weight:850}
+.eva-pill-red{background:#FEE2E2;color:#B91C1C}
+.eva-pill-orange{background:#FFEDD5;color:#C2410C}
+.eva-pill-green{background:#DCFCE7;color:#047857}
+.eva-pill-purple{background:#F3E8FF;color:#7C3AED}
+.eva-action-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.eva-action-card{position:relative;overflow:hidden;background:linear-gradient(180deg,#fff,#FFFBFF);border:1px solid rgba(139,92,246,.12);border-radius:16px;padding:14px;box-shadow:0 10px 24px rgba(69,39,120,.05)}
+.eva-action-card.urgent{border-color:rgba(239,68,68,.28);background:linear-gradient(135deg,#FFF7F7,#fff)}
+.eva-action-card.up{border-color:rgba(245,158,11,.28);background:linear-gradient(135deg,#FFFBEB,#fff)}
+.eva-action-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:10px}
+.eva-apt-name{font-size:14px;font-weight:900;color:#17122E;line-height:1.25}
+.eva-apt-city{font-size:11px;color:#8A8A99;margin-top:3px}
+.eva-price-row{display:flex;align-items:center;gap:8px;margin:8px 0}
+.eva-price-old{font-size:18px;font-weight:800;color:#7B708F;text-decoration:line-through;text-decoration-thickness:1px}
+.eva-price-arrow{color:#B0A8C8;font-weight:900}
+.eva-price-new{font-size:28px;font-weight:950;color:#17122E;letter-spacing:-.8px}
+.eva-reason{font-size:12px;color:#5E5573;line-height:1.45;min-height:34px}
+.eva-card-footer{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px}
+.eva-impact{font-size:12px;color:#059669;font-weight:900}
+.eva-calendar-card{background:white;border-radius:20px;border:1px solid rgba(139,92,246,.14);box-shadow:0 14px 40px rgba(69,39,120,.06);padding:16px;margin-bottom:14px;overflow-x:auto}
+.eva-calendar-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.eva-calendar-grid{display:grid;gap:4px;align-items:center}
+.eva-cal-head{font-size:10px;text-align:center;color:#8A8A99;font-weight:800;line-height:1.2}
+.eva-cal-apt{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:850;color:#241A3D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eva-cal-cell{height:42px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-direction:column;font-weight:900;cursor:pointer;transition:transform .12s,filter .12s;border:1px solid transparent}
+.eva-cal-cell:hover{transform:translateY(-1px);filter:brightness(1.03)}
+.eva-cal-cell.free{background:linear-gradient(135deg,#FEE2E2,#EF4444);color:white}
+.eva-cal-cell.booked{background:#DCFCE7;color:#047857;cursor:default}
+.eva-cal-cell.event{background:linear-gradient(135deg,#F59E0B,#92400E);color:white}
+.eva-cal-cell.today{outline:2px solid #7C3AED;outline-offset:1px}
+.eva-cal-price{font-size:11px;line-height:1}
+.eva-cal-tag{font-size:8px;opacity:.9;margin-top:2px}
+.eva-pipeline-card{background:white;border:1px solid rgba(139,92,246,.14);border-radius:20px;box-shadow:0 14px 40px rgba(69,39,120,.06);padding:16px;margin-bottom:12px}
+.eva-opportunity{display:grid;grid-template-columns:7px 1fr auto auto;gap:13px;align-items:center;padding:13px;border-radius:16px;border:1px solid rgba(139,92,246,.11);background:linear-gradient(180deg,#fff,#FFFCFF);margin-bottom:9px}
+.eva-opportunity:last-child{margin-bottom:0}
+.eva-severity{height:100%;min-height:64px;border-radius:999px;background:#7C3AED}
+.eva-severity.red{background:#EF4444}
+.eva-severity.orange{background:#F59E0B}
+.eva-severity.green{background:#10B981}
+.eva-opp-main{min-width:0}
+.eva-opp-title{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:14px;font-weight:900;color:#17122E;margin-bottom:5px}
+.eva-opp-meta{font-size:12px;color:#8A8A99;line-height:1.45}
+.eva-night-pills{display:flex;gap:4px;flex-wrap:wrap;margin-top:7px}
+.eva-night-pill{font-size:11px;border-radius:7px;padding:3px 7px;background:#FEE2E2;color:#991B1B;font-weight:800}
+.eva-night-pill.event{background:#FFEDD5;color:#92400E}
+.eva-opp-money{text-align:right}
+.eva-opp-money strong{display:block;font-size:22px;color:#059669;font-weight:950;letter-spacing:-.5px}
+.eva-opp-money span{font-size:11px;color:#8A8A99}
+@media(max-width:1050px){.eva-dashboard{grid-template-columns:1fr}.eva-side-stack{grid-template-columns:repeat(2,1fr)}.eva-opportunity{grid-template-columns:6px 1fr}.eva-opp-money{text-align:left}.eva-opportunity .btn{width:100%;justify-content:center}}
+@media(max-width:640px){.eva-side-stack{grid-template-columns:1fr}.eva-hero-title{font-size:24px}.eva-money-big{font-size:34px}.eva-action-grid{grid-template-columns:1fr}}
+/* ===== end EVA PRICING VISUAL REFRESH ===== */
+
+
+
+/* ===== RentyQ Property Detail Cockpit V2 — fiche bien uniquement ===== */
+.rq-detail-v2{display:flex;flex-direction:column;gap:16px}
+.rq-detail-top{display:flex;align-items:center;gap:10px;margin-bottom:2px}
+.rq-back-btn{width:38px;height:38px;border-radius:12px;border:1px solid rgba(139,92,246,.16);background:#fff;color:#5B4B7A;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 24px rgba(69,39,120,.06)}
+.rq-detail-hero{position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(135deg,#211051 0%,#7C3AED 45%,#EC4899 100%);color:#fff;padding:22px;box-shadow:0 24px 70px rgba(124,58,237,.22)}
+.rq-detail-hero:after{content:"";position:absolute;right:-70px;top:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(255,255,255,.24),transparent 62%);pointer-events:none}
+.rq-detail-hero-main{position:relative;z-index:1;display:grid;grid-template-columns:1fr auto;gap:18px;align-items:start}
+.rq-detail-title-row{display:flex;align-items:center;gap:14px;min-width:0}
+.rq-detail-emoji{width:58px;height:58px;border-radius:18px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;font-size:30px;border:1px solid rgba(255,255,255,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+.rq-detail-name{font-size:31px;font-weight:950;letter-spacing:-1px;line-height:1.04;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rq-detail-address{font-size:13px;color:rgba(255,255,255,.76);margin-top:5px;line-height:1.4}
+.rq-health-badge{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:7px 11px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.16);font-size:12px;font-weight:900;white-space:nowrap;color:#fff}
+.rq-health-dot{width:9px;height:9px;border-radius:50%;background:#10B981;box-shadow:0 0 0 4px rgba(16,185,129,.16)}
+.rq-health-badge.warn .rq-health-dot{background:#F59E0B;box-shadow:0 0 0 4px rgba(245,158,11,.16)}
+.rq-health-badge.danger .rq-health-dot{background:#EF4444;box-shadow:0 0 0 4px rgba(239,68,68,.16)}
+.rq-score-ring{width:112px;height:112px;border-radius:50%;background:conic-gradient(#fff var(--score),rgba(255,255,255,.19) 0);display:flex;align-items:center;justify-content:center;padding:7px;position:relative;z-index:1}
+.rq-score-ring-inner{width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,rgba(36,16,92,.95),rgba(124,58,237,.72));display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.18)}
+.rq-score-num{font-size:30px;font-weight:950;letter-spacing:-1px;line-height:1;color:#fff}
+.rq-score-label{font-size:10px;color:rgba(255,255,255,.72);text-transform:uppercase;letter-spacing:.7px;font-weight:850;margin-top:4px}
+.rq-hero-kpis{position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:18px}
+.rq-hero-kpi{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:12px;backdrop-filter:blur(10px)}
+.rq-hero-kpi-label{font-size:10px;text-transform:uppercase;letter-spacing:.75px;color:rgba(255,255,255,.68);font-weight:850;margin-bottom:6px}
+.rq-hero-kpi-value{font-size:24px;font-weight:950;letter-spacing:-.5px;line-height:1;color:#fff}
+.rq-hero-kpi-sub{font-size:11px;color:rgba(255,255,255,.72);margin-top:6px;line-height:1.25}
+.rq-detail-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);gap:16px;align-items:start}
+.rq-card-v2{background:#fff;border:1px solid rgba(139,92,246,.14);box-shadow:0 16px 42px rgba(69,39,120,.07);border-radius:22px;padding:16px;overflow:hidden}
+.rq-card-head-v2{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:13px}
+.rq-card-title-v2{font-size:16px;font-weight:950;color:#17122E;letter-spacing:-.25px}
+.rq-card-sub-v2{font-size:12px;color:#8A8A99;margin-top:3px;line-height:1.4}
+.rq-reco-card{position:relative;border-radius:22px;padding:18px;background:linear-gradient(135deg,#FFF7ED,#FFF,#F5F0FF);border:1px solid rgba(245,158,11,.20);box-shadow:0 16px 42px rgba(69,39,120,.06);overflow:hidden}
+.rq-reco-card.down{background:linear-gradient(135deg,#FFF1F2,#FFF,#F8F4FF);border-color:rgba(239,68,68,.20)}
+.rq-reco-card.up{background:linear-gradient(135deg,#FFFBEB,#FFF,#F8F4FF);border-color:rgba(245,158,11,.24)}
+.rq-reco-main{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}
+.rq-reco-kicker{font-size:11px;text-transform:uppercase;letter-spacing:.8px;font-weight:950;color:#7C3AED;margin-bottom:6px}
+.rq-reco-title{font-size:24px;font-weight:950;color:#17122E;letter-spacing:-.7px;line-height:1.1}
+.rq-reco-price{font-size:44px;font-weight:950;letter-spacing:-1.6px;color:#17122E;line-height:.9;text-align:right}
+.rq-reco-price span{font-size:14px;color:#8A8A99;letter-spacing:0;font-weight:800}
+.rq-reason-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin-top:14px}
+.rq-reason-item{border-radius:12px;background:rgba(255,255,255,.72);border:1px solid rgba(139,92,246,.10);padding:9px 10px;font-size:12px;color:#493D5F;line-height:1.35;font-weight:700}
+.rq-reason-item b{color:#17122E}
+.rq-reco-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
+.rq-impact-pill{display:inline-flex;align-items:center;gap:6px;background:#DCFCE7;color:#047857;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:950}
+.rq-button-primary{border:0;background:linear-gradient(135deg,#7C3AED,#EC4899);color:#fff;border-radius:12px;padding:10px 14px;font-size:13px;font-weight:900;cursor:pointer;box-shadow:0 10px 24px rgba(124,58,237,.18);font-family:inherit}
+.rq-button-secondary{border:1px solid rgba(139,92,246,.18);background:#fff;color:#6D43B4;border-radius:12px;padding:10px 14px;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit}
+.rq-finance-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.rq-finance-line{border-radius:16px;padding:12px;background:linear-gradient(180deg,#fff,#FFFBFF);border:1px solid rgba(139,92,246,.10)}
+.rq-finance-label{font-size:10px;text-transform:uppercase;letter-spacing:.75px;color:#8A8A99;font-weight:900;margin-bottom:7px}
+.rq-finance-value{font-size:24px;font-weight:950;letter-spacing:-.7px;color:#17122E;line-height:1}
+.rq-finance-value.good{color:#059669}.rq-finance-value.bad{color:#DC2626}
+.rq-mini-bars{height:116px;display:flex;align-items:flex-end;gap:4px;background:#FAF8FF;border-radius:16px;padding:12px;margin-top:12px;overflow:hidden}
+.rq-mini-bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}.rq-mini-bar-val{font-size:8px;color:#8A8A99;white-space:nowrap}.rq-mini-bar-shape{width:100%;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#7C3AED,#EC4899);min-height:4px}.rq-mini-bar-label{font-size:8px;color:#8A8A99}
+.rq-nights-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}.rq-night-card{border-radius:14px;padding:9px 6px;text-align:center;border:1px solid transparent;min-height:76px;display:flex;flex-direction:column;justify-content:center}.rq-night-card.free{background:#FEF2F2;color:#991B1B;border-color:#FECACA}.rq-night-card.booked{background:#ECFDF5;color:#047857;border-color:#BBF7D0}.rq-night-card.event{background:#FFFBEB;color:#92400E;border-color:#FDE68A}.rq-night-day{font-size:10px;font-weight:950;text-transform:uppercase;letter-spacing:.4px}.rq-night-price{font-size:18px;font-weight:950;letter-spacing:-.5px;margin:5px 0 2px}.rq-night-status{font-size:10px;font-weight:800;line-height:1.2}
+.rq-actions-list{display:grid;gap:9px}.rq-action-v2{display:grid;grid-template-columns:38px 1fr auto;gap:10px;align-items:center;border-radius:16px;border:1px solid rgba(139,92,246,.11);padding:11px;background:linear-gradient(180deg,#fff,#FFFCFF)}.rq-action-v2.urgent{border-color:rgba(239,68,68,.22);background:linear-gradient(135deg,#FFF7F7,#fff)}.rq-action-v2.warn{border-color:rgba(245,158,11,.22);background:linear-gradient(135deg,#FFFBEB,#fff)}.rq-action-icon{width:38px;height:38px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;background:#F3E8FF}.rq-action-title{font-size:13px;font-weight:950;color:#17122E}.rq-action-desc{font-size:12px;color:#7B708F;margin-top:2px;line-height:1.35}
+.rq-timeline{position:relative;display:grid;gap:10px}.rq-timeline:before{content:"";position:absolute;left:18px;top:8px;bottom:8px;width:2px;background:#EEE9FF}.rq-timeline-item{position:relative;display:grid;grid-template-columns:38px 1fr;gap:10px;align-items:start}.rq-time-dot{position:relative;z-index:1;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#F3E8FF;border:3px solid #fff;box-shadow:0 8px 18px rgba(69,39,120,.09)}.rq-time-title{font-size:13px;font-weight:950;color:#17122E}.rq-time-desc{font-size:12px;color:#7B708F;margin-top:2px;line-height:1.35}.rq-time-date{font-size:10px;text-transform:uppercase;color:#A094B8;font-weight:900;letter-spacing:.65px;margin-bottom:2px}
+.rq-events-list,.rq-clean-list{display:grid;gap:8px}.rq-event-v2,.rq-clean-v2{display:flex;align-items:center;gap:10px;border-radius:16px;padding:11px;background:#FAF8FF;border:1px solid rgba(139,92,246,.10)}.rq-event-emoji,.rq-clean-avatar{width:40px;height:40px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#F3E8FF,#FCE7F3);font-size:20px;flex-shrink:0}.rq-clean-avatar{background:linear-gradient(135deg,#0EA5E9,#10B981);color:white;font-weight:950;font-size:14px}.rq-event-main,.rq-clean-main{flex:1;min-width:0}.rq-event-title,.rq-clean-title{font-size:13px;font-weight:950;color:#17122E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rq-event-meta,.rq-clean-meta{font-size:11px;color:#8A8A99;margin-top:3px}.rq-boost-badge{background:#FFEDD5;color:#C2410C;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:950;white-space:nowrap}
+.rq-edit-panel{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.rq-edit-tile{border-radius:16px;border:1px solid rgba(139,92,246,.11);background:#FAF8FF;padding:13px;cursor:pointer;transition:transform .12s,box-shadow .12s}.rq-edit-tile:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(69,39,120,.08)}.rq-edit-icon{font-size:22px;margin-bottom:7px}.rq-edit-title{font-size:13px;font-weight:950;color:#17122E}.rq-edit-sub{font-size:11px;color:#8A8A99;margin-top:3px;line-height:1.3}
+@media(max-width:1000px){.rq-detail-hero-main{grid-template-columns:1fr}.rq-score-ring{width:96px;height:96px}.rq-hero-kpis{grid-template-columns:repeat(2,1fr)}.rq-detail-grid{grid-template-columns:1fr}.rq-edit-panel{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.rq-detail-hero{padding:16px}.rq-detail-title-row{align-items:flex-start}.rq-detail-name{font-size:24px;white-space:normal}.rq-hero-kpis{grid-template-columns:1fr}.rq-reco-main{grid-template-columns:1fr}.rq-reco-price{text-align:left}.rq-nights-grid{grid-template-columns:repeat(2,1fr)}.rq-finance-grid{grid-template-columns:1fr}.rq-action-v2{grid-template-columns:38px 1fr}.rq-action-v2 .rq-button-secondary{grid-column:1 / -1}.rq-edit-panel{grid-template-columns:1fr}}
+/* ===== end Property Detail Cockpit V2 ===== */
+
+
+/* ===== EVA AUDIT 360 — cockpit d'analyse immédiat ===== */
+.eva360-hero{position:relative;overflow:hidden;border-radius:24px;padding:22px;margin-bottom:16px;background:linear-gradient(135deg,#211051 0%,#7C3AED 46%,#EC4899 100%);color:#fff;box-shadow:0 24px 70px rgba(124,58,237,.22)}
+.eva360-hero:after{content:"";position:absolute;right:-80px;top:-90px;width:320px;height:320px;background:radial-gradient(circle,rgba(255,255,255,.23),transparent 62%);pointer-events:none}
+.eva360-hero h2{position:relative;z-index:1;font-size:30px;line-height:1.05;font-weight:950;letter-spacing:-1px;margin-bottom:8px}
+.eva360-hero p{position:relative;z-index:1;color:rgba(255,255,255,.82);font-size:14px;line-height:1.65;max-width:880px}
+.eva360-upload-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;margin-top:18px;position:relative;z-index:1;align-items:end}
+.eva360-field label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.8px;font-weight:850;color:rgba(255,255,255,.72);margin-bottom:6px}
+.eva360-field input{width:100%;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.13);color:#fff;padding:0 12px;font-family:inherit;font-weight:650;outline:none}
+.eva360-field input[type=file]{padding:10px 12px;font-size:12px}
+.eva360-field input::placeholder{color:rgba(255,255,255,.54)}
+.eva360-field input:focus{border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.18)}
+.eva360-btn{height:44px;border:none;border-radius:12px;padding:0 18px;background:#fff;color:#7C3AED;font-weight:900;font-family:inherit;cursor:pointer;box-shadow:0 14px 34px rgba(0,0,0,.15);white-space:nowrap}
+.eva360-btn:hover{filter:brightness(.98);transform:translateY(-1px)}
+.eva360-demo{position:relative;z-index:1;margin-top:10px;font-size:12px;color:rgba(255,255,255,.72)}
+.eva360-demo button{border:0;background:transparent;color:#fff;text-decoration:underline;font-family:inherit;cursor:pointer;font-weight:800}
+.eva360-empty{background:#fff;border:1px dashed rgba(139,92,246,.32);border-radius:20px;padding:28px;text-align:center;color:#6B5D82;box-shadow:0 14px 38px rgba(69,39,120,.05)}
+.eva360-dashboard{display:none}
+.eva360-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.eva360-kpi{background:#fff;border:1px solid rgba(139,92,246,.14);border-radius:18px;padding:16px;box-shadow:0 14px 38px rgba(69,39,120,.06)}
+.eva360-kpi-label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:900;margin-bottom:8px}
+.eva360-kpi-value{font-size:30px;font-weight:950;letter-spacing:-1px;color:#17122E;line-height:1}
+.eva360-kpi-help{font-size:12px;color:#7B708F;line-height:1.35;margin-top:8px}
+.eva360-kpi.purple{background:linear-gradient(135deg,#F3E8FF,#FFF1F9);border-color:rgba(168,85,247,.28)}
+.eva360-kpi.purple .eva360-kpi-value{color:#7C3AED}
+.eva360-section{background:#fff;border:1px solid rgba(139,92,246,.14);border-radius:20px;box-shadow:0 14px 38px rgba(69,39,120,.06);padding:18px;margin-bottom:14px}
+.eva360-section-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:14px}
+.eva360-title{font-size:17px;font-weight:950;color:#17122E;letter-spacing:-.3px}
+.eva360-sub{font-size:12px;color:#8A8A99;margin-top:4px;line-height:1.45}
+.eva360-occ-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.eva360-pie-card{border:1px solid rgba(139,92,246,.10);border-radius:16px;padding:14px;background:linear-gradient(180deg,#fff,#FFFCFF)}
+.eva360-pie-wrap{display:flex;align-items:center;gap:12px}
+.eva360-pie{width:78px;height:78px;border-radius:50%;background:conic-gradient(#7C3AED var(--occ),#EEE9FF 0);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.eva360-pie-inner{width:52px;height:52px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:950;color:#17122E}
+.eva360-pie-month{font-size:14px;font-weight:950;color:#17122E;margin-bottom:4px}
+.eva360-pie-detail{font-size:12px;color:#7B708F;line-height:1.45}
+.eva360-net-bars{display:grid;gap:10px}
+.eva360-net-row{display:grid;grid-template-columns:90px 1fr 92px;gap:12px;align-items:center}
+.eva360-net-month{font-size:13px;font-weight:900;color:#241A3D}
+.eva360-bar-track{height:14px;background:#EEE9FF;border-radius:999px;overflow:hidden}
+.eva360-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#7C3AED,#EC4899);width:var(--w)}
+.eva360-net-value{text-align:right;font-size:13px;font-weight:950;color:#17122E}
+.eva360-two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.eva360-actions{display:grid;gap:10px}
+.eva360-action{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;border:1px solid rgba(139,92,246,.12);border-radius:16px;padding:12px;background:linear-gradient(180deg,#fff,#FFFCFF)}
+.eva360-rank{width:34px;height:34px;border-radius:12px;background:linear-gradient(135deg,#7C3AED,#EC4899);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:950}
+.eva360-action-title{font-size:13px;font-weight:950;color:#17122E;line-height:1.3}
+.eva360-action-desc{font-size:12px;color:#7B708F;margin-top:3px;line-height:1.45}
+.eva360-impact{text-align:right;font-size:13px;font-weight:950;color:#059669;white-space:nowrap}
+.eva360-detect{display:grid;gap:8px}
+.eva360-detect-item{display:flex;gap:9px;align-items:flex-start;padding:10px;border-radius:14px;background:#FAF8FF;border:1px solid rgba(139,92,246,.10);font-size:13px;color:#3A3150;line-height:1.45}
+.eva360-detect-item strong{color:#17122E}
+.eva360-event-timeline{display:grid;gap:10px}
+.eva360-event-row{display:grid;grid-template-columns:92px 1fr 96px 120px;gap:12px;align-items:center;padding:12px;border-radius:16px;border:1px solid rgba(139,92,246,.12);background:linear-gradient(180deg,#fff,#FFFCFF)}
+.eva360-event-date{font-size:12px;font-weight:950;color:#7C3AED}
+.eva360-event-name{font-size:13px;font-weight:950;color:#17122E}
+.eva360-event-meta{font-size:12px;color:#7B708F;margin-top:3px}
+.eva360-event-price{font-size:12px;color:#7B708F;text-align:right}.eva360-event-price strong{display:block;font-size:18px;color:#17122E}
+.eva360-event-gap{font-size:12px;font-weight:950;color:#059669;text-align:right}
+.eva360-pill{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:900;background:#F3E8FF;color:#7C3AED}
+.eva360-error{display:none;margin-top:10px;padding:10px;border-radius:12px;background:#FEE2E2;color:#B91C1C;font-size:12px;font-weight:750;position:relative;z-index:1}
+@media(max-width:1100px){.eva360-upload-grid{grid-template-columns:1fr 1fr}.eva360-btn{width:100%}.eva360-kpis{grid-template-columns:repeat(2,1fr)}.eva360-two{grid-template-columns:1fr}.eva360-event-row{grid-template-columns:1fr}.eva360-event-price,.eva360-event-gap{text-align:left}}
+@media(max-width:640px){.eva360-upload-grid{grid-template-columns:1fr}.eva360-kpis{grid-template-columns:1fr}.eva360-net-row{grid-template-columns:68px 1fr 78px}.eva360-action{grid-template-columns:34px 1fr}.eva360-impact{text-align:left;grid-column:2}}
+/* ===== end EVA AUDIT 360 ===== */
+
+
+
+/* ===== EVA COCKPIT CLARIFIÉ — porte d’entrée RentyQ ===== */
+.eva-cockpit-hero{position:relative;overflow:hidden;border-radius:24px;padding:22px;margin-bottom:16px;background:linear-gradient(135deg,#20104F 0%,#7C3AED 48%,#EC4899 100%);color:white;box-shadow:0 24px 70px rgba(124,58,237,.20)}
+.eva-cockpit-hero:after{content:"";position:absolute;right:-90px;top:-110px;width:330px;height:330px;background:radial-gradient(circle,rgba(255,255,255,.24),transparent 62%);pointer-events:none}
+.eva-cockpit-kicker{position:relative;z-index:1;font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:900;color:rgba(255,255,255,.72);margin-bottom:8px}
+.eva-cockpit-title{position:relative;z-index:1;font-size:31px;line-height:1.05;font-weight:950;letter-spacing:-1px;margin-bottom:8px}
+.eva-cockpit-sub{position:relative;z-index:1;font-size:14px;line-height:1.65;color:rgba(255,255,255,.82);max-width:900px}
+.eva-cockpit-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.eva-module-card{background:white;border:1px solid rgba(139,92,246,.16);border-radius:18px;padding:16px;box-shadow:0 14px 38px rgba(69,39,120,.07);display:flex;flex-direction:column;gap:12px;min-height:250px}
+.eva-module-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.eva-module-icon{width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,#F3E8FF,#FCE7F3);display:flex;align-items:center;justify-content:center;font-size:25px;flex-shrink:0}
+.eva-module-title{font-size:17px;font-weight:950;color:#17122E;letter-spacing:-.3px;margin-bottom:4px}
+.eva-module-role{font-size:12px;color:#7C3AED;font-weight:900;text-transform:uppercase;letter-spacing:.65px}
+.eva-module-desc{font-size:13px;color:#5E5573;line-height:1.55;flex:1}
+.eva-module-list{display:grid;gap:7px;font-size:12px;color:#3A3150;line-height:1.35}
+.eva-module-list span{display:flex;gap:6px;align-items:flex-start}
+.eva-module-list b{color:#17122E}
+.eva-module-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:auto;padding-top:10px;border-top:1px solid #F0EBF9}
+.eva-module-tag{font-size:11px;font-weight:900;border-radius:999px;padding:4px 9px;background:#F3E8FF;color:#7C3AED;white-space:nowrap}
+.eva-priority-layout{display:grid;grid-template-columns:1.05fr .95fr;gap:14px;margin-bottom:16px;align-items:start}
+.eva-now-card{background:white;border:1px solid rgba(139,92,246,.15);border-radius:18px;padding:16px;box-shadow:0 14px 38px rgba(69,39,120,.06)}
+.eva-now-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}
+.eva-now-title{font-size:16px;font-weight:950;color:#17122E;letter-spacing:-.25px}
+.eva-now-sub{font-size:12px;color:#8A8A99;margin-top:3px;line-height:1.4}
+.eva-signal-list{display:grid;gap:9px}
+.eva-signal{display:grid;grid-template-columns:7px 1fr auto;gap:11px;align-items:center;padding:12px;border:1px solid rgba(139,92,246,.12);border-radius:14px;background:linear-gradient(180deg,#fff,#FFFCFF)}
+.eva-signal-bar{height:100%;min-height:48px;border-radius:999px;background:#7C3AED}
+.eva-signal-bar.red{background:#EF4444}.eva-signal-bar.orange{background:#F59E0B}.eva-signal-bar.green{background:#10B981}.eva-signal-bar.purple{background:#7C3AED}
+.eva-signal-title{font-size:13px;font-weight:900;color:#17122E;margin-bottom:4px}.eva-signal-text{font-size:12px;color:#7B708F;line-height:1.4}.eva-signal-value{font-size:14px;font-weight:950;color:#17122E;text-align:right;white-space:nowrap}
+.eva-mini-kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.eva-mini-kpi{background:white;border:1px solid rgba(139,92,246,.14);border-radius:16px;padding:13px;box-shadow:0 12px 30px rgba(69,39,120,.05)}
+.eva-mini-label{font-size:10px;text-transform:uppercase;letter-spacing:.75px;color:#8A8A99;font-weight:900;margin-bottom:6px}.eva-mini-value{font-size:24px;font-weight:950;color:#17122E;letter-spacing:-.8px;line-height:1}.eva-mini-help{font-size:12px;color:#7B708F;margin-top:6px;line-height:1.3}
+.eva-flow-card{background:linear-gradient(135deg,#F3E8FF,#FFF1F9);border:1px solid rgba(168,85,247,.22);border-radius:18px;padding:16px;margin-bottom:16px}
+.eva-flow-title{font-size:15px;font-weight:950;color:#17122E;margin-bottom:10px}.eva-flow-steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}.eva-flow-step{background:white;border:1px solid rgba(139,92,246,.10);border-radius:14px;padding:12px;text-align:center}.eva-flow-emoji{font-size:22px;margin-bottom:5px}.eva-flow-name{font-size:12px;font-weight:900;color:#17122E}.eva-flow-desc{font-size:11px;color:#7B708F;line-height:1.35;margin-top:4px}
+@media(max-width:1100px){.eva-cockpit-grid,.eva-priority-layout{grid-template-columns:1fr}.eva-mini-kpi-row{grid-template-columns:repeat(2,1fr)}.eva-flow-steps{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.eva-mini-kpi-row,.eva-flow-steps{grid-template-columns:1fr}.eva-cockpit-title{font-size:24px}.eva-signal{grid-template-columns:6px 1fr}.eva-signal-value{text-align:left}}
+/* ===== end EVA COCKPIT CLARIFIÉ ===== */
+
+
+/* ===== RentyQ V2 — sidebar stable + navigation contexte logement ===== */
+.rq-property-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 0;position:relative;z-index:2}
+.rq-property-tab{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.13);color:white;border-radius:999px;padding:9px 13px;font-size:12px;font-weight:900;cursor:pointer;font-family:inherit;transition:.15s}
+.rq-property-tab:hover{background:rgba(255,255,255,.20)}
+.rq-property-tab.active{background:white;color:#24105C;border-color:white;box-shadow:0 10px 26px rgba(0,0,0,.16)}
+.rq-property-tab-panel{display:none;animation:rqFade .18s ease-out}
+.rq-property-tab-panel.active{display:block}
+@keyframes rqFade{from{opacity:.35;transform:translateY(4px)}to{opacity:1;transform:none}}
+.rq-context-layout{display:grid;grid-template-columns:1.05fr .95fr;gap:16px;margin-top:16px}
+.rq-context-card{background:white;border:1px solid rgba(139,92,246,.14);border-radius:20px;box-shadow:0 14px 40px rgba(69,39,120,.06);padding:16px}
+.rq-context-title{font-size:17px;font-weight:950;color:#17122E;letter-spacing:-.3px;margin-bottom:4px}
+.rq-context-sub{font-size:12px;color:#8A8A99;line-height:1.45;margin-bottom:14px}
+.rq-audit-upload{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.rq-audit-input{border:1px dashed rgba(139,92,246,.26);border-radius:14px;padding:12px;background:#FAF8FF}
+.rq-audit-input label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.75px;color:#7C3AED;font-weight:900;margin-bottom:6px}
+.rq-audit-input input{width:100%;font-size:12px}
+.rq-mini-pie-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px}
+.rq-mini-pie{background:#FAF8FF;border:1px solid rgba(139,92,246,.10);border-radius:16px;padding:12px;text-align:center}
+.rq-pie-circle{width:72px;height:72px;border-radius:50%;margin:0 auto 8px;background:conic-gradient(#7C3AED var(--occ),#EDE9FE 0);display:grid;place-items:center;font-size:14px;font-weight:950;color:#241A3D}
+.rq-pricing-day-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.rq-price-day{border:1px solid rgba(139,92,246,.12);background:linear-gradient(180deg,#fff,#FFFCFF);border-radius:14px;padding:11px;cursor:pointer}
+.rq-price-day.booked{background:#ECFDF5;color:#047857;cursor:default}
+.rq-price-day.event{background:#FFF7ED;border-color:#FDBA74}
+.rq-charge-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.rq-charge-tile{background:#FAF8FF;border:1px solid rgba(139,92,246,.10);border-radius:14px;padding:12px}
+.rq-charge-label{font-size:11px;color:#8A8A99;font-weight:800;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.rq-charge-value{font-size:22px;font-weight:950;color:#17122E}
+@media(max-width:980px){.rq-context-layout{grid-template-columns:1fr}.rq-audit-upload{grid-template-columns:1fr}}
+/* ===== end RentyQ V2 ===== */
+
+
+/* ===== RentyQ x Easy Concierge API - Step 1 safe demo ===== */
+.rq-api-intel-card{margin-top:16px;border:1px solid rgba(16,185,129,.22)!important;background:linear-gradient(135deg,#ECFDF5 0%,#FFFFFF 55%,#F8F4FF 100%)!important}
+.rq-api-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.rq-api-badge{display:inline-flex;align-items:center;gap:7px;border-radius:999px;background:#DCFCE7;color:#047857;font-size:11px;font-weight:900;padding:5px 10px}
+.rq-api-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:12px 0 14px}
+.rq-api-tile{background:rgba(255,255,255,.82);border:1px solid rgba(139,92,246,.12);border-radius:14px;padding:12px}
+.rq-api-label{font-size:9px;text-transform:uppercase;letter-spacing:.75px;color:#8A8A99;font-weight:900;margin-bottom:6px}
+.rq-api-value{font-size:24px;font-weight:950;color:#17122E;letter-spacing:-.6px;line-height:1}
+.rq-api-help{font-size:11px;color:#7B708F;margin-top:6px;line-height:1.35}
+.rq-api-insights{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.rq-api-insight{background:white;border:1px solid rgba(139,92,246,.12);border-radius:14px;padding:12px;font-size:12px;line-height:1.5;color:#4B425F}
+.rq-api-insight b{display:block;color:#17122E;font-size:13px;margin-bottom:4px}
+.rq-api-source{font-size:11px;color:#7B708F;margin-top:10px}
+
+
+/* ===== RentyQ x Easy Concierge API - Step 2 Performance OTA ===== */
+.rq-ota-panel{margin-top:16px;border:1px solid rgba(139,92,246,.16)!important;background:linear-gradient(180deg,#FFFFFF 0%,#FFFCFF 100%)!important}
+.rq-ota-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:12px}
+.rq-ota-card{border:1px solid rgba(139,92,246,.12);border-radius:16px;padding:13px;background:#fff;box-shadow:0 10px 24px rgba(69,39,120,.045)}
+.rq-ota-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.rq-ota-name{font-size:14px;font-weight:950;color:#17122E;display:flex;align-items:center;gap:7px}
+.rq-ota-badge{font-size:10px;font-weight:900;padding:3px 7px;border-radius:999px;background:#F3E8FF;color:#7C3AED}
+.rq-ota-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rq-ota-stat{background:#FAF8FF;border:1px solid rgba(139,92,246,.09);border-radius:12px;padding:8px}
+.rq-ota-label{font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;font-weight:900;margin-bottom:4px}
+.rq-ota-value{font-size:18px;font-weight:950;color:#17122E;letter-spacing:-.4px}
+.rq-ota-note{font-size:12px;color:#5E5573;line-height:1.45;margin-top:10px}
+.rq-ota-opportunity{display:grid;grid-template-columns:8px 1fr auto;gap:10px;align-items:center;margin-top:12px;padding:12px;border-radius:15px;background:linear-gradient(135deg,#ECFDF5,#FFFFFF);border:1px solid rgba(16,185,129,.22)}
+.rq-ota-sev{width:8px;height:100%;min-height:48px;border-radius:999px;background:#10B981}
+.rq-ota-opp-title{font-size:13px;font-weight:950;color:#17122E}
+.rq-ota-opp-text{font-size:12px;color:#5E5573;line-height:1.45;margin-top:3px}
+.rq-ota-gain{font-size:18px;font-weight:950;color:#059669;white-space:nowrap}
+@media(max-width:720px){.rq-ota-opportunity{grid-template-columns:8px 1fr}.rq-ota-gain{grid-column:2}}
+/* ===== end Step 2 Performance OTA ===== */
+
+/* ===== RentyQ x Easy Concierge API - Step 3 Avis & Qualité ===== */
+.rq-quality-panel{margin-top:16px;border:1px solid rgba(236,72,153,.18)!important;background:linear-gradient(135deg,#FFFFFF 0%,#FFF7FB 52%,#F8F4FF 100%)!important}
+.rq-quality-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0 14px}
+.rq-quality-score{background:white;border:1px solid rgba(139,92,246,.11);border-radius:15px;padding:12px;box-shadow:0 10px 22px rgba(69,39,120,.045)}
+.rq-quality-label{font-size:9px;text-transform:uppercase;letter-spacing:.75px;color:#8A8A99;font-weight:900;margin-bottom:6px}
+.rq-quality-value{font-size:24px;font-weight:950;color:#17122E;letter-spacing:-.5px;line-height:1}
+.rq-quality-bar{height:7px;background:#EEE9FF;border-radius:999px;overflow:hidden;margin-top:10px}
+.rq-quality-bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#7C3AED,#EC4899)}
+.rq-review-columns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.rq-review-box{background:#fff;border:1px solid rgba(139,92,246,.11);border-radius:15px;padding:12px}
+.rq-review-title{font-size:13px;font-weight:950;color:#17122E;margin-bottom:7px}
+.rq-review-list{display:grid;gap:7px}
+.rq-review-item{font-size:12px;line-height:1.45;color:#5E5573;padding:9px;border-radius:11px;background:#FAF8FF;border:1px solid rgba(139,92,246,.08)}
+.rq-review-item b{color:#17122E}
+.rq-quality-action{display:grid;grid-template-columns:8px 1fr auto;gap:10px;align-items:center;margin-top:12px;padding:12px;border-radius:15px;background:linear-gradient(135deg,#FFF7ED,#FFFFFF);border:1px solid rgba(245,158,11,.24)}
+.rq-quality-sev{width:8px;height:100%;min-height:48px;border-radius:999px;background:#F59E0B}
+.rq-quality-action-title{font-size:13px;font-weight:950;color:#17122E}
+.rq-quality-action-text{font-size:12px;color:#5E5573;line-height:1.45;margin-top:3px}
+.rq-quality-impact{font-size:18px;font-weight:950;color:#D97706;white-space:nowrap}
+@media(max-width:760px){.rq-review-columns{grid-template-columns:1fr}.rq-quality-action{grid-template-columns:8px 1fr}.rq-quality-impact{grid-column:2}}
+/* ===== end Step 3 Avis & Qualité ===== */
+
+/* ===== RentyQ x Easy Concierge API - Step 4 Rentabilité nette ===== */
+.rq-profit-panel{margin-top:16px;border:1px solid rgba(16,185,129,.22)!important;background:linear-gradient(135deg,#FFFFFF 0%,#ECFDF5 48%,#F8F4FF 100%)!important}
+.rq-profit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0 14px}
+.rq-profit-tile{background:white;border:1px solid rgba(139,92,246,.11);border-radius:15px;padding:12px;box-shadow:0 10px 22px rgba(69,39,120,.045)}
+.rq-profit-label{font-size:9px;text-transform:uppercase;letter-spacing:.75px;color:#8A8A99;font-weight:900;margin-bottom:6px}
+.rq-profit-value{font-size:25px;font-weight:950;color:#17122E;letter-spacing:-.6px;line-height:1}
+.rq-profit-help{font-size:11px;color:#7B708F;line-height:1.35;margin-top:7px}
+.rq-profit-main{display:grid;grid-template-columns:1.05fr .95fr;gap:12px;margin-top:12px}
+.rq-profit-box{background:white;border:1px solid rgba(139,92,246,.11);border-radius:16px;padding:13px}
+.rq-profit-row{display:grid;grid-template-columns:130px 1fr 80px;gap:10px;align-items:center;margin-bottom:9px}
+.rq-profit-row:last-child{margin-bottom:0}
+.rq-profit-month{font-size:12px;font-weight:950;color:#241A3D}
+.rq-profit-track{height:10px;background:#EDE9FE;border-radius:999px;overflow:hidden}
+.rq-profit-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#10B981,#7C3AED);width:var(--w)}
+.rq-profit-amount{text-align:right;font-size:12px;font-weight:950;color:#059669}
+.rq-profit-breakdown{display:grid;gap:8px}
+.rq-profit-line{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border-radius:12px;background:#FAF8FF;border:1px solid rgba(139,92,246,.08);font-size:12px}
+.rq-profit-line b{color:#17122E}.rq-profit-line span{font-weight:950;color:#241A3D}
+.rq-profit-alert{display:grid;grid-template-columns:8px 1fr auto;gap:10px;align-items:center;margin-top:12px;padding:12px;border-radius:15px;background:linear-gradient(135deg,#ECFDF5,#FFFFFF);border:1px solid rgba(16,185,129,.24)}
+.rq-profit-sev{width:8px;height:100%;min-height:48px;border-radius:999px;background:#10B981}
+.rq-profit-alert-title{font-size:13px;font-weight:950;color:#17122E}
+.rq-profit-alert-text{font-size:12px;color:#5E5573;line-height:1.45;margin-top:3px}
+.rq-profit-impact{font-size:18px;font-weight:950;color:#059669;white-space:nowrap}
+@media(max-width:900px){.rq-profit-main{grid-template-columns:1fr}.rq-profit-alert{grid-template-columns:8px 1fr}.rq-profit-impact{grid-column:2}.rq-profit-row{grid-template-columns:78px 1fr 70px}}
+/* ===== end Step 4 Rentabilité nette ===== */
+
+/* ===== RentyQ x Easy Concierge API - Step 5 Score EVA ===== */
+.rq-evascore-panel{margin-top:16px;border:1px solid rgba(124,58,237,.22)!important;background:linear-gradient(135deg,#FFFFFF 0%,#F3E8FF 52%,#FFF1F9 100%)!important}
+.rq-evascore-layout{display:grid;grid-template-columns:230px 1fr;gap:16px;align-items:center;margin-top:12px}
+.rq-evascore-ring{width:190px;height:190px;border-radius:50%;background:conic-gradient(#7C3AED 0 84%,#EDE9FE 84% 100%);display:flex;align-items:center;justify-content:center;padding:13px;margin:auto;box-shadow:0 20px 42px rgba(124,58,237,.16)}
+.rq-evascore-inner{width:100%;height:100%;border-radius:50%;background:white;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid rgba(139,92,246,.16)}
+.rq-evascore-num{font-size:52px;font-weight:950;letter-spacing:-2px;color:#17122E;line-height:.9}
+.rq-evascore-label{font-size:10px;text-transform:uppercase;letter-spacing:.9px;font-weight:900;color:#7C3AED;margin-top:8px}
+.rq-evascore-status{font-size:12px;font-weight:900;color:#059669;margin-top:8px;background:#DCFCE7;border-radius:999px;padding:4px 9px}
+.rq-score-breakdown{display:grid;gap:9px}
+.rq-score-row{display:grid;grid-template-columns:150px 1fr 55px;gap:10px;align-items:center}
+.rq-score-label{font-size:12px;font-weight:900;color:#241A3D}
+.rq-score-track{height:10px;background:#EDE9FE;border-radius:999px;overflow:hidden}
+.rq-score-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#7C3AED,#EC4899);width:var(--w)}
+.rq-score-points{text-align:right;font-size:12px;font-weight:950;color:#7C3AED}
+.rq-evascore-insights{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:14px}
+.rq-evascore-insight{background:white;border:1px solid rgba(139,92,246,.11);border-radius:14px;padding:12px}
+.rq-evascore-insight b{display:block;font-size:13px;color:#17122E;margin-bottom:4px}
+.rq-evascore-insight span{font-size:12px;color:#5E5573;line-height:1.45}
+@media(max-width:850px){.rq-evascore-layout{grid-template-columns:1fr}.rq-evascore-ring{width:170px;height:170px}.rq-score-row{grid-template-columns:110px 1fr 48px}}
+/* ===== end Step 5 Score EVA ===== */
+
+
+
+
+/* ===== Step 6 Actions EVA - corrected placement ===== */
+.rq-actions-panel{margin-top:16px;border:1px solid rgba(249,115,22,.25)!important;background:linear-gradient(135deg,#FFF7ED 0%,#FFFFFF 45%,#FEF2F2 100%)!important}
+.rq-actions-grid{display:grid;gap:12px;margin-top:14px}
+.rq-action{display:grid;grid-template-columns:70px 1fr 120px;gap:14px;align-items:center;background:white;border:1px solid rgba(249,115,22,.12);border-radius:16px;padding:14px}
+.rq-rank{font-size:30px;font-weight:900;color:#EA580C;text-align:center}
+.rq-action-title{font-weight:900;color:#17122E;margin-bottom:4px}
+.rq-action-desc{font-size:12px;color:#5E5573;line-height:1.45}
+.rq-impact{text-align:right}
+.rq-impact-value{font-size:20px;font-weight:900;color:#059669}
+.rq-impact-label{font-size:11px;color:#7B708F}
+@media(max-width:800px){.rq-action{grid-template-columns:1fr}.rq-rank,.rq-impact{text-align:left}}
+/* ===== end Step 6 Actions EVA ===== */
+
+
+
+
+
+
+/* ═══════════════════════════════════════════════
+   RentyQ V3 — Design System Officiel
+   Palette : #6D28D9 #9333EA #EC4899 #0B0722 #151132 #F8FAFC
+   Typo : Sora (titres) + Inter (corps)
+   Gradient : linear-gradient(135deg, #6D28D9, #EC4899)
+   ═══════════════════════════════════════════════ */
+
+:root {
+  --rq-violet:   #6D28D9;
+  --rq-purple:   #9333EA;
+  --rq-pink:     #EC4899;
+  --rq-dark:     #0B0722;
+  --rq-dark2:    #151132;
+  --rq-light:    #F8FAFC;
+  --rq-grad:     linear-gradient(135deg, #6D28D9 0%, #9333EA 50%, #EC4899 100%);
+  --rq-grad2:    linear-gradient(135deg, #4C1D95 0%, #7C3AED 50%, #EC4899 100%);
+  --rq-grad-h:   linear-gradient(90deg,  #6D28D9 0%, #EC4899 100%);
+  --rq-shadow:   0 8px 24px rgba(109,40,217,.18);
+  --rq-shadow-lg:0 20px 50px rgba(109,40,217,.22);
+}
+
+/* ── Typo globale ── */
+body {
+  font-family: 'Inter', system-ui, sans-serif !important;
+  color: #15172E !important;
+  background: var(--rq-light) !important;
+}
+
+h1,h2,h3,.page-title,.rq-detail-name,.rq-wordmark,
+.eva-panel-title,.scanner-hero-title,.card-title,
+.eva360-title,.rq-reco-title,.rq-context-title,
+.auth-logo,.brand-logo {
+  font-family: 'Sora', system-ui, sans-serif !important;
+  font-weight: 800 !important;
+  letter-spacing: -.4px !important;
+}
+
+.page-title {
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  color: #0B0722 !important;
+  letter-spacing: -.5px !important;
+}
+
+/* ── Sidebar V3 ── */
+.app .sidebar,
+.app .sidebar[style] {
+  background:#040319!important;
+  border-right: 1px solid rgba(236,72,153,.22) !important;
+  box-shadow: 6px 0 28px rgba(11,7,34,.3) !important;
+}
+
+.nav-section-label {
+  font-family: 'Sora', sans-serif !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.2px !important;
+  color: rgba(236,72,153,.55) !important;
+  text-transform: uppercase !important;
+  padding: 1rem 1.25rem .3rem !important;
+}
+
+.nav-item {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: rgba(255,255,255,.62) !important;
+  border-radius: 8px !important;
+  margin: 1px 6px !important;
+  padding: 8px 10px !important;
+  transition: all .14s !important;
+}
+
+.nav-item:hover {
+  background: rgba(147,51,234,.18) !important;
+  color: #fff !important;
+}
+
+.nav-item.active {
+  background: linear-gradient(90deg, rgba(109,40,217,.48), rgba(236,72,153,.26)) !important;
+  border-color: rgba(236,72,153,.28) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 6px 20px rgba(109,40,217,.22) !important;
+}
+
+.nav-sub {
+  padding: 6px 10px 6px 20px !important;
+  font-size: 12.5px !important;
+  color: rgba(255,255,255,.55) !important;
+}
+
+.nav-sub.active {
+  color: #fff !important;
+}
+
+.nav-emoji { color: rgba(236,72,153,.9) !important; }
+
+/* ── Boutons V3 ── */
+.btn-purple, .btn-ai {
+  background: var(--rq-grad) !important;
+  border: none !important;
+  color: #fff !important;
+  font-family: 'Sora', sans-serif !important;
+  font-weight: 700 !important;
+  box-shadow: var(--rq-shadow) !important;
+  letter-spacing: -.1px !important;
+}
+
+.btn-purple:hover, .btn-ai:hover {
+  filter: brightness(1.06) !important;
+  color: #fff !important;
+}
+
+.btn {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+  border-color: rgba(109,40,217,.2) !important;
+  color: #15172E !important;
+}
+
+.btn:hover {
+  border-color: var(--rq-violet) !important;
+  color: var(--rq-violet) !important;
+}
+
+/* ── Fond main ── */
+.main {
+  background: linear-gradient(135deg, #F5F1FF 0%, #F0EAFF 55%, #FFF0F7 100%) !important;
+}
+
+/* ── Cards V3 ── */
+.card, .kpi {
+  border-color: rgba(109,40,217,.12) !important;
+  box-shadow: 0 4px 16px rgba(109,40,217,.06) !important;
+}
+
+.kpi-ai, .tag-ai {
+  background: linear-gradient(135deg, #F3E8FF, #FCE7F3) !important;
+  border-color: rgba(147,51,234,.24) !important;
+  color: var(--rq-violet) !important;
+}
+
+/* ── Badge ── */
+.nav-badge {
+  background: var(--rq-grad) !important;
+  box-shadow: 0 4px 10px rgba(236,72,153,.28) !important;
+  color: #fff !important;
+}
+
+/* ── Beta banner ── */
+.beta-banner {
+  background: linear-gradient(90deg, #0B0722 0%, #3B1278 50%, #0B0722 100%) !important;
+  border-bottom: 1px solid rgba(236,72,153,.2) !important;
+  font-family: 'Sora', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  letter-spacing: .4px !important;
+}
+
+/* ── Auth screen ── */
+.rq-primary {
+  background: var(--rq-grad) !important;
+  font-family: 'Sora', sans-serif !important;
+  font-weight: 800 !important;
+  box-shadow: 0 14px 36px rgba(109,40,217,.28), 0 8px 24px rgba(236,72,153,.22) !important;
+}
+
+/* ── EVA Engine couleurs ── */
+.eva-actions-panel,
+.eva360-section,
+.rq-context-card,
+.rq-detail-hero,
+.rq-reco-card,
+.rq-card-v2 {
+  border-color: rgba(109,40,217,.14) !important;
+}
+
+/* ── Scores EVA V3 ── */
+.rq-health-badge {
+  font-family: 'Sora', sans-serif !important;
+  font-weight: 700 !important;
+}
+
+/* ── Titres sections ── */
+.rq-context-title,
+.eva-panel-title,
+.rq-reco-title,
+.scanner-hero-title {
+  font-family: 'Sora', sans-serif !important;
+  font-weight: 800 !important;
+  color: #0B0722 !important;
+}
+
+/* ── User sidebar ── */
+.user-name {
+  font-family: 'Sora', sans-serif !important;
+  font-weight: 700 !important;
+  color: #fff !important;
+}
+
+.user-plan { color: rgba(236,72,153,.85) !important; }
+
+/* ── Tables ── */
+th {
+  font-family: 'Sora', sans-serif !important;
+  font-weight: 800 !important;
+  color: #9A8AAD !important;
+}
+
+tr:hover td { background: #FAF6FF !important; }
+
+/* ── Formulaires ── */
+.form-group input:focus,
+.rq-input-wrap input:focus {
+  border-color: var(--rq-violet) !important;
+  box-shadow: 0 0 0 3px rgba(109,40,217,.12) !important;
+  outline: none !important;
+}
+
+/* ── Auth tabs ── */
+.auth-tab.active {
+  color: var(--rq-violet) !important;
+  border-bottom-color: var(--rq-violet) !important;
+}
+
+/* ═══════════════════════════════════════════════
+   Sidebar brand logo V3
+   ═══════════════════════════════════════════════ */
+.sidebar-brand {
+  padding: 1.4rem 1rem 1.1rem !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.brand-rq-icon {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, #6D28D9 0%, #9333EA 50%, #EC4899 100%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 10px 24px rgba(109,40,217,.35) !important;
+}
+
+.brand-rq-wordmark {
+  font-family: 'Sora', sans-serif !important;
+  font-size: 22px !important;
+  font-weight: 900 !important;
+  letter-spacing: -1px !important;
+  color: #fff !important;
+  line-height: 1 !important;
+}
+
+.brand-rq-q {
+  background: linear-gradient(135deg, #9333EA, #EC4899) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+.brand-tagline {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  color: rgba(255,255,255,.5) !important;
+  letter-spacing: .2px !important;
+  font-style: normal !important;
+  margin-top: 3px !important;
+}
+
+/* ═══════════════════════════════════════════════
+   Profit 360° V3
+   ═══════════════════════════════════════════════ */
+#profit360-content .p360-hero {
+  background: linear-gradient(135deg, #6D28D9 0%, #9333EA 50%, #EC4899 100%);
+  border-radius: 20px;
+  padding: 22px;
+  color: #fff;
+  margin-bottom: 14px;
+}
+
+/* ═══════════════════════════════════════════════
+   Scroll + utilities
+   ═══════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(109,40,217,.3); border-radius: 4px; }
+
+/* ═══════════════════════════════════════════════
+   end DA V3
+   ═══════════════════════════════════════════════ */
+
+/* ===== EVA ENGINE LAYER — ajout autonome RentyQ ===== */
+.rq-eva-layer{margin-bottom:18px}
+.rq-eva-layer-hero{position:relative;overflow:hidden;border-radius:26px;background:linear-gradient(135deg,#211051 0%,#7C3AED 46%,#EC4899 100%);color:#fff;padding:26px;box-shadow:0 24px 70px rgba(124,58,237,.22)}
+.rq-eva-layer-hero:after{content:"";position:absolute;right:-80px;top:-95px;width:320px;height:320px;background:radial-gradient(circle,rgba(255,255,255,.24),transparent 63%);pointer-events:none}
+.rq-eva-layer-top{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) 180px;gap:22px;align-items:center}
+.rq-eva-kicker{font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:900;color:rgba(255,255,255,.72);margin-bottom:8px}
+.rq-eva-title{font-size:34px;font-weight:950;letter-spacing:-1.2px;line-height:1.04;margin-bottom:9px}
+.rq-eva-sub{font-size:14px;line-height:1.65;color:rgba(255,255,255,.82);max-width:780px}
+.rq-eva-score-bubble{width:168px;height:168px;border-radius:50%;background:conic-gradient(#fff var(--score),rgba(255,255,255,.20) 0);display:flex;align-items:center;justify-content:center;padding:10px;margin-left:auto;box-shadow:0 18px 42px rgba(0,0,0,.18)}
+.rq-eva-score-inner{width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,rgba(36,16,92,.97),rgba(124,58,237,.74));display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.18)}
+.rq-eva-score-num{font-size:44px;font-weight:950;letter-spacing:-1.4px;line-height:.9}
+.rq-eva-score-label{font-size:10px;text-transform:uppercase;letter-spacing:.9px;font-weight:900;color:rgba(255,255,255,.72);margin-top:8px}
+.rq-eva-score-help{font-size:11px;font-weight:800;margin-top:7px;color:#E9D5FF}
+.rq-eva-money-grid{position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:22px}
+.rq-eva-money-card{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.16);border-radius:18px;padding:14px;backdrop-filter:blur(10px)}
+.rq-eva-money-label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.68);font-weight:900;margin-bottom:7px}
+.rq-eva-money-value{font-size:28px;font-weight:950;letter-spacing:-.8px;line-height:1}
+.rq-eva-money-help{font-size:12px;color:rgba(255,255,255,.72);line-height:1.35;margin-top:7px}
+.rq-eva-section{background:white;border:1px solid rgba(139,92,246,.15);border-radius:22px;box-shadow:0 14px 40px rgba(69,39,120,.07);padding:18px;margin-top:14px}
+.rq-eva-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}
+.rq-eva-section-title{font-size:18px;font-weight:950;color:#17122E;letter-spacing:-.3px}
+.rq-eva-section-sub{font-size:13px;color:#7B708F;line-height:1.45;margin-top:4px}
+.rq-eva-plan{display:grid;gap:12px}
+.rq-eva-action{display:grid;grid-template-columns:46px minmax(0,1fr) 120px;gap:14px;align-items:center;border:1px solid rgba(139,92,246,.12);border-radius:18px;padding:14px;background:linear-gradient(180deg,#fff,#FFFCFF)}
+.rq-eva-action-rank{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#7C3AED,#EC4899);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:950;box-shadow:0 12px 28px rgba(124,58,237,.18)}
+.rq-eva-action-title{font-size:15px;font-weight:950;color:#17122E;margin-bottom:4px}
+.rq-eva-action-desc{font-size:12px;color:#5E5573;line-height:1.45}
+.rq-eva-action-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.rq-eva-chip{font-size:10px;font-weight:900;border-radius:999px;padding:4px 8px;background:#F3E8FF;color:#7C3AED}
+.rq-eva-chip.high{background:#DCFCE7;color:#047857}.rq-eva-chip.medium{background:#FEF3C7;color:#B45309}.rq-eva-chip.low{background:#F1F5F9;color:#475569}
+.rq-eva-impact{text-align:right}.rq-eva-impact strong{display:block;font-size:22px;font-weight:950;color:#059669;letter-spacing:-.5px}.rq-eva-impact span{font-size:11px;color:#8A8A99}
+.rq-eva-next{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;background:linear-gradient(135deg,#F3E8FF,#FFF1F9);border:1px solid rgba(168,85,247,.22);border-radius:18px;padding:16px;margin-top:14px}
+.rq-eva-next-title{font-size:15px;font-weight:950;color:#17122E;margin-bottom:4px}.rq-eva-next-text{font-size:13px;color:#5E5573;line-height:1.5}
+.rq-eva-btn{border:0;border-radius:12px;background:linear-gradient(135deg,#7C3AED,#EC4899);color:white;font-weight:850;font-family:inherit;padding:11px 16px;cursor:pointer;box-shadow:0 12px 28px rgba(124,58,237,.20);white-space:nowrap}
+.rq-eva-btn:hover{filter:brightness(1.04)}
+@media(max-width:950px){.rq-eva-layer-top{grid-template-columns:1fr}.rq-eva-score-bubble{margin:0}.rq-eva-money-grid{grid-template-columns:repeat(2,1fr)}.rq-eva-action{grid-template-columns:42px 1fr}.rq-eva-impact{text-align:left;grid-column:2}.rq-eva-next{grid-template-columns:1fr}}
+@media(max-width:560px){.rq-eva-layer-hero{padding:20px}.rq-eva-title{font-size:27px}.rq-eva-money-grid{grid-template-columns:1fr}.rq-eva-score-bubble{width:142px;height:142px}.rq-eva-score-num{font-size:36px}}
+/* ===== end EVA ENGINE LAYER ===== */
+
+
 
