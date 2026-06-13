@@ -12,7 +12,7 @@ const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 const FUNCTIONS_URL=`${SB_URL}/functions/v1`;
 const SMOOBU_FN=`${FUNCTIONS_URL}/smoobu-proxy`;
 const EVENTS_FN=`${FUNCTIONS_URL}/events-proxy`;
-const STRIPE_FN=`${FUNCTIONS_URL}/stripe-checkout`;
+const STRIPE_FN='/api/stripe';
 const EVA_FN=`${FUNCTIONS_URL}/eva-analysis`;
 let currentUser=null,currentProfile=null,apparts=[],archivedApparts=[],reservations=[],editId=null,smoobuConnected=false,eventsCache={};
 
@@ -5261,6 +5261,5 @@ function p360ApplyManual(){
   showToast('\u2705 Profit 360\u00b0 calcul\u00e9 avec vos donn\u00e9es');
 }
 /* ===== end PROFIT 360 ===== */
-
 
 
