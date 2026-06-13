@@ -170,14 +170,23 @@
   <div class="beta-banner"><i class="ti ti-sparkles" style="margin-right:4px;vertical-align:-1px"></i> <strong>Beta</strong> — EVA Pricing + Smoobu + Opportunités EVA</div>
   <div class="app-body">
     <div class="sidebar">
+
+      <!-- Zone logo — hauteur fixe, jamais touchée par le mode-switcher -->
       <div class="sidebar-logo-zone">
         <img src="assets/Logo site.png" alt="RentyQ" class="sidebar-logo-zone__img"/>
       </div>
+
+      <!-- Zone mode Gestion / Conciergerie — sous le logo, indépendante -->
       <div id="mode-switcher" class="mode-switcher-wrap" style="display:none">
         <button id="mode-btn-solo" onclick="switchMode('solo')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:rgba(83,74,183,0.3);color:white;transition:all .15s"><i class="ti ti-building" style="margin-right:3px;font-size:13px;vertical-align:-1px" aria-hidden="true"></i>Gestion</button>
         <button id="mode-btn-concierge" onclick="switchMode('concierge')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:rgba(255,255,255,0.4);transition:all .15s"><i class="ti ti-users" style="margin-right:3px;font-size:13px;vertical-align:-1px" aria-hidden="true"></i>Conciergerie</button>
       </div>
+
       <div class="sidebar-sep"></div>
+
+      <!-- Zone navigation — seule zone qui scrolle -->
+      <div class="sidebar-nav-scroll">
+
       <div id="nav-solo">
 
       <button class="nav-item active" onclick="goTo('cockpit',this)" style="font-weight:800;font-size:14px">
@@ -236,14 +245,29 @@
       <button class="nav-item nav-sub" onclick="goTo('tarifs',this)"><span class="nav-emoji"><i class="ti ti-credit-card"></i></span>Abonnement</button>
 
       </div>
-      <div class="nav-section-label" style="color:rgba(255,255,255,0.25)">Compte</div>
-      <button class="nav-item" onclick="goTo('tarifs',this)" style="display:none"><span class="nav-emoji"><i class="ti ti-credit-card" aria-hidden="true"></i></span>Tarifs</button>
-      <button class="nav-item" onclick="goTo('settings',this)" style="display:none"><span class="nav-emoji"><i class="ti ti-settings" aria-hidden="true"></i></span>Paramètres</button>
-      <div class="sidebar-footer" style="border-top:0.5px solid rgba(255,255,255,0.06)">
+
+      </div><!-- /sidebar-nav-scroll -->
+
+      <!-- Footer compte — toujours visible en bas -->
+      <div class="sidebar-footer">
         <div class="user-row">
           <div class="user-avatar" id="s-avatar" style="border-radius:6px;background:rgba(83,74,183,0.25);color:#CECBF6;font-size:11px;width:28px;height:28px">?</div>
           <div><div class="user-name" id="s-name" style="font-size:12px;color:rgba(255,255,255,0.7)">…</div><div class="user-plan" id="s-plan" style="font-size:10px;color:rgba(255,255,255,0.25)">…</div></div>
-          <button class="btn-logout" onclick="doLogout()" style="color:rgba(255,255,255,0.15)"><i class="ti ti-logout" style="font-size:16px" aria-hidden="true"></i></button>
+          <button class="btn-logout" onclick="showLogoutConfirm()" style="color:rgba(255,255,255,0.15)"><i class="ti ti-logout" style="font-size:16px" aria-hidden="true"></i></button>
+        </div>
+      </div>
+
+    </div><!-- /sidebar -->
+
+    <!-- Modale confirmation déconnexion -->
+    <div id="logout-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(8,4,20,.72);align-items:center;justify-content:center;padding:1rem">
+      <div style="background:#0F172A;border:1px solid rgba(168,85,247,.32);border-radius:20px;width:100%;max-width:400px;padding:2rem;box-shadow:0 28px 80px rgba(0,0,0,.5)">
+        <div style="font-size:28px;margin-bottom:12px">👋</div>
+        <div style="font-family:Sora,sans-serif;font-size:17px;font-weight:800;color:#fff;margin-bottom:10px">Vous quittez RentyQ&nbsp;?</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.65);line-height:1.65;margin-bottom:24px">EVA peut encore avoir des recommandations en attente pour améliorer vos revenus.</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button onclick="closeLogoutConfirm();goTo('cockpit',null)" style="width:100%;padding:12px;border-radius:12px;background:linear-gradient(135deg,#6D28D9,#EC4899);color:white;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Voir mes priorités</button>
+          <button onclick="doLogout()" style="width:100%;padding:12px;border-radius:12px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.14);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Me déconnecter</button>
         </div>
       </div>
     </div>
