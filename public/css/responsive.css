@@ -1,1 +1,189 @@
+/* ============================================================
+   RentyQ — responsive.css
+   Toutes les media queries
+   ============================================================ */
+
+/* ── Mobile général ── */
+@media(max-width:768px){
+  .app-body{flex-direction:column}
+  .sidebar{position:fixed;left:-260px;top:0;bottom:0;width:250px;z-index:400;transition:left .25s;box-shadow:none}
+  .sidebar.open{left:0;box-shadow:4px 0 24px rgba(0,0,0,.3)}
+  .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:399}
+  .sidebar-overlay.open{display:block}
+  .mobile-topbar{display:flex}
+  .main{overflow-x:hidden}
+  .page{padding:1rem}
+  .page-title{font-size:22px}
+  .page-header{flex-direction:column;gap:.75rem}
+  .actions{width:100%;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+  .actions .btn{white-space:nowrap;flex-shrink:0}
+  .kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .kpi-value{font-size:20px}
+  .grid-2{grid-template-columns:1fr}
+  #parc-cards{grid-template-columns:1fr !important}
+  .events-grid{grid-template-columns:1fr}
+  #cleanyq-split{grid-template-columns:1fr !important}
+  .modal{max-width:100%;border-radius:14px 14px 0 0;margin-top:auto}
+  .modal-overlay{align-items:flex-end}
+  table{font-size:12px;min-width:400px}
+  td,th{padding:8px 6px}
+  .beta-banner{font-size:11px;padding:8px 12px}
+  .card{padding:1rem;border-radius:12px}
+  .setting-row{flex-direction:column;align-items:flex-start;gap:8px}
+  .setting-row .toggle{align-self:flex-end}
+  #cal-grid div{min-height:60px !important;padding:4px !important}
+  #cal-grid div>div:first-child span:first-child{font-size:11px !important}
+  .cal-pill{font-size:9px !important}
+  .onb2-row{grid-template-columns:1fr}
+  #onb2-sheet{max-width:100%;border-radius:16px 16px 0 0}
+}
+
+@media(min-width:769px){
+  .mobile-topbar{display:none}
+  .sidebar-overlay{display:none !important}
+}
+
+/* ── Login responsive ── */
+@media(max-width:1280px){
+  .rq-side-stats{right:22px;width:140px;gap:12px}
+  .rq-stat-card strong{font-size:25px}.rq-stat-card span{font-size:13px}.rq-stat-card i{font-size:32px}
+  .rq-login-panel{width:430px;padding:26px 32px}
+}
+
+@media(max-width:1100px){
+  #auth-screen.rq-auth-screen{background-position:center right 20%}
+  .rq-login-panel{width:min(42vw,480px)}
+}
+
+@media(max-width:900px){
+  .rq-side-stats{display:none !important}
+  #auth-screen.rq-auth-screen::after{display:none !important}
+}
+
+@media(max-width:768px){
+  #auth-screen.rq-auth-screen{
+    background-size:100% 100%;background-position:center right 34%;
+    align-items:center;justify-content:center;padding:18px;
+  }
+  #auth-screen.rq-auth-screen::before{background:linear-gradient(180deg,rgba(4,2,18,.52),rgba(4,2,18,.78))}
+  .rq-login-panel{
+    position:relative;left:auto;top:auto;bottom:auto;
+    width:100%;min-width:0;max-width:470px;max-height:calc(100vh - 36px);
+    padding:30px 24px;overflow-y:auto;border-radius:24px;
+  }
+  .rq-options{align-items:flex-start;flex-direction:column;gap:10px}
+  .rq-input-wrap input{height:52px}
+  .rq-primary,.rq-google{height:54px}
+}
+
+/* ── Scanner responsive ── */
+@media(max-width:1000px){
+  .scanner-grid{grid-template-columns:1fr}
+  .scanner-score-grid{grid-template-columns:repeat(2,1fr)}
+  #scanner-map{height:420px}
+}
+@media(max-width:640px){
+  .scanner-score-grid{grid-template-columns:1fr}
+  .scanner-controls select{min-width:0;width:100%}
+  .scanner-controls .btn{width:100%;justify-content:center}
+}
+
+/* ── EVA Pricing responsive ── */
+@media(max-width:1050px){
+  .eva-dashboard{grid-template-columns:1fr}
+  .eva-side-stack{grid-template-columns:repeat(2,1fr)}
+  .eva-opportunity{grid-template-columns:6px 1fr}
+  .eva-opp-money{text-align:left}
+  .eva-opportunity .btn{width:100%;justify-content:center}
+}
+@media(max-width:640px){
+  .eva-side-stack{grid-template-columns:1fr}
+  .eva-hero-title{font-size:24px}
+  .eva-money-big{font-size:34px}
+  .eva-action-grid{grid-template-columns:1fr}
+}
+
+/* ── Property Detail responsive ── */
+@media(max-width:900px){
+  .rq-detail-hero-main{grid-template-columns:1fr}
+  .rq-score-ring{display:none}
+  .rq-hero-kpis{grid-template-columns:repeat(2,1fr)}
+  .rq-context-layout{grid-template-columns:1fr}
+  .rq-audit-upload{grid-template-columns:1fr}
+}
+@media(max-width:640px){.rq-hero-kpis{grid-template-columns:1fr}}
+
+/* ── EVA Audit 360 responsive ── */
+@media(max-width:1100px){
+  .eva360-upload-grid{grid-template-columns:1fr 1fr}
+  .eva360-btn{width:100%}
+  .eva360-kpis{grid-template-columns:repeat(2,1fr)}
+  .eva360-two{grid-template-columns:1fr}
+  .eva360-event-row{grid-template-columns:1fr}
+  .eva360-event-price,.eva360-event-gap{text-align:left}
+}
+@media(max-width:640px){
+  .eva360-upload-grid{grid-template-columns:1fr}
+  .eva360-kpis{grid-template-columns:1fr}
+  .eva360-net-row{grid-template-columns:68px 1fr 78px}
+  .eva360-action{grid-template-columns:34px 1fr}
+  .eva360-impact{text-align:left;grid-column:2}
+}
+
+/* ── Cockpit responsive ── */
+@media(max-width:1100px){
+  .eva-cockpit-grid,.eva-priority-layout{grid-template-columns:1fr}
+  .eva-mini-kpi-row{grid-template-columns:repeat(2,1fr)}
+  .eva-flow-steps{grid-template-columns:1fr 1fr}
+}
+@media(max-width:640px){
+  .eva-mini-kpi-row,.eva-flow-steps{grid-template-columns:1fr}
+  .eva-cockpit-title{font-size:24px}
+  .eva-signal{grid-template-columns:6px 1fr}
+  .eva-signal-value{text-align:left}
+}
+
+/* ── Property tabs / context ── */
+@media(max-width:980px){.rq-context-layout{grid-template-columns:1fr}.rq-audit-upload{grid-template-columns:1fr}}
+
+/* ── OTA panel responsive ── */
+@media(max-width:720px){.rq-ota-opportunity{grid-template-columns:8px 1fr}.rq-ota-gain{grid-column:2}}
+
+/* ── Quality panel responsive ── */
+@media(max-width:760px){.rq-review-columns{grid-template-columns:1fr}.rq-quality-action{grid-template-columns:8px 1fr}.rq-quality-impact{grid-column:2}}
+
+/* ── Profit panel responsive ── */
+@media(max-width:900px){
+  .rq-profit-main{grid-template-columns:1fr}
+  .rq-profit-alert{grid-template-columns:8px 1fr}
+  .rq-profit-impact{grid-column:2}
+  .rq-profit-row{grid-template-columns:78px 1fr 70px}
+}
+
+/* ── EVA Score responsive ── */
+@media(max-width:850px){
+  .rq-evascore-layout{grid-template-columns:1fr}
+  .rq-evascore-ring{width:170px;height:170px}
+  .rq-score-row{grid-template-columns:110px 1fr 48px}
+}
+
+/* ── Actions panel responsive ── */
+@media(max-width:800px){.rq-action{grid-template-columns:1fr}.rq-rank,.rq-impact{text-align:left}}
+
+/* ── EVA Engine Layer responsive ── */
+@media(max-width:950px){
+  .rq-eva-layer-top{grid-template-columns:1fr}
+  .rq-eva-score-bubble{margin:0}
+  .rq-eva-money-grid{grid-template-columns:repeat(2,1fr)}
+  .rq-eva-action{grid-template-columns:42px 1fr}
+  .rq-eva-impact{text-align:left;grid-column:2}
+  .rq-eva-next{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .rq-eva-layer-hero{padding:20px}
+  .rq-eva-title{font-size:27px}
+  .rq-eva-money-grid{grid-template-columns:1fr}
+  .rq-eva-score-bubble{width:142px;height:142px}
+  .rq-eva-score-num{font-size:36px}
+}
 
