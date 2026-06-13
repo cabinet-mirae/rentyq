@@ -72,7 +72,7 @@ h1,h2,h3,.page-title,.rq-detail-name,.rq-wordmark,
   font-size:11px !important;font-weight:700 !important;letter-spacing:.4px !important;
 }
 
-/* ── Sidebar ── */
+/* ── Sidebar — conteneur principal ── */
 .sidebar{
   width:250px;
   height:100vh;
@@ -87,37 +87,55 @@ h1,h2,h3,.page-title,.rq-detail-name,.rq-wordmark,
   box-shadow:6px 0 28px rgba(11,7,34,.3);
 }
 
-/* Logo zone — hauteur fixe, aucun débordement possible */
-.sidebar-logo-zone{
+/* ── Zone 1 : Branding ── */
+.sidebar-brand-zone{
   flex-shrink:0;
-  height:72px;
+  height:120px;
   display:flex;
   align-items:center;
-  padding:0 1rem;
+  justify-content:center;
+  padding:0 16px;
   background:#040319;
-  overflow:hidden;
 }
-.sidebar-logo-zone img,.sidebar-logo-zone__img{
-  width:auto;
-  max-width:100%;
-  height:48px;
-  object-fit:contain;
-  object-position:left center;
+.sidebar-brand-logo{
+  width:180px;
+  height:auto;
   display:block;
   clip-path:none;
   margin:0;
+  object-fit:contain;
 }
 
-/* Mode switcher — sous le logo, indépendant */
-.mode-switcher-wrap{flex-shrink:0;margin:.5rem .75rem;background:rgba(255,255,255,.08);border-radius:10px;padding:3px;display:flex}
+/* ── Zone 2 : Gestion / Conciergerie ── */
+.sidebar-mode-zone{
+  flex-shrink:0;
+  margin:0 .75rem .5rem;
+  background:rgba(255,255,255,.08);
+  border-radius:10px;
+  padding:3px;
+  display:flex;
+}
 
-/* Zone navigation — seule zone scrollable */
-.sidebar-nav-scroll{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:rgba(109,40,217,.3) transparent;padding-bottom:.5rem}
-.sidebar-nav-scroll::-webkit-scrollbar{width:3px}
-.sidebar-nav-scroll::-webkit-scrollbar-thumb{background:rgba(109,40,217,.3);border-radius:4px}
+/* ── Zone 3 : Navigation ── */
+.sidebar-nav-zone{
+  flex:1;
+  overflow-y:auto;
+  overflow-x:hidden;
+  min-height:0;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(109,40,217,.3) transparent;
+  padding-bottom:.5rem;
+}
+.sidebar-nav-zone::-webkit-scrollbar{width:3px}
+.sidebar-nav-zone::-webkit-scrollbar-thumb{background:rgba(109,40,217,.3);border-radius:4px}
 
-/* Footer — toujours ancré en bas */
-.sidebar-footer{flex-shrink:0;padding:.75rem 1rem;border-top:1px solid rgba(255,255,255,.06);background:#040319}
+/* ── Zone 4 : Compte utilisateur ── */
+.sidebar-account-zone{
+  flex-shrink:0;
+  padding:.75rem 1rem;
+  border-top:1px solid rgba(255,255,255,.06);
+  background:#040319;
+}
 
 .sidebar-brand{padding:1.4rem 1rem 1.1rem;position:relative;z-index:1}
 .brand-rq-icon{width:44px;height:44px;border-radius:14px;background:var(--rq-grad);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 10px 24px rgba(109,40,217,.35)}
