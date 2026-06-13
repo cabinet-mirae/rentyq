@@ -3889,17 +3889,29 @@ async function loadDemoData(){
 
 // FIX nav-label-smoobu → nav-label-integrations
 
-// STRIPE & TARIFS
+// STRIPE & TARIFS — MODE BÊTA
+const BETA_PRICE_ID = 'price_1ThyhD2KSiLvAG7LTq3jetSn';
+
 function renderTarifs(){
   const el=document.getElementById('tarifs-content');if(!el)return;
   const plan=currentProfile?.plan||'';
 
   el.innerHTML=`
+  <!-- BANDEAU BÊTA -->
+  <div style="background:linear-gradient(135deg,#1E1448,#6D28D9);border-radius:16px;padding:16px 24px;margin-bottom:2rem;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+    <div style="font-size:22px;flex-shrink:0">🎁</div>
+    <div style="flex:1;min-width:200px">
+      <div style="font-family:Sora,sans-serif;font-size:14px;font-weight:800;color:#fff;margin-bottom:3px">Bêta privée — Accès complet au pack PRO</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.8);line-height:1.5">30 jours gratuits, puis <strong style="color:#fff">99&nbsp;€/mois sans engagement.</strong> Annulation à tout moment.</div>
+    </div>
+    <div style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:6px 14px;font-size:12px;font-weight:700;color:#fff;white-space:nowrap;flex-shrink:0">Bêta privée 🔒</div>
+  </div>
+
   <!-- HERO -->
-  <div style="text-align:center;padding:3rem 1rem 2rem;max-width:680px;margin:0 auto">
-    <div style="display:inline-block;background:linear-gradient(135deg,#F3E8FF,#FCE7F3);border-radius:999px;padding:6px 16px;font-size:12px;font-weight:800;color:#6D28D9;font-family:Sora,sans-serif;letter-spacing:.5px;margin-bottom:16px;text-transform:uppercase">Essai gratuit 30 jours</div>
+  <div style="text-align:center;padding:1rem 1rem 2rem;max-width:680px;margin:0 auto">
+    <div style="display:inline-block;background:linear-gradient(135deg,#F3E8FF,#FCE7F3);border-radius:999px;padding:6px 16px;font-size:12px;font-weight:800;color:#6D28D9;font-family:Sora,sans-serif;letter-spacing:.5px;margin-bottom:16px;text-transform:uppercase">Bêta privée — 30 jours offerts</div>
     <h1 style="font-family:Sora,sans-serif;font-size:clamp(26px,3vw,38px);font-weight:900;color:#0B0722;letter-spacing:-.8px;line-height:1.15;margin-bottom:14px">Combien EVA peut-elle vous faire gagner\u00a0?</h1>
-    <p style="font-size:15px;color:#7B708F;line-height:1.7;margin-bottom:2rem">Essayez RentyQ gratuitement pendant 30 jours sur votre premier logement.<br><strong style="color:#0B0722">Sans carte bancaire. Sans engagement.</strong></p>
+    <p style="font-size:15px;color:#7B708F;line-height:1.7;margin-bottom:2rem">Pendant la bêta, vous accédez à l'intégralité du pack PRO gratuitement pendant 30 jours.<br><strong style="color:#0B0722">Sans engagement.</strong></p>
     <div style="display:inline-flex;gap:0;background:#F3E8FF;border-radius:14px;padding:16px 24px;text-align:left">
       <div style="display:grid;gap:10px;font-size:13px;color:#4B3B6B">
         ${['1 logement','EVA analyse vos donn\u00e9es','D\u00e9couvrez votre potentiel','D\u00e9cidez ensuite'].map((s,i)=>`
@@ -3911,87 +3923,64 @@ function renderTarifs(){
     </div>
   </div>
 
-  <!-- OFFRES -->
+  <!-- OFFRES BÊTA -->
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:3rem">
 
-    <!-- Starter -->
-    <div style="background:white;border-radius:20px;border:1.5px solid rgba(109,40,217,.18);padding:24px;display:flex;flex-direction:column">
-      <div style="font-family:Sora,sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#8A8A99;margin-bottom:8px">Starter</div>
-      <div style="font-family:Sora,sans-serif;font-size:40px;font-weight:900;color:#0B0722;line-height:1;margin-bottom:4px">49\u20ac<span style="font-size:14px;font-weight:500;color:#8A8A99">/mois</span></div>
-      <div style="font-size:12px;color:#7B708F;margin-bottom:4px">Pour les investisseurs qui pilotent leurs biens</div>
-      <div style="font-size:11px;font-weight:700;color:#059669;background:#DCFCE7;border-radius:999px;padding:3px 10px;display:inline-block;margin-bottom:18px">30 jours gratuits</div>
-      <div style="font-size:13px;line-height:1.9;color:#3A3A50;flex:1;margin-bottom:20px">
+    <!-- Starter — grisé -->
+    <div style="background:#F9F9FC;border-radius:20px;border:1.5px solid #E5E3EE;padding:24px;display:flex;flex-direction:column;opacity:.62;pointer-events:none;position:relative">
+      <div style="position:absolute;top:14px;right:14px;background:#F3F4F6;color:#8A8A99;font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;font-family:Sora,sans-serif">Disponible après la bêta</div>
+      <div style="font-family:Sora,sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#B0A8C8;margin-bottom:8px">Starter</div>
+      <div style="font-family:Sora,sans-serif;font-size:40px;font-weight:900;color:#C0BAD0;line-height:1;margin-bottom:4px">49\u20ac<span style="font-size:14px;font-weight:500;color:#B0A8C8">/mois</span></div>
+      <div style="font-size:12px;color:#B0A8C8;margin-bottom:18px">Pour les investisseurs qui pilotent leurs biens</div>
+      <div style="font-size:13px;line-height:1.9;color:#B0A8C8;flex:1;margin-bottom:20px">
         \u2713 Jusqu\u2019\u00e0 <strong>5 logements</strong><br>
         \u2713 Cockpit EVA<br>
         \u2713 Audit 360\u00b0 &amp; Profit 360\u00b0<br>
         \u2713 Scanner EVA<br>
         \u2713 Import Airbnb / Booking<br>
-        \u2713 Recommandations EVA<br>
-        \u2717 <span style="color:#C0BAD0">Mode conciergerie</span>
+        \u2717 Mode conciergerie
       </div>
-      <button onclick="startCheckout('starter')" class="btn btn-purple" style="width:100%;justify-content:center;padding:12px;font-family:Sora,sans-serif;font-size:14px;font-weight:800" ${plan==='starter'?'disabled':''}>
-        ${plan==='starter'?'Plan actuel':'Commencer l\u2019essai gratuit'}
-      </button>
+      <button disabled class="btn" style="width:100%;justify-content:center;padding:12px;font-family:Sora,sans-serif;font-size:14px;font-weight:700;opacity:.5;cursor:not-allowed">Non disponible en bêta</button>
     </div>
 
-    <!-- Pro -->
-    <div style="background:white;border-radius:20px;border:1.5px solid rgba(109,40,217,.18);padding:24px;display:flex;flex-direction:column">
-      <div style="font-family:Sora,sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#8A8A99;margin-bottom:8px">Pro</div>
+    <!-- PRO Bêta — seul pack actif -->
+    <div style="background:linear-gradient(180deg,#F8F4FF 0%,white 100%);border-radius:20px;border:2px solid #6D28D9;padding:24px;display:flex;flex-direction:column;position:relative;box-shadow:0 20px 50px rgba(109,40,217,.16)">
+      <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#6D28D9,#EC4899);color:white;font-size:11px;font-weight:800;padding:4px 16px;border-radius:999px;font-family:Sora,sans-serif;white-space:nowrap">B\u00caTA \u2014 ACC\u00c8S COMPLET</div>
+      <div style="font-family:Sora,sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#6D28D9;margin-bottom:8px">PRO B\u00eata</div>
       <div style="font-family:Sora,sans-serif;font-size:40px;font-weight:900;color:#0B0722;line-height:1;margin-bottom:4px">99\u20ac<span style="font-size:14px;font-weight:500;color:#8A8A99">/mois</span></div>
-      <div style="font-size:12px;color:#7B708F;margin-bottom:4px">Conciergeries de 5 \u00e0 30 lots</div>
-      <div style="font-size:11px;font-weight:700;color:#059669;background:#DCFCE7;border-radius:999px;padding:3px 10px;display:inline-block;margin-bottom:18px">30 jours gratuits</div>
+      <div style="font-size:12px;color:#7B708F;margin-bottom:4px">Acc\u00e8s complet pendant la b\u00eata</div>
+      <div style="font-size:11px;font-weight:700;color:#059669;background:#DCFCE7;border-radius:999px;padding:3px 10px;display:inline-block;margin-bottom:18px">30 jours gratuits offerts</div>
       <div style="font-size:13px;line-height:1.9;color:#3A3A50;flex:1;margin-bottom:20px">
         \u2713 Jusqu\u2019\u00e0 <strong>30 logements</strong><br>
-        \u2713 Tout Starter<br>
+        \u2713 Cockpit EVA complet<br>
         \u2713 Connexion PMS<br>
         \u2713 Mode conciergerie<br>
         \u2713 Gestion multi-propri\u00e9taires<br>
         \u2713 Calendrier intelligent EVA<br>
-        \u2713 Opportunit\u00e9s EVA avanc\u00e9es
+        \u2713 Opportunit\u00e9s EVA avanc\u00e9es<br>
+        \u2713 Audit 360\u00b0 &amp; Profit 360\u00b0<br>
+        \u2713 Scanner EVA
       </div>
-      <button onclick="startCheckout('pro')" class="btn btn-purple" style="width:100%;justify-content:center;padding:12px;font-family:Sora,sans-serif;font-size:14px;font-weight:800" ${plan==='pro'?'disabled':''}>
-        ${plan==='pro'?'Plan actuel':'Commencer l\u2019essai gratuit'}
+      <button onclick="startCheckout('pro')" class="btn btn-purple" style="width:100%;justify-content:center;padding:12px;font-family:Sora,sans-serif;font-size:14px;font-weight:800;box-shadow:0 8px 20px rgba(109,40,217,.28)">
+        Commencer l\u2019essai gratuit
       </button>
     </div>
 
-    <!-- Conciergerie — RECOMMANDÉ -->
-    <div style="background:linear-gradient(180deg,#F8F4FF 0%,white 100%);border-radius:20px;border:2px solid #6D28D9;padding:24px;display:flex;flex-direction:column;position:relative;box-shadow:0 20px 50px rgba(109,40,217,.16)">
-      <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#6D28D9,#EC4899);color:white;font-size:11px;font-weight:800;padding:4px 16px;border-radius:999px;font-family:Sora,sans-serif;white-space:nowrap">RECOMMAND\u00c9</div>
-      <div style="font-family:Sora,sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#6D28D9;margin-bottom:8px">Conciergerie</div>
-      <div style="font-family:Sora,sans-serif;font-size:40px;font-weight:900;color:#0B0722;line-height:1;margin-bottom:4px">199\u20ac<span style="font-size:14px;font-weight:500;color:#8A8A99">/mois</span></div>
-      <div style="font-size:12px;color:#7B708F;margin-bottom:4px">Conciergeries de 30 \u00e0 100 lots</div>
-      <div style="font-size:11px;font-weight:700;color:#059669;background:#DCFCE7;border-radius:999px;padding:3px 10px;display:inline-block;margin-bottom:18px">30 jours gratuits</div>
-      <div style="font-size:13px;line-height:1.9;color:#3A3A50;flex:1;margin-bottom:20px">
+    <!-- Scale — grisé -->
+    <div style="background:#F9F9FC;border-radius:20px;border:1.5px solid #E5E3EE;padding:24px;display:flex;flex-direction:column;opacity:.62;pointer-events:none;position:relative">
+      <div style="position:absolute;top:14px;right:14px;background:#F3F4F6;color:#8A8A99;font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;font-family:Sora,sans-serif">Disponible après la bêta</div>
+      <div style="font-family:Sora,sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#B0A8C8;margin-bottom:8px">Scale</div>
+      <div style="font-family:Sora,sans-serif;font-size:40px;font-weight:900;color:#C0BAD0;line-height:1;margin-bottom:4px">199\u20ac<span style="font-size:14px;font-weight:500;color:#B0A8C8">/mois</span></div>
+      <div style="font-size:12px;color:#B0A8C8;margin-bottom:18px">Conciergeries de 30 \u00e0 100 lots</div>
+      <div style="font-size:13px;line-height:1.9;color:#B0A8C8;flex:1;margin-bottom:20px">
         \u2713 Jusqu\u2019\u00e0 <strong>100 logements</strong><br>
         \u2713 Tout Pro<br>
         \u2713 Historique EVA avanc\u00e9<br>
         \u2713 Rapports multi-clients<br>
         \u2713 Support prioritaire<br>
-        \u2713 Scanner EVA illimit\u00e9<br>
-        \u2713 Profit 360\u00b0 avanc\u00e9
+        \u2713 Scanner EVA illimit\u00e9
       </div>
-      <button onclick="startCheckout('conciergerie')" class="btn btn-purple" style="width:100%;justify-content:center;padding:12px;font-family:Sora,sans-serif;font-size:14px;font-weight:800;box-shadow:0 8px 20px rgba(109,40,217,.28)" ${plan==='conciergerie'?'disabled':''}>
-        ${plan==='conciergerie'?'Plan actuel':'Commencer l\u2019essai'}
-      </button>
-    </div>
-
-    <!-- Enterprise -->
-    <div style="background:white;border-radius:20px;border:1.5px solid rgba(109,40,217,.18);padding:24px;display:flex;flex-direction:column">
-      <div style="font-family:Sora,sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#8A8A99;margin-bottom:8px">Enterprise</div>
-      <div style="font-family:Sora,sans-serif;font-size:32px;font-weight:900;color:#0B0722;line-height:1;margin-bottom:4px">Sur devis</div>
-      <div style="font-size:12px;color:#7B708F;margin-bottom:4px">Grandes conciergeries &amp; groupes immobiliers</div>
-      <div style="font-size:11px;font-weight:700;color:#7B708F;background:#F3F4F6;border-radius:999px;padding:3px 10px;display:inline-block;margin-bottom:18px">+100 logements</div>
-      <div style="font-size:13px;line-height:1.9;color:#3A3A50;flex:1;margin-bottom:20px">
-        \u2713 Tout Conciergerie<br>
-        \u2713 Multi-comptes<br>
-        \u2713 API d\u00e9di\u00e9e<br>
-        \u2713 Accompagnement personnalis\u00e9<br>
-        \u2713 Formation des \u00e9quipes<br>
-        \u2713 SLA d\u00e9di\u00e9
-      </div>
-      <button onclick="window.location.href='mailto:contact@rentyq.fr'" class="btn" style="width:100%;justify-content:center;padding:12px;font-family:Sora,sans-serif;font-size:14px;font-weight:700">
-        Parler \u00e0 un expert
-      </button>
+      <button disabled class="btn" style="width:100%;justify-content:center;padding:12px;font-family:Sora,sans-serif;font-size:14px;font-weight:700;opacity:.5;cursor:not-allowed">Non disponible en bêta</button>
     </div>
 
   </div>
@@ -4073,7 +4062,7 @@ function renderTarifs(){
 async function startCheckout(plan){
   const btn=event.target;btn.disabled=true;btn.textContent='Chargement...';
   try{
-    const res=await fetch(STRIPE_FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'createCheckout',plan,email:currentProfile?.email||''})});
+    const res=await fetch(STRIPE_FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'createCheckout',plan,priceId:BETA_PRICE_ID,email:currentProfile?.email||''})});
     const data=await res.json();
     if(data.url){window.location.href=data.url;}
     else{showToast('Erreur : '+(data.error||'Réessayez'));btn.disabled=false;btn.textContent="Commencer l\u2019essai gratuit";}
