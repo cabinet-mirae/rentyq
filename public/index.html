@@ -409,47 +409,15 @@
 
       <!-- SCANNER EVA -->
       <div class="page" id="page-scanner">
-        <div class="page-header">
-          <div>
-            <div class="page-title">Scanner EVA</div>
-            <div class="page-sub">Outil de décision d’acquisition — analysez n’importe quel bien avant de le prendre</div>
-          </div>
-        </div>
-
-        <div class="scanner-hero">
-          <div class="scanner-hero-title">Est-ce que ce bien vaut le coup ?</div>
-          <div class="scanner-hero-sub">Entrez l’adresse d’un logement que vous envisagez de prendre en gestion. EVA analyse l’emplacement, les transports, les commerces, les événements proches et le marché local pour vous donner une vision critique et chiffrée.</div>
-
-          <div class="scanner-controls" style="display:grid;grid-template-columns:1fr 140px auto;gap:10px;align-items:end">
-            <div style="display:flex;flex-direction:column;gap:5px;position:relative">
-              <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.65)">Adresse du bien à analyser</label>
-              <input type="text" id="scanner-free-address" placeholder="Ex : 12 rue Bannier, 45000 Orléans" autocomplete="off" oninput="scannerAddressSearch(this.value)"
-                style="height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.13);color:#fff;padding:0 14px;font-family:inherit;font-size:14px;font-weight:500;outline:none;width:100%"/>
-              <div id="scanner-address-results" style="display:none;position:absolute;z-index:50;background:white;border:1px solid #E8E8EE;border-radius:10px;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:340px;top:68px;left:0"></div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:5px">
-              <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.65)">Prix envisagé (€/nuit)</label>
-              <input type="number" id="scanner-free-price" placeholder="Ex : 85"
-                style="height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.13);color:#fff;padding:0 14px;font-family:inherit;font-size:14px;font-weight:500;outline:none;width:100%"/>
-            </div>
-            <button class="btn btn-ai" onclick="runEvaScannerFree()" style="height:44px;margin-top:19px">
-              <i class="ti ti-radar-2"></i> Analyser ce bien
-            </button>
-          </div>
-
-          <input type="hidden" id="scanner-free-lat" value=""/>
-          <input type="hidden" id="scanner-free-lng" value=""/>
-          <div class="scanner-muted" style="margin-top:10px">Ce scanner est indépendant de votre parc. Analysez n’importe quelle adresse avant de prendre une décision.</div>
-        </div>
-
-        <div id="scanner-empty" class="scanner-warning" style="display:none">Entrez une adresse pour lancer l’analyse EVA.</div>
-        <div id="scanner-result">
-          <div class="scanner-diagnostic" style="text-align:center;padding:2rem">
-            <div style="font-size:40px;margin-bottom:12px">🧠</div>
-            <div class="scanner-verdict-title">EVA est prêt à analyser</div>
-            <div class="scanner-verdict-text" style="max-width:480px;margin:0 auto">Entrez l’adresse d’un bien que vous envisagez de gérer. EVA croise les données de localisation, le marché local et les événements pour vous dire si le bien a du potentiel.</div>
-          </div>
-        </div>
+        <!-- Inputs cachés requis par le moteur auth.js -->
+        <input type="hidden" id="scanner-free-address" value=""/>
+        <input type="hidden" id="scanner-free-price" value=""/>
+        <input type="hidden" id="scanner-free-lat" value=""/>
+        <input type="hidden" id="scanner-free-lng" value=""/>
+        <div id="scanner-address-results" style="display:none;position:fixed;z-index:500;background:white;border:1px solid #E8E8EE;border-radius:10px;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:340px"></div>
+        <div id="scanner-result" style="display:none"></div>
+        <!-- UI EVA Scanner injectée par renderScannerPage() dans app.js -->
+        <div id="scanner-wrap"></div>
       </div>
 
       <!-- EVA AUDIT 360 -->
@@ -457,16 +425,17 @@
         <div class="page-header">
           <div>
             <div class="page-title">EVA Audit 360°</div>
-            <div class="page-sub">La couche EVA ajoute un score, un potentiel financier et des actions prioritaires au cockpit existant.</div>
+            <div class="page-sub">EVA analyse vos données, détecte vos opportunités et vous guide vers les actions à fort impact.</div>
           </div>
         </div>
 
+        <!-- Niveau 1 : HERO EVA -->
         <section class="rq-eva-layer" id="rq-eva-layer">
           <div class="rq-eva-layer-hero">
             <div class="rq-eva-layer-top">
               <div>
                 <div class="rq-eva-kicker">RentyQ × EVA Engine</div>
-                <div class="rq-eva-title">Votre bien laisse peut-être de l’argent sur la table.</div>
+                <div class="rq-eva-title">Votre bien laisse peut-être de l'argent sur la table.</div>
                 <div class="rq-eva-sub">EVA transforme vos données en décisions simples : combien vous pouvez récupérer, pourquoi, et quelles actions appliquer en priorité.</div>
               </div>
               <div class="rq-eva-score-bubble" id="rq-eva-score-ring" style="--score:75%">
@@ -489,11 +458,6 @@
                 <div class="rq-eva-money-help">Gain moyen à aller chercher.</div>
               </div>
               <div class="rq-eva-money-card">
-                <div class="rq-eva-money-label">Actions détectées</div>
-                <div class="rq-eva-money-value" id="rq-eva-count">4</div>
-                <div class="rq-eva-money-help">Priorisées par impact.</div>
-              </div>
-              <div class="rq-eva-money-card">
                 <div class="rq-eva-money-label">Priorité n°1</div>
                 <div class="rq-eva-money-value" id="rq-eva-top-short" style="font-size:22px">Tarifs</div>
                 <div class="rq-eva-money-help" id="rq-eva-top-help">+2 160 €/an</div>
@@ -501,29 +465,24 @@
             </div>
           </div>
 
-          <div class="rq-eva-section">
+          <!-- Niveau 2 : PLAN D'ACTION EVA -->
+          <div class="rq-eva-section eva-action-plan">
             <div class="rq-eva-section-head">
               <div>
-                <div class="rq-eva-section-title">Plan d’action EVA</div>
-                <div class="rq-eva-section-sub">Les 3 actions à lancer en premier pour améliorer la rentabilité du bien.</div>
+                <div class="rq-eva-section-title">Plan d'action EVA</div>
+                <div class="rq-eva-section-sub">Les 3 actions prioritaires pour améliorer votre rentabilité.</div>
               </div>
-              <span class="tag tag-ai">Source unique EVA</span>
             </div>
             <div class="rq-eva-plan" id="rq-eva-plan"></div>
           </div>
-
-          <div class="rq-eva-next">
-            <div>
-              <div class="rq-eva-next-title">Étape suivante : relier cette couche aux données réelles du bien</div>
-              <div class="rq-eva-next-text">Aujourd’hui, ce bloc utilise le format standard EVA Engine. Demain, il recevra automatiquement le JSON produit par l’audit.</div>
-            </div>
-            <button class="rq-eva-btn" onclick="document.querySelector('.eva360-hero').scrollIntoView({behavior:'smooth',block:'start'})">Lancer l’audit complet</button>
-          </div>
         </section>
 
-        <div class="eva360-hero">
-          <h2>Analysez le vrai potentiel net d’un logement</h2>
-          <p>EVA lit les réservations, classe les charges, calcule le taux d’occupation par mois, la rentabilité nette mensuelle, puis transforme les données en actions concrètes à appliquer dans le logement.</p>
+        <!-- Niveau 3 : AUDIT EVA -->
+        <div class="eva360-audit-card">
+          <div class="eva360-audit-card-head">
+            <div class="eva360-audit-title">Lancer un audit EVA</div>
+            <div class="eva360-audit-sub">Importez vos données pour obtenir un diagnostic complet de votre logement.</div>
+          </div>
           <div class="eva360-upload-grid">
             <div class="eva360-field">
               <label>CSV réservations</label>
@@ -537,9 +496,9 @@
               <label>Adresse du bien</label>
               <input id="eva360-address" type="text" placeholder="Ex : 5 rue d'Illiers, Orléans"/>
             </div>
-            <button class="eva360-btn" onclick="runEvaAudit360()">Lancer l’analyse EVA</button>
+            <button class="eva360-btn eva360-btn-dark" onclick="runEvaAudit360()">Lancer l'analyse EVA</button>
           </div>
-          <div class="eva360-demo">Pour tester sans fichier : <button onclick="loadEvaAuditDemo()">charger la démo Studio Orléans</button></div>
+          <div class="eva360-demo-light">Pour tester sans fichier : <button onclick="loadEvaAuditDemo()">charger la démo Studio Orléans</button></div>
           <div id="eva360-error" class="eva360-error"></div>
         </div>
 
@@ -564,7 +523,7 @@
             <div class="eva360-kpi">
               <div class="eva360-kpi-label">Charges détectées</div>
               <div class="eva360-kpi-value" id="eva360-charges">—</div>
-              <div class="eva360-kpi-help">D’après le CSV bancaire</div>
+              <div class="eva360-kpi-help">D'après le CSV bancaire</div>
             </div>
             <div class="eva360-kpi">
               <div class="eva360-kpi-label">Rentabilité nette</div>
@@ -576,7 +535,7 @@
           <div class="eva360-section">
             <div class="eva360-section-head">
               <div>
-                <div class="eva360-title">Taux d’occupation par mois</div>
+                <div class="eva360-title">Taux d'occupation par mois</div>
                 <div class="eva360-sub">Camembert mensuel : jours occupés vs jours disponibles.</div>
               </div>
               <span class="eva360-pill">Lecture propriétaire</span>
@@ -588,7 +547,7 @@
             <div class="eva360-section-head">
               <div>
                 <div class="eva360-title">Rentabilité nette mensuelle</div>
-                <div class="eva360-sub">Revenus du mois - charges du mois. C’est l’indicateur le plus important pour le propriétaire.</div>
+                <div class="eva360-sub">Revenus du mois - charges du mois. C'est l'indicateur le plus important pour le propriétaire.</div>
               </div>
             </div>
             <div id="eva360-net-bars" class="eva360-net-bars"></div>
@@ -599,7 +558,7 @@
               <div class="eva360-section-head">
                 <div>
                   <div class="eva360-title">Actions à mener pour améliorer la rentabilité</div>
-                  <div class="eva360-sub">Classées par impact probable et facilité d’exécution.</div>
+                  <div class="eva360-sub">Classées par impact probable et facilité d'exécution.</div>
                 </div>
               </div>
               <div id="eva360-actions" class="eva360-actions"></div>
@@ -609,7 +568,7 @@
               <div class="eva360-section-head">
                 <div>
                   <div class="eva360-title">Préconisations pour le logement</div>
-                  <div class="eva360-sub">Ce qu’EVA comprend du bien à partir des chiffres et de l’adresse.</div>
+                  <div class="eva360-sub">Ce qu'EVA comprend du bien à partir des chiffres et de l'adresse.</div>
                 </div>
               </div>
               <div id="eva360-detect" class="eva360-detect"></div>
@@ -1430,4 +1389,3 @@
 
 </body>
 </html>
-
