@@ -346,6 +346,39 @@
           </div>
         </div>
       </div>
+      <!-- MES BIENS -->
+      <div class="page" id="page-parc">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Mes biens</div>
+            <div class="page-sub" id="parc-sub">Vos logements et recommandations EVA</div>
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="showParcMap()" id="btn-parc-map"><i class="ti ti-map-pin"></i> Carte</button>
+            <button class="btn btn-purple" onclick="openAddModal()"><i class="ti ti-plus"></i> Ajouter un bien</button>
+          </div>
+        </div>
+
+        <!-- Vue liste (cartes EVA) -->
+        <div id="parc-list-view">
+          <div id="parc-empty" style="display:none;text-align:center;padding:3rem;background:white;border-radius:16px;border:1px dashed rgba(139,92,246,.28)">
+            <div style="font-size:42px;margin-bottom:14px">🏠</div>
+            <div style="font-size:18px;font-weight:800;color:#0B0722;font-family:Sora,sans-serif;margin-bottom:8px">Ajoutez votre premier logement</div>
+            <div style="font-size:13px;color:#8A8A99;line-height:1.65;margin-bottom:20px">EVA analysera chaque bien et vous guidera vers les meilleures décisions.</div>
+            <button class="btn btn-purple" onclick="openAddModal()"><i class="ti ti-plus"></i> Ajouter un bien</button>
+          </div>
+          <div id="parc-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px"></div>
+        </div>
+
+        <!-- Vue carte -->
+        <div id="parc-map-view" style="display:none">
+          <div id="parc-map" style="height:480px;border-radius:16px;border:1px solid rgba(139,92,246,.14);overflow:hidden"></div>
+        </div>
+
+        <!-- Vue détail logement -->
+        <div id="parc-detail-view" style="display:none"></div>
+      </div>
+
       <!-- IA PRICING -->
       <div class="page" id="page-pricing">
         <div class="page-header">
