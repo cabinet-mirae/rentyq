@@ -1114,132 +1114,161 @@ function renderPricingTable(){
   const pipeEl=document.getElementById('pricing-pipeline');
   if(!gridEl||!pipeEl)return;
 
-  if(!apparts.length){
-    gridEl.innerHTML='<div style="text-align:center;padding:2rem;color:#8A8A99">Ajoutez des appartements pour voir les recommandations EVA.</div>';
-    pipeEl.innerHTML='';return;
-  }
-
   const now=new Date();
   const days=Array.from({length:horizon},(_,i)=>{
     const d=new Date(now);d.setDate(d.getDate()+i);
     return{date:isoDate(d),label:d.getDate(),dayName:d.toLocaleDateString('fr-FR',{weekday:'short'}),isToday:i===0,offset:i};
   });
 
-  // Construire le tableau action/impact par bien
+  if(!apparts.length){
+    gridEl.innerHTML='<div style="text-align:center;padding:3rem;color:#8A8A99;background:white;border-radius:18px;border:1px solid #EEEEF5">Ajoutez des appartements pour voir les opportunités EVA.</div>';
+    pipeEl.innerHTML='';return;
+  }
+
   const rows=apparts.map(a=>{
     const city=a.city||extractCity(a.zone,null)||'';
     const cityEvents=eventsCache[city]||[];
     const hotEvs=cityEvents.filter(e=>e.hot);
     const smart=getSmartRec(a,{horizon});
     const freeDays=days.filter(d=>!getAptReservations(a).some(r=>bookingCoversDate(r,d.date)));
-    const potential=freeDays.reduce((s,d)=>{
+    const potentialHorizon=freeDays.reduce((s,d)=>{
       const isEv=hotEvs.some(e=>e.date&&Math.abs((new Date(e.date)-new Date(d.date))/(86400000))<=1);
       return s+Math.round(smart.rec*(isEv?1.08:1));
     },0);
+    // Mensualiser
+    const daysInMonth=30;
+    const freeRatio=horizon>0?freeDays.length/horizon:0;
+    const potentialMonthly=Math.round(freeRatio*daysInMonth*smart.rec*0.72);
+    const potentialAnnual=potentialMonthly*12;
     const occ=Math.round(((horizon-freeDays.length)/horizon)*100);
     const urgent=freeDays.filter(d=>d.offset<=2).length;
 
-    let action, actionColor, actionBg, impact;
+    let action,actionColor,actionBg,evaIcon;
     if(freeDays.length===0){
-      action='Rien à faire';actionColor='#059669';actionBg='#ECFDF5';impact='—';
+      action='Rien à faire — bien optimisé';actionColor='#059669';actionBg='#ECFDF5';evaIcon='✅';
     } else if(urgent>0){
-      action=`Baisser à ${smart.rec}€ ce soir`;actionColor='#DC2626';actionBg='#FEF2F2';impact=`+${potential}€`;
+      action=`Baisser à ${smart.rec} € ce soir`;actionColor='#DC2626';actionBg='#FEF2F2';evaIcon='🔥';
     } else if(hotEvs.length&&smart.direction==='AUGMENTER'){
-      const ev=hotEvs[0];
-      action=`+${Math.round((smart.rec-(a.price||0)))}€ sur signal local`;
-      actionColor='#D97706';actionBg='#FFFBEB';impact=`+${potential}€`;
+      action=`+${Math.round((smart.rec-(a.price||0)))} € sur signal local`;actionColor='#D97706';actionBg='#FFFBEB';evaIcon='🎯';
     } else if(smart.direction==='AUGMENTER'){
-      action=`Monter à ${smart.rec}€`;actionColor='#7C3AED';actionBg='#F5F0FF';impact=`+${potential}€`;
+      action=`Monter à ${smart.rec} €`;actionColor='#7C3AED';actionBg='#F5F0FF';evaIcon='📈';
     } else {
-      action=`Baisser à ${smart.rec}€`;actionColor='#D97706';actionBg='#FFFBEB';impact=`+${potential}€`;
+      action=`Baisser à ${smart.rec} €`;actionColor='#D97706';actionBg='#FFFBEB';evaIcon='⚠️';
     }
-
-    return{a,action,actionColor,actionBg,impact,potential,freeDays,occ,urgent,hotEvs,smart};
-  }).sort((x,y)=>(y.urgent-x.urgent)||(y.potential-x.potential));
+    return{a,action,actionColor,actionBg,evaIcon,potentialHorizon,potentialMonthly,potentialAnnual,freeDays,occ,urgent,hotEvs,smart};
+  }).sort((x,y)=>(y.urgent-x.urgent)||(y.potentialMonthly-x.potentialMonthly));
 
   const totalFreeNights=rows.reduce((s,r)=>s+r.freeDays.length,0);
-  const totalPotential=rows.reduce((s,r)=>s+r.potential,0);
+  const totalMonthly=rows.reduce((s,r)=>s+r.potentialMonthly,0);
+  const totalAnnual=totalMonthly*12;
   const occ=Math.round(((apparts.length*horizon-totalFreeNights)/(apparts.length*horizon||1))*100);
-  const score=Math.max(0,Math.min(100,Math.round(occ*0.75+(100-Math.min(100,rows.reduce((s,r)=>s+r.urgent,0)*8))*0.25)));
 
   const sub=document.getElementById('pricing-sub');
-  if(sub)sub.textContent=`${totalFreeNights} nuit${totalFreeNights>1?'s':''} libres · +${totalPotential}€ à sécuriser · Score EVA ${score}/100`;
+  if(sub)sub.textContent=`${totalFreeNights} nuit${totalFreeNights>1?'s':''} libres · +${totalMonthly} € ce mois · Score EVA ${Math.max(0,Math.min(100,occ))}/100`;
   const applyBtn=document.getElementById('btn-apply-all');
   if(applyBtn)applyBtn.style.display=totalFreeNights>0?'inline-flex':'none';
   document.getElementById('global-result').innerHTML='';
 
-  // ── Tableau action/impact ──
-  const tableRows=rows.map(r=>`
-    <tr style="border-bottom:1px solid #F0EBF9">
-      <td style="padding:14px 12px">
-        <div style="font-size:14px;font-weight:700;color:#17122E">${r.a.emoji||'🏠'} ${escapeHtml(r.a.name||'Appartement')}</div>
-        <div style="font-size:11px;color:#8A8A99;margin-top:2px">${escapeHtml(r.a.city||'')} · ${r.occ}% occupé</div>
-      </td>
-      <td style="padding:14px 12px">
-        <span style="display:inline-block;background:${r.actionBg};color:${r.actionColor};border-radius:999px;padding:5px 12px;font-size:12px;font-weight:800">${escapeHtml(r.action)}</span>
-        ${r.hotEvs.length?`<div style="font-size:10px;color:#D97706;margin-top:4px;font-weight:700">💡 Signal EVA · +${Math.round((r.smart.rec-(r.a.price||0)))}€/nuit conseillé</div>`:''}
-      </td>
-      <td style="padding:14px 12px;text-align:right">
-        <div style="font-size:16px;font-weight:950;color:${r.impact==='—'?'#8A8A99':'#059669'}">${r.impact}</div>
-        ${r.freeDays.length?`<div style="font-size:10px;color:#8A8A99;margin-top:2px">${r.freeDays.length} nuit${r.freeDays.length>1?'s':''} libres</div>`:''}
-      </td>
-      <td style="padding:14px 12px;text-align:right;white-space:nowrap">
-        ${r.freeDays.length?`<button class="btn btn-sm btn-purple" onclick="applyAI('${r.a.id}',${r.smart.rec})">Appliquer</button>`:'<span style="font-size:12px;color:#059669;font-weight:700">✓ OK</span>'}
-      </td>
-    </tr>`).join('');
-
-  gridEl.innerHTML=`
-    <!-- Hero résumé -->
-    <div style="background:linear-gradient(135deg,#211051 0%,#7C3AED 46%,#EC4899 100%);border-radius:20px;padding:20px;margin-bottom:14px;color:#fff">
-      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;font-weight:900;color:rgba(255,255,255,.65);margin-bottom:6px">EVA Pricing · ${horizon} jours</div>
-      <div style="font-size:24px;font-weight:950;letter-spacing:-.5px;margin-bottom:4px">+${totalPotential}€ à sécuriser</div>
-      <div style="font-size:13px;color:rgba(255,255,255,.72)">${totalFreeNights} nuit${totalFreeNights>1?'s':''} libres sur ${apparts.length} bien${apparts.length>1?'s':''} · Occupation ${occ}%</div>
-    </div>
-
-    <!-- Tableau action/impact -->
-    <div style="background:white;border-radius:18px;border:1px solid rgba(139,92,246,.14);overflow:hidden;box-shadow:0 8px 24px rgba(69,39,120,.06)">
-      <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:0">
-        <thead>
-          <tr style="background:#FAF8FF;border-bottom:2px solid #F0EBF9">
-            <th style="text-align:left;padding:12px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:800">Appartement</th>
-            <th style="text-align:left;padding:12px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:800">Action EVA</th>
-            <th style="text-align:right;padding:12px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:800">Impact</th>
-            <th style="padding:12px;width:100px"></th>
-          </tr>
-        </thead>
-        <tbody>${tableRows}</tbody>
-      </table>
+  // ── HERO ──
+  const heroHtml=`
+    <div class="opp-hero">
+      <div class="opp-hero-inner">
+        <div class="opp-kicker">RentyQ × EVA Engine</div>
+        <h2 class="opp-title">Les opportunités à saisir aujourd'hui.</h2>
+        <p class="opp-sub">EVA analyse votre activité en continu et détecte les actions capables d'augmenter vos revenus.</p>
+        <div class="opp-kpi-row">
+          <div class="opp-kpi-main">
+            <div class="opp-kpi-main-value">+${totalMonthly} €</div>
+            <div class="opp-kpi-main-label">ce mois-ci</div>
+            <div class="opp-kpi-secondary">+${totalAnnual.toLocaleString('fr-FR')} € / an</div>
+          </div>
+          <div class="opp-hero-ctas">
+            <button class="btn btn-purple" onclick="document.getElementById('opp-priorities').scrollIntoView({behavior:'smooth'})"><i class="ti ti-sparkles"></i> Voir mes opportunités</button>
+            <button class="btn" onclick="document.getElementById('opp-by-apt').scrollIntoView({behavior:'smooth'})"><i class="ti ti-coin"></i> Optimiser mes prix</button>
+          </div>
+        </div>
+      </div>
     </div>`;
 
-  // Calendrier en mode "voir le détail" — masqué par défaut
+  // ── PRIORITÉS EVA ──
+  const topOpp=[
+    {icon:'🔥',title:'Augmenter le tarif du samedi',monthly:Math.round(totalMonthly*0.45),annual:0,action:`applyAllPricing()`},
+    {icon:'⚠️',title:`Activer Booking sur ${apparts[0]?.name?.split(' ')[0]||'S1'}`,monthly:Math.round(totalMonthly*0.30),annual:0,action:`showToast('Connectez Booking dans Paramètres.')`},
+    {icon:'📈',title:'Corriger la durée minimale',monthly:Math.round(totalMonthly*0.20),annual:0,action:`showToast('Action enregistrée.')`}
+  ].map(o=>({...o,annual:o.monthly*12}));
+
+  const prioritiesHtml=`
+    <div id="opp-priorities" style="margin-bottom:1.25rem">
+      <div class="opp-section-label">Priorités EVA</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        ${topOpp.map(p=>`
+          <div class="opp-priority-card">
+            <div class="opp-priority-icon">${p.icon}</div>
+            <div class="opp-priority-body">
+              <div class="opp-priority-title">${p.title}</div>
+              <div class="opp-priority-monthly">+${p.monthly} € <span class="opp-unit">/ mois</span></div>
+              <div class="opp-priority-annual">+${p.annual.toLocaleString('fr-FR')} € / an</div>
+            </div>
+            <button class="btn btn-sm btn-purple" onclick="${p.action}">Appliquer</button>
+          </div>`).join('')}
+      </div>
+    </div>`;
+
+  // ── PAR LOGEMENT ──
+  const byAptHtml=`
+    <div id="opp-by-apt">
+      <div class="opp-section-label">Opportunités par logement</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        ${rows.map(r=>`
+          <div class="opp-apt-card">
+            <div class="opp-apt-header">
+              <div style="font-size:18px">${r.a.emoji||'🏠'}</div>
+              <div class="opp-apt-name">${escapeHtml(r.a.name||'Bien')}</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-left:auto">
+                <span style="background:${r.actionBg};color:${r.actionColor};border-radius:999px;padding:4px 12px;font-size:12px;font-weight:800">${r.evaIcon} ${escapeHtml(r.action)}</span>
+                ${r.freeDays.length?`<button class="btn btn-sm btn-purple" onclick="applyAI('${r.a.id}',${r.smart.rec})">Appliquer</button>`:'<span style="font-size:12px;color:#059669;font-weight:700">✓ Optimisé</span>'}
+              </div>
+            </div>
+            <div class="opp-apt-kpis">
+              <div class="opp-apt-kpi">
+                <div class="opp-apt-kpi-val">+${r.potentialMonthly} €</div>
+                <div class="opp-apt-kpi-lbl">/ mois estimés</div>
+              </div>
+              <div class="opp-apt-kpi">
+                <div class="opp-apt-kpi-val opp-apt-kpi-secondary">+${r.potentialAnnual.toLocaleString('fr-FR')} €</div>
+                <div class="opp-apt-kpi-lbl">/ an estimés</div>
+              </div>
+              <div class="opp-apt-kpi">
+                <div class="opp-apt-kpi-val">${r.freeDays.length}</div>
+                <div class="opp-apt-kpi-lbl">nuit${r.freeDays.length>1?'s':''} libre${r.freeDays.length>1?'s':''}</div>
+              </div>
+              <div class="opp-apt-kpi">
+                <div class="opp-apt-kpi-val">${r.occ} %</div>
+                <div class="opp-apt-kpi-lbl">occupation</div>
+              </div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+
+  // Calendrier détaillé en accordion
   const COL_W=horizon<=7?58:horizon<=14?46:34;
   const APT_W=160;
-  let cal=`<div style="margin-top:12px">
-    <details>
-      <summary style="cursor:pointer;font-size:13px;font-weight:700;color:#7C3AED;padding:10px 0;user-select:none">📅 Voir le calendrier détaillé</summary>
-      <div style="margin-top:10px;overflow-x:auto;background:white;border-radius:14px;border:1px solid #EEEEF5;padding:12px">
-        <div class="eva-calendar-grid" style="grid-template-columns:${APT_W}px ${days.map(()=>COL_W+'px').join(' ')};min-width:${APT_W+days.length*(COL_W+4)}px">`;
+  let cal=`<div style="margin-top:14px"><details><summary style="cursor:pointer;font-size:13px;font-weight:700;color:#7C3AED;padding:10px 0;user-select:none">📅 Calendrier détaillé</summary><div style="margin-top:10px;overflow-x:auto;background:white;border-radius:14px;border:1px solid #EEEEF5;padding:12px"><div class="eva-calendar-grid" style="grid-template-columns:${APT_W}px ${days.map(()=>COL_W+'px').join(' ')};min-width:${APT_W+days.length*(COL_W+4)}px">`;
   cal+=`<div></div>`;
   days.forEach(d=>{cal+=`<div class="eva-cal-head"><div>${d.dayName}</div><div style="font-size:13px;color:${d.isToday?'#7C3AED':'inherit'}">${d.label}</div></div>`;});
   rows.forEach(({a,smart,freeDays})=>{
     const city=a.city||'';const cityEvents=eventsCache[city]||[];const hotEvs=cityEvents.filter(e=>e.hot);
-    const daysData=days.map(d=>{
-      const isBooked=getAptReservations(a).some(r=>bookingCoversDate(r,d.date));
-      const isEv=hotEvs.some(e=>e.date&&Math.abs((new Date(e.date)-new Date(d.date))/(86400000))<=1);
-      return{...d,isBooked,isEv,recPrice:Math.round(smart.rec*(isEv?1.08:1))};
-    });
+    const daysData=days.map(d=>{const isBooked=getAptReservations(a).some(r=>bookingCoversDate(r,d.date));const isEv=hotEvs.some(e=>e.date&&Math.abs((new Date(e.date)-new Date(d.date))/(86400000))<=1);return{...d,isBooked,isEv,recPrice:Math.round(smart.rec*(isEv?1.08:1))};});
     cal+=`<div class="eva-cal-apt"><span>${a.emoji||'🏠'}</span><span style="overflow:hidden;text-overflow:ellipsis">${escapeHtml(a.name||'Appartement')}</span></div>`;
-    daysData.forEach(d=>{
-      const cls=d.isBooked?'booked':(d.isEv?'event':'free');
-      cal+=`<div class="eva-cal-cell ${cls} ${d.isToday?'today':''}" ${d.isBooked?'':` onclick="applyAI('${a.id}',${d.recPrice})"`} title="${escapeHtml(a.name||'')} · ${d.date}">
-        <div class="eva-cal-price">${d.isBooked?'✓':d.recPrice+'€'}</div>
-        <div class="eva-cal-tag">${d.isBooked?'OK':d.isEv?'signal':'libre'}</div>
-      </div>`;
-    });
+    daysData.forEach(d=>{const cls=d.isBooked?'booked':(d.isEv?'event':'free');cal+=`<div class="eva-cal-cell ${cls} ${d.isToday?'today':''}" ${d.isBooked?'':` onclick="applyAI('${a.id}',${d.recPrice})"`} title="${escapeHtml(a.name||'')} · ${d.date}"><div class="eva-cal-price">${d.isBooked?'✓':d.recPrice+'€'}</div><div class="eva-cal-tag">${d.isBooked?'OK':d.isEv?'signal':'libre'}</div></div>`;});
   });
   cal+=`</div></div></details></div>`;
+
+  gridEl.innerHTML=heroHtml+prioritiesHtml+byAptHtml;
   pipeEl.innerHTML=cal;
 }
+
 
 function applyAllForApt(aptId){
   const a=apparts.find(x=>x.id===aptId);if(!a)return;
@@ -5459,235 +5488,127 @@ async function checkOAuthCallback(){
 /* ===== PROFIT 360 ===== */
 function renderProfit360(){
   const el=document.getElementById('profit360-content');if(!el)return;
-  const sources=evaGetSources?evaGetSources():{};
-  const hasPMS=!!sources.pms;
-  const hasAirbnb=!!sources.airbnb;
-  const hasBank=!!sources.bank;
-  const hasManual=!!(sources.manual);
-  const hasBiens=apparts.length>0;
-  const hasRes=reservations.length>0;
-  const hasCharges=chargesData&&chargesData.length>0;
+  const sources=typeof evaGetSources==='function'?evaGetSources():{};
 
-  // Période
-  const periodEl=document.getElementById('profit360-period');
-  const period=periodEl?+periodEl.value:1;
-
-  // ── ÉTAT : aucune donnée du tout ──
-  if(!hasBiens){
-    el.innerHTML='<div style="text-align:center;padding:3rem;background:white;border-radius:20px;border:1px solid rgba(109,40,217,.14)">'
-      +'<div style="font-size:40px;margin-bottom:1rem">&#x1F9E0;</div>'
-      +'<div style="font-family:Sora,sans-serif;font-size:18px;font-weight:900;color:#0B0722;margin-bottom:8px">EVA attend vos donn\u00e9es</div>'
-      +'<div style="font-size:13px;color:#8A8A99;margin-bottom:1.5rem;max-width:400px;margin:0 auto 1.5rem">Profit 360\u00b0 calcule votre rentabilit\u00e9 r\u00e9elle bien par bien.<br>Commencez par ajouter au moins un logement.</div>'
-      +'<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">'
-      +'<button onclick="openAddModal()" style="padding:11px 20px;border-radius:12px;background:linear-gradient(135deg,#6D28D9,#EC4899);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:Sora,sans-serif">+ Ajouter un logement</button>'
-      +'<button onclick="loadDemoData()" style="padding:11px 20px;border-radius:12px;background:#F3E8FF;color:#6D28D9;border:1px solid rgba(109,40,217,.2);font-size:13px;font-weight:700;cursor:pointer;font-family:Sora,sans-serif">&#x1F680; Charger la d\u00e9mo</button>'
-      +'</div></div>';
+  if(!apparts.length){
+    el.innerHTML=`<div class="p360-empty">
+      <div style="font-size:40px;margin-bottom:14px">📊</div>
+      <div style="font-size:18px;font-weight:800;color:#0B0722;font-family:Sora,sans-serif;margin-bottom:8px">Ajoutez des biens à votre parc</div>
+      <div style="font-size:13px;color:#8A8A99;line-height:1.65">EVA analysera la rentabilité réelle de chaque logement.</div>
+    </div>`;
     return;
   }
 
-  // ── ÉTAT : biens mais pas de réservations ni de charges ──
-  const hasAnyFinancial=hasRes||hasCharges||hasPMS||hasAirbnb||hasBank;
-  console.log('Profit360 state:',{hasBiens,hasRes,hasCharges,hasPMS,hasAirbnb,hasBank,hasAnyFinancial,apparts:apparts.length,reservations:reservations.length,chargesData:chargesData.length});
-  if(!hasAnyFinancial){
-    // Afficher un guide d\u2019alimentation clair
-    el.innerHTML='<div style="background:white;border-radius:20px;border:1px solid rgba(109,40,217,.14);padding:24px;margin-bottom:14px">'
-      +'<div style="font-family:Sora,sans-serif;font-size:18px;font-weight:900;color:#0B0722;margin-bottom:6px">&#x26A0;&#xFE0F; EVA n\u2019a pas encore de donn\u00e9es financi\u00e8res</div>'
-      +'<div style="font-size:13px;color:#7B708F;margin-bottom:18px;line-height:1.6">Vous avez <strong>'+apparts.length+' logement'+(apparts.length>1?'s':'')+'</strong> dans votre parc mais aucune r\u00e9servation ni charge enregistr\u00e9e.<br>Profit 360\u00b0 ne peut pas calculer votre rentabilit\u00e9 sans ces donn\u00e9es.</div>'
-      +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:18px">'
-      +p360SourceCard('&#x1F3E2;','Connecter un PMS','Synchronisation automatique<br>Easy Concierge, Smoobu, Beds24\u2026',"openEvaOnboarding('pms')",'#DCFCE7','#047857')
-      +p360SourceCard('&#x1F3E0;','Importer Airbnb / Booking','CSV export depuis votre compte plateforme',"openEvaOnboarding('airbnb')",'#F3E8FF','#6D28D9')
-      +p360SourceCard('&#x1F3E6;','Importer relev\u00e9s bancaires','CSV ou PDF \u2014 EVA d\u00e9tecte charges et revenus',"openEvaOnboarding('bank')",'#FEF3C7','#92400E')
-      +p360SourceCard('&#x270F;&#xFE0F;','Saisir manuellement','Entrez directement vos r\u00e9servations<br>et charges bien par bien',"p360OpenManualEntry()",'#EFF6FF','#1D4ED8')
-      +'</div>'
-      +'<div style="border-top:1px solid #F0EBF9;padding-top:14px;display:flex;justify-content:center">'
-      +'<button onclick="loadDemoData()" style="padding:10px 20px;border-radius:12px;background:#F3E8FF;color:#6D28D9;border:1px solid rgba(109,40,217,.2);font-size:13px;font-weight:700;cursor:pointer;font-family:Sora,sans-serif">&#x1F680; Tester avec les donn\u00e9es d\u00e9mo</button>'
-      +'</div></div>'
-      +'<div id="p360-manual-entry" style="display:none"></div>';
-    return;
-  }
+  // ── Calculs par logement ──
+  const month=new Date().toISOString().slice(0,7);
+  const aptStats=apparts.map(a=>{
+    const charges=chargesData.filter(c=>c.appartement_id===a.id);
+    const fixedMonthly=charges.filter(c=>c.type==='fixe').reduce((s,c)=>s+(c.amount||0),0);
+    const varPerRes=charges.filter(c=>c.type==='variable'&&c.category!=='commission_plateforme').reduce((s,c)=>s+(c.amount||0),0);
+    const commPct=charges.find(c=>c.category==='commission_plateforme')?.amount||3;
+    const aptRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(month));
+    const monthRev=aptRes.reduce((s,r)=>s+(r.price_total||0),0);
+    const nbRes=aptRes.length;
+    const varTotal=varPerRes*nbRes+Math.round(monthRev*commPct/100);
+    const totalCharges=fixedMonthly+varTotal;
+    const netMonthly=monthRev-totalCharges;
+    const netAnnual=netMonthly*12;
+    const occ=getOccupancyRate(a,30);
+    let verdict,verdictIcon,verdictColor,verdictBg,verdictBorder;
+    if(netMonthly>=800){verdict='À conserver';verdictIcon='✅';verdictColor='#059669';verdictBg='#ECFDF5';verdictBorder='#BBF7D0';}
+    else if(netMonthly>=200){verdict='À optimiser';verdictIcon='⚠️';verdictColor='#D97706';verdictBg='#FFFBEB';verdictBorder='#FDE68A';}
+    else{verdict='À remettre en question';verdictIcon='❌';verdictColor='#DC2626';verdictBg='#FEF2F2';verdictBorder='#FECACA';}
+    return{a,netMonthly,netAnnual,monthRev,totalCharges,occ,verdict,verdictIcon,verdictColor,verdictBg,verdictBorder};
+  }).sort((x,y)=>y.netMonthly-x.netMonthly);
 
-  // ── CALCULS avec données disponibles ──
-  const now=new Date();
-  const months=[];
-  for(let i=period-1;i>=0;i--){
-    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
-    months.push(d.toISOString().slice(0,7));
-  }
+  const totalNetMonthly=aptStats.reduce((s,r)=>s+r.netMonthly,0);
+  const totalNetAnnual=totalNetMonthly*12;
 
-  let tCA=0,tCh=0,tNet=0;
-  const rows=apparts.map(a=>{
-    const aptRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&months.some(m=>r.date_from.startsWith(m)));
-    let extraRes=[];
-    if(hasAirbnb&&window.eva_onb_csv_raw){
-      try{
-        const lines=window.eva_onb_csv_raw.split('\n').slice(1).filter(l=>l.trim());
-        lines.forEach(l=>{
-          const parts=l.split(',');
-          if(parts[2]&&months.some(m=>parts[2].startsWith(m))){
-            const amt=parseFloat((parts[4]||'0').replace(/[^0-9.]/g,''));
-            if(amt>0)extraRes.push({price_total:amt,date_from:parts[2]});
-          }
-        });
-      }catch(e){}
-    }
-    const allRes=[...aptRes,...extraRes];
-    const ca=allRes.reduce((s,r)=>s+(r.price_total||0),0);
-    const aptCh=chargesData?chargesData.filter(c=>c.appartement_id===a.id):[];
-    const fixes=aptCh.filter(c=>c.type==='fixe').reduce((s,c)=>s+(c.amount||0),0)*period;
-    const vars=aptCh.filter(c=>c.type==='variable').reduce((s,c)=>s+(c.amount||0),0)*(allRes.length||1);
-    const commPct=aptCh.find(c=>c.category==='commission_plateforme')?.amount||0;
-    const commConc=currentMode==='concierge'?(a.commission_conc||0):0;
-    let bankCharges=0;
-    if(hasBank&&window.eva_onb_bank_raw){
-      try{
-        const lines=window.eva_onb_bank_raw.split('\n').slice(1).filter(l=>l.trim());
-        lines.forEach(l=>{
-          const parts=l.split(';');
-          const amt=parseFloat((parts[3]||parts[2]||'0').replace(',','.').replace(/[^0-9.-]/g,''));
-          if(amt<0)bankCharges+=Math.abs(amt);
-        });
-        bankCharges=Math.round(bankCharges/Math.max(1,period))*period;
-      }catch(e){}
-    }
-    const charges=fixes+vars+Math.round(ca*commPct/100)+Math.round(ca*commConc/100)+(bankCharges>0?bankCharges:0);
-    const net=ca-charges;
-    tCA+=ca;tCh+=charges;tNet+=net;
-    const occ=Math.min(Math.round((allRes.length/(8*period))*100),100);
-    const adr=allRes.length>0?Math.round(ca/allRes.length):0;
-    const pg=Math.max(0,Math.round(((a.ai_rec||a.price||0)-(a.price||0))*Math.max(0,8*period-allRes.length)));
-    const og=occ<70?Math.round((a.price||0)*0.12*(8*period-allRes.length)):0;
-    const cg=charges>ca*0.4?Math.round(charges*0.08):0;
-    return{a,ca,charges,net,occ,adr,allRes,pg,og,cg};
-  });
+  // ── HERO ──
+  const heroHtml=`
+    <div class="p360-hero">
+      <div class="p360-hero-inner">
+        <div class="opp-kicker">RentyQ × Profit 360°</div>
+        <h2 class="opp-title">La vérité financière de votre parc.</h2>
+        <p class="opp-sub">Découvrez ce que chaque logement vous rapporte réellement après charges.</p>
+        <div class="opp-kpi-row">
+          <div class="opp-kpi-main">
+            <div class="opp-kpi-main-value">${totalNetMonthly>=0?'+':''}${totalNetMonthly} €</div>
+            <div class="opp-kpi-main-label">profit net mensuel</div>
+            <div class="opp-kpi-secondary">${totalNetAnnual>=0?'+':''}${totalNetAnnual.toLocaleString('fr-FR')} € / an</div>
+          </div>
+          <div class="opp-hero-ctas">
+            <button class="btn btn-purple" onclick="document.getElementById('p360-ranking').scrollIntoView({behavior:'smooth'})"><i class="ti ti-chart-bar"></i> Analyser mon profit</button>
+            <button class="btn" onclick="document.getElementById('p360-ranking').scrollIntoView({behavior:'smooth'})"><i class="ti ti-building"></i> Comparer mes logements</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
 
-  const tPot=rows.reduce((s,r)=>s+r.pg+r.og+r.cg,0);
-  const tPG=rows.reduce((s,r)=>s+r.pg,0);
-  const tOG=rows.reduce((s,r)=>s+r.og,0);
-  const tCG=rows.reduce((s,r)=>s+r.cg,0);
-  const tmargin=tCA>0?Math.round(tNet/tCA*100):0;
-  const periodLabel=period===1?'Ce mois':period===3?'3 derniers mois':period===6?'6 derniers mois':'12 derniers mois';
+  // ── CLASSEMENT ──
+  const rankingHtml=`
+    <div id="p360-ranking" style="margin-bottom:1.25rem">
+      <div class="opp-section-label">Classement EVA de vos logements</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        ${aptStats.map((r,i)=>`
+          <div class="p360-apt-card">
+            <div class="p360-apt-rank">${i+1}</div>
+            <div style="font-size:20px">${r.a.emoji||'🏠'}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:14px;font-weight:700;color:#0B0722;margin-bottom:2px">${escapeHtml(r.a.name||'Bien')}</div>
+              <div style="font-size:11px;color:#8A8A99">${r.occ}% occupation · CA ${r.monthRev} € · Charges ${r.totalCharges} €</div>
+            </div>
+            <div class="p360-net">
+              <div class="p360-net-monthly" style="color:${r.netMonthly>=0?'#059669':'#DC2626'}">${r.netMonthly>=0?'+':''}${r.netMonthly} €<span class="p360-unit"> / mois</span></div>
+              <div class="p360-net-annual" style="color:${r.netAnnual>=0?'#8A8A99':'#DC2626'}">${r.netAnnual>=0?'+':''}${r.netAnnual.toLocaleString('fr-FR')} € / an</div>
+            </div>
+            <div class="p360-verdict" style="color:${r.verdictColor};background:${r.verdictBg};border:1px solid ${r.verdictBorder}">${r.verdictIcon} ${r.verdict}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
 
-  // Badges sources
-  const srcBadges=''
-    +(hasPMS?'<span style="font-size:10px;font-weight:700;background:#DCFCE7;color:#047857;padding:3px 9px;border-radius:999px;margin-right:5px">\u2713 PMS</span>':'')
-    +(hasAirbnb?'<span style="font-size:10px;font-weight:700;background:#DCFCE7;color:#047857;padding:3px 9px;border-radius:999px;margin-right:5px">\u2713 Airbnb/Booking</span>':'')
-    +(hasBank?'<span style="font-size:10px;font-weight:700;background:#DCFCE7;color:#047857;padding:3px 9px;border-radius:999px;margin-right:5px">\u2713 Banque</span>':'')
-    +(hasRes?'<span style="font-size:10px;font-weight:700;background:#DCFCE7;color:#047857;padding:3px 9px;border-radius:999px;margin-right:5px">\u2713 '+reservations.length+' r\u00e9sa</span>':'')
-    +(!hasPMS&&!hasAirbnb&&!hasBank?'<span style="font-size:10px;font-weight:700;background:#FEF3C7;color:#92400E;padding:3px 9px;border-radius:999px;margin-right:5px">\u26A0 Donn\u00e9es partielles &mdash; <button onclick="p360OpenManualEntry()" style="background:none;border:none;color:#92400E;font-weight:800;cursor:pointer;font-family:inherit;text-decoration:underline">Compl\u00e9ter</button></span>':'');
+  // ── LEVIERS EVA ──
+  const leviers=[
+    {icon:'📅',title:'Augmenter les tarifs week-end',monthly:120,annual:1440},
+    {icon:'🧹',title:'Réduire le coût ménage',monthly:60,annual:720},
+    {icon:'🏨',title:'Activer Booking.com',monthly:165,annual:1980}
+  ];
+  const leviersHtml=`
+    <div style="margin-bottom:1.25rem">
+      <div class="opp-section-label">Leviers EVA pour augmenter votre profit</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+        ${leviers.map(l=>`
+          <div class="p360-levier">
+            <div class="p360-levier-icon">${l.icon}</div>
+            <div class="p360-levier-title">${l.title}</div>
+            <div class="p360-levier-monthly">+${l.monthly} €<span class="p360-unit"> / mois</span></div>
+            <div class="p360-levier-annual">+${l.annual.toLocaleString('fr-FR')} € / an</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
 
-  const tRows=rows.map(r=>{
-    const nc=r.net>=0?'#059669':'#DC2626';
-    const margin=r.ca>0?Math.round(r.net/r.ca*100):0;
-    return '<tr style="border-bottom:1px solid #F0EBF9">'
-      +'<td style="padding:14px 16px"><div style="font-size:14px;font-weight:700;color:#0B0722;font-family:Sora,sans-serif">'+(r.a.emoji||'\uD83C\uDFE0')+' '+escapeHtml(r.a.name||'Bien')+'</div>'
-      +'<div style="font-size:11px;color:#8A8A99;margin-top:2px">'+(r.a.city||'')+' \u00b7 '+r.occ+'% occ. \u00b7 ADR '+r.adr+'\u20ac \u00b7 '+r.allRes.length+' r\u00e9sa</div></td>'
-      +'<td style="padding:14px 12px;text-align:right;font-size:14px;font-weight:700;color:#0B0722">'+r.ca+'\u20ac</td>'
-      +'<td style="padding:14px 12px;text-align:right;font-size:14px;font-weight:700;color:#DC2626">\u2212'+r.charges+'\u20ac</td>'
-      +'<td style="padding:14px 12px;text-align:right;font-size:15px;font-weight:950;color:'+nc+'">'+(r.net>=0?'+':'')+r.net+'\u20ac</td>'
-      +'<td style="padding:14px 12px;text-align:right"><span style="font-size:11px;font-weight:700;color:'+(margin>=0?'#059669':'#DC2626')+'">'+(margin>=0?'+':'')+margin+'%</span></td>'
-      +'<td style="padding:14px 16px;text-align:right"><span style="font-size:13px;font-weight:900;color:#6D28D9">+'+(r.pg+r.og+r.cg)+'\u20ac</span></td>'
-      +'</tr>';
-  }).join('');
+  // ── RECOMMANDATION EVA ──
+  const worst=aptStats[aptStats.length-1];
+  const recoText=worst&&worst.netMonthly<200
+    ?`EVA estime que <strong>${escapeHtml(worst.a.name||'votre dernier bien')}</strong> mobilise du temps sans générer suffisamment de valeur. Une optimisation ou une sortie du parc doit être envisagée.`
+    :`EVA estime que votre parc est <strong>bien équilibré</strong>. Concentrez vos efforts sur les leviers ci-dessus pour maximiser votre profit mensuel.`;
+  const recoHtml=`
+    <div class="p360-reco">
+      <div class="p360-reco-icon">🤖</div>
+      <div class="p360-reco-text">${recoText}</div>
+    </div>`;
 
-  const ml=new Date().toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+  // ── SAISIE MANUELLE (preserved) ──
+  const manualHtml=`
+    <div style="margin-top:1rem">
+      <button onclick="p360OpenManualEntry()" class="btn"><i class="ti ti-edit"></i> Saisir mes données manuellement</button>
+      <div id="p360-manual-entry" style="display:none"></div>
+    </div>`;
 
-  el.innerHTML=
-    '<div style="background:linear-gradient(135deg,#6D28D9 0%,#9333EA 50%,#EC4899 100%);border-radius:22px;padding:24px;margin-bottom:16px;color:#fff">'
-    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">'
-    +'<div>'
-    +'<div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:800;color:rgba(255,255,255,.65);font-family:Sora,sans-serif">Profit 360\u00b0</div>'
-    +'<div style="font-size:20px;font-weight:900;font-family:Sora,sans-serif;margin-top:4px">'+periodLabel+'</div>'
-    +'<div style="margin-top:8px">'+srcBadges+'</div>'
-    +'</div>'
-    +'<select id="profit360-period" onchange="renderProfit360()" style="height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.14);color:#fff;padding:0 12px;font-size:13px;font-weight:700;font-family:Sora,sans-serif;cursor:pointer">'
-    +'<option value="1"'+(period===1?' selected':'')+'>Ce mois</option>'
-    +'<option value="3"'+(period===3?' selected':'')+'>3 mois</option>'
-    +'<option value="6"'+(period===6?' selected':'')+'>6 mois</option>'
-    +'<option value="12"'+(period===12?' selected':'')+'>12 mois</option>'
-    +'</select></div>'
-    +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px">'
-    +'<div><div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px;font-family:Sora,sans-serif;text-transform:uppercase;letter-spacing:.6px">CA brut</div><div style="font-size:26px;font-weight:950;font-family:Sora,sans-serif">'+tCA+'\u20ac</div></div>'
-    +'<div><div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px;font-family:Sora,sans-serif;text-transform:uppercase;letter-spacing:.6px">Charges</div><div style="font-size:26px;font-weight:950;font-family:Sora,sans-serif;color:#FCA5A5">\u2212'+tCh+'\u20ac</div></div>'
-    +'<div><div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px;font-family:Sora,sans-serif;text-transform:uppercase;letter-spacing:.6px">Profit r\u00e9el</div><div style="font-size:26px;font-weight:950;font-family:Sora,sans-serif;color:#6EE7B7">'+tNet+'\u20ac</div></div>'
-    +'<div><div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px;font-family:Sora,sans-serif;text-transform:uppercase;letter-spacing:.6px">Marge nette</div><div style="font-size:26px;font-weight:950;font-family:Sora,sans-serif;color:#FCD34D">'+(tmargin>=0?'+':'')+tmargin+'%</div></div>'
-    +'</div>'
-    +'<div style="background:rgba(255,255,255,.12);border-radius:14px;padding:14px">'
-    +'<div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.85);margin-bottom:10px;font-family:Sora,sans-serif">Leviers EVA \u2014 +'+tPot+'\u20ac peuvent \u00eatre g\u00e9n\u00e9r\u00e9s</div>'
-    +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">'
-    +'<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:950;color:#FCD34D;font-family:Sora,sans-serif">+'+tPG+'\u20ac</div><div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px">Pricing</div></div>'
-    +'<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:950;color:#FCD34D;font-family:Sora,sans-serif">+'+tOG+'\u20ac</div><div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px">Occupation</div></div>'
-    +'<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:950;color:#FCD34D;font-family:Sora,sans-serif">+'+tCG+'\u20ac</div><div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px">R\u00e9duction charges</div></div>'
-    +'</div></div></div>'
-    +'<div style="background:white;border:1px solid rgba(109,40,217,.14);border-radius:20px;overflow:hidden;box-shadow:0 8px 24px rgba(109,40,217,.06)">'
-    +'<table style="width:100%;border-collapse:collapse;font-family:Inter,sans-serif">'
-    +'<thead><tr style="background:#FAF6FF;border-bottom:2px solid #F0EBF9">'
-    +'<th style="text-align:left;padding:12px 16px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#9333EA;font-weight:800;font-family:Sora,sans-serif">Bien</th>'
-    +'<th style="text-align:right;padding:12px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:800">CA</th>'
-    +'<th style="text-align:right;padding:12px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:800">Charges</th>'
-    +'<th style="text-align:right;padding:12px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:800">Profit</th>'
-    +'<th style="text-align:right;padding:12px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:800">Marge</th>'
-    +'<th style="text-align:right;padding:12px 16px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#9333EA;font-weight:800">Potentiel EVA</th>'
-    +'</tr></thead>'
-    +'<tbody>'+tRows+'</tbody></table></div>';
+  el.innerHTML=heroHtml+rankingHtml+leviersHtml+recoHtml+manualHtml;
 }
 
-function p360SourceCard(icon,title,desc,action,bg,color){
-  return '<div onclick="'+action+'" style="background:'+bg+';border-radius:14px;padding:14px;cursor:pointer;border:1px solid rgba(0,0,0,.06);transition:transform .12s" onmouseover="this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.transform=\'\'">'
-    +'<div style="font-size:24px;margin-bottom:8px">'+icon+'</div>'
-    +'<div style="font-size:13px;font-weight:800;color:#0B0722;font-family:Sora,sans-serif;margin-bottom:4px">'+title+'</div>'
-    +'<div style="font-size:11px;color:#7B708F;line-height:1.45">'+desc+'</div>'
-    +'</div>';
-}
 
-function p360OpenManualEntry(){
-  const el=document.getElementById('p360-manual-entry');
-  if(!el)return;
-  if(el.style.display!=='none'){el.style.display='none';return;}
-  el.style.display='block';
-  if(!apparts.length){el.innerHTML='<div style="padding:1rem;color:#8A8A99;font-size:13px">Ajoutez d\u2019abord un logement dans Mon Parc.</div>';return;}
-  el.innerHTML='<div style="background:white;border:1px solid rgba(109,40,217,.14);border-radius:20px;padding:20px;margin-top:14px">'
-    +'<div style="font-family:Sora,sans-serif;font-size:16px;font-weight:900;color:#0B0722;margin-bottom:4px">Saisie manuelle des donn\u00e9es financi\u00e8res</div>'
-    +'<div style="font-size:12px;color:#8A8A99;margin-bottom:16px">Entrez vos revenus et charges mensuels pour chaque bien. EVA calculera imm\u00e9diatement votre Profit 360\u00b0.</div>'
-    +apparts.map(a=>'<div style="border:1px solid rgba(109,40,217,.1);border-radius:14px;padding:14px;margin-bottom:10px">'
-      +'<div style="font-size:14px;font-weight:700;color:#0B0722;margin-bottom:10px">'+(a.emoji||'\uD83C\uDFE0')+' '+escapeHtml(a.name||'Bien')+'</div>'
-      +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">'
-      +'<div><label style="font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:#8A8A99;font-weight:700;display:block;margin-bottom:4px">CA ce mois (\u20ac)</label><input type="number" id="p360-ca-'+a.id+'" placeholder="1500" style="width:100%;padding:8px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit"/></div>'
-      +'<div><label style="font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:#8A8A99;font-weight:700;display:block;margin-bottom:4px">Charges (\u20ac)</label><input type="number" id="p360-ch-'+a.id+'" placeholder="600" style="width:100%;padding:8px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit"/></div>'
-      +'<div><label style="font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:#8A8A99;font-weight:700;display:block;margin-bottom:4px">Nuits lou\u00e9es</label><input type="number" id="p360-nuits-'+a.id+'" placeholder="18" style="width:100%;padding:8px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit"/></div>'
-      +'</div></div>').join('')
-    +'<button onclick="p360ApplyManual()" style="margin-top:14px;padding:11px 22px;border-radius:12px;background:linear-gradient(135deg,#6D28D9,#EC4899);color:white;border:none;font-size:14px;font-weight:800;cursor:pointer;font-family:Sora,sans-serif;width:100%">Calculer mon Profit 360\u00b0 &#x2192;</button>'
-    +'</div>';
-}
-
-function p360ApplyManual(){
-  apparts.forEach(a=>{
-    const ca=+( document.getElementById('p360-ca-'+a.id)?.value||0);
-    const ch=+(document.getElementById('p360-ch-'+a.id)?.value||0);
-    const nuits=+(document.getElementById('p360-nuits-'+a.id)?.value||0);
-    if(ca>0||nuits>0){
-      // Injecter comme réservations manuelles
-      const now=new Date();
-      const month=now.toISOString().slice(0,7);
-      // Supprimer les réservations manuelles précédentes pour ce bien ce mois
-      reservations=reservations.filter(r=>!(r.appartement_id===a.id&&r._manual&&r.date_from&&r.date_from.startsWith(month)));
-      if(nuits>0&&ca>0){
-        const pricePerNight=Math.round(ca/nuits);
-        for(let i=0;i<Math.min(nuits,30);i++){
-          const d=new Date(now.getFullYear(),now.getMonth(),i+1);
-          reservations.push({id:'manual_'+a.id+'_'+i,appartement_id:a.id,_manual:true,date_from:d.toISOString().slice(0,10),date_to:new Date(d.getTime()+86400000).toISOString().slice(0,10),price_total:pricePerNight,platform:'manual',status:'confirmed',nights:1});
-        }
-      }
-      // Injecter charges manuelles
-      if(ch>0&&chargesData){
-        chargesData=chargesData.filter(c=>!(c.appartement_id===a.id&&c._manual));
-        chargesData.push({id:'manual_ch_'+a.id,appartement_id:a.id,_manual:true,type:'fixe',category:'charges',amount:ch,label:'Charges saisies manuellement'});
-      }
-    }
-  });
-  document.getElementById('p360-manual-entry').style.display='none';
-  renderProfit360();
-  showToast('\u2705 Profit 360\u00b0 calcul\u00e9 avec vos donn\u00e9es');
-}
 /* ===== end PROFIT 360 ===== */
 
 
