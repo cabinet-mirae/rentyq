@@ -5,13 +5,12 @@
 
 /* ── Mobile général ── */
 @media(max-width:768px){
-  .app-body{flex-direction:column}
   .sidebar{position:fixed;left:-260px;top:0;bottom:0;width:250px;height:100%;z-index:400;transition:left .25s;box-shadow:none;overflow:hidden}
   .sidebar.open{left:0;box-shadow:4px 0 24px rgba(0,0,0,.3)}
   .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:399}
   .sidebar-overlay.open{display:block}
   .mobile-topbar{display:flex}
-  .main{overflow-x:hidden}
+  .main{flex:1;min-width:0;overflow-x:hidden}
   .page{padding:1rem}
   .page-title{font-size:22px}
   .page-header{flex-direction:column;gap:.75rem}
