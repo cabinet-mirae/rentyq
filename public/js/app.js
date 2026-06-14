@@ -1552,6 +1552,8 @@ function goTo(page,btn){
   if(btn)btn.classList.add('active');
   if(page==='calendrier'){renderCalendarPage();renderCalendar();}
   if(page==='reservations')renderReservationsPage();
+  if(page==='parc'){try{renderParcTable();}catch(e){console.warn('renderParcTable',e);}}
+  if(page==='tarifs')renderTarifs();
   if(page==='events'&&apparts.length&&!Object.keys(eventsCache).length)loadEvents(false);
   // Page events supprimée V2 — rediriger vers pricing
   if(page==='events'){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-pricing').classList.add('active');renderPricingTable();return;}
