@@ -887,20 +887,99 @@ function closeApartDetail(){
 }
 
 
-function renderResTable(){
-  const e=document.getElementById('res-empty');const t=document.getElementById('res-table');
-  if(!reservations.length){e.style.display='block';t.innerHTML='';return}e.style.display='none';
-  const pi={airbnb:'🏠',booking:'🏨',direct:'✉️',other:'📌'};
-  t.innerHTML=`<thead><tr><th>Appartement</th><th>Voyageur</th><th>Arrivée</th><th>Départ</th><th>Nuits</th><th>Revenus</th><th>Plat.</th></tr></thead><tbody>`+
-  reservations.slice(0,50).map(r=>{
+/* ── Réservations ── */
+function renderResTable(){renderReservationsPage();}
+
+function renderReservationsPage(){
+  const today=new Date();
+  const isoToday=isoDate(today);
+  const in7=isoDate(addDays(today,7));
+  const in1=isoDate(addDays(today,1));
+
+  // Bloc 1 : KPIs semaine
+  const weekRes=reservations.filter(r=>r.date_from>=isoToday&&r.date_from<=in7);
+  const checkins=reservations.filter(r=>r.date_from===isoToday||r.date_from===in1).length;
+  const checkouts=reservations.filter(r=>r.date_to===isoToday||r.date_to===in1).length;
+  const potentiel=Math.round(apparts.reduce((s,a)=>s+(+(a.price||0)*0.72*getNextFreeDays(a,7).length),0));
+  const kpiEl=document.getElementById('res-kpi-row');
+  if(kpiEl)kpiEl.innerHTML=`
+    <div class="kpi"><div class="kpi-label">Réservations semaine</div><div class="kpi-value">${weekRes.length}</div><div class="kpi-delta" style="color:#8A8A99">7 prochains jours</div></div>
+    <div class="kpi"><div class="kpi-label">Check-in à venir</div><div class="kpi-value" style="color:#059669">${checkins}</div><div class="kpi-delta" style="color:#059669">auj. &amp; demain</div></div>
+    <div class="kpi"><div class="kpi-label">Check-out à venir</div><div class="kpi-value" style="color:#D97706">${checkouts}</div><div class="kpi-delta" style="color:#D97706">auj. &amp; demain</div></div>
+    <div class="kpi kpi-ai"><div class="kpi-label">Potentiel EVA</div><div class="kpi-value" style="color:#7C3AED">+${potentiel} €</div><div class="kpi-delta" style="color:#7C3AED">7 jours</div></div>`;
+
+  // Bloc 2 : Priorités EVA
+  const priorities=[];
+  const freeNights=apparts.flatMap(a=>getNextFreeDays(a,2).map(d=>({a,d})));
+  if(freeNights.length){
+    const tot=freeNights.reduce((s,{a})=>s+(+(a.price||0)*0.72),0);
+    const names=freeNights.map(({a})=>a.name.split(' ')[0]).filter((v,i,arr)=>arr.indexOf(v)===i).slice(0,3).join(' • ');
+    priorities.push({icon:'🔥',label:`${freeNights.length} nuit${freeNights.length>1?'s':''} libre${freeNights.length>1?'s':''} demain`,detail:names,impact:`+${Math.round(tot)} €`,impactLabel:'potentiels',btn:'Agir',action:`goTo('pricing',null)`,border:'#FDE68A',color:'#D97706',bg:'linear-gradient(135deg,#FFF7ED,#FFF)'});
+  }
+  apparts.forEach(a=>{
+    if(getNextFreeDays(a,8).length>=8)priorities.push({icon:'⚠️',label:`${a.name} — aucune réservation sur 8 jours`,detail:'Risque de manque à gagner',impact:`${Math.round((+(a.price||0))*0.72*8)} €`,impactLabel:'à risque',btn:'Voir',action:`showApartDetail('${a.id}')`,border:'#FDE68A',color:'#D97706',bg:'#FFFBEB'});
+    if(a.comp&&+(a.price||0)>+(a.comp||0)*1.1)priorities.push({icon:'📈',label:`${a.name} performe mieux que le marché`,detail:`+${Math.round(((+(a.price||0))/(+(a.comp||0))-1)*100)} % vs concurrence`,impact:'maintenir',impactLabel:'',btn:'Comprendre',action:`showApartDetail('${a.id}')`,border:'#BBF7D0',color:'#059669',bg:'linear-gradient(135deg,#F0FFF4,#FFF)'});
+  });
+  if(!priorities.length)priorities.push({icon:'✅',label:'Tout est sous contrôle',detail:'EVA ne détecte aucune urgence aujourd\'hui.',impact:'',impactLabel:'',btn:'Voir le parc',action:`goTo('parc',null)`,border:'#BBF7D0',color:'#059669',bg:'linear-gradient(135deg,#F0FFF4,#FFF)'});
+  const priEl=document.getElementById('res-eva-priorities');
+  if(priEl)priEl.innerHTML=`
+    <div style="font-size:11px;font-weight:800;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.75rem">🤖 Priorités EVA</div>
+    <div style="display:flex;flex-direction:column;gap:10px">${priorities.slice(0,4).map(p=>`
+      <div style="display:grid;grid-template-columns:36px 1fr auto auto;gap:12px;align-items:center;background:${p.bg};border:1px solid ${p.border};border-radius:16px;padding:14px 16px">
+        <div style="font-size:22px;text-align:center">${p.icon}</div>
+        <div><div style="font-size:13px;font-weight:700;color:#0B0722;margin-bottom:2px">${p.label}</div><div style="font-size:11px;color:#8A8A99">${p.detail}</div></div>
+        ${p.impact?`<div style="text-align:right;white-space:nowrap"><div style="font-size:15px;font-weight:900;color:${p.color}">${p.impact}</div><div style="font-size:10px;color:#8A8A99">${p.impactLabel}</div></div>`:'<div></div>'}
+        <button onclick="${p.action}" style="padding:7px 14px;border-radius:10px;border:1px solid ${p.border};background:white;color:${p.color};font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">${p.btn}</button>
+      </div>`).join('')}</div>`;
+
+  // Bloc 3 : Liste des réservations
+  const emptyEl=document.getElementById('res-empty');
+  const wrapEl=document.getElementById('res-table-wrap');
+  if(!reservations.length){if(emptyEl)emptyEl.style.display='block';if(wrapEl)wrapEl.innerHTML='';return;}
+  if(emptyEl)emptyEl.style.display='none';
+  const pi={airbnb:'🏠 Airbnb',booking:'🏨 Booking',direct:'✉️ Direct',other:'📌 Autre'};
+  if(wrapEl)wrapEl.innerHTML=reservations.slice(0,40).map(r=>{
     const apt=apparts.find(a=>a.id===r.appartement_id)||{name:r.apartment_name||'—',emoji:'🏠'};
-    const nights=r.nights||0;const pn=nights>0?Math.round((r.price_total||0)/nights):0;
-    return`<tr><td><div class="apt-name"><div class="apt-emoji">${apt.emoji||'🏠'}</div>${apt.name}</div></td>
-    <td>${r.guest_name||'—'}</td><td>${r.date_from||'—'}</td><td>${r.date_to||'—'}</td>
-    <td style="text-align:center">${nights}</td>
-    <td><div style="font-weight:700">${r.price_total||0}€</div><div style="font-size:11px;color:#8A8A99">${pn}€/nuit</div></td>
-    <td>${pi[r.platform||'other']}</td></tr>`;}).join('')+`</tbody>`;
+    const isCI=r.date_from===isoToday;const isCO=r.date_to===isoToday;
+    const statusTag=isCI?'<span class="tag tag-ok">Check-in</span>':isCO?'<span class="tag tag-warn">Check-out</span>':'<span class="tag tag-info">Confirmé</span>';
+    return`<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr auto;gap:10px;align-items:center;background:white;border:0.5px solid rgba(139,92,246,.12);border-radius:14px;padding:12px 16px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">${apt.emoji||'🏠'}</span><div><div style="font-size:13px;font-weight:700;color:#0B0722">${apt.name||'—'}</div><div style="font-size:11px;color:#8A8A99">${pi[r.platform||'other']||'—'}</div></div></div>
+      <div><div style="font-size:11px;color:#8A8A99">Arrivée</div><div style="font-size:12px;font-weight:600;color:#0B0722">${r.date_from||'—'}</div></div>
+      <div><div style="font-size:11px;color:#8A8A99">Départ</div><div style="font-size:12px;font-weight:600;color:#0B0722">${r.date_to||'—'}</div></div>
+      <div><div style="font-size:11px;color:#8A8A99">Voyageurs</div><div style="font-size:12px;font-weight:600;color:#0B0722">${r.guests||r.nights||'—'}</div></div>
+      <div><div style="font-size:11px;color:#8A8A99">Revenus</div><div style="font-size:13px;font-weight:800;color:#7C3AED">${r.price_total||0} €</div></div>
+      ${statusTag}</div>`;
+  }).join('');
 }
+
+/* ── Calendrier — blocs EVA ── */
+function renderCalendarPage(){
+  const today=new Date();
+  const in7=isoDate(addDays(today,7));
+  const in1=isoDate(addDays(today,1));
+  const upcoming=reservations.filter(r=>r.date_from>=isoDate(today)&&r.date_from<=in7).length;
+  const checkins=reservations.filter(r=>r.date_from===isoDate(today)||r.date_from===in1).length;
+  const menages=typeof missionsData!=='undefined'?missionsData.filter(m=>m.date>=isoDate(today)&&m.date<=in7).length:0;
+  const totalFreeNights=apparts.reduce((s,a)=>s+getNextFreeDays(a,7).length,0);
+  const potentiel=Math.round(apparts.reduce((s,a)=>s+(+(a.price||0)*0.72*getNextFreeDays(a,7).length),0));
+  const kpiEl=document.getElementById('cal-kpi-row');
+  if(kpiEl)kpiEl.innerHTML=`
+    <div class="kpi"><div class="kpi-label">Réservations à venir</div><div class="kpi-value">${upcoming}</div><div class="kpi-delta" style="color:#8A8A99">7 jours</div></div>
+    <div class="kpi"><div class="kpi-label">Check-in</div><div class="kpi-value" style="color:#059669">${checkins}</div><div class="kpi-delta" style="color:#059669">auj. &amp; demain</div></div>
+    <div class="kpi"><div class="kpi-label">Ménages</div><div class="kpi-value" style="color:#0284C7">${menages}</div><div class="kpi-delta" style="color:#8A8A99">planifiés</div></div>
+    <div class="kpi kpi-ai"><div class="kpi-label">Potentiel détecté</div><div class="kpi-value" style="color:#7C3AED">+${potentiel} €</div><div class="kpi-delta" style="color:#7C3AED">7 jours</div></div>`;
+  const evaBlock=document.getElementById('cal-eva-block');
+  if(evaBlock){
+    if(totalFreeNights>0){
+      const t=document.getElementById('cal-eva-title');
+      const s=document.getElementById('cal-eva-sub');
+      if(t)t.textContent=`EVA a détecté ${totalFreeNights} nuit${totalFreeNights>1?'s':''} libre${totalFreeNights>1?'s':''} à optimiser`;
+      if(s)s.textContent=`Une action rapide pourrait générer jusqu'à +${potentiel} €.`;
+      evaBlock.style.display='flex';
+    } else {evaBlock.style.display='none';}
+  }
+}
+
 
 function normalizeCityName(city){
   city=(city||'').toString().trim();
@@ -1442,7 +1521,8 @@ function goTo(page,btn){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
   if(btn)btn.classList.add('active');
-  if(page==='calendrier')renderCalendar();
+  if(page==='calendrier'){renderCalendarPage();renderCalendar();}
+  if(page==='reservations')renderReservationsPage();
   if(page==='events'&&apparts.length&&!Object.keys(eventsCache).length)loadEvents(false);
   // Page events supprimée V2 — rediriger vers pricing
   if(page==='events'){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-pricing').classList.add('active');renderPricingTable();return;}
@@ -1791,6 +1871,7 @@ function renderEvaAuditPage(){
         </div>
       </div>`).join('');
   }
+}
 }
 
 function openAddModal(){editId=null;['m-name','m-city','m-zone','m-rent','m-clean','m-price','m-comp','m-address','m-lat','m-lng'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('m-address-preview').style.display='none';document.getElementById('m-address-results').style.display='none';document.getElementById('m-degressif-toggle').className='toggle off';document.getElementById('m-degressif-config').style.display='none';document.getElementById('m-deg-start').value='14';document.getElementById('m-deg-step').value='5';document.getElementById('m-deg-min').value='';document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');
