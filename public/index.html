@@ -270,7 +270,144 @@
       </div>
     </div>
 
-    <div class="main">
+
+    <!-- ══ ONBOARDING RentyQ — Bienvenue ══ -->
+    <div id="rq-onboarding" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(4,3,25,.92);align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(6px)">
+      <div class="rq-onb-panel">
+
+        <!-- Barre de progression -->
+        <div class="rq-onb-progress-wrap">
+          <div class="rq-onb-progress-fill" id="rq-onb-progress"></div>
+        </div>
+        <div class="rq-onb-step-label" id="rq-onb-step-label"></div>
+
+        <!-- ÉTAPE 1 : Bienvenue -->
+        <div class="rq-onb-step" id="rq-onb-1">
+          <div class="rq-onb-logo">
+            <img src="assets/logo horizontal.jpg" alt="RentyQ" style="width:100%;max-width:220px;height:auto;display:block;margin:0 auto 20px"/>
+          </div>
+          <h2 class="rq-onb-title">Bienvenue sur RentyQ</h2>
+          <p class="rq-onb-sub">Quelques questions pour personnaliser votre expérience EVA.</p>
+          <div class="rq-onb-eva-intro">
+            <div class="rq-onb-eva-dot"></div>
+            <span>EVA — votre copilote de rentabilité — est prêt à vous accompagner.</span>
+          </div>
+          <button class="rq-onb-cta" onclick="rqOnbNext()">Commencer <i class="ti ti-arrow-right"></i></button>
+          <button class="rq-onb-skip" onclick="rqOnbFinish()">Passer cette étape</button>
+        </div>
+
+        <!-- ÉTAPE 2 : Profil -->
+        <div class="rq-onb-step" id="rq-onb-2" style="display:none">
+          <h2 class="rq-onb-title">Quel est votre profil&nbsp;?</h2>
+          <p class="rq-onb-sub">EVA adapte ses recommandations à votre situation.</p>
+          <div class="rq-onb-choices" id="rq-onb-choices-2">
+            <div class="rq-onb-choice" onclick="rqOnbPick(2,this,'owner')">
+              <span class="rq-onb-choice-icon">🏠</span>
+              <div>
+                <div class="rq-onb-choice-label">Je suis propriétaire</div>
+                <div class="rq-onb-choice-desc">Je loue mes propres biens</div>
+              </div>
+            </div>
+            <div class="rq-onb-choice" onclick="rqOnbPick(2,this,'investor')">
+              <span class="rq-onb-choice-icon">📈</span>
+              <div>
+                <div class="rq-onb-choice-label">Je suis investisseur</div>
+                <div class="rq-onb-choice-desc">Je développe un patrimoine locatif</div>
+              </div>
+            </div>
+            <div class="rq-onb-choice" onclick="rqOnbPick(2,this,'conciergerie')">
+              <span class="rq-onb-choice-icon">🏢</span>
+              <div>
+                <div class="rq-onb-choice-label">Je gère une conciergerie</div>
+                <div class="rq-onb-choice-desc">Je gère les biens d'autres propriétaires</div>
+              </div>
+            </div>
+          </div>
+          <button class="rq-onb-cta" id="rq-onb-cta-2" onclick="rqOnbNext()" disabled>Continuer <i class="ti ti-arrow-right"></i></button>
+          <button class="rq-onb-skip" onclick="rqOnbFinish()">Passer cette étape</button>
+        </div>
+
+        <!-- ÉTAPE 3 : Taille du parc -->
+        <div class="rq-onb-step" id="rq-onb-3" style="display:none">
+          <h2 class="rq-onb-title">Combien de logements gérez-vous&nbsp;?</h2>
+          <p class="rq-onb-sub">EVA calibre son analyse selon la taille de votre parc.</p>
+          <div class="rq-onb-choices" id="rq-onb-choices-3">
+            <div class="rq-onb-choice" onclick="rqOnbPick(3,this,'1')">
+              <span class="rq-onb-choice-icon">🛋️</span>
+              <div><div class="rq-onb-choice-label">1 logement</div></div>
+            </div>
+            <div class="rq-onb-choice" onclick="rqOnbPick(3,this,'2-5')">
+              <span class="rq-onb-choice-icon">🏘️</span>
+              <div><div class="rq-onb-choice-label">2 à 5 logements</div></div>
+            </div>
+            <div class="rq-onb-choice" onclick="rqOnbPick(3,this,'6-20')">
+              <span class="rq-onb-choice-icon">🏙️</span>
+              <div><div class="rq-onb-choice-label">6 à 20 logements</div></div>
+            </div>
+            <div class="rq-onb-choice" onclick="rqOnbPick(3,this,'20+')">
+              <span class="rq-onb-choice-icon">🏰</span>
+              <div><div class="rq-onb-choice-label">20 logements ou plus</div></div>
+            </div>
+          </div>
+          <button class="rq-onb-cta" id="rq-onb-cta-3" onclick="rqOnbNext()" disabled>Continuer <i class="ti ti-arrow-right"></i></button>
+          <button class="rq-onb-skip" onclick="rqOnbFinish()">Passer cette étape</button>
+        </div>
+
+        <!-- ÉTAPE 4 : Objectif -->
+        <div class="rq-onb-step" id="rq-onb-4" style="display:none">
+          <h2 class="rq-onb-title">Quel est votre principal objectif&nbsp;?</h2>
+          <p class="rq-onb-sub">EVA priorisera les recommandations en conséquence.</p>
+          <div class="rq-onb-choices" id="rq-onb-choices-4">
+            <div class="rq-onb-choice" onclick="rqOnbPick(4,this,'rentabilite')">
+              <span class="rq-onb-choice-icon">💰</span>
+              <div><div class="rq-onb-choice-label">Augmenter ma rentabilité</div></div>
+            </div>
+            <div class="rq-onb-choice" onclick="rqOnbPick(4,this,'temps')">
+              <span class="rq-onb-choice-icon">⏱️</span>
+              <div><div class="rq-onb-choice-label">Gagner du temps</div></div>
+            </div>
+            <div class="rq-onb-choice" onclick="rqOnbPick(4,this,'developpement')">
+              <span class="rq-onb-choice-icon">🚀</span>
+              <div><div class="rq-onb-choice-label">Développer mon activité</div></div>
+            </div>
+            <div class="rq-onb-choice" onclick="rqOnbPick(4,this,'pilotage')">
+              <span class="rq-onb-choice-icon">📊</span>
+              <div><div class="rq-onb-choice-label">Mieux piloter mes performances</div></div>
+            </div>
+          </div>
+          <button class="rq-onb-cta" id="rq-onb-cta-4" onclick="rqOnbNext()" disabled>Continuer <i class="ti ti-arrow-right"></i></button>
+          <button class="rq-onb-skip" onclick="rqOnbFinish()">Passer cette étape</button>
+        </div>
+
+        <!-- ÉTAPE 5 : Synthèse EVA -->
+        <div class="rq-onb-step" id="rq-onb-5" style="display:none">
+          <div class="rq-onb-eva-badge">🤖 EVA</div>
+          <h2 class="rq-onb-title">EVA est prêt à vous accompagner.</h2>
+          <p class="rq-onb-sub">RentyQ analysera vos performances, détectera des opportunités et vous aidera à prendre de meilleures décisions.</p>
+          <div class="rq-onb-cards">
+            <div class="rq-onb-card">
+              <div class="rq-onb-card-icon">⚡</div>
+              <div class="rq-onb-card-title">Opportunités EVA</div>
+              <div class="rq-onb-card-desc">Les actions prioritaires pour gagner plus.</div>
+            </div>
+            <div class="rq-onb-card">
+              <div class="rq-onb-card-icon">💰</div>
+              <div class="rq-onb-card-title">Profit 360</div>
+              <div class="rq-onb-card-desc">La rentabilité réelle de chaque logement.</div>
+            </div>
+            <div class="rq-onb-card">
+              <div class="rq-onb-card-icon">🔍</div>
+              <div class="rq-onb-card-title">Audit 360</div>
+              <div class="rq-onb-card-desc">Les leviers d'amélioration les plus rentables.</div>
+            </div>
+          </div>
+          <button class="rq-onb-cta rq-onb-cta-final" onclick="rqOnbFinish()">Découvrir mon Cockpit EVA <i class="ti ti-sparkles"></i></button>
+        </div>
+
+      </div>
+    </div>
+    <!-- ══ /ONBOARDING ══ -->
+
 
       <!-- COCKPIT -->
       <div class="page active" id="page-cockpit">
