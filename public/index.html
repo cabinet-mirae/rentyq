@@ -350,41 +350,24 @@
       <div class="page" id="page-pricing">
         <div class="page-header">
           <div>
-            <div class="page-title">Tarification IA</div>
-            <div class="page-sub" id="pricing-sub">EVA Pricing analyse les prochaines nuits libres et propose les meilleurs prix à pousser via Smoobu.</div>
+            <div class="page-title">Opportunités EVA</div>
+            <div class="page-sub" id="pricing-sub">EVA analyse votre activité en continu et détecte les actions à fort impact.</div>
           </div>
           <div class="actions">
-            <select id="pricing-horizon" onchange="renderPricingTable()" style="padding:6px 10px;border-radius:8px;border:0.5px solid #EEEEF5;font-size:13px;font-family:inherit">
+            <select id="pricing-horizon" onchange="renderPricingTable()" style="height:38px;border-radius:10px;border:1px solid rgba(109,40,217,.22);padding:0 12px;font-size:13px;font-family:inherit;background:white;color:#0B0722">
               <option value="7">7 jours</option>
               <option value="14" selected>14 jours</option>
               <option value="30">30 jours</option>
             </select>
-            <button class="btn btn-ai" onclick="runGlobal()" id="btn-global"><i class="ti ti-sparkles" aria-hidden="true"></i> Analyse globale</button>
-            <button class="btn btn-purple" onclick="applyAllEVA()" id="btn-apply-all" style="display:none">Appliquer tout</button>
+            <button id="btn-apply-all" class="btn btn-purple" onclick="applyAllPricing()" style="display:none"><i class="ti ti-sparkles"></i> Tout appliquer</button>
           </div>
         </div>
-        <div id="global-result"></div>
-
-        <!-- GRILLE CALENDRIER (vue C) -->
-        <div class="card" id="pricing-grid-wrap" style="overflow-x:auto;padding:1rem 0.75rem">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:0 0.5rem">
-            <div style="font-size:13px;font-weight:500">Vue calendrier — nuits libres à pricer</div>
-            <div style="display:flex;gap:12px;font-size:11px;color:#8A8A99">
-              <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#1D9E75;border-radius:2px;display:inline-block"></span>Réservé</span>
-              <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#E24B4A;border-radius:2px;display:inline-block"></span>Libre — cliquer pour appliquer</span>
-              <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#854F0B;border-radius:2px;display:inline-block"></span>Événement</span>
-            </div>
-          </div>
-          <div id="pricing-grid"></div>
-        </div>
-
-        <!-- PIPELINE OPPORTUNITÉS (vue B) -->
+        <div id="pricing-grid"></div>
         <div id="pricing-pipeline"></div>
-      </div>
-
-
-      <!-- SCANNER EVA -->
-      <div class="page" id="page-scanner">
+        <div id="global-result"></div>
+        <input type="hidden" id="scanner-free-address" value=""/>
+        <input type="hidden" id="scanner-free-price" value=""/>
+      </div>      <div class="page" id="page-scanner">
         <!-- Inputs cachés requis par le moteur auth.js -->
         <input type="hidden" id="scanner-free-address" value=""/>
         <input type="hidden" id="scanner-free-price" value=""/>
@@ -686,12 +669,9 @@
 
       <!-- PROFIT 360 -->
       <div class="page" id="page-profit360">
-        <div class="page-header"><div><div class="page-title">Profit 360&#176;</div><div class="page-sub">Rentabilit&#233; r&#233;elle &mdash; CA brut moins toutes les charges, plus les leviers EVA</div></div></div>
+        <div class="page-header"><div><div class="page-title">Profit 360°</div><div class="page-sub">La vérité financière de votre parc — ce que chaque bien rapporte réellement chaque mois.</div></div></div>
         <div id="profit360-content"></div>
-      </div>
-
-      <!-- DONNÉES EVA / INTÉGRATIONS -->
-      <div class="page" id="page-eva-data">
+      </div>      <div class="page" id="page-eva-data">
         <div class="page-header">
           <div>
             <div class="page-title">Donn&#233;es EVA</div>
