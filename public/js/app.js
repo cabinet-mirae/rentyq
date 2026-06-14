@@ -120,6 +120,94 @@ function closeLogoutConfirm(){
   if(m){m.style.display='none';}
 }
 
+/* ══════════════════════════════════════════════════════
+   ONBOARDING RentyQ — Bienvenue (nouveau compte)
+   Clé : rq_onboarding_done_<userId>
+   Ne s'affiche qu'une seule fois par utilisateur.
+   ══════════════════════════════════════════════════════ */
+
+const RQ_ONB_TOTAL = 5;
+let rqOnbCurrent = 1;
+const rqOnbData = {};
+
+function rqOnbKey(){
+  return 'rq_onboarding_done_' + (currentUser?.user?.id || 'anon');
+}
+
+function rqOnbTrigger(){
+  try{
+    const done = localStorage.getItem(rqOnbKey());
+    if(done) return; // déjà fait — on n'affiche plus jamais
+    rqOnbCurrent = 1;
+    rqOnbRender();
+    document.getElementById('rq-onboarding').style.display = 'flex';
+  }catch(e){ console.warn('rqOnbTrigger', e); }
+}
+
+function rqOnbRender(){
+  // Masquer toutes les étapes
+  for(let i=1;i<=RQ_ONB_TOTAL;i++){
+    const el=document.getElementById('rq-onb-'+i);
+    if(el){ el.style.display='none'; el.style.opacity='0'; el.style.transform='translateX(20px)'; }
+  }
+  // Afficher l'étape courante avec animation
+  const current = document.getElementById('rq-onb-'+rqOnbCurrent);
+  if(current){
+    current.style.display='flex';
+    requestAnimationFrame(()=>{
+      current.style.transition='opacity .28s ease, transform .28s ease';
+      current.style.opacity='1';
+      current.style.transform='translateX(0)';
+    });
+  }
+  // Progression
+  const pct = Math.round(((rqOnbCurrent-1)/(RQ_ONB_TOTAL-1))*100);
+  const fill = document.getElementById('rq-onb-progress');
+  if(fill) fill.style.width = pct + '%';
+  const lbl = document.getElementById('rq-onb-step-label');
+  if(lbl) lbl.textContent = rqOnbCurrent < RQ_ONB_TOTAL ? `Étape ${rqOnbCurrent} / ${RQ_ONB_TOTAL}` : '';
+}
+
+function rqOnbPick(step, el, value){
+  // Sélection dans les choix
+  const container = document.getElementById('rq-onb-choices-'+step);
+  if(container) container.querySelectorAll('.rq-onb-choice').forEach(c=>c.classList.remove('rq-onb-choice--active'));
+  el.classList.add('rq-onb-choice--active');
+  rqOnbData['step'+step] = value;
+  // Activer le bouton Continuer
+  const btn = document.getElementById('rq-onb-cta-'+step);
+  if(btn) btn.disabled = false;
+}
+
+function rqOnbNext(){
+  if(rqOnbCurrent < RQ_ONB_TOTAL){
+    rqOnbCurrent++;
+    rqOnbRender();
+  }
+}
+
+function rqOnbFinish(){
+  // Marquer comme terminé (persistant)
+  try{ localStorage.setItem(rqOnbKey(), '1'); }catch(e){}
+  // Sauvegarder les préférences sur le profil si possible
+  try{
+    if(currentProfile && rqOnbData.step2){
+      sbFetch(`profiles?id=eq.${currentProfile.id}`,{
+        method:'PATCH',
+        body:JSON.stringify({onboarding_profile:rqOnbData.step2, onboarding_size:rqOnbData.step3, onboarding_goal:rqOnbData.step4})
+      }).catch(()=>{});
+    }
+  }catch(e){}
+  // Fermer avec animation
+  const panel = document.querySelector('#rq-onboarding .rq-onb-panel');
+  if(panel){ panel.style.transition='transform .3s ease,opacity .3s ease'; panel.style.transform='scale(.96)'; panel.style.opacity='0'; }
+  setTimeout(()=>{
+    const overlay = document.getElementById('rq-onboarding');
+    if(overlay) overlay.style.display='none';
+  }, 320);
+}
+
+
 async function loadApp(){
   document.getElementById('auth-screen').style.display='none';
   document.getElementById('loading').style.display='flex';
@@ -133,7 +221,7 @@ async function loadApp(){
     document.getElementById('loading').style.display='none';
     document.getElementById('app').style.display='flex';
     renderSidebar();renderAll();
-    setTimeout(()=>rqTourTrigger(),800);
+    setTimeout(()=>{rqTourTrigger();rqOnbTrigger();},800);
     document.getElementById('cockpit-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
     document.getElementById('set-name').value=currentProfile.name||'';
     document.getElementById('set-email').textContent=currentProfile.email||'';
