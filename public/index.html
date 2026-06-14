@@ -290,86 +290,62 @@
         <div class="page-header">
           <div><div class="page-title">Calendrier</div><div class="page-sub" id="cal-sub">Vue mensuelle de vos réservations</div></div>
           <div class="actions">
-            <button class="btn" id="cal-prev" onclick="calNav(-1)">← Mois</button>
+            <button class="btn" onclick="calNav(-1)"><i class="ti ti-chevron-left"></i></button>
             <span id="cal-month-label" style="font-size:15px;font-weight:600;min-width:160px;text-align:center"></span>
-            <button class="btn" id="cal-next" onclick="calNav(1)">Mois →</button>
-            <button class="btn btn-purple" onclick="goTo('reservations',document.querySelector('[onclick*=reservations]'))">+ Réservation</button>
+            <button class="btn" onclick="calNav(1)"><i class="ti ti-chevron-right"></i></button>
           </div>
         </div>
-        <!-- Filtre appart -->
-        <div style="display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap" id="cal-filters"></div>
-        <!-- Légende -->
-        <div style="display:flex;gap:16px;margin-bottom:1rem;font-size:12px;color:#8A8A99">
-          <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:3px;background:#1D9E75"></span>Réservé</span>
-          <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:3px;background:#FCEBEB;border:1px solid #F09595"></span>Libre</span>
-          <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:3px;background:#0EA5E9"></span>Ménage</span>
-          <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:3px;background:#FCD34D"></span>Événement</span>
+
+        <!-- Bloc 1 : Résumé opérationnel -->
+        <div id="cal-kpi-row" class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:1rem"></div>
+
+        <!-- Bloc 2 : Opportunité EVA -->
+        <div id="cal-eva-block" class="cal-eva-opport" style="display:none">
+          <div>
+            <div class="cal-eva-opport-title" id="cal-eva-title">EVA a détecté des nuits libres à optimiser</div>
+            <div class="cal-eva-opport-sub" id="cal-eva-sub">Une action rapide pourrait générer des revenus supplémentaires.</div>
+          </div>
+          <button class="btn btn-purple" onclick="goTo('reservations',null)">Voir les recommandations</button>
         </div>
-        <!-- Grille -->
-        <div id="cal-grid" style="background:white;border-radius:14px;border:1px solid #EEEEF5;overflow:hidden"></div>
-        <!-- Détail jour -->
+
+        <!-- Bloc 3 : Calendrier -->
+        <div class="card" style="padding:0;overflow:hidden">
+          <div style="padding:.75rem 1rem .5rem;border-bottom:1px solid #EEEEF5;display:flex;gap:6px;flex-wrap:wrap" id="cal-filters"></div>
+          <div id="cal-grid"></div>
+        </div>
+
         <div id="cal-day-detail" style="display:none;margin-top:1rem"></div>
       </div>
-
-      <!-- LE PARC -->
-      <div class="page" id="page-parc">
-        <div class="page-header">
-          <div><div class="page-title">Mes logements</div><div class="page-sub" id="parc-sub"></div></div>
-          <div class="actions">
-            <div style="display:flex;background:#F0F0F5;border-radius:8px;padding:2px;margin-right:8px">
-              <button id="parc-view-list" onclick="switchParcView('list')" style="padding:6px 12px;border-radius:6px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:#6B3FA0;color:white">📋 Liste</button>
-              <button id="parc-view-map" onclick="switchParcView('map')" style="padding:6px 12px;border-radius:6px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:#8A8A99">🗺 Carte</button>
-            </div>
-            <button class="btn btn-green" onclick="syncSmoobu()" id="btn-sync" style="display:none">🔄 Sync Smoobu</button>
-            <button class="btn" onclick="openArchivesView()" id="btn-archives" style="display:none">📦 Archives</button>
-            <button class="btn btn-purple" onclick="openAddModal()">+ Ajouter</button>
-          </div>
-        </div>
-        <div id="parc-list-view">
-          <div id="parc-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px"></div>
-          <div id="parc-empty" style="text-align:center;padding:3rem;display:none">
-            <div style="font-size:48px;margin-bottom:1rem">🏠</div>
-            <div style="font-weight:600;font-size:16px;margin-bottom:6px">Votre parc est prêt</div>
-            <div style="font-size:13px;color:#8A8A99;margin-bottom:1rem">Ajoutez votre premier bien — EVA s'occupe du reste</div>
-            <button class="btn btn-purple" onclick="openAddModal()">+ Ajouter un appartement</button>
-          </div>
-        </div>
-        <div id="parc-map-view" style="display:none">
-          <div id="parc-map" style="height:500px;border-radius:12px;border:1px solid #E8E8EE;overflow:hidden"></div>
-        </div>
-        <div id="parc-detail-view" style="display:none">
-          <div id="parc-detail"></div>
-        </div>
-
-        <!-- ARCHIVES -->
-        <div id="parc-archives-view" style="display:none">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.5rem">
-            <button onclick="closeArchivesView()" style="width:38px;height:38px;border-radius:12px;border:1px solid rgba(139,92,246,.16);background:#fff;color:#5B4B7A;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center">&#8592;</button>
-            <div>
-              <div style="font-size:18px;font-weight:700;color:#17122E">Biens archiv&#233;s</div>
-              <div style="font-size:12px;color:#8A8A99">Historique conserv&#233; &middot; Exclus d&#8217;EVA &middot; Suppression d&#233;finitive possible</div>
-            </div>
-          </div>
-          <div id="parc-archives-list"></div>
-        </div>
-      </div>
-
+      <!-- RESERVATIONS -->
       <!-- RESERVATIONS -->
       <div class="page" id="page-reservations">
         <div class="page-header">
-          <div><div class="page-title">Réservations</div><div class="page-sub" id="res-sub"></div></div>
-          <div class="actions"><button class="btn btn-purple" onclick="openAddResModal()">+ Ajouter</button></div>
+          <div><div class="page-title">Réservations</div><div class="page-sub">Centre d'actions EVA — ce qui mérite votre attention aujourd'hui</div></div>
+          <div class="actions">
+            <button class="btn btn-purple" onclick="openModal('modal-add-res')"><i class="ti ti-plus"></i> Réservation</button>
+          </div>
         </div>
-        <div class="card">
-          <div class="table-wrap"><table id="res-table"></table></div>
-          <div id="res-empty" style="text-align:center;padding:2rem;color:#8A8A99;display:none">
-            <div style="font-size:36px;margin-bottom:1rem">📋</div>
-            <div style="font-weight:600;margin-bottom:6px">Aucune réservation</div>
-            <button class="btn btn-green" onclick="goTo('smoobu',document.querySelectorAll('.nav-item')[6])">🔗 Connecter Smoobu</button>
+
+        <!-- Bloc 1 : Résumé semaine -->
+        <div id="res-kpi-row" class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:1rem"></div>
+
+        <!-- Bloc 2 : Priorités EVA -->
+        <div id="res-eva-priorities" style="margin-bottom:1.25rem"></div>
+
+        <!-- Bloc 3 : Liste des réservations -->
+        <div id="res-list-section">
+          <div style="font-size:11px;font-weight:800;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.75rem">Réservations récentes</div>
+          <div id="res-table-wrap"></div>
+          <div id="res-empty" style="display:none">
+            <div class="res-empty-state">
+              <div style="font-size:40px;margin-bottom:14px">📭</div>
+              <div style="font-size:18px;font-weight:800;color:#0B0722;font-family:Sora,sans-serif;margin-bottom:8px">Commencez à centraliser vos réservations</div>
+              <div style="font-size:13px;color:#8A8A99;line-height:1.65;margin-bottom:20px;max-width:380px;margin-left:auto;margin-right:auto">Connectez votre PMS pour permettre à EVA d'analyser votre activité et détecter des opportunités.</div>
+              <button class="btn btn-purple" onclick="goTo('settings',null)"><i class="ti ti-plug"></i> Connecter Smoobu</button>
+            </div>
           </div>
         </div>
       </div>
-
       <!-- IA PRICING -->
       <div class="page" id="page-pricing">
         <div class="page-header">
