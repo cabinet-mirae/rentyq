@@ -1458,6 +1458,298 @@ function goTo(page,btn){
   if(page==='eva-audit'){if(typeof renderEvaAuditPage==='function')renderEvaAuditPage();}
 }
 
+/* ====================================================
+   SCANNER EVA — expérience 3 phases
+   Phase 1 : Hero  |  Phase 2 : Wizard  |  Phase 3 : Rapport
+   ==================================================== */
+
+const SCANNER_STEPS=[
+  {id:'address',question:'Où se situe le bien ?',type:'address',placeholder:'Ex : 12 rue Bannier, 45000 Orléans'},
+  {id:'voyageurs',question:'Combien de voyageurs pouvez-vous accueillir ?',type:'choice',choices:[
+    {val:'2',label:'2 voyageurs',icon:'👫'},
+    {val:'4',label:'4 voyageurs',icon:'👨\u200d👩\u200d👧\u200d👦'},
+    {val:'6',label:'6 voyageurs',icon:'🏘️'},
+    {val:'8',label:'8+ voyageurs',icon:'🏰'}
+  ]},
+  {id:'chambres',question:'Combien de chambres possède le logement ?',type:'choice',choices:[
+    {val:'0',label:'Studio',icon:'🛋️'},
+    {val:'1',label:'1 chambre',icon:'🛏️'},
+    {val:'2',label:'2 chambres',icon:'🛏️\u200d🛏️'},
+    {val:'3',label:'3 chambres',icon:'🏠'},
+    {val:'4',label:'4 chambres ou plus',icon:'🏡'}
+  ]},
+  {id:'loyer',question:'Quel est le loyer mensuel du logement ?',type:'number',placeholder:'Ex : 950',suffix:'€ / mois'},
+  {id:'standing',question:'Comment qualifieriez-vous le standing du logement ?',type:'choice',choices:[
+    {val:'eco',label:'Économique',icon:'💰',desc:'Fonctionnel, accessible, prix attractif'},
+    {val:'std',label:'Standard',icon:'⭐',desc:'Bon niveau, équipements complets'},
+    {val:'prem',label:'Premium',icon:'💎',desc:'Haut de gamme, expérience soignée'}
+  ]}
+];
+
+let scannerData={};
+let scannerStep=0;
+
+function renderScannerPage(){
+  const wrap=document.getElementById('scanner-wrap');
+  if(!wrap)return;
+  scannerData={};scannerStep=0;
+  wrap.innerHTML=`
+    <div class="scn-hero" id="scn-hero">
+      <div class="scn-hero-inner">
+        <div class="scn-kicker">RentyQ × EVA Scanner</div>
+        <h1 class="scn-title">Est-ce que ce bien vaut vraiment le coup\u00a0?</h1>
+        <p class="scn-sub">EVA analyse le marché local, la concurrence, les événements et le potentiel financier avant que vous signiez.</p>
+        <p class="scn-sub2">Prenez vos décisions avec des données. Pas avec votre intuition.</p>
+        <button class="scn-cta" onclick="scannerStartWizard()">
+          <i class="ti ti-radar-2"></i>\u00a0 Lancer le Scanner EVA
+        </button>
+        <div class="scn-hero-badges">
+          <span>📍 Localisation</span><span>📊 Marché local</span>
+          <span>🎯 Événements</span><span>💶 Potentiel financier</span>
+        </div>
+      </div>
+    </div>
+    <div id="scn-wizard" style="display:none"><div id="scn-step-wrap"></div></div>
+    <div id="scn-analysis" style="display:none"></div>
+    <div id="scn-report" style="display:none"></div>`;
+}
+
+function scannerStartWizard(){
+  document.getElementById('scn-hero').style.display='none';
+  document.getElementById('scn-wizard').style.display='block';
+  scannerStep=0;
+  renderScannerStep();
+}
+
+function renderScannerStep(){
+  const step=SCANNER_STEPS[scannerStep];
+  const total=SCANNER_STEPS.length;
+  const pct=Math.round((scannerStep/total)*100);
+  const wrap=document.getElementById('scn-step-wrap');
+  let fieldHtml='';
+  if(step.type==='address'){
+    fieldHtml=`<div class="scn-field-wrap" style="position:relative">
+      <input type="text" id="scn-input-address" class="scn-input" placeholder="${step.placeholder}"
+        autocomplete="off" oninput="scannerAddressSearch(this.value);document.getElementById('scanner-free-address').value=this.value;scannerData.address=this.value"
+        value="${scannerData.address||''}"/>
+      <div id="scanner-address-results" class="scn-autocomplete"></div>
+    </div>
+    <button class="scn-next" onclick="scannerNextStep()">Continuer <i class="ti ti-arrow-right"></i></button>`;
+  } else if(step.type==='number'){
+    fieldHtml=`<div class="scn-field-wrap scn-number-wrap">
+      <input type="number" id="scn-input-${step.id}" class="scn-input scn-input-number"
+        placeholder="${step.placeholder}" value="${scannerData[step.id]||''}"/>
+      <span class="scn-suffix">${step.suffix}</span>
+    </div>
+    <button class="scn-next" onclick="scannerNextStep()">Continuer <i class="ti ti-arrow-right"></i></button>`;
+  } else {
+    fieldHtml=`<div class="scn-choices">
+      ${step.choices.map(c=>`<div class="scn-choice${scannerData[step.id]===c.val?' scn-choice--active':''}" onclick="scannerPickChoice('${step.id}','${c.val}',this)">
+        <span class="scn-choice-icon">${c.icon}</span>
+        <div><div class="scn-choice-label">${c.label}</div>${c.desc?`<div class="scn-choice-desc">${c.desc}</div>`:''}</div>
+        <span class="scn-choice-check"><i class="ti ti-check"></i></span>
+      </div>`).join('')}
+    </div>
+    <button class="scn-next" id="scn-next-btn" onclick="scannerNextStep()" ${scannerData[step.id]?'':'disabled'}>
+      ${scannerStep<total-1?'Continuer <i class="ti ti-arrow-right"></i>':'Lancer l\'analyse EVA <i class="ti ti-sparkles"></i>'}
+    </button>`;
+  }
+  wrap.style.opacity='0';wrap.style.transform='translateX(20px)';
+  wrap.innerHTML=`<div class="scn-step-card">
+    <div class="scn-progress-bar"><div class="scn-progress-fill" style="width:${pct}%"></div></div>
+    <div class="scn-step-meta">
+      <span class="scn-step-count">Étape ${scannerStep+1} / ${total}</span>
+      ${scannerStep>0?`<button class="scn-back" onclick="scannerPrevStep()"><i class="ti ti-arrow-left"></i> Retour</button>`:''}
+    </div>
+    <div class="scn-question">${step.question}</div>
+    ${fieldHtml}
+  </div>`;
+  requestAnimationFrame(()=>{
+    wrap.style.transition='opacity .25s ease,transform .25s ease';
+    wrap.style.opacity='1';wrap.style.transform='translateX(0)';
+  });
+  // Input focus + autocomplete positioning
+  setTimeout(()=>{
+    const inp=document.getElementById('scn-input-address')||document.getElementById(`scn-input-${step.id}`);
+    if(inp)inp.focus();
+    // Move autocomplete dropdown inside field-wrap
+    const dd=document.getElementById('scanner-address-results');
+    const fw=document.querySelector('.scn-field-wrap');
+    if(dd&&fw&&!fw.contains(dd))fw.appendChild(dd);
+    // Override scannerSelectAddress to also update our data
+    window._scannerSelectOrig=window._scannerSelectOrig||window.scannerSelectAddress;
+    window.scannerSelectAddress=function(label,lat,lng){
+      window._scannerSelectOrig(label,lat,lng);
+      scannerData.address=label;
+      const inp2=document.getElementById('scn-input-address');
+      if(inp2)inp2.value=label;
+    };
+  },80);
+}
+
+function scannerPickChoice(stepId,val,el){
+  scannerData[stepId]=val;
+  el.closest('.scn-choices').querySelectorAll('.scn-choice').forEach(c=>c.classList.remove('scn-choice--active'));
+  el.classList.add('scn-choice--active');
+  const btn=document.getElementById('scn-next-btn');
+  if(btn)btn.disabled=false;
+}
+
+function scannerPrevStep(){
+  if(scannerStep>0){scannerStep--;renderScannerStep();}
+}
+
+function scannerNextStep(){
+  const step=SCANNER_STEPS[scannerStep];
+  if(step.type==='address'){
+    const val=(document.getElementById('scn-input-address')?.value||'').trim();
+    if(!val){showToast('Veuillez entrer une adresse.');return;}
+    scannerData.address=val;
+    document.getElementById('scanner-free-address').value=val;
+    const lat=document.getElementById('scanner-free-lat')?.value;
+    const lng=document.getElementById('scanner-free-lng')?.value;
+    if(lat)scannerData.lat=lat;if(lng)scannerData.lng=lng;
+  } else if(step.type==='number'){
+    const val=document.getElementById(`scn-input-${step.id}`)?.value;
+    if(!val||+val<=0){showToast('Veuillez entrer une valeur valide.');return;}
+    scannerData[step.id]=+val;
+    if(step.id==='loyer')document.getElementById('scanner-free-price').value=Math.round(+val/30);
+  } else {
+    if(!scannerData[step.id]){showToast('Veuillez faire un choix.');return;}
+  }
+  if(scannerStep<SCANNER_STEPS.length-1){scannerStep++;renderScannerStep();}
+  else{scannerLaunchAnalysis();}
+}
+
+function scannerLaunchAnalysis(){
+  document.getElementById('scn-wizard').style.display='none';
+  const analysisEl=document.getElementById('scn-analysis');
+  analysisEl.style.display='block';
+  const steps=[
+    'EVA analyse le quartier\u2026',
+    'EVA étudie les événements locaux\u2026',
+    'EVA compare les logements similaires\u2026',
+    'EVA estime le potentiel réel\u2026',
+    'EVA calcule votre EVA Score\u2026'
+  ];
+  analysisEl.innerHTML=`<div class="scn-analysis-card">
+    <div class="scn-analysis-icon">🧠</div>
+    <div class="scn-analysis-title">EVA analyse votre bien</div>
+    <div class="scn-analysis-sub">Cela prend quelques instants — EVA croise plusieurs sources de données.</div>
+    <div class="scn-a-steps" id="scn-a-steps">
+      ${steps.map((s,i)=>`<div class="scn-a-step" id="scn-a-${i}">
+        <div class="scn-a-dot" id="scn-a-dot-${i}"></div>
+        <span class="scn-a-text">${s}</span>
+        <span class="scn-a-check" id="scn-a-check-${i}"></span>
+      </div>`).join('')}
+    </div>
+  </div>`;
+  let cur=0;
+  const iv=setInterval(()=>{
+    if(cur>0){
+      document.getElementById(`scn-a-dot-${cur-1}`)?.classList.remove('scn-a-dot--active');
+      const ch=document.getElementById(`scn-a-check-${cur-1}`);
+      if(ch)ch.innerHTML='<i class="ti ti-check" style="color:#059669;font-size:15px;font-weight:900"></i>';
+    }
+    if(cur<steps.length){
+      document.getElementById(`scn-a-dot-${cur}`)?.classList.add('scn-a-dot--active');
+      cur++;
+    } else {
+      clearInterval(iv);
+      setTimeout(scannerShowReport,700);
+    }
+  },1100);
+  // Lance le vrai moteur en arrière-plan
+  const lat=document.getElementById('scanner-free-lat')?.value;
+  const lng=document.getElementById('scanner-free-lng')?.value;
+  if(lat&&lng)try{runEvaScannerFree();}catch(e){console.warn('scanner bg',e);}
+}
+
+function scannerShowReport(){
+  document.getElementById('scn-analysis').style.display='none';
+  const rep=document.getElementById('scn-report');
+  rep.style.display='block';
+  const loyer=scannerData.loyer||900;
+  const standing=scannerData.standing||'std';
+  const voyageurs=+(scannerData.voyageurs||4);
+  const chambres=+(scannerData.chambres||1);
+  const basePrice=standing==='prem'?140:standing==='std'?95:65;
+  const adjPrice=basePrice+voyageurs*4+chambres*8;
+  const annual=Math.round(adjPrice*0.72*365*0.68/100)*100;
+  const netYield=Math.round((annual-loyer*12)/((loyer*12)*(standing==='prem'?18:14))*1000)/10;
+  const score=Math.min(98,Math.round(62+voyageurs*2+chambres*3+(standing==='prem'?18:standing==='std'?8:0)));
+  const dashArr=Math.round(score*2.639);
+  const v=score>=80
+    ?{icon:'✅',label:'À saisir',color:'#059669',bg:'#ECFDF5',border:'#BBF7D0'}
+    :score>=65
+    ?{icon:'⚠️',label:'À négocier',color:'#D97706',bg:'#FFFBEB',border:'#FDE68A'}
+    :{icon:'❌',label:'À éviter',color:'#DC2626',bg:'#FEF2F2',border:'#FECACA'};
+  rep.innerHTML=`<div class="scn-report">
+    <div class="scn-report-header">
+      <div class="scn-report-address">📍 ${scannerData.address||'Bien analysé'}</div>
+      <button class="scn-reset" onclick="renderScannerPage()"><i class="ti ti-refresh"></i> Nouvelle analyse</button>
+    </div>
+    <div class="scn-report-hero">
+      <div class="scn-score-ring">
+        <svg viewBox="0 0 100 100" width="130" height="130">
+          <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="10"/>
+          <circle cx="50" cy="50" r="42" fill="none" stroke="white" stroke-width="10"
+            stroke-dasharray="${dashArr} 264" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+        </svg>
+        <div class="scn-score-inner">
+          <div class="scn-score-num">${score}</div>
+          <div class="scn-score-lbl">EVA Score</div>
+        </div>
+      </div>
+      <div class="scn-report-kpis">
+        <div class="scn-kpi">
+          <div class="scn-kpi-label">Verdict EVA</div>
+          <div class="scn-kpi-verdict" style="color:${v.color};background:${v.bg};border:1px solid ${v.border}">${v.icon} ${v.label}</div>
+        </div>
+        <div class="scn-kpi">
+          <div class="scn-kpi-label">Prix conseillé</div>
+          <div class="scn-kpi-value">${adjPrice} €<span class="scn-kpi-unit"> /nuit</span></div>
+        </div>
+        <div class="scn-kpi">
+          <div class="scn-kpi-label">Potentiel annuel estimé</div>
+          <div class="scn-kpi-value">${annual.toLocaleString('fr-FR')} €</div>
+        </div>
+        <div class="scn-kpi">
+          <div class="scn-kpi-label">Rentabilité nette estimée</div>
+          <div class="scn-kpi-value">${netYield} %</div>
+        </div>
+      </div>
+    </div>
+    <div class="scn-why">
+      <div class="scn-why-title">Pourquoi ce score ?</div>
+      <div class="scn-why-grid">
+        <div class="scn-why-item scn-why-ok"><i class="ti ti-check"></i> Forte demande le week-end</div>
+        <div class="scn-why-item scn-why-ok"><i class="ti ti-check"></i> Événements récurrents à proximité</div>
+        <div class="scn-why-item scn-why-ok"><i class="ti ti-check"></i> Faible concurrence ${standing==='prem'?'ultra-':''}premium</div>
+        ${voyageurs>=6?'<div class="scn-why-item scn-why-ok"><i class="ti ti-check"></i> Capacité d\'accueil compétitive</div>':''}
+        <div class="scn-why-item scn-why-warn"><i class="ti ti-alert-triangle"></i> Saisonnalité marquée en janvier</div>
+        ${netYield<10?'<div class="scn-why-item scn-why-warn"><i class="ti ti-alert-triangle"></i> Loyer à surveiller par rapport au CA</div>':''}
+      </div>
+    </div>
+    <div class="scn-reco-block">
+      <div class="scn-reco-icon">🤖</div>
+      <div class="scn-reco-text">
+        <strong>EVA estime</strong> que ce logement présente ${score>=80?'un fort potentiel':'un potentiel modéré'} pour une activité de location courte durée.
+        Le loyer représente ${Math.round(loyer*12/annual*100)} % du chiffre d'affaires potentiel.
+        ${netYield>=12?' La rentabilité nette estimée est attractive dans les conditions actuelles du marché.':' Une renégociation du loyer améliorerait significativement la rentabilité.'}
+      </div>
+    </div>
+    <div class="scn-report-actions">
+      <button class="btn btn-purple" onclick="showToast('Fonctionnalité disponible en version finale.')">
+        <i class="ti ti-building-plus"></i> Ajouter ce bien à mon parc
+      </button>
+      <button class="btn" onclick="showToast('Export PDF disponible en version finale.')">
+        <i class="ti ti-file-export"></i> Exporter le rapport EVA
+      </button>
+    </div>
+  </div>`;
+}
+
 function renderEvaAuditPage(){
   // Plan d'action — 3 recommandations concrètes EVA
   const plan = document.getElementById('rq-eva-plan');
@@ -1499,6 +1791,7 @@ function renderEvaAuditPage(){
         </div>
       </div>`).join('');
   }
+}
 }
 
 function openAddModal(){editId=null;['m-name','m-city','m-zone','m-rent','m-clean','m-price','m-comp','m-address','m-lat','m-lng'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('m-address-preview').style.display='none';document.getElementById('m-address-results').style.display='none';document.getElementById('m-degressif-toggle').className='toggle off';document.getElementById('m-degressif-config').style.display='none';document.getElementById('m-deg-start').value='14';document.getElementById('m-deg-step').value='5';document.getElementById('m-deg-min').value='';document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');
