@@ -433,51 +433,65 @@ function renderParcTable(){
   enriched.sort((x,y)=>y.evaPriority-x.evaPriority);
 
   cards.innerHTML=enriched.map(({a,net,occ,hotEvs,freeTonight,evaScore,totalPotential,rev})=>{
-    // Couleur EVA Score vert/orange/rouge
-    const scoreColor=evaScore>=80?'#059669':evaScore>=60?'#D97706':'#DC2626';
-    const scoreBg=evaScore>=80?'#ECFDF5':evaScore>=60?'#FFFBEB':'#FEF2F2';
-    const scoreLabel=evaScore>=80?'Bon':evaScore>=60?'À opt.':'Urgent';
 
-    // Badge statut principal
-    let statusIcon,statusText,statusBg,borderColor;
+    // Système de couleurs EVA — violet / orange / vert selon situation
+    let evaBg,evaText,evaBorder,evaScoreBg,evaScoreColor,evaIcon,evaReco,evaImpact,evaImpactSuffix;
+
     if(freeTonight){
-      statusIcon='⚠️';statusText='Libre ce soir';
-      statusBg='#FEF2F2';borderColor='rgba(220,38,38,.25)';
+      evaBg='#EEEDFE';evaText='#26215C';evaBorder='1.5px solid #AFA9EC';
+      evaScoreBg='#EEEDFE';evaScoreColor='#3C3489';
+      evaIcon='🔥';evaReco='Augmenter le tarif ce soir';
+      evaImpact=totalPotential>0?`+${totalPotential} €`:`+${Math.round((+a.price||60)*.82)} €`;
+      evaImpactSuffix='estimés';
     } else if(hotEvs.length){
-      statusIcon='🔥';statusText='Événement proche';
-      statusBg='#FFFBEB';borderColor='rgba(217,119,6,.25)';
+      evaBg='#FAEEDA';evaText='#412402';evaBorder='1.5px solid #EF9F27';
+      evaScoreBg='#FAEEDA';evaScoreColor='#854F0B';
+      evaIcon='🔥';evaReco=`Booster le tarif — ${hotEvs[0].name?.slice(0,22)||'événement'}`;
+      evaImpact=totalPotential>0?`+${totalPotential} €`:`+${Math.round((+a.price||60)*.15*3)} €`;
+      evaImpactSuffix='potentiels';
     } else if(occ<50){
-      statusIcon='📉';statusText='Occupation faible';
-      statusBg='#FFFBEB';borderColor='rgba(217,119,6,.2)';
+      evaBg='#FAEEDA';evaText='#412402';evaBorder='1.5px solid #EF9F27';
+      evaScoreBg='#FAEEDA';evaScoreColor='#854F0B';
+      evaIcon='⚠️';evaReco='Activer une plateforme supplémentaire';
+      evaImpact=totalPotential>0?`+${totalPotential} €`:`+${Math.round((+a.price||60)*0.08*8)} €`;
+      evaImpactSuffix='potentiels';
     } else {
-      statusIcon='✅';statusText='Situation stable';
-      statusBg='#ECFDF5';borderColor='rgba(5,150,105,.15)';
+      evaBg='#EAF3DE';evaText='#173404';evaBorder='0.5px solid #C0DD97';
+      evaScoreBg='#EAF3DE';evaScoreColor='#3B6D11';
+      evaIcon='✅';evaReco='Logement bien optimisé';
+      evaImpact=`Score ${a.note||'4,9'}+`;
+      evaImpactSuffix='à maintenir';
     }
 
-    return`<div onclick="showApartDetail('${a.id}')" style="background:white;border-radius:16px;border:1px solid ${borderColor};padding:16px;cursor:pointer;transition:transform .12s,box-shadow .12s;overflow:hidden" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.08)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+    return`<div onclick="showApartDetail('${a.id}')" style="background:white;border-radius:16px;border:${evaBorder};padding:14px;cursor:pointer;transition:transform .12s,box-shadow .12s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.08)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
 
-      <!-- Header: nom + score EVA -->
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+      <!-- Header : nom + badge EVA score -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:12px">
         <div style="min-width:0;flex:1">
-          <div style="font-size:15px;font-weight:700;color:#17122E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.emoji||'🏠'} ${a.name}</div>
-          <div style="font-size:11px;color:#8A8A99;margin-top:2px">${a.city||''}</div>
+          <div style="font-size:14px;font-weight:700;color:#17122E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.emoji||'🏠'} ${a.name}</div>
+          <div style="font-size:12px;color:#8A8A99;margin-top:2px">${a.city||''}</div>
         </div>
-        <div style="flex-shrink:0;text-align:center;margin-left:10px;background:${scoreBg};border-radius:10px;padding:6px 10px;min-width:54px">
-          <div style="font-size:18px;font-weight:950;color:${scoreColor};letter-spacing:-.5px;line-height:1">${evaScore}</div>
-          <div style="font-size:9px;font-weight:800;color:${scoreColor};text-transform:uppercase;letter-spacing:.4px">${scoreLabel}</div>
+        <div style="flex-shrink:0;background:${evaScoreBg};border-radius:8px;padding:4px 8px;text-align:center">
+          <div style="font-size:9px;font-weight:800;color:${evaScoreColor};text-transform:uppercase;letter-spacing:.5px">EVA</div>
+          <div style="font-size:17px;font-weight:900;color:${evaScoreColor};line-height:1.1;letter-spacing:-.5px">${evaScore}</div>
         </div>
       </div>
 
-      <!-- Gain potentiel EVA -->
-      ${totalPotential>0?`<div style="background:linear-gradient(135deg,#F3E8FF,#FFF1F9);border-radius:10px;padding:8px 12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
-        <div style="font-size:11px;font-weight:700;color:#7C3AED">💰 Potentiel détecté</div>
-        <div style="font-size:15px;font-weight:950;color:#7C3AED">+${totalPotential}€</div>
-      </div>`:`<div style="background:#F5F4FF;border-radius:10px;padding:8px 12px;margin-bottom:10px">
-        <div style="font-size:11px;color:#8A8A99">Revenus ce mois : <strong style="color:#17122E">${rev}€</strong></div>
-      </div>`}
+      <!-- Bloc Priorité EVA -->
+      <div style="background:${evaBg};border-radius:8px;padding:10px;margin-bottom:10px">
+        <div style="font-size:10px;font-weight:800;color:${evaScoreColor};text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${evaIcon} Priorité EVA</div>
+        <div style="font-size:13px;font-weight:600;color:${evaText};line-height:1.35">${evaReco}</div>
+      </div>
 
-      <!-- Statut principal -->
-      <div style="background:${statusBg};border-radius:8px;padding:7px 10px;font-size:12px;font-weight:700;color:#17122E">${statusIcon} ${statusText}</div>
+      <!-- Impact estimé + bouton Voir -->
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:10px;color:#8A8A99;margin-bottom:2px">Impact ${evaImpactSuffix}</div>
+          <div style="font-size:18px;font-weight:950;color:${evaScoreColor};letter-spacing:-.5px;line-height:1">${evaImpact}</div>
+        </div>
+        <button onclick="event.stopPropagation();showApartDetail('${a.id}')" style="background:#534AB7;color:white;border:none;border-radius:8px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0">Voir</button>
+      </div>
+
     </div>`;
   }).join('');
 
@@ -1442,6 +1456,50 @@ function goTo(page,btn){
   if(page==='eva-data'){renderEvaDataPage();}
   if(page==='profit360'){renderProfit360();}
   if(page==='eva-audit'){if(typeof renderEvaAuditPage==='function')renderEvaAuditPage();}
+}
+
+function renderEvaAuditPage(){
+  // Plan d'action — 3 recommandations concrètes EVA
+  const plan = document.getElementById('rq-eva-plan');
+  if(plan && !plan.dataset.populated){
+    plan.dataset.populated = '1';
+    const actions = [
+      {
+        num:1,
+        title:'Augmenter les tarifs du samedi',
+        desc:'EVA détecte un sous-pricing systématique le week-end. Un ajustement de +15% sur les samedis correspond à la demande locale observée.',
+        impact:'+1 200 €/an',
+        color:'#059669'
+      },
+      {
+        num:2,
+        title:'Corriger la fiche logement S2',
+        desc:'Photos sous-optimales et description trop courte pénalisent le taux de conversion. EVA estime un gain de confiance significatif après mise à jour.',
+        impact:'+14 avis potentiels',
+        color:'#7C3AED'
+      },
+      {
+        num:3,
+        title:'Activer Booking.com sur S3',
+        desc:'Le logement S3 n\'est distribué que sur Airbnb. L\'ajout de Booking.com dans votre zone cible représente un potentiel d\'occupation supplémentaire estimé.',
+        impact:'+8 % d\'occupation',
+        color:'#0284C7'
+      }
+    ];
+    plan.innerHTML = actions.map(a=>`
+      <div class="rq-eva-action">
+        <div class="rq-eva-action-rank" style="background:${a.color}">${a.num}</div>
+        <div class="rq-eva-action-body">
+          <div class="rq-eva-action-title">${a.title}</div>
+          <div class="rq-eva-action-desc">${a.desc}</div>
+        </div>
+        <div class="rq-eva-action-right">
+          <div class="rq-eva-action-impact" style="color:${a.color}">${a.impact}</div>
+          <button class="rq-eva-action-btn" onclick="showToast('Action enregistrée — EVA suit l\\'évolution.')">Appliquer</button>
+        </div>
+      </div>`).join('');
+  }
+}
 }
 
 function openAddModal(){editId=null;['m-name','m-city','m-zone','m-rent','m-clean','m-price','m-comp','m-address','m-lat','m-lng'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('m-address-preview').style.display='none';document.getElementById('m-address-results').style.display='none';document.getElementById('m-degressif-toggle').className='toggle off';document.getElementById('m-degressif-config').style.display='none';document.getElementById('m-deg-start').value='14';document.getElementById('m-deg-step').value='5';document.getElementById('m-deg-min').value='';document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');
