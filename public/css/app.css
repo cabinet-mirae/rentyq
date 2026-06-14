@@ -4,8 +4,162 @@
    Cockpit, CleanyQ, Profit 360, EVA Engine
    ============================================================ */
 
-/* ===== EVA SCANNER V1 — score emplacement + prix actuel ===== */
-.scanner-hero{
+/* ===== SCANNER EVA — expérience premium 3 phases ===== */
+
+/* Hero */
+.scn-hero{
+  background:linear-gradient(135deg,#0B0722 0%,#3B1278 50%,#1A0533 100%);
+  border-radius:24px;padding:clamp(32px,5vh,64px) clamp(24px,4vw,56px);
+  position:relative;overflow:hidden;margin-bottom:20px;
+}
+.scn-hero::after{
+  content:'';position:absolute;right:-80px;top:-80px;
+  width:360px;height:360px;
+  background:radial-gradient(circle,rgba(236,72,153,.22),transparent 62%);
+  pointer-events:none;
+}
+.scn-hero-inner{position:relative;z-index:1;max-width:680px}
+.scn-kicker{
+  display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);
+  border-radius:999px;padding:5px 14px;font-size:11px;font-weight:700;color:rgba(255,255,255,.8);
+  letter-spacing:.6px;text-transform:uppercase;margin-bottom:18px;
+}
+.scn-title{
+  font-family:'Sora',sans-serif;font-size:clamp(26px,3.2vw,42px);font-weight:900;
+  color:#fff;letter-spacing:-.8px;line-height:1.1;margin:0 0 14px 0;
+}
+.scn-sub{font-size:clamp(14px,1.1vw,16px);color:rgba(255,255,255,.78);line-height:1.65;margin:0 0 8px 0}
+.scn-sub2{font-size:13px;color:rgba(255,255,255,.5);font-style:italic;margin:0 0 28px 0}
+.scn-cta{
+  display:inline-flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,#6D28D9,#EC4899);
+  color:#fff;border:none;border-radius:14px;
+  padding:14px 28px;font-size:16px;font-weight:800;
+  font-family:'Sora',sans-serif;cursor:pointer;
+  box-shadow:0 12px 36px rgba(109,40,217,.35);
+  transition:filter .15s,transform .15s;
+}
+.scn-cta:hover{filter:brightness(1.06);transform:translateY(-2px)}
+.scn-hero-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.scn-hero-badges span{
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
+  border-radius:999px;padding:4px 12px;font-size:12px;color:rgba(255,255,255,.7);
+}
+
+/* Wizard */
+.scn-step-card{
+  background:#fff;border-radius:20px;border:1px solid rgba(139,92,246,.16);
+  box-shadow:0 8px 32px rgba(109,40,217,.08);
+  padding:clamp(24px,3.5vh,40px) clamp(24px,3vw,48px);
+  max-width:620px;margin:0 auto;
+}
+.scn-progress-bar{height:4px;background:#F0EAFF;border-radius:4px;margin-bottom:18px;overflow:hidden}
+.scn-progress-fill{height:100%;background:linear-gradient(90deg,#6D28D9,#EC4899);border-radius:4px;transition:width .4s ease}
+.scn-step-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.scn-step-count{font-size:12px;font-weight:700;color:#8A8A99;text-transform:uppercase;letter-spacing:.6px}
+.scn-back{border:none;background:none;color:#8A8A99;font-size:12px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px}
+.scn-back:hover{color:#6D28D9}
+.scn-question{font-family:'Sora',sans-serif;font-size:clamp(18px,2vw,24px);font-weight:800;color:#0B0722;line-height:1.3;margin-bottom:24px;letter-spacing:-.3px}
+
+/* Champ texte */
+.scn-field-wrap{margin-bottom:16px}
+.scn-input{
+  width:100%;height:52px;border-radius:14px;
+  border:2px solid rgba(139,92,246,.24);background:#FAFAFF;
+  color:#0B0722;padding:0 16px;font-family:inherit;font-size:16px;
+  outline:none;transition:border-color .15s,box-shadow .15s;box-sizing:border-box;
+}
+.scn-input:focus{border-color:#6D28D9;box-shadow:0 0 0 4px rgba(109,40,217,.1);background:#fff}
+.scn-number-wrap{display:flex;align-items:center;gap:10px}
+.scn-input-number{width:180px;flex-shrink:0}
+.scn-suffix{font-size:15px;color:#8A8A99;font-weight:600;white-space:nowrap}
+.scn-autocomplete{
+  position:absolute;top:58px;left:0;right:0;z-index:200;
+  background:#fff;border:1px solid #E8E8EE;border-radius:12px;
+  max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.12);display:none;
+}
+
+/* Choix */
+.scn-choices{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.scn-choice{
+  display:flex;align-items:center;gap:14px;
+  border:2px solid rgba(139,92,246,.18);border-radius:14px;
+  padding:14px 16px;cursor:pointer;transition:all .15s;background:#FAFAFF;
+}
+.scn-choice:hover{border-color:#6D28D9;background:#F8F4FF}
+.scn-choice--active{border-color:#6D28D9;background:#F3E8FF}
+.scn-choice-icon{font-size:22px;flex-shrink:0;width:32px;text-align:center}
+.scn-choice-label{font-size:14px;font-weight:700;color:#0B0722}
+.scn-choice-desc{font-size:12px;color:#8A8A99;margin-top:2px}
+.scn-choice-check{margin-left:auto;width:22px;height:22px;border-radius:50%;border:2px solid #E0D9F7;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#6D28D9;transition:all .15s}
+.scn-choice--active .scn-choice-check{background:#6D28D9;border-color:#6D28D9;color:#fff}
+
+/* Boutons wizard */
+.scn-next{
+  width:100%;height:50px;border-radius:14px;border:none;
+  background:linear-gradient(135deg,#6D28D9,#EC4899);
+  color:#fff;font-size:15px;font-weight:800;font-family:'Sora',sans-serif;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  box-shadow:0 8px 24px rgba(109,40,217,.22);transition:filter .15s,transform .15s;
+}
+.scn-next:hover:not(:disabled){filter:brightness(1.06);transform:translateY(-1px)}
+.scn-next:disabled{opacity:.4;cursor:not-allowed;transform:none;filter:none}
+
+/* Phase d'analyse */
+.scn-analysis-card{
+  background:#fff;border-radius:20px;border:1px solid rgba(139,92,246,.16);
+  box-shadow:0 8px 32px rgba(109,40,217,.08);
+  padding:40px 48px;max-width:520px;margin:0 auto;text-align:center;
+}
+.scn-analysis-icon{font-size:52px;margin-bottom:16px}
+.scn-analysis-title{font-family:'Sora',sans-serif;font-size:22px;font-weight:900;color:#0B0722;margin-bottom:8px}
+.scn-analysis-sub{font-size:13px;color:#8A8A99;margin-bottom:28px;line-height:1.6}
+.scn-a-steps{display:flex;flex-direction:column;gap:10px;text-align:left}
+.scn-a-step{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:#F8F6FF;transition:background .3s}
+.scn-a-dot{width:10px;height:10px;border-radius:50%;background:#E0D9F7;flex-shrink:0;transition:background .3s}
+.scn-a-dot--active{background:#6D28D9;box-shadow:0 0 0 4px rgba(109,40,217,.2);animation:scnPulse 1s infinite}
+@keyframes scnPulse{0%,100%{box-shadow:0 0 0 4px rgba(109,40,217,.2)}50%{box-shadow:0 0 0 8px rgba(109,40,217,.08)}}
+.scn-a-text{font-size:13px;font-weight:600;color:#3A3A50;flex:1}
+.scn-a-check{width:20px;flex-shrink:0;text-align:center}
+
+/* Rapport */
+.scn-report{max-width:760px}
+.scn-report-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.scn-report-address{font-size:13px;font-weight:600;color:#8A8A99}
+.scn-reset{border:1px solid rgba(139,92,246,.24);background:#fff;color:#6D28D9;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px}
+.scn-reset:hover{background:#F3E8FF}
+.scn-report-hero{
+  background:linear-gradient(135deg,#1E1448 0%,#4C1D95 50%,#831843 100%);
+  border-radius:20px;padding:28px 32px;margin-bottom:16px;
+  display:flex;align-items:center;gap:28px;flex-wrap:wrap;
+}
+.scn-score-ring{position:relative;flex-shrink:0}
+.scn-score-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.scn-score-num{font-family:'Sora',sans-serif;font-size:36px;font-weight:900;color:#fff;line-height:1}
+.scn-score-lbl{font-size:10px;font-weight:700;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:.6px;margin-top:3px}
+.scn-report-kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;flex:1;min-width:260px}
+.scn-kpi{background:rgba(255,255,255,.1);border-radius:14px;padding:14px}
+.scn-kpi-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.scn-kpi-value{font-family:'Sora',sans-serif;font-size:22px;font-weight:900;color:#fff;letter-spacing:-.5px}
+.scn-kpi-unit{font-size:14px;font-weight:500;color:rgba(255,255,255,.65)}
+.scn-kpi-verdict{display:inline-block;padding:6px 14px;border-radius:999px;font-size:14px;font-weight:800;font-family:'Sora',sans-serif}
+.scn-why{background:#fff;border:1px solid rgba(139,92,246,.14);border-radius:16px;padding:20px 24px;margin-bottom:14px;box-shadow:0 4px 16px rgba(109,40,217,.05)}
+.scn-why-title{font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:#0B0722;margin-bottom:14px}
+.scn-why-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.scn-why-item{display:flex;align-items:center;gap:8px;font-size:13px;padding:8px 12px;border-radius:10px;font-weight:500}
+.scn-why-ok{background:#ECFDF5;color:#065F46}.scn-why-ok i{color:#059669}
+.scn-why-warn{background:#FFFBEB;color:#78350F}.scn-why-warn i{color:#D97706}
+.scn-reco-block{display:flex;gap:14px;align-items:flex-start;background:linear-gradient(135deg,#F3E8FF,#FFF1F9);border:1px solid rgba(168,85,247,.22);border-radius:16px;padding:18px 20px;margin-bottom:20px}
+.scn-reco-icon{font-size:26px;flex-shrink:0}
+.scn-reco-text{font-size:13px;color:#3A3A50;line-height:1.65}
+.scn-reco-text strong{color:#6D28D9}
+.scn-report-actions{display:flex;gap:12px;flex-wrap:wrap}
+
+/* Compatibilité ancien scanner */
+.scanner-warning{padding:1rem;border-radius:14px;background:#FFF7ED;border:1px solid #FED7AA;color:#9A3412;font-size:13px;line-height:1.5}
+.scanner-diagnostic{background:white;border-radius:16px;border:1px solid rgba(139,92,246,.16);box-shadow:0 12px 34px rgba(69,39,120,.06);padding:1.15rem;margin-bottom:1rem}
+.scanner-verdict-title{font-size:17px;font-weight:850;color:#17122E;margin-bottom:4px}
+.scanner-verdict-text{font-size:13px;color:#5E5573;line-height:1.55}
   background:linear-gradient(135deg,#1E1448 0%,#7C3AED 45%,#EC4899 100%);
   color:#fff;border-radius:18px;padding:1.45rem;margin-bottom:1rem;
   box-shadow:0 18px 48px rgba(124,58,237,.18);position:relative;overflow:hidden
@@ -199,23 +353,84 @@
 /* ===== end Property Detail Cockpit V2 ===== */
 
 
+
 /* ===== EVA AUDIT 360 — cockpit d'analyse immédiat ===== */
-.eva360-hero{position:relative;overflow:hidden;border-radius:24px;padding:22px;margin-bottom:16px;background:linear-gradient(135deg,#211051 0%,#7C3AED 46%,#EC4899 100%);color:#fff;box-shadow:0 24px 70px rgba(124,58,237,.22)}
-.eva360-hero:after{content:"";position:absolute;right:-80px;top:-90px;width:320px;height:320px;background:radial-gradient(circle,rgba(255,255,255,.23),transparent 62%);pointer-events:none}
-.eva360-hero h2{position:relative;z-index:1;font-size:30px;line-height:1.05;font-weight:950;letter-spacing:-1px;margin-bottom:8px}
-.eva360-hero p{position:relative;z-index:1;color:rgba(255,255,255,.82);font-size:14px;line-height:1.65;max-width:880px}
-.eva360-upload-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;margin-top:18px;position:relative;z-index:1;align-items:end}
-.eva360-field label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.8px;font-weight:850;color:rgba(255,255,255,.72);margin-bottom:6px}
-.eva360-field input{width:100%;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.13);color:#fff;padding:0 12px;font-family:inherit;font-weight:650;outline:none}
+
+/* Ancien .eva360-hero transformé en carte blanche sobre (Niveau 3) */
+.eva360-audit-card{
+  background:#fff;
+  border:1px solid rgba(139,92,246,.14);
+  border-radius:20px;
+  padding:22px 24px;
+  margin-bottom:16px;
+  box-shadow:0 4px 16px rgba(109,40,217,.06);
+}
+.eva360-audit-card-head{margin-bottom:16px}
+.eva360-audit-title{font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:#0B0722;margin-bottom:5px}
+.eva360-audit-sub{font-size:13px;color:#7B708F;line-height:1.55}
+
+/* Upload grid — adapté pour fond blanc */
+.eva360-upload-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end}
+.eva360-field label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.8px;font-weight:850;color:#7B708F;margin-bottom:6px}
+.eva360-field input{width:100%;height:44px;border-radius:12px;border:1px solid rgba(139,92,246,.22);background:#F8F6FF;color:#0B0722;padding:0 12px;font-family:inherit;font-size:13px;outline:none;transition:border-color .15s}
 .eva360-field input[type=file]{padding:10px 12px;font-size:12px}
-.eva360-field input::placeholder{color:rgba(255,255,255,.54)}
-.eva360-field input:focus{border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.18)}
+.eva360-field input::placeholder{color:#B0A8C8}
+.eva360-field input:focus{border-color:#7C3AED;background:#fff;box-shadow:0 0 0 3px rgba(109,40,217,.08)}
+
+/* Bouton lancer analyse — variante sombre pour fond blanc */
 .eva360-btn{height:44px;border:none;border-radius:12px;padding:0 18px;background:#fff;color:#7C3AED;font-weight:900;font-family:inherit;cursor:pointer;box-shadow:0 14px 34px rgba(0,0,0,.15);white-space:nowrap}
 .eva360-btn:hover{filter:brightness(.98);transform:translateY(-1px)}
+.eva360-btn-dark{background:linear-gradient(135deg,#6D28D9,#EC4899);color:#fff;box-shadow:0 8px 20px rgba(109,40,217,.22)}
+.eva360-btn-dark:hover{filter:brightness(1.05);transform:translateY(-1px)}
+
+/* Lien démo — adapté pour fond blanc */
+.eva360-demo-light{margin-top:12px;font-size:12px;color:#8A8A99}
+.eva360-demo-light button{border:0;background:transparent;color:#7C3AED;text-decoration:underline;font-family:inherit;cursor:pointer;font-weight:700}
+
+/* Compatibilité ancienne classe */
 .eva360-demo{position:relative;z-index:1;margin-top:10px;font-size:12px;color:rgba(255,255,255,.72)}
 .eva360-demo button{border:0;background:transparent;color:#fff;text-decoration:underline;font-family:inherit;cursor:pointer;font-weight:800}
+
+/* Plan d'action EVA — carte d'action concrète */
+.eva-action-plan{margin-bottom:0}
+.rq-eva-action{
+  display:grid;
+  grid-template-columns:46px 1fr auto;
+  gap:16px;
+  align-items:center;
+  border:1px solid rgba(139,92,246,.12);
+  border-radius:16px;
+  padding:16px;
+  margin-bottom:10px;
+  background:#fff;
+  transition:box-shadow .15s,border-color .15s;
+}
+.rq-eva-action:last-child{margin-bottom:0}
+.rq-eva-action:hover{box-shadow:0 8px 24px rgba(109,40,217,.10);border-color:rgba(139,92,246,.26)}
+.rq-eva-action-rank{
+  width:46px;height:46px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:18px;font-weight:900;flex-shrink:0;
+  box-shadow:0 8px 20px rgba(0,0,0,.15);
+}
+.rq-eva-action-body{min-width:0}
+.rq-eva-action-title{font-size:14px;font-weight:800;color:#0B0722;margin-bottom:4px;letter-spacing:-.1px}
+.rq-eva-action-desc{font-size:12px;color:#7B708F;line-height:1.5}
+.rq-eva-action-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0}
+.rq-eva-action-impact{font-size:14px;font-weight:900;white-space:nowrap;letter-spacing:-.2px}
+.rq-eva-action-btn{
+  padding:7px 14px;border-radius:10px;border:none;
+  background:linear-gradient(135deg,#6D28D9,#EC4899);
+  color:#fff;font-size:12px;font-weight:700;
+  cursor:pointer;font-family:inherit;white-space:nowrap;
+  box-shadow:0 4px 12px rgba(109,40,217,.2);
+  transition:filter .15s,transform .15s;
+}
+.rq-eva-action-btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
+
 .eva360-empty{background:#fff;border:1px dashed rgba(139,92,246,.32);border-radius:20px;padding:28px;text-align:center;color:#6B5D82;box-shadow:0 14px 38px rgba(69,39,120,.05)}
 .eva360-dashboard{display:none}
+
 .eva360-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
 .eva360-kpi{background:#fff;border:1px solid rgba(139,92,246,.14);border-radius:18px;padding:16px;box-shadow:0 14px 38px rgba(69,39,120,.06)}
 .eva360-kpi-label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#8A8A99;font-weight:900;margin-bottom:8px}
@@ -792,6 +1007,5 @@ tr:hover td { background: #FAF6FF !important; }
 @media(max-width:950px){.rq-eva-layer-top{grid-template-columns:1fr}.rq-eva-score-bubble{margin:0}.rq-eva-money-grid{grid-template-columns:repeat(2,1fr)}.rq-eva-action{grid-template-columns:42px 1fr}.rq-eva-impact{text-align:left;grid-column:2}.rq-eva-next{grid-template-columns:1fr}}
 @media(max-width:560px){.rq-eva-layer-hero{padding:20px}.rq-eva-title{font-size:27px}.rq-eva-money-grid{grid-template-columns:1fr}.rq-eva-score-bubble{width:142px;height:142px}.rq-eva-score-num{font-size:36px}}
 /* ===== end EVA ENGINE LAYER ===== */
-
 
 
