@@ -53,10 +53,16 @@ h1,h2,h3,.page-title,.rq-detail-name,.rq-wordmark,
 }
 
 /* ── App shell ── */
-.app{display:none;flex-direction:column;min-height:100vh}
-.app-body{display:flex;flex:1}
-.main{flex:1;overflow-y:auto;background:linear-gradient(135deg,#F5F1FF 0%,#F0EAFF 55%,#FFF0F7 100%)}
-.page{display:none;padding:2rem}
+.app{display:none;flex-direction:column;height:100vh;overflow:hidden}
+.app-body{display:flex;flex:1;min-height:0;overflow:hidden}
+.main{
+  flex:1;
+  min-width:0;
+  width:auto;
+  overflow-y:auto;
+  background:linear-gradient(135deg,#F5F1FF 0%,#F0EAFF 55%,#FFF0F7 100%);
+}
+.page{display:none;padding:1.5rem 2rem;width:100%;box-sizing:border-box}
 .page.active{display:block}
 .page-title{font-size:22px !important;font-weight:800 !important;color:#0B0722 !important;letter-spacing:-.5px !important}
 .page-sub{font-size:13px;color:#8A8A99;margin-top:4px}
@@ -75,6 +81,7 @@ h1,h2,h3,.page-title,.rq-detail-name,.rq-wordmark,
 /* ── Sidebar — conteneur principal ── */
 .sidebar{
   width:250px;
+  flex:0 0 250px;
   height:100vh;
   position:sticky;
   top:0;
@@ -82,7 +89,6 @@ h1,h2,h3,.page-title,.rq-detail-name,.rq-wordmark,
   border-right:1px solid rgba(236,72,153,.22);
   display:flex;
   flex-direction:column;
-  flex-shrink:0;
   overflow:hidden;
   box-shadow:6px 0 28px rgba(11,7,34,.3);
 }
