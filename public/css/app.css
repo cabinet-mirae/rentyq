@@ -354,7 +354,89 @@
 
 
 
-/* ===== RÉSERVATIONS & CALENDRIER — blocs EVA ===== */
+/* ===== OPPORTUNITÉS EVA & PROFIT 360 ===== */
+
+/* Hero commun aux deux pages */
+.opp-hero,.p360-hero{
+  background:linear-gradient(135deg,#0B0722 0%,#3B1278 55%,#1A0533 100%);
+  border-radius:22px;padding:clamp(24px,3.5vh,40px) clamp(22px,3vw,48px);
+  position:relative;overflow:hidden;margin-bottom:1.25rem;
+}
+.opp-hero::after,.p360-hero::after{
+  content:'';position:absolute;right:-60px;top:-60px;
+  width:280px;height:280px;
+  background:radial-gradient(circle,rgba(236,72,153,.2),transparent 60%);
+  pointer-events:none;
+}
+.opp-hero-inner,.p360-hero-inner{position:relative;z-index:1}
+.opp-kicker{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:4px 13px;font-size:11px;font-weight:700;color:rgba(255,255,255,.75);letter-spacing:.5px;text-transform:uppercase;margin-bottom:14px}
+.opp-title{font-family:'Sora',sans-serif;font-size:clamp(20px,2.4vw,30px);font-weight:900;color:#fff;letter-spacing:-.6px;line-height:1.15;margin:0 0 10px 0}
+.opp-sub{font-size:clamp(13px,1vw,15px);color:rgba(255,255,255,.72);line-height:1.6;margin:0 0 20px 0}
+.opp-kpi-row{display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+.opp-kpi-main{}
+.opp-kpi-main-value{font-family:'Sora',sans-serif;font-size:clamp(28px,3vw,42px);font-weight:950;color:#fff;letter-spacing:-1px;line-height:1}
+.opp-kpi-main-label{font-size:12px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-top:4px}
+.opp-kpi-secondary{font-size:14px;color:rgba(255,255,255,.45);margin-top:6px;font-weight:600}
+.opp-hero-ctas{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+
+/* Étiquettes de section */
+.opp-section-label{font-size:11px;font-weight:800;color:#8A8A99;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.75rem}
+
+/* Opportunités EVA — priorités */
+.opp-priority-card{
+  display:grid;grid-template-columns:48px 1fr auto;gap:14px;align-items:center;
+  background:#fff;border:1px solid rgba(139,92,246,.14);border-radius:16px;
+  padding:16px;box-shadow:0 4px 14px rgba(109,40,217,.05);
+  transition:box-shadow .15s,border-color .15s;
+}
+.opp-priority-card:hover{box-shadow:0 8px 24px rgba(109,40,217,.1);border-color:rgba(139,92,246,.28)}
+.opp-priority-icon{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#F3E8FF,#FFF1F9);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.opp-priority-body{}
+.opp-priority-title{font-size:14px;font-weight:700;color:#0B0722;margin-bottom:4px}
+.opp-priority-monthly{font-family:'Sora',sans-serif;font-size:22px;font-weight:950;color:#7C3AED;letter-spacing:-.5px;line-height:1}
+.opp-priority-annual{font-size:12px;color:#8A8A99;margin-top:3px;font-weight:600}
+.opp-unit{font-size:13px;font-weight:500;color:rgba(124,58,237,.6)}
+
+/* Opportunités EVA — par logement */
+.opp-apt-card{background:#fff;border:1px solid rgba(139,92,246,.12);border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(109,40,217,.04)}
+.opp-apt-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.opp-apt-name{font-size:15px;font-weight:700;color:#0B0722}
+.opp-apt-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;border-top:1px solid #F0EBF9;padding-top:12px}
+.opp-apt-kpi{}
+.opp-apt-kpi-val{font-family:'Sora',sans-serif;font-size:18px;font-weight:950;color:#0B0722;letter-spacing:-.4px;line-height:1}
+.opp-apt-kpi-secondary{font-size:14px;color:#8A8A99}
+.opp-apt-kpi-lbl{font-size:11px;color:#8A8A99;margin-top:3px}
+
+/* Profit 360 — classement */
+.p360-apt-card{
+  display:grid;grid-template-columns:28px 24px 1fr auto auto;gap:12px;align-items:center;
+  background:#fff;border:1px solid rgba(139,92,246,.12);border-radius:16px;
+  padding:16px;box-shadow:0 2px 8px rgba(109,40,217,.04);
+}
+.p360-apt-rank{font-family:'Sora',sans-serif;font-size:14px;font-weight:900;color:#B0A8C8;text-align:center}
+.p360-net{text-align:right}
+.p360-net-monthly{font-family:'Sora',sans-serif;font-size:22px;font-weight:950;letter-spacing:-.5px;line-height:1}
+.p360-unit{font-size:13px;font-weight:500}
+.p360-net-annual{font-size:12px;margin-top:4px;font-weight:600}
+.p360-verdict{display:inline-block;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap}
+
+/* Profit 360 — leviers */
+.p360-levier{background:#fff;border:1px solid rgba(139,92,246,.12);border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(109,40,217,.04)}
+.p360-levier-icon{font-size:24px;margin-bottom:8px}
+.p360-levier-title{font-size:13px;font-weight:700;color:#0B0722;margin-bottom:8px;line-height:1.3}
+.p360-levier-monthly{font-family:'Sora',sans-serif;font-size:20px;font-weight:950;color:#7C3AED;letter-spacing:-.4px;line-height:1}
+.p360-levier-annual{font-size:12px;color:#8A8A99;margin-top:4px;font-weight:600}
+
+/* Profit 360 — recommandation EVA */
+.p360-reco{display:flex;gap:14px;align-items:flex-start;background:linear-gradient(135deg,#F3E8FF,#FFF1F9);border:1px solid rgba(168,85,247,.22);border-radius:16px;padding:18px 20px;margin-bottom:1rem}
+.p360-reco-icon{font-size:26px;flex-shrink:0}
+.p360-reco-text{font-size:13px;color:#3A3A50;line-height:1.65}
+.p360-reco-text strong{color:#6D28D9}
+
+/* Profit 360 — état vide */
+.p360-empty{background:#fff;border:1px dashed rgba(139,92,246,.28);border-radius:20px;padding:40px 28px;text-align:center}
+
+
 .res-empty-state{background:#fff;border:1px dashed rgba(139,92,246,.28);border-radius:20px;padding:36px 28px;text-align:center;box-shadow:0 4px 16px rgba(109,40,217,.05)}
 .cal-eva-opport{
   display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;
