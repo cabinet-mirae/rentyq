@@ -1500,7 +1500,6 @@ function renderEvaAuditPage(){
       </div>`).join('');
   }
 }
-}
 
 function openAddModal(){editId=null;['m-name','m-city','m-zone','m-rent','m-clean','m-price','m-comp','m-address','m-lat','m-lng'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('m-address-preview').style.display='none';document.getElementById('m-address-results').style.display='none';document.getElementById('m-degressif-toggle').className='toggle off';document.getElementById('m-degressif-config').style.display='none';document.getElementById('m-deg-start').value='14';document.getElementById('m-deg-step').value='5';document.getElementById('m-deg-min').value='';document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');
   const az=document.getElementById('modal-archive-zone');if(az)az.style.display='none';
