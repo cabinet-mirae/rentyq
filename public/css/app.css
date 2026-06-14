@@ -354,7 +354,19 @@
 
 
 
-/* ===== EVA AUDIT 360 — cockpit d'analyse immédiat ===== */
+/* ===== RÉSERVATIONS & CALENDRIER — blocs EVA ===== */
+.res-empty-state{background:#fff;border:1px dashed rgba(139,92,246,.28);border-radius:20px;padding:36px 28px;text-align:center;box-shadow:0 4px 16px rgba(109,40,217,.05)}
+.cal-eva-opport{
+  display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;
+  background:linear-gradient(135deg,#F8F4FF 0%,#FFF1F9 100%);
+  border:1px solid rgba(168,85,247,.28);border-radius:18px;
+  padding:18px 22px;margin-bottom:1rem;
+  box-shadow:0 6px 20px rgba(109,40,217,.08);
+}
+.cal-eva-opport-title{font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:#0B0722;margin-bottom:4px}
+.cal-eva-opport-sub{font-size:13px;color:#7B708F;line-height:1.5}
+
+
 
 /* Ancien .eva360-hero transformé en carte blanche sobre (Niveau 3) */
 .eva360-audit-card{
