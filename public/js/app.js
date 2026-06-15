@@ -522,6 +522,12 @@ function renderParcTable(){
 
   cards.innerHTML=enriched.map(({a,net,occ,hotEvs,freeTonight,evaScore,totalPotential,rev})=>{
 
+    // ADR du mois
+    const mois2=new Date().toISOString().slice(0,7);
+    const aptRes2=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(mois2));
+    const totalN2=aptRes2.reduce((s,r)=>{try{if(!r.date_from||!r.date_to)return s+(r.nights||0);return s+Math.max(0,Math.round((new Date(r.date_to)-new Date(r.date_from))/(1000*60*60*24)));}catch(e){return s+(r.nights||0);}},0);
+    const adr2=totalN2>0?Math.round(rev/totalN2):0;
+
     // Système de couleurs EVA — violet / orange / vert selon situation
     let evaBg,evaText,evaBorder,evaScoreBg,evaScoreColor,evaIcon,evaReco,evaImpact,evaImpactSuffix;
 
@@ -554,7 +560,7 @@ function renderParcTable(){
     return`<div onclick="showApartDetail('${a.id}')" style="background:white;border-radius:16px;border:${evaBorder};padding:14px;cursor:pointer;transition:transform .12s,box-shadow .12s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.08)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
 
       <!-- Header : nom + badge EVA score -->
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px">
         <div style="min-width:0;flex:1">
           <div style="font-size:14px;font-weight:700;color:#17122E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.emoji||'🏠'} ${a.name}</div>
           <div style="font-size:12px;color:#8A8A99;margin-top:2px">${a.city||''}</div>
@@ -562,6 +568,22 @@ function renderParcTable(){
         <div style="flex-shrink:0;background:${evaScoreBg};border-radius:8px;padding:4px 8px;text-align:center">
           <div style="font-size:9px;font-weight:800;color:${evaScoreColor};text-transform:uppercase;letter-spacing:.5px">EVA</div>
           <div style="font-size:17px;font-weight:900;color:${evaScoreColor};line-height:1.1;letter-spacing:-.5px">${evaScore}</div>
+        </div>
+      </div>
+
+      <!-- Métriques clés -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">
+        <div style="background:#FAFAFE;border-radius:8px;padding:7px;text-align:center">
+          <div style="font-size:13px;font-weight:900;color:#17122E;letter-spacing:-.3px">${rev}€</div>
+          <div style="font-size:8px;text-transform:uppercase;letter-spacing:.5px;color:#8A8A99;font-weight:800;margin-top:2px">Revenus</div>
+        </div>
+        <div style="background:#FAFAFE;border-radius:8px;padding:7px;text-align:center">
+          <div style="font-size:13px;font-weight:900;color:${occ>=65?'#059669':occ>=45?'#D97706':'#DC2626'};letter-spacing:-.3px">${occ}%</div>
+          <div style="font-size:8px;text-transform:uppercase;letter-spacing:.5px;color:#8A8A99;font-weight:800;margin-top:2px">Occupation</div>
+        </div>
+        <div style="background:#FAFAFE;border-radius:8px;padding:7px;text-align:center">
+          <div style="font-size:13px;font-weight:900;color:#7C3AED;letter-spacing:-.3px">${adr2>0?adr2+'€':'—'}</div>
+          <div style="font-size:8px;text-transform:uppercase;letter-spacing:.5px;color:#8A8A99;font-weight:800;margin-top:2px">ADR</div>
         </div>
       </div>
 
@@ -577,7 +599,7 @@ function renderParcTable(){
           <div style="font-size:10px;color:#8A8A99;margin-bottom:2px">Impact ${evaImpactSuffix}</div>
           <div style="font-size:18px;font-weight:950;color:${evaScoreColor};letter-spacing:-.5px;line-height:1">${evaImpact}</div>
         </div>
-        <button onclick="event.stopPropagation();showApartDetail('${a.id}')" style="background:#534AB7;color:white;border:none;border-radius:8px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0">Voir</button>
+        <button onclick="event.stopPropagation();showApartDetail('${a.id}')" style="background:#534AB7;color:white;border:none;border-radius:8px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0">Voir le détail</button>
       </div>
 
     </div>`;
@@ -885,6 +907,213 @@ function showApartDetail(id){
     </div>`;
 }
 
+
+/* ====================================================
+   PARC — Fiches logements
+   ==================================================== */
+function renderParcFiches(){
+  var dash=document.getElementById('parc-fiches-dash');
+  if(!dash)return;
+
+  if(!apparts.length){
+    dash.innerHTML='<div class="p360-empty"><div style="font-size:40px;margin-bottom:14px">\uD83C\uDFE0</div><div style="font-size:17px;font-weight:800;color:#0B0722;font-family:Sora,sans-serif;margin-bottom:8px">Aucun logement dans le parc</div><div style="font-size:13px;color:#8A8A99;line-height:1.65;max-width:380px;margin:0 auto 18px">Ajoutez votre premier bien pour qu\u2019EVA g\u00e9n\u00e8re les fiches de performance.</div><button class="a360-action-btn" onclick="openAddModal()">\uD83C\uDFE0 Ajouter un bien</button></div>';
+    return;
+  }
+
+  var today=new Date();
+  var month=today.toISOString().slice(0,7);
+  var daysElapsed=Math.max(1,today.getDate());
+
+  // Générer les missions EVA une fois
+  var allMissions=[];
+  try{ allMissions=generateEvaMissions(); }catch(e){}
+
+  var cards=apparts.map(function(a){
+    var aptRes=reservations.filter(function(r){return r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(month);});
+    var rev=aptRes.reduce(function(s,r){return s+(r.price_total||0);},0);
+    var totalN=aptRes.reduce(function(s,r){try{if(!r.date_from||!r.date_to)return s+(r.nights||0);return s+Math.max(0,Math.round((new Date(r.date_to)-new Date(r.date_from))/(1000*60*60*24)));}catch(e){return s+(r.nights||0);}},0);
+    var occ=daysElapsed>0?Math.min(100,Math.round(totalN/daysElapsed*100)):0;
+    var adr=totalN>0?Math.round(rev/totalN):0;
+    var fl=floor(a);
+    var price=a.price||0;
+    var aiRec=a.ai_rec||0;
+    var potential=aiRec>price?aiRec-price:0;
+    var city=a.city||'';
+    var hotEvs=(eventsCache[city]||[]).filter(function(e){return e.hot;});
+    var freeTonight=!a.booked;
+
+    var sc=55;sc+=Math.min(25,Math.round(occ*.25));if(!freeTonight)sc+=8;else sc-=14;if(hotEvs.length)sc+=4;if(price>=fl&&fl>0)sc+=8;sc=Math.max(8,Math.min(98,sc));
+    var scoreColor=sc>=75?'#10B981':sc>=50?'#F59E0B':'#EF4444';
+
+    var prioIcon,prioBg,prioText,prioLabel;
+    if(freeTonight){prioIcon='\uD83D\uDD25';prioBg='#EEEDFE';prioText='#3C3489';prioLabel='Nuit libre \u2014 agir maintenant';}
+    else if(hotEvs.length){prioIcon='\uD83C\uDF89';prioBg='#FAEEDA';prioText='#854F0B';prioLabel='Pic de demande d\u00e9tect\u00e9 \u2014 booster le prix';}
+    else if(occ<50){prioIcon='\u26A0\uFE0F';prioBg='#FAEEDA';prioText='#854F0B';prioLabel='Occupation faible \u2014 optimiser la distribution';}
+    else{prioIcon='\u2705';prioBg='#EAF3DE';prioText='#3B6D11';prioLabel='Bien pilot\u00e9 correctement';}
+
+    var aptMissions=allMissions.filter(function(m){return m.apt_id===a.id&&m.status!=='done';}).slice(0,3);
+    var missionsHtml='';
+    if(aptMissions.length){
+      missionsHtml='<div class="parc-fiche-missions">'+
+        '<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#8A8A99;margin-bottom:6px">Missions EVA actives</div>'+
+        aptMissions.map(function(m){
+          var dot=m.priority==='haute'?'#DC2626':m.priority==='moyenne'?'#D97706':'#7C3AED';
+          return '<div class="parc-fiche-mission-item">'+
+            '<div class="parc-fiche-mission-dot" style="background:'+dot+'"></div>'+
+            '<div style="flex:1;min-width:0">'+
+              '<div style="font-size:12px;font-weight:700;color:#17122E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+m.title+'</div>'+
+              '<div style="font-size:10px;color:#8A8A99">'+m.type+' \u00b7 '+m.priority+'</div>'+
+            '</div>'+
+          '</div>';
+        }).join('')+
+      '</div>';
+    }
+
+    var recos=[];
+    if(freeTonight) recos.push('Appliquer un tarif de remplissage ce soir');
+    if(potential>0) recos.push('Monter le prix \u00e0 '+aiRec+'\u20AC conseill\u00e9 par EVA (+'+potential+'\u20AC/nuit)');
+    if(hotEvs.length) recos.push('Booster +'+(hotEvs[0].boost||10)+'% sur l\u2019\u00e9v\u00e9nement : '+(hotEvs[0].name||'').slice(0,30));
+    if(occ<50) recos.push('Activer un canal suppl\u00e9mentaire pour augmenter le remplissage');
+    var recoHtml='';
+    if(recos.length){
+      recoHtml='<div style="margin-bottom:12px">'+
+        '<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#8A8A99;margin-bottom:6px">Recommandations EVA</div>'+
+        recos.slice(0,2).map(function(r){
+          return '<div style="display:flex;align-items:flex-start;gap:6px;font-size:12px;color:#17122E;margin-bottom:4px">'+
+            '<span style="color:#7C3AED;flex-shrink:0">\u2192</span><span>'+r+'</span></div>';
+        }).join('')+
+      '</div>';
+    }
+
+    var equipHtml='';
+    if(a.equipements&&a.equipements.length){
+      var equips=Array.isArray(a.equipements)?a.equipements:[a.equipements];
+      equipHtml='<div style="margin-bottom:12px">'+
+        '<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#8A8A99;margin-bottom:6px">\u00c9quipements</div>'+
+        '<div style="display:flex;flex-wrap:wrap;gap:4px">'+
+        equips.slice(0,6).map(function(eq){return '<span style="background:#F3E8FF;color:#7C3AED;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600">'+eq+'</span>';}).join('')+
+        '</div></div>';
+    }
+
+    return '<div class="parc-fiche-card">'+
+      '<div class="parc-fiche-hero">'+
+        '<div class="parc-fiche-hero-top">'+
+          '<div class="parc-fiche-emoji">'+(a.emoji||'\uD83C\uDFE0')+'</div>'+
+          '<div style="flex:1;min-width:0"><div class="parc-fiche-name">'+a.name+'</div><div class="parc-fiche-city">'+(a.city||'')+(a.address?' \u00b7 '+a.address.slice(0,30):'')+'</div></div>'+
+          '<div class="parc-fiche-score"><div class="parc-fiche-score-num" style="color:'+scoreColor+'">'+sc+'</div><div class="parc-fiche-score-lbl">EVA</div></div>'+
+        '</div>'+
+        '<div class="parc-fiche-kpis">'+
+          '<div class="parc-fiche-kpi"><div class="parc-fiche-kpi-val">'+rev+'\u20AC</div><div class="parc-fiche-kpi-lbl">Revenus</div></div>'+
+          '<div class="parc-fiche-kpi"><div class="parc-fiche-kpi-val">'+occ+'%</div><div class="parc-fiche-kpi-lbl">Occupation</div></div>'+
+          '<div class="parc-fiche-kpi"><div class="parc-fiche-kpi-val">'+(adr>0?adr+'\u20AC':'—')+'</div><div class="parc-fiche-kpi-lbl">ADR</div></div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="parc-fiche-body">'+
+        '<div class="parc-fiche-priority" style="background:'+prioBg+';color:'+prioText+'">'+
+          '<span>'+prioIcon+'</span>'+
+          '<span style="font-size:12px;font-weight:700">'+prioLabel+'</span>'+
+          (potential>0?'<span style="margin-left:auto;font-size:11px;font-weight:900;white-space:nowrap">+'+potential+'\u20AC/nuit</span>':'')+
+        '</div>'+
+        missionsHtml+recoHtml+equipHtml+
+        '<div class="parc-fiche-footer">'+
+          '<button class="parc-fiche-btn-primary" onclick="goTo(\'parc\',document.querySelector(\'[data-page=parc]\')); setTimeout(function(){showApartDetail(\''+a.id+'\')},150)">\uD83D\uDD0D Voir le d\u00e9tail complet</button>'+
+          '<button class="parc-fiche-btn-secondary" onclick="openEdit(\''+a.id+'\')">Modifier</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  var totalRev=apparts.reduce(function(s,a){
+    var r=reservations.filter(function(r){return r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(month);});
+    return s+r.reduce(function(s2,r2){return s2+(r2.price_total||0);},0);
+  },0);
+
+  dash.innerHTML=
+    '<div class="a360-hero" style="margin-bottom:16px">'+
+      '<div class="a360-hero-kicker">Parc \u00b7 Fiches logements</div>'+
+      '<div class="a360-hero-title">'+apparts.length+' logement'+(apparts.length>1?'s':'')+' dans votre parc</div>'+
+      '<div class="a360-hero-sub">'+totalRev+'\u20AC g\u00e9n\u00e9r\u00e9s ce mois \u2014 cliquez sur un bien pour acc\u00e9der au d\u00e9tail complet</div>'+
+      '<div class="a360-hero-chips">'+
+        '<span class="a360-hero-chip accent">'+apparts.length+' logement'+(apparts.length>1?'s':'')+'</span>'+
+        '<span class="a360-hero-chip">'+totalRev+'\u20AC ce mois</span>'+
+      '</div>'+
+    '</div>'+
+    '<div class="parc-fiches-grid">'+cards+'</div>';
+}
+
+/* ====================================================
+   PARC — Comparaison
+   ==================================================== */
+function renderParcComparaison(){
+  var dash=document.getElementById('parc-comparaison-dash');
+  if(!dash)return;
+
+  if(!apparts.length){
+    dash.innerHTML='<div class="p360-empty"><div style="font-size:40px;margin-bottom:14px">\u2696\uFE0F</div><div style="font-size:17px;font-weight:800;color:#0B0722;font-family:Sora,sans-serif;margin-bottom:8px">Aucun logement \u00e0 comparer</div><div style="font-size:13px;color:#8A8A99;line-height:1.65;max-width:380px;margin:0 auto">Ajoutez plusieurs biens pour activer la comparaison EVA.</div></div>';
+    return;
+  }
+
+  var today=new Date();
+  var month=today.toISOString().slice(0,7);
+  var daysElapsed=Math.max(1,today.getDate());
+
+  var stats=apparts.map(function(a){
+    var aptRes=reservations.filter(function(r){return r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(month);});
+    var rev=aptRes.reduce(function(s,r){return s+(r.price_total||0);},0);
+    var totalN=aptRes.reduce(function(s,r){try{if(!r.date_from||!r.date_to)return s+(r.nights||0);return s+Math.max(0,Math.round((new Date(r.date_to)-new Date(r.date_from))/(1000*60*60*24)));}catch(e){return s+(r.nights||0);}},0);
+    var occ=daysElapsed>0?Math.min(100,Math.round(totalN/daysElapsed*100)):0;
+    var adr=totalN>0?Math.round(rev/totalN):0;
+    var fl=floor(a);var price=a.price||0;var aiRec=a.ai_rec||0;var potential=aiRec>price?aiRec-price:0;
+    var hotEvs=((eventsCache[a.city||''])||[]).filter(function(e){return e.hot;});
+    var sc=55;sc+=Math.min(25,Math.round(occ*.25));if(!a.booked)sc+=8;else sc-=14;if(hotEvs.length)sc+=4;if(price>=fl&&fl>0)sc+=8;sc=Math.max(8,Math.min(98,sc));
+    return {a:a,rev:rev,occ:occ,adr:adr,sc:sc,potential:potential};
+  });
+
+  function rankColor(i){return i===0?'gold':i===1?'silver':'bronze';}
+  function classement(title,icon,sorted,valFn,highlightBest){
+    var rows=sorted.map(function(s,i){
+      var val=valFn(s);
+      return '<div class="parc-comp-row">'+
+        '<div class="parc-comp-rank '+(i<3?rankColor(i):'')+'">'+(i+1)+'</div>'+
+        '<div class="parc-comp-apt">'+(s.a.emoji||'\uD83C\uDFE0')+' '+s.a.name+'</div>'+
+        '<div class="parc-comp-val" style="color:'+(i===0&&highlightBest?'#059669':'#17122E')+'">'+val+'</div>'+
+      '</div>';
+    }).join('');
+    return '<div class="parc-comp-card"><div class="parc-comp-card-title">'+icon+' '+title+'</div>'+rows+'</div>';
+  }
+
+  var byRev=[...stats].sort(function(a,b){return b.rev-a.rev;});
+  var byOcc=[...stats].sort(function(a,b){return b.occ-a.occ;});
+  var bySc=[...stats].sort(function(a,b){return b.sc-a.sc;});
+  var byPot=[...stats].sort(function(a,b){return b.potential-a.potential;});
+  var byRisk=[...stats].sort(function(a,b){return a.sc-b.sc;});
+  var totalRev=stats.reduce(function(s,r){return s+r.rev;},0);
+  var bestSc=bySc[0];var riskSc=byRisk[0];
+
+  dash.innerHTML=
+    '<div class="a360-hero" style="margin-bottom:16px">'+
+      '<div class="a360-hero-kicker">Parc \u00b7 Comparaison EVA</div>'+
+      '<div class="a360-hero-title">Classement de '+apparts.length+' logement'+(apparts.length>1?'s':'')+' par crit\u00e8re</div>'+
+      '<div class="a360-hero-sub">Total parc : '+totalRev+'\u20AC ce mois \u2014 Score EVA moyen : '+Math.round(stats.reduce(function(s,r){return s+r.sc;},0)/Math.max(1,stats.length))+'/100</div>'+
+      '<div class="a360-hero-chips">'+
+        '<span class="a360-hero-chip accent">'+apparts.length+' biens</span>'+
+        '<span class="a360-hero-chip">'+totalRev+'\u20AC total</span>'+
+        (bestSc?'<span class="a360-hero-chip">\uD83C\uDFC6 Meilleur EVA : '+bestSc.a.name+'</span>':'')+
+        (riskSc&&riskSc.sc<50?'<span class="a360-hero-chip" style="background:rgba(220,38,38,.25);border-color:rgba(220,38,38,.35)">\u26A0\uFE0F \u00c0 surveiller : '+riskSc.a.name+'</span>':'')+
+      '</div>'+
+    '</div>'+
+    '<div class="parc-comp-grid">'+
+      classement('Meilleur revenu','\uD83D\uDCB0',byRev,function(s){return s.rev+'\u20AC';},true)+
+      classement('Meilleure occupation','\uD83D\uDCC5',byOcc,function(s){return s.occ+'%';},true)+
+      classement('Meilleur score EVA','\uD83C\uDFC6',bySc,function(s){return s.sc+'/100';},true)+
+      classement('Plus gros potentiel','\uD83D\uDE80',byPot,function(s){return s.potential>0?'+'+s.potential+'\u20AC/nuit':'\u2014';},true)+
+      classement('Biens \u00e0 surveiller','\u26A0\uFE0F',byRisk,function(s){return s.sc+'/100';},false)+
+    '</div>'+
+    '<div style="display:flex;gap:10px;flex-wrap:wrap">'+
+      '<button class="a360-action-btn" onclick="goTo(\'parc-fiches\',document.querySelector(\'[data-page=parc-fiches]\'))">Voir les fiches \u2192</button>'+
+      '<button class="a360-action-btn" onclick="goTo(\'profit360\',document.querySelector(\'[data-page=profit360]\'))">Profit 360 \u2192</button>'+
+    '</div>';
+}
 
 /* ===== ARCHIVAGE DES BIENS ===== */
 async function loadArchivedApparts(){
@@ -1816,6 +2045,8 @@ function goTo(page,btn){
   if(page==='missions-todo')renderMissionsEva('todo');
   if(page==='missions-done')renderMissionsEva('done');
   if(page==='parc'){try{renderParcTable();}catch(e){console.warn('renderParcTable',e);}}
+  if(page==='parc-fiches')renderParcFiches();
+  if(page==='parc-comparaison')renderParcComparaison();
   if(page==='tarifs')renderTarifs();
   if(page==='events'&&apparts.length&&!Object.keys(eventsCache).length)loadEvents(false);
   // Page events supprimée V2 — rediriger vers pricing
