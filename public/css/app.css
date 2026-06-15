@@ -1134,3 +1134,124 @@ tr:hover td { background: #FAF6FF !important; }
 @media(max-width:900px){.missions-summary{grid-template-columns:repeat(2,1fr)}.mission-card{grid-template-columns:6px 1fr}.mission-impact{text-align:left}.mission-actions{justify-content:flex-start}}
 @media(max-width:640px){.missions-summary{grid-template-columns:1fr}}
 /* ===== end MISSIONS EVA V1 ===== */
+
+/* ===== RentyQ — Audit 360 ===== */
+.a360-page { padding-bottom: 2rem; }
+
+/* Section card */
+.a360-section {
+  background: white;
+  border: 1px solid rgba(139,92,246,.13);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 14px;
+  box-shadow: 0 6px 24px rgba(69,39,120,.05);
+}
+.a360-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  gap: 10px;
+}
+.a360-section-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  color: #17122E;
+  letter-spacing: -.2px;
+}
+.a360-section-sub { font-size: 12px; color: #8A8A99; margin-top: 2px; }
+
+/* KPI strip */
+.a360-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0,1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.a360-kpi {
+  background: white;
+  border: 1px solid rgba(139,92,246,.11);
+  border-radius: 14px;
+  padding: 14px;
+  text-align: center;
+}
+.a360-kpi-label { font-size: 9px; text-transform: uppercase; letter-spacing: .7px; color: #8A8A99; font-weight: 900; margin-bottom: 6px; }
+.a360-kpi-value { font-size: 22px; font-weight: 950; color: #17122E; letter-spacing: -.5px; line-height: 1; }
+.a360-kpi-help  { font-size: 10px; color: #B0A8C8; margin-top: 5px; }
+
+/* Table logements */
+.a360-table { width: 100%; border-collapse: collapse; }
+.a360-table th {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .6px;
+  color: #8A8A99; font-weight: 800; padding: 0 10px 10px; text-align: left;
+}
+.a360-table td { padding: 10px; font-size: 13px; color: #17122E; border-top: 1px solid #F3F0FA; }
+.a360-table tr:first-child td { border-top: none; }
+.a360-table tr:hover td { background: #FAFAFE; }
+
+/* Badges */
+.a360-badge {
+  display: inline-block; font-size: 10px; font-weight: 800;
+  border-radius: 999px; padding: 3px 9px; white-space: nowrap;
+}
+.a360-badge-green  { background: #DCFCE7; color: #047857; }
+.a360-badge-red    { background: #FEE2E2; color: #DC2626; }
+.a360-badge-orange { background: #FEF3C7; color: #D97706; }
+.a360-badge-purple { background: #F3E8FF; color: #7C3AED; }
+.a360-badge-gray   { background: #F3F4F6; color: #6B7280; }
+
+/* Tendance */
+.a360-trend-up   { color: #059669; font-weight: 800; font-size: 12px; }
+.a360-trend-down { color: #DC2626; font-weight: 800; font-size: 12px; }
+.a360-trend-flat { color: #8A8A99; font-weight: 700; font-size: 12px; }
+
+/* Barre OTA */
+.a360-ota-row { margin-bottom: 10px; }
+.a360-ota-label {
+  display: flex; justify-content: space-between;
+  font-size: 12px; font-weight: 600; color: #17122E;
+  margin-bottom: 4px;
+}
+.a360-ota-bar-wrap {
+  height: 8px; background: #F3F0FA; border-radius: 999px; overflow: hidden;
+}
+.a360-ota-bar-fill {
+  height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, #6D28D9, #EC4899);
+  transition: width .5s ease;
+}
+
+/* Alerte EVA */
+.a360-alert {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 14px; border-radius: 12px;
+  margin-bottom: 8px; border: 1px solid transparent;
+}
+.a360-alert-warn   { background: #FFFBEB; border-color: rgba(217,119,6,.18); }
+.a360-alert-risk   { background: #FEF2F2; border-color: rgba(220,38,38,.14); }
+.a360-alert-ok     { background: #F0FDF4; border-color: rgba(5,150,105,.14); }
+.a360-alert-icon   { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.a360-alert-title  { font-size: 13px; font-weight: 700; color: #17122E; margin-bottom: 2px; }
+.a360-alert-desc   { font-size: 11px; color: #7B708F; line-height: 1.45; }
+
+/* État vide */
+.a360-empty {
+  text-align: center; padding: 3rem 2rem;
+  background: white; border: 1px dashed rgba(139,92,246,.25);
+  border-radius: 18px; margin-bottom: 14px;
+}
+.a360-empty-icon  { font-size: 38px; margin-bottom: 12px; }
+.a360-empty-title { font-family: 'Sora',sans-serif; font-size: 16px; font-weight: 800; color: #17122E; margin-bottom: 6px; }
+.a360-empty-sub   { font-size: 13px; color: #8A8A99; line-height: 1.6; max-width: 380px; margin: 0 auto; }
+
+/* Responsive */
+@media(max-width:900px){
+  .a360-kpi-row { grid-template-columns: repeat(3,minmax(0,1fr)); }
+}
+@media(max-width:600px){
+  .a360-kpi-row { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .a360-table th:nth-child(n+4), .a360-table td:nth-child(n+4) { display: none; }
+}
+/* ===== end Audit 360 ===== */
