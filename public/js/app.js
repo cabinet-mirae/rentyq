@@ -881,7 +881,7 @@ function showApartDetail(id){
         </div>
       </div>
 
-      <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">⚙️ Modifier / compléter le bien</div><div class="rq-card-sub-v2">Accès rapide aux réglages importants.</div></div></div><div class="rq-edit-panel"><div class="rq-edit-tile" onclick="openEdit('${a.id}')"><div class="rq-edit-icon">🏠</div><div class="rq-edit-title">Informations</div><div class="rq-edit-sub">Nom, ville, adresse, emoji.</div></div><div class="rq-edit-tile" onclick="openEdit('${a.id}')"><div class="rq-edit-icon">💸</div><div class="rq-edit-title">Pricing</div><div class="rq-edit-sub">Prix actuel, plancher, dégressif.</div></div><div class="rq-edit-tile" onclick="openMissionModal()"><div class="rq-edit-icon">🧹</div><div class="rq-edit-title">Ménage</div><div class="rq-edit-sub">Créer une mission CleanyQ.</div></div><div class="rq-edit-tile" onclick="goTo('smoobu',document.querySelectorAll('.nav-item')[6])"><div class="rq-edit-icon">🔗</div><div class="rq-edit-title">Synchronisation</div><div class="rq-edit-sub">Smoobu, réservations, prix.</div></div></div></section>
+      <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">⚙️ Modifier / compléter le bien</div><div class="rq-card-sub-v2">Accès rapide aux réglages importants.</div></div></div><div class="rq-edit-panel"><div class="rq-edit-tile" onclick="openEdit('${a.id}')"><div class="rq-edit-icon">🏠</div><div class="rq-edit-title">Informations</div><div class="rq-edit-sub">Nom, ville, adresse, emoji.</div></div><div class="rq-edit-tile" onclick="openEdit('${a.id}')"><div class="rq-edit-icon">💸</div><div class="rq-edit-title">Pricing</div><div class="rq-edit-sub">Prix actuel, plancher, dégressif.</div></div><div class="rq-edit-tile" onclick="openMissionModal()"><div class="rq-edit-icon">🧹</div><div class="rq-edit-title">Ménage</div><div class="rq-edit-sub">Créer une mission CleanyQ.</div></div><div class="rq-edit-tile" onclick="goTo('smoobu',document.querySelector('[data-page="smoobu"]'))"><div class="rq-edit-icon">🔗</div><div class="rq-edit-title">Synchronisation</div><div class="rq-edit-sub">Smoobu, réservations, prix.</div></div></div></section>
     </div>`;
 }
 
@@ -1632,12 +1632,53 @@ function closeSidebarMobile(){
   if(sb)sb.classList.remove('open');
   if(ov)ov.classList.remove('open');
 }
+// ── Sidebar accordéon ──
+function toggleGroup(id){
+  const grp=document.getElementById(id);
+  if(!grp)return;
+  const isOpen=grp.classList.contains('open');
+  // Fermer tous les groupes ouverts
+  document.querySelectorAll('.nav-group.open').forEach(g=>g.classList.remove('open'));
+  document.querySelectorAll('.nav-group-header.open').forEach(h=>h.classList.remove('open'));
+  // Ouvrir celui cliqué s'il était fermé
+  if(!isOpen){
+    grp.classList.add('open');
+    const hdr=grp.querySelector('.nav-group-header');
+    if(hdr)hdr.classList.add('open');
+  }
+}
+
+function openParentGroup(page){
+  const map={
+    'missions-all':'grp-missions','missions-todo':'grp-missions','missions-done':'grp-missions',
+    'eva-audit':'grp-audit','audit-revenus':'grp-audit','audit-occupation':'grp-audit',
+    'audit-qualite':'grp-audit','audit-ota':'grp-audit','audit-tarification':'grp-audit',
+    'profit360':'grp-profit','profit-logement':'grp-profit','profit-opportunites':'grp-profit','profit-simulations':'grp-profit',
+    'parc':'grp-parc','parc-fiches':'grp-parc','parc-comparaison':'grp-parc',
+    'calendrier':'grp-cal','reservations':'grp-cal','nuits-vacantes':'grp-cal',
+    'settings-profil':'grp-settings','squad':'grp-settings','settings-commissions':'grp-settings','clean':'grp-settings','tarifs':'grp-settings'
+  };
+  const grpId=map[page];
+  if(!grpId)return;
+  // Fermer tous puis ouvrir le bon
+  document.querySelectorAll('.nav-group.open').forEach(g=>g.classList.remove('open'));
+  document.querySelectorAll('.nav-group-header.open').forEach(h=>h.classList.remove('open'));
+  const grp=document.getElementById(grpId);
+  if(grp){
+    grp.classList.add('open');
+    const hdr=grp.querySelector('.nav-group-header');
+    if(hdr)hdr.classList.add('open');
+  }
+}
+
 function goTo(page,btn){
   closeSidebarMobile();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-item,.nav-sub-item').forEach(n=>n.classList.remove('active'));
+  const pageEl=document.getElementById('page-'+page);
+  if(pageEl)pageEl.classList.add('active');
   if(btn)btn.classList.add('active');
+  openParentGroup(page);
   if(page==='calendrier'){renderCalendarPage();renderCalendar();}
   if(page==='reservations')renderReservationsPage();
   if(page==='parc'){try{renderParcTable();}catch(e){console.warn('renderParcTable',e);}}
@@ -2780,13 +2821,12 @@ function updateNavVisibility(){
 function applyModules(){
   userModules=getModules();
   updateNavVisibility();
-  // Show switcher only if both modules active
+  // mode-switcher masqué — sidebar unifiée, on reste toujours en mode solo
   const switcher=document.getElementById('mode-switcher');
-  const hasBoth=userModules.includes('solo')&&userModules.includes('concierge');
-  if(switcher)switcher.style.display=hasBoth?'flex':'none';
-  // If only concierge, auto switch
-  if(userModules.includes('concierge')&&!userModules.includes('solo'))switchMode('concierge');
-  else if(!userModules.includes('concierge')&&userModules.includes('solo'))switchMode('solo');
+  if(switcher)switcher.style.display='none';
+  // switchMode auto désactivé (sidebar unifiée — pas de bascule Solo/Conciergerie)
+  // if(userModules.includes('concierge')&&!userModules.includes('solo'))switchMode('concierge');
+  // else if(!userModules.includes('concierge')&&userModules.includes('solo'))switchMode('solo');
   // Update settings toggles
   const tSolo=document.getElementById('toggle-mod-solo');
   const tConc=document.getElementById('toggle-mod-concierge');
