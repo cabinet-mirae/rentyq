@@ -245,11 +245,11 @@ async function loadApp(){
 }
 
 function renderSidebar(){
-  document.getElementById('s-name').textContent=(currentProfile.name||'User').split(' ')[0];
-  try{document.getElementById('m-avatar').textContent=(currentProfile.name||'U').charAt(0).toUpperCase();}catch(e){}
-  document.getElementById('s-avatar').textContent=(currentProfile.name||'U').charAt(0).toUpperCase();
-  document.getElementById('s-plan').textContent='Plan '+(currentProfile.plan||'Starter');
-  document.getElementById('parc-badge').textContent=apparts.length;
+  const _sn=document.getElementById('s-name');if(_sn)_sn.textContent=(currentProfile.name||'User').split(' ')[0];
+  try{const _ma=document.getElementById('m-avatar');if(_ma)_ma.textContent=(currentProfile.name||'U').charAt(0).toUpperCase();}catch(e){}
+  const _sa=document.getElementById('s-avatar');if(_sa)_sa.textContent=(currentProfile.name||'U').charAt(0).toUpperCase();
+  const _sp=document.getElementById('s-plan');if(_sp)_sp.textContent='Plan '+(currentProfile.plan||'Starter');
+  const _pb=document.getElementById('parc-badge');if(_pb)_pb.textContent=apparts.length;
 }
 
 function floor(a){return Math.round((a.rent||0)/30+(a.cleaner||0))}
@@ -260,10 +260,10 @@ function renderAll(){
   try{renderParcTable();}catch(e){console.warn('renderParcTable',e);}
   try{renderResTable();}catch(e){console.warn('renderResTable',e);}
   try{renderPricingTable();}catch(e){console.warn('renderPricingTable',e);}
-  document.getElementById('parc-badge').textContent=apparts.length;
-  document.getElementById('parc-sub').textContent=apparts.length+' appartement'+(apparts.length>1?'s':'');
-  document.getElementById('res-sub').textContent=reservations.length+' réservation'+(reservations.length>1?'s':'');
-  if(smoobuConnected){document.getElementById('btn-sync').style.display='inline-flex';}
+  const _pb=document.getElementById('parc-badge');if(_pb)_pb.textContent=apparts.length;
+  const _ps=document.getElementById('parc-sub');if(_ps)_ps.textContent=apparts.length+' appartement'+(apparts.length>1?'s':'');
+  const _rs=document.getElementById('res-sub');if(_rs)_rs.textContent=reservations.length+' réservation'+(reservations.length>1?'s':'');
+  if(smoobuConnected){const _bs=document.getElementById('btn-sync');if(_bs)_bs.style.display='inline-flex';}
   if(document.getElementById('page-scanner')?.classList.contains('active'))renderScannerPage();
 }
 
@@ -583,7 +583,7 @@ function renderParcTable(){
     </div>`;
   }).join('');
 
-  document.getElementById('parc-sub').textContent=apparts.length+' appartement'+(apparts.length>1?'s':'');
+  const _ps2=document.getElementById('parc-sub');if(_ps2)_ps2.textContent=apparts.length+' appartement'+(apparts.length>1?'s':'');
 }
 
 function showApartDetail(id){
@@ -5742,3 +5742,5 @@ function renderProfit360(){
 /* ===== end PROFIT 360 ===== */
 
 
+
+   
