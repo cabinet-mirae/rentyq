@@ -2274,25 +2274,74 @@ function renderAudit360Revenus(){
   }).join('');
 
   dash.innerHTML=
+    '<div class="a360-hero">'+
+      '<div class="a360-hero-kicker">EVA Audit 360 \u00b7 Revenus</div>'+
+      '<div class="a360-hero-title">'+monthRev+'\u20AC g\u00e9n\u00e9r\u00e9s ce mois</div>'+
+      '<div class="a360-hero-sub">'+daysElapsed+' jours \u00e9coul\u00e9s sur '+daysInMonth+' \u2014 '+monthRes.length+' r\u00e9servation'+(monthRes.length>1?'s':'')+' enregistr\u00e9e'+(monthRes.length>1?'s':'')+'</div>'+
+      '<div class="a360-hero-chips">'+
+        '<span class="a360-hero-chip accent">'+monthRev+'\u20AC ce mois</span>'+
+        '<span class="a360-hero-chip">ADR : '+adr+'\u20AC</span>'+
+        (prevRev>0?'<span class="a360-hero-chip">M-1 : '+prevRev+'\u20AC</span>':'')+
+        '<span class="a360-hero-chip">'+apts.length+' logement'+(apts.length>1?'s':'')+'</span>'+
+      '</div>'+
+    '</div>'+
+
     '<div class="a360-kpi-row">'+
-      '<div class="a360-kpi"><div class="a360-kpi-label">Revenus du mois</div><div class="a360-kpi-value">'+monthRev+'\u20AC</div><div class="a360-kpi-help">'+daysElapsed+'/'+daysInMonth+' jours</div></div>'+
-      '<div class="a360-kpi"><div class="a360-kpi-label">R\u00e9servations</div><div class="a360-kpi-value">'+monthRes.length+'</div><div class="a360-kpi-help">ce mois</div></div>'+
-      '<div class="a360-kpi"><div class="a360-kpi-label">ADR</div><div class="a360-kpi-value">'+adr+'\u20AC</div><div class="a360-kpi-help">prix moyen/nuit</div></div>'+
-      '<div class="a360-kpi"><div class="a360-kpi-label">Mois pr\u00e9c\u00e9dent</div><div class="a360-kpi-value">'+prevRev+'\u20AC</div><div class="a360-kpi-help">'+trendHtml+'</div></div>'+
-      '<div class="a360-kpi"><div class="a360-kpi-label">Logements</div><div class="a360-kpi-value">'+apts.length+'</div><div class="a360-kpi-help">dans le parc</div></div>'+
+      '<div class="a360-kpi a360-kpi-accent">'+
+        '<div class="a360-kpi-label">Revenus du mois</div>'+
+        '<div class="a360-kpi-value">'+monthRev+'\u20AC</div>'+
+        '<div class="a360-kpi-help">'+daysElapsed+'/'+daysInMonth+' jours \u00e9coul\u00e9s</div>'+
+      '</div>'+
+      '<div class="a360-kpi">'+
+        '<div class="a360-kpi-label">R\u00e9servations</div>'+
+        '<div class="a360-kpi-value">'+monthRes.length+'</div>'+
+        '<div class="a360-kpi-help">ce mois</div>'+
+      '</div>'+
+      '<div class="a360-kpi">'+
+        '<div class="a360-kpi-label">ADR</div>'+
+        '<div class="a360-kpi-value">'+adr+'\u20AC</div>'+
+        '<div class="a360-kpi-help">prix moyen / nuit</div>'+
+      '</div>'+
+      '<div class="a360-kpi">'+
+        '<div class="a360-kpi-label">Mois pr\u00e9c\u00e9dent</div>'+
+        '<div class="a360-kpi-value">'+prevRev+'\u20AC</div>'+
+        '<div class="a360-kpi-help">'+trendHtml+'</div>'+
+      '</div>'+
+      '<div class="a360-kpi">'+
+        '<div class="a360-kpi-label">Logements</div>'+
+        '<div class="a360-kpi-value">'+apts.length+'</div>'+
+        '<div class="a360-kpi-help">dans le parc</div>'+
+      '</div>'+
     '</div>'+
 
     '<div class="a360-section">'+
       '<div class="a360-section-head">'+
-        '<div><div class="a360-section-title">\uD83C\uDFC6 Revenus par logement</div><div class="a360-section-sub">Classement du mois en cours</div></div>'+
-        (best?'<span class="a360-badge a360-badge-purple">Meilleur : '+best.a.name+' \u2014 '+best.rev+'\u20AC</span>':'')+'</div>'+
-      '<table class="a360-table"><thead><tr><th>Logement</th><th>Revenus</th><th>R\u00e9servations</th><th>Prix/nuit</th></tr></thead>'+
-      '<tbody>'+tableRows+'</tbody></table>'+
+        '<div>'+
+          '<div class="a360-section-title">\uD83C\uDFC6 Revenus par logement</div>'+
+          '<div class="a360-section-sub">Classement du mois en cours</div>'+
+        '</div>'+
+        (best?'<span class="a360-badge a360-badge-purple">Meilleur : '+best.a.name+' \u2014 '+best.rev+'\u20AC</span>':'')+
+      '</div>'+
+      '<div class="a360-table-wrap">'+
+        '<table class="a360-table">'+
+          '<thead><tr><th>Logement</th><th>Revenus</th><th>R\u00e9servations</th><th>Prix/nuit</th></tr></thead>'+
+          '<tbody>'+tableRows+'</tbody>'+
+        '</table>'+
+      '</div>'+
     '</div>'+
 
     '<div class="a360-section">'+
-      '<div class="a360-section-head"><div><div class="a360-section-title">\uD83D\uDEA8 Alertes EVA Revenus</div><div class="a360-section-sub">Signaux d\u00e9tect\u00e9s par EVA</div></div></div>'+
+      '<div class="a360-section-head">'+
+        '<div>'+
+          '<div class="a360-section-title">\uD83D\uDEA8 Alertes EVA \u2014 Revenus</div>'+
+          '<div class="a360-section-sub">Signaux d\u00e9tect\u00e9s par EVA sur votre parc</div>'+
+        '</div>'+
+        '<span class="a360-badge a360-badge-purple">EVA Engine</span>'+
+      '</div>'+
       alerts+
+      '<div style="margin-top:14px">'+
+        '<button class="a360-action-btn" onclick="goTo(\'pricing\',document.querySelector(\'[data-page=pricing]\'))">EVA Pricing \u2192</button>'+
+      '</div>'+
     '</div>';
 }
 
@@ -2370,28 +2419,78 @@ function renderAudit360Occupation(){
   }).join('');
 
   var occColor=globalOcc>=65?'#059669':globalOcc>=45?'#D97706':'#DC2626';
+  var freeNb=apts.filter(function(a){return !a.booked;}).length;
+  var totalVacant=vacantsByApt.reduce(function(s,x){return s+x.vacant.length;},0);
 
   dash.innerHTML=
+    '<div class="a360-hero">'+
+      '<div class="a360-hero-kicker">EVA Audit 360 \u00b7 Occupation</div>'+
+      '<div class="a360-hero-title" style="color:'+(globalOcc>=65?'#FCD34D':'#fff')+'">'+globalOcc+'% d\u2019occupation ce mois</div>'+
+      '<div class="a360-hero-sub">'+daysElapsed+' jours \u00e9coul\u00e9s \u2014 objectif EVA : 65\u202f%</div>'+
+      '<div class="a360-hero-chips">'+
+        '<span class="a360-hero-chip accent">'+globalOcc+'% global</span>'+
+        '<span class="a360-hero-chip">'+totalNights+' nuits vendues</span>'+
+        '<span class="a360-hero-chip">'+freeNb+' libre'+(freeNb>1?'s':'')+' ce soir</span>'+
+        '<span class="a360-hero-chip">'+totalVacant+' vacantes /14j</span>'+
+      '</div>'+
+    '</div>'+
+
     '<div class="a360-kpi-row">'+
-      '<div class="a360-kpi"><div class="a360-kpi-label">Occupation globale</div><div class="a360-kpi-value" style="color:'+occColor+'">'+globalOcc+'%</div><div class="a360-kpi-help">'+daysElapsed+' jours \u00e9coul\u00e9s</div></div>'+
-      '<div class="a360-kpi"><div class="a360-kpi-label">Nuits vendues</div><div class="a360-kpi-value">'+totalNights+'</div><div class="a360-kpi-help">ce mois</div></div>'+
-      '<div class="a360-kpi"><div class="a360-kpi-label">Biens libres ce soir</div><div class="a360-kpi-value" style="color:'+(apts.filter(function(a){return !a.booked;}).length?'#DC2626':'#059669')+'">'+apts.filter(function(a){return !a.booked;}).length+'</div><div class="a360-kpi-help">sur '+apts.length+' biens</div></div>'+
-      '<div class="a360-kpi"><div class="a360-kpi-label">Nuits vacantes /14j</div><div class="a360-kpi-value">'+vacantsByApt.reduce(function(s,x){return s+x.vacant.length;},0)+'</div><div class="a360-kpi-help">tous biens confondus</div></div>'+
-      '<div class="a360-kpi"><div class="a360-kpi-label">Objectif EVA</div><div class="a360-kpi-value" style="color:#7C3AED">65%</div><div class="a360-kpi-help">taux cible</div></div>'+
+      '<div class="a360-kpi a360-kpi-accent">'+
+        '<div class="a360-kpi-label">Occupation globale</div>'+
+        '<div class="a360-kpi-value" style="color:'+occColor+'">'+globalOcc+'%</div>'+
+        '<div class="a360-occ-wrap"><div class="a360-occ-bar"><div class="a360-occ-bar-fill" style="width:'+globalOcc+'%;background:'+occColor+'"></div></div></div>'+
+      '</div>'+
+      '<div class="a360-kpi">'+
+        '<div class="a360-kpi-label">Nuits vendues</div>'+
+        '<div class="a360-kpi-value">'+totalNights+'</div>'+
+        '<div class="a360-kpi-help">ce mois</div>'+
+      '</div>'+
+      '<div class="a360-kpi">'+
+        '<div class="a360-kpi-label">Libres ce soir</div>'+
+        '<div class="a360-kpi-value" style="color:'+(freeNb?'#DC2626':'#059669')+'">'+freeNb+'</div>'+
+        '<div class="a360-kpi-help">sur '+apts.length+' biens</div>'+
+      '</div>'+
+      '<div class="a360-kpi">'+
+        '<div class="a360-kpi-label">Vacantes /14j</div>'+
+        '<div class="a360-kpi-value">'+totalVacant+'</div>'+
+        '<div class="a360-kpi-help">tous biens</div>'+
+      '</div>'+
+      '<div class="a360-kpi">'+
+        '<div class="a360-kpi-label">Objectif EVA</div>'+
+        '<div class="a360-kpi-value" style="color:#7C3AED">65%</div>'+
+        '<div class="a360-kpi-help">taux cible</div>'+
+      '</div>'+
     '</div>'+
 
     '<div class="a360-section">'+
       '<div class="a360-section-head">'+
-        '<div><div class="a360-section-title">\uD83C\uDFE0 Occupation par logement</div><div class="a360-section-sub">Mois en cours</div></div>'+
+        '<div>'+
+          '<div class="a360-section-title">\uD83C\uDFE0 Occupation par logement</div>'+
+          '<div class="a360-section-sub">Mois en cours \u2014 nuits vendues et vacantes \u00e0 venir</div>'+
+        '</div>'+
         '<span class="a360-badge a360-badge-purple">'+globalOcc+'% global</span>'+
       '</div>'+
-      '<table class="a360-table"><thead><tr><th>Logement</th><th>Occupation</th><th>Nuits vendues</th><th>Nuits libres/14j</th><th>Statut</th></tr></thead>'+
-      '<tbody>'+tableRows+'</tbody></table>'+
+      '<div class="a360-table-wrap">'+
+        '<table class="a360-table">'+
+          '<thead><tr><th>Logement</th><th>Occupation</th><th>Nuits vendues</th><th>Vacantes /14j</th><th>Statut</th></tr></thead>'+
+          '<tbody>'+tableRows+'</tbody>'+
+        '</table>'+
+      '</div>'+
     '</div>'+
 
     '<div class="a360-section">'+
-      '<div class="a360-section-head"><div><div class="a360-section-title">\uD83D\uDEA8 Alertes EVA Occupation</div><div class="a360-section-sub">Signaux d\u00e9tect\u00e9s</div></div></div>'+
+      '<div class="a360-section-head">'+
+        '<div>'+
+          '<div class="a360-section-title">\uD83D\uDEA8 Alertes EVA \u2014 Occupation</div>'+
+          '<div class="a360-section-sub">Signaux d\u00e9tect\u00e9s par EVA</div>'+
+        '</div>'+
+        '<span class="a360-badge a360-badge-purple">EVA Engine</span>'+
+      '</div>'+
       alerts+
+      '<div style="margin-top:14px">'+
+        '<button class="a360-action-btn" onclick="goTo(\'pricing\',document.querySelector(\'[data-page=pricing]\'))">Optimiser les prix \u2192</button>'+
+      '</div>'+
     '</div>';
 }
 
@@ -2418,36 +2517,81 @@ function renderAudit360Qualite(){
   } else {
     var noteColor=avgNote>=4.5?'#059669':avgNote>=4?'#D97706':'#DC2626';
     var aptNoteRows=apts.map(function(a){
-      if(!a.note||!Number(a.note))return '<tr><td><span style="margin-right:6px">'+(a.emoji||'\uD83C\uDFE0')+'</span>'+a.name+'</td><td colspan="3" style="color:#8A8A99">Note non renseign\u00e9e</td></tr>';
+      if(!a.note||!Number(a.note))return '<tr>'+
+        '<td><div class="a360-apt-name"><div class="a360-apt-emoji">'+(a.emoji||'\uD83C\uDFE0')+'</div><span>'+a.name+'</span></div></td>'+
+        '<td colspan="3" style="color:#B0A8C8;font-size:12px">Note non renseign\u00e9e</td></tr>';
       var n=Number(a.note);
-      var stars='\u2605'.repeat(Math.round(n))+'\u2606'.repeat(5-Math.round(n));
+      var fullStars=Math.round(n);
+      var stars='<span class="a360-stars">'+'\u2605'.repeat(fullStars)+'\u2606'.repeat(5-fullStars)+'</span>';
       var badge=n>=4.8?'<span class="a360-badge a360-badge-green">Excellent</span>':
                 n>=4.5?'<span class="a360-badge a360-badge-purple">Bon</span>':
                 n>=4?'<span class="a360-badge a360-badge-orange">\u00c0 am\u00e9liorer</span>':
                 '<span class="a360-badge a360-badge-red">Critique</span>';
       var nColor=n>=4.5?'#059669':n>=4?'#D97706':'#DC2626';
       return '<tr>'+
-        '<td><span style="margin-right:6px">'+(a.emoji||'\uD83C\uDFE0')+'</span>'+a.name+'</td>'+
-        '<td style="font-weight:800;color:'+nColor+'">'+n+'/5 <span style="color:#F59E0B;font-size:11px">'+stars+'</span></td>'+
-        '<td>'+(a.nb_avis?a.nb_avis+' avis':'—')+'</td>'+
+        '<td><div class="a360-apt-name"><div class="a360-apt-emoji">'+(a.emoji||'\uD83C\uDFE0')+'</div><span>'+a.name+'</span></div></td>'+
+        '<td><span style="font-size:16px;font-weight:900;color:'+nColor+'">'+n+'</span><span style="font-size:11px;color:#8A8A99">/5</span> '+stars+'</td>'+
+        '<td>'+(a.nb_avis?'<strong>'+a.nb_avis+'</strong> avis':'<span style="color:#B0A8C8">—</span>')+'</td>'+
         '<td>'+badge+'</td>'+
       '</tr>';
     }).join('');
 
-    noteSection='<div class="a360-section" style="margin-bottom:14px">'+
-      '<div class="a360-section-head">'+
-        '<div><div class="a360-section-title">\u2B50 Notes par logement</div><div class="a360-section-sub">Source : donn\u00e9es renseign\u00e9es dans les fiches</div></div>'+
-        '<span class="a360-badge a360-badge-purple">Moyenne : '+avgNote+'/5</span>'+
+    noteSection=
+      '<div class="a360-hero">'+
+        '<div class="a360-hero-kicker">EVA Audit 360 \u00b7 Qualit\u00e9 voyageurs</div>'+
+        '<div class="a360-hero-title">Note moyenne : '+avgNote+'/5</div>'+
+        '<div class="a360-hero-sub">'+withNote.length+' logement'+(withNote.length>1?'s':'')+' not\u00e9'+(withNote.length>1?'s':'')+' sur '+apts.length+'</div>'+
+        '<div class="a360-hero-chips">'+
+          '<span class="a360-hero-chip accent">'+avgNote+'/5 moyenne</span>'+
+          '<span class="a360-hero-chip">'+withNote.filter(function(a){return Number(a.note)>=4.5;}).length+' excellent'+(withNote.filter(function(a){return Number(a.note)>=4.5;}).length>1?'s':'')+'</span>'+
+          '<span class="a360-hero-chip">'+withNote.filter(function(a){return Number(a.note)<4;}).length+' action'+(withNote.filter(function(a){return Number(a.note)<4;}).length>1?'s':'')+' requise'+(withNote.filter(function(a){return Number(a.note)<4;}).length>1?'s':'')+'</span>'+
+          '<span class="a360-hero-chip">'+apts.reduce(function(s,a){return s+(a.nb_avis||0);},0)+' avis au total</span>'+
+        '</div>'+
       '</div>'+
+
       '<div class="a360-kpi-row" style="margin-bottom:14px">'+
-        '<div class="a360-kpi"><div class="a360-kpi-label">Note moyenne</div><div class="a360-kpi-value" style="color:'+noteColor+'">'+avgNote+'</div><div class="a360-kpi-help">sur 5 \u00e9toiles</div></div>'+
-        '<div class="a360-kpi"><div class="a360-kpi-label">Biens not\u00e9s</div><div class="a360-kpi-value">'+withNote.length+'/'+apts.length+'</div><div class="a360-kpi-help">fiches renseign\u00e9es</div></div>'+
-        '<div class="a360-kpi"><div class="a360-kpi-label">Note &ge; 4,5</div><div class="a360-kpi-value" style="color:#059669">'+withNote.filter(function(a){return Number(a.note)>=4.5;}).length+'</div><div class="a360-kpi-help">biens excellents</div></div>'+
-        '<div class="a360-kpi"><div class="a360-kpi-label">Note &lt; 4</div><div class="a360-kpi-value" style="color:#DC2626">'+withNote.filter(function(a){return Number(a.note)<4;}).length+'</div><div class="a360-kpi-help">action requise</div></div>'+
-        '<div class="a360-kpi"><div class="a360-kpi-label">Avis totaux</div><div class="a360-kpi-value">'+apts.reduce(function(s,a){return s+(a.nb_avis||0);},0)||'—'+'</div><div class="a360-kpi-help">tous logements</div></div>'+
+        '<div class="a360-kpi a360-kpi-accent">'+
+          '<div class="a360-kpi-label">Note moyenne</div>'+
+          '<div class="a360-kpi-value" style="color:'+noteColor+'">'+avgNote+'</div>'+
+          '<div class="a360-kpi-help">sur 5 \u00e9toiles</div>'+
+        '</div>'+
+        '<div class="a360-kpi">'+
+          '<div class="a360-kpi-label">Biens not\u00e9s</div>'+
+          '<div class="a360-kpi-value">'+withNote.length+'/'+apts.length+'</div>'+
+          '<div class="a360-kpi-help">fiches renseign\u00e9es</div>'+
+        '</div>'+
+        '<div class="a360-kpi">'+
+          '<div class="a360-kpi-label">Note \u2265 4,5</div>'+
+          '<div class="a360-kpi-value" style="color:#059669">'+withNote.filter(function(a){return Number(a.note)>=4.5;}).length+'</div>'+
+          '<div class="a360-kpi-help">biens excellents</div>'+
+        '</div>'+
+        '<div class="a360-kpi">'+
+          '<div class="a360-kpi-label">Note &lt; 4</div>'+
+          '<div class="a360-kpi-value" style="color:#DC2626">'+withNote.filter(function(a){return Number(a.note)<4;}).length+'</div>'+
+          '<div class="a360-kpi-help">action requise</div>'+
+        '</div>'+
+        '<div class="a360-kpi">'+
+          '<div class="a360-kpi-label">Avis totaux</div>'+
+          '<div class="a360-kpi-value">'+(apts.reduce(function(s,a){return s+(a.nb_avis||0);},0)||'—')+'</div>'+
+          '<div class="a360-kpi-help">tous logements</div>'+
+        '</div>'+
       '</div>'+
-      '<table class="a360-table"><thead><tr><th>Logement</th><th>Note</th><th>Avis</th><th>Statut</th></tr></thead><tbody>'+aptNoteRows+'</tbody></table>'+
-    '</div>';
+
+      '<div class="a360-section">'+
+        '<div class="a360-section-head">'+
+          '<div>'+
+            '<div class="a360-section-title">\u2B50 Notes par logement</div>'+
+            '<div class="a360-section-sub">Source : donn\u00e9es renseign\u00e9es dans les fiches</div>'+
+          '</div>'+
+          '<span class="a360-badge a360-badge-purple">Moyenne '+avgNote+'/5</span>'+
+        '</div>'+
+        '<div class="a360-table-wrap">'+
+          '<table class="a360-table">'+
+            '<thead><tr><th>Logement</th><th>Note</th><th>Avis</th><th>Statut</th></tr></thead>'+
+            '<tbody>'+aptNoteRows+'</tbody>'+
+          '</table>'+
+        '</div>'+
+      '</div>';
   }
 
   // Recommandations EVA
@@ -2455,15 +2599,21 @@ function renderAudit360Qualite(){
   apts.forEach(function(a){
     var n=Number(a.note||0);
     if(n>0&&n<4) reco+=a360Alert('risk','\u26a0\ufe0f',a.name+' \u2014 note critique : '+n+'/5','Priorit\u00e9 absolue : identifier la cause (m\u00e9nage, \u00e9quipements, annonce) et corriger avant de relever les prix.');
-    else if(n>=4&&n<4.5) reco+=a360Alert('warn','\uD83D\uDCA1',a.name+' \u2014 note \u00e0 am\u00e9liorer : '+n+'/5','Petites am\u00e9liorations possibles : photos, description, \u00e9quipements. Chaque demi-point de note peut augmenter la conversion de 10\u00a0%.');
-    else if(n>=4.8) reco+=a360Alert('ok','\uD83C\uDFC6',a.name+' \u2014 note excellente : '+n+'/5','Ce bien peut justifier une hausse de prix. Les voyageurs sont pr\u00eats \u00e0 payer plus pour un bien bien not\u00e9.');
+    else if(n>=4&&n<4.5) reco+=a360Alert('warn','\uD83D\uDCA1',a.name+' \u2014 note \u00e0 am\u00e9liorer : '+n+'/5','Petites am\u00e9liorations possibles : photos, description, \u00e9quipements. Chaque demi-point peut augmenter la conversion de 10\u00a0%.');
+    else if(n>=4.8) reco+=a360Alert('ok','\uD83C\uDFC6',a.name+' \u2014 note excellente : '+n+'/5','Ce bien peut justifier une hausse de prix. Les voyageurs paient plus pour un bien bien not\u00e9.');
   });
   if(!reco) reco=a360Alert('ok','\uD83D\uDCA1','Conseil EVA','Renseignez la note Airbnb/Booking dans chaque fiche logement pour activer l\u2019analyse compl\u00e8te.');
 
   dash.innerHTML=
     noteSection+
     '<div class="a360-section">'+
-      '<div class="a360-section-head"><div><div class="a360-section-title">\uD83D\uDEA8 Recommandations EVA Qualit\u00e9</div><div class="a360-section-sub">Actions pour am\u00e9liorer la satisfaction voyageurs</div></div></div>'+
+      '<div class="a360-section-head">'+
+        '<div>'+
+          '<div class="a360-section-title">\uD83D\uDEA8 Recommandations EVA \u2014 Qualit\u00e9</div>'+
+          '<div class="a360-section-sub">Actions pour am\u00e9liorer la satisfaction voyageurs</div>'+
+        '</div>'+
+        '<span class="a360-badge a360-badge-purple">EVA Engine</span>'+
+      '</div>'+
       reco+
     '</div>';
 }
@@ -2481,11 +2631,20 @@ function renderAudit360Ota(){
   var withPlatform=monthRes.filter(function(r){return r.platform&&r.platform!=='';});
 
   if(!monthRes.length||withPlatform.length<2){
-    dash.innerHTML='<div class="a360-empty">'+
-      '<div class="a360-empty-icon">\uD83C\uDF10</div>'+
-      '<div class="a360-empty-title">Donn\u00e9es OTA insuffisantes pour l\u2019instant</div>'+
-      '<div class="a360-empty-sub">Cette analyse sera enrichie avec les donn\u00e9es PMS. Connectez Smoobu ou ajoutez manuellement vos r\u00e9servations avec le canal source pour activer cette vue.</div>'+
-    '</div>';
+    dash.innerHTML=
+      '<div class="a360-hero">'+
+        '<div class="a360-hero-kicker">EVA Audit 360 \u00b7 Distribution OTA</div>'+
+        '<div class="a360-hero-title">Donn\u00e9es OTA insuffisantes</div>'+
+        '<div class="a360-hero-sub">Cette analyse sera enrichie avec les donn\u00e9es PMS</div>'+
+      '</div>'+
+      '<div class="a360-empty">'+
+        '<div class="a360-empty-icon">\uD83C\uDF10</div>'+
+        '<div class="a360-empty-title">Donn\u00e9es OTA insuffisantes pour l\u2019instant</div>'+
+        '<div class="a360-empty-sub">Connectez Smoobu ou ajoutez manuellement vos r\u00e9servations avec le canal source (Airbnb, Booking\u2026) pour activer cette vue.</div>'+
+        '<div style="margin-top:16px">'+
+          '<button class="a360-action-btn" onclick="goTo(\'settings\',document.querySelector(\'[data-page=settings]\'))">Connecter un PMS \u2192</button>'+
+        '</div>'+
+      '</div>';
     return;
   }
 
@@ -2517,25 +2676,62 @@ function renderAudit360Ota(){
     var color=colors[key]||'#6D28D9';
     return '<div class="a360-ota-row">'+
       '<div class="a360-ota-label">'+
-        '<span>'+(labels[key]||key)+'</span>'+
-        '<span style="font-weight:800">'+count+' r\u00e9sa \u2014 '+pct+'%</span>'+
+        '<span style="font-weight:600">'+(labels[key]||key)+'</span>'+
+        '<span style="font-weight:800;color:#17122E">'+count+' r\u00e9sa \u2014 <span style="color:'+color+'">'+pct+'%</span></span>'+
       '</div>'+
       '<div class="a360-ota-bar-wrap"><div class="a360-ota-bar-fill" style="width:'+pct+'%;background:'+color+'"></div></div>'+
     '</div>';
   }).join('');
 
   dash.innerHTML=
+    '<div class="a360-hero">'+
+      '<div class="a360-hero-kicker">EVA Audit 360 \u00b7 Distribution OTA</div>'+
+      '<div class="a360-hero-title">'+total+' r\u00e9servation'+(total>1?'s':'')+' sur '+sorted.length+' canal'+(sorted.length>1?'x':'')+' ce mois</div>'+
+      '<div class="a360-hero-sub">Canal principal : '+(labels[topEntry[0]]||topEntry[0])+' \u2014 '+Math.round(topEntry[1]/total*100)+'%</div>'+
+      '<div class="a360-hero-chips">'+
+        '<span class="a360-hero-chip accent">'+total+' r\u00e9sas</span>'+
+        '<span class="a360-hero-chip">'+sorted.length+' canal'+(sorted.length>1?'x':'')+' actif'+(sorted.length>1?'s':'')+'</span>'+
+        '<span class="a360-hero-chip">'+(labels[topEntry[0]]||topEntry[0])+' : '+Math.round(topEntry[1]/total*100)+'%</span>'+
+      '</div>'+
+    '</div>'+
+
     '<div class="a360-kpi-row">'+
-      '<div class="a360-kpi"><div class="a360-kpi-label">R\u00e9servations</div><div class="a360-kpi-value">'+total+'</div><div class="a360-kpi-help">ce mois</div></div>'+
-      '<div class="a360-kpi"><div class="a360-kpi-label">Canaux actifs</div><div class="a360-kpi-value">'+sorted.length+'</div><div class="a360-kpi-help">sources diff\u00e9rentes</div></div>'+
-      '<div class="a360-kpi"><div class="a360-kpi-label">Canal principal</div><div class="a360-kpi-value" style="font-size:14px">'+(labels[topEntry[0]]||topEntry[0])+'</div><div class="a360-kpi-help">'+Math.round(topEntry[1]/total*100)+'% des r\u00e9sas</div></div>'+
+      '<div class="a360-kpi a360-kpi-accent">'+
+        '<div class="a360-kpi-label">R\u00e9servations</div>'+
+        '<div class="a360-kpi-value">'+total+'</div>'+
+        '<div class="a360-kpi-help">ce mois</div>'+
+      '</div>'+
+      '<div class="a360-kpi">'+
+        '<div class="a360-kpi-label">Canaux actifs</div>'+
+        '<div class="a360-kpi-value">'+sorted.length+'</div>'+
+        '<div class="a360-kpi-help">sources diff\u00e9rentes</div>'+
+      '</div>'+
+      '<div class="a360-kpi">'+
+        '<div class="a360-kpi-label">Canal principal</div>'+
+        '<div class="a360-kpi-value" style="font-size:15px;letter-spacing:0">'+(labels[topEntry[0]]||topEntry[0])+'</div>'+
+        '<div class="a360-kpi-help">'+Math.round(topEntry[1]/total*100)+'% des r\u00e9sas</div>'+
+      '</div>'+
     '</div>'+
+
     '<div class="a360-section">'+
-      '<div class="a360-section-head"><div><div class="a360-section-title">\uD83C\uDF10 R\u00e9partition par canal</div><div class="a360-section-sub">Mois en cours</div></div></div>'+
-      bars+
+      '<div class="a360-section-head">'+
+        '<div>'+
+          '<div class="a360-section-title">\uD83C\uDF10 R\u00e9partition par canal</div>'+
+          '<div class="a360-section-sub">Mois en cours</div>'+
+        '</div>'+
+        '<span class="a360-badge a360-badge-purple">'+total+' r\u00e9servations</span>'+
+      '</div>'+
+      '<div style="padding:4px 0">'+bars+'</div>'+
     '</div>'+
+
     '<div class="a360-section">'+
-      '<div class="a360-section-head"><div><div class="a360-section-title">\uD83D\uDEA8 Alerte EVA OTA</div></div></div>'+
+      '<div class="a360-section-head">'+
+        '<div>'+
+          '<div class="a360-section-title">\uD83D\uDEA8 Alerte EVA \u2014 OTA</div>'+
+          '<div class="a360-section-sub">D\u00e9tection de d\u00e9pendance</div>'+
+        '</div>'+
+        '<span class="a360-badge a360-badge-purple">EVA Engine</span>'+
+      '</div>'+
       depAlert+
     '</div>';
 }
@@ -2616,25 +2812,77 @@ function renderAudit360Tarification(){
   var priceColor=avgPrice>0?'#17122E':'#8A8A99';
 
   dash.innerHTML=
+    '<div class="a360-hero">'+
+      '<div class="a360-hero-kicker">EVA Audit 360 \u00b7 Tarification</div>'+
+      '<div class="a360-hero-title">ADR r\u00e9alis\u00e9 : '+adr+'\u20AC / nuit</div>'+
+      '<div class="a360-hero-sub">Prix moyen pratiqu\u00e9 : '+avgPrice+'\u20AC \u2014 '+underPriced.length+' bien'+(underPriced.length>1?'s':'')+' sous-tarif\u00e9'+(underPriced.length>1?'s':'')+'</div>'+
+      '<div class="a360-hero-chips">'+
+        '<span class="a360-hero-chip accent">ADR '+adr+'\u20AC</span>'+
+        '<span class="a360-hero-chip">Prix moyen '+avgPrice+'\u20AC</span>'+
+        (belowFloor.length?'<span class="a360-hero-chip" style="background:rgba(220,38,38,.25);border-color:rgba(220,38,38,.4)">'+belowFloor.length+' sous plancher</span>':'')+
+        (hotEvts.length?'<span class="a360-hero-chip" style="background:rgba(124,58,237,.3);border-color:rgba(124,58,237,.4)">'+hotEvts.length+' \u00e9v\u00e9nement'+(hotEvts.length>1?'s':'')+'</span>':'')+
+      '</div>'+
+    '</div>'+
+
     '<div class="a360-kpi-row">'+
-      '<div class="a360-kpi"><div class="a360-kpi-label">Prix moyen pratiqu\u00e9</div><div class="a360-kpi-value" style="color:'+priceColor+'">'+avgPrice+'\u20AC</div><div class="a360-kpi-help">tous biens</div></div>'+
-      '<div class="a360-kpi"><div class="a360-kpi-label">ADR r\u00e9alis\u00e9</div><div class="a360-kpi-value">'+adr+'\u20AC</div><div class="a360-kpi-help">ce mois</div></div>'+
-      '<div class="a360-kpi"><div class="a360-kpi-label">Biens sous-tarif\u00e9s</div><div class="a360-kpi-value" style="color:'+(underPriced.length?'#D97706':'#059669')+'">'+underPriced.length+'</div><div class="a360-kpi-help">vs conseil EVA</div></div>'+
-      '<div class="a360-kpi"><div class="a360-kpi-label">Sous plancher</div><div class="a360-kpi-value" style="color:'+(belowFloor.length?'#DC2626':'#059669')+'">'+belowFloor.length+'</div><div class="a360-kpi-help">action urgente</div></div>'+
-      '<div class="a360-kpi"><div class="a360-kpi-label">Opps. \u00e9v\u00e9nements</div><div class="a360-kpi-value" style="color:'+(hotEvts.length?'#7C3AED':'#8A8A99')+'">'+hotEvts.length+'</div><div class="a360-kpi-help">pics d\u00e9tect\u00e9s</div></div>'+
+      '<div class="a360-kpi a360-kpi-accent">'+
+        '<div class="a360-kpi-label">Prix moyen pratiqu\u00e9</div>'+
+        '<div class="a360-kpi-value" style="color:'+priceColor+'">'+avgPrice+'\u20AC</div>'+
+        '<div class="a360-kpi-help">tous biens</div>'+
+      '</div>'+
+      '<div class="a360-kpi">'+
+        '<div class="a360-kpi-label">ADR r\u00e9alis\u00e9</div>'+
+        '<div class="a360-kpi-value">'+adr+'\u20AC</div>'+
+        '<div class="a360-kpi-help">ce mois</div>'+
+      '</div>'+
+      '<div class="a360-kpi">'+
+        '<div class="a360-kpi-label">Sous-tarif\u00e9s</div>'+
+        '<div class="a360-kpi-value" style="color:'+(underPriced.length?'#D97706':'#059669')+'">'+underPriced.length+'</div>'+
+        '<div class="a360-kpi-help">vs conseil EVA</div>'+
+      '</div>'+
+      '<div class="a360-kpi">'+
+        '<div class="a360-kpi-label">Sous plancher</div>'+
+        '<div class="a360-kpi-value" style="color:'+(belowFloor.length?'#DC2626':'#059669')+'">'+belowFloor.length+'</div>'+
+        '<div class="a360-kpi-help">action urgente</div>'+
+      '</div>'+
+      '<div class="a360-kpi">'+
+        '<div class="a360-kpi-label">Opps. \u00e9v\u00e9nements</div>'+
+        '<div class="a360-kpi-value" style="color:'+(hotEvts.length?'#7C3AED':'#8A8A99')+'">'+hotEvts.length+'</div>'+
+        '<div class="a360-kpi-help">pics d\u00e9tect\u00e9s</div>'+
+      '</div>'+
     '</div>'+
 
     '<div class="a360-section">'+
       '<div class="a360-section-head">'+
-        '<div><div class="a360-section-title">\uD83D\uDCCA Positionnement tarifaire</div><div class="a360-section-sub">Prix actuel vs conseil EVA vs concurrence vs plancher</div></div>'+
-        '<button onclick="goTo(\'pricing\',document.querySelector(\'[data-page=pricing]\'))" style="border:none;border-radius:9px;padding:7px 14px;background:linear-gradient(135deg,#6D28D9,#EC4899);color:white;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit">EVA Pricing \u2192</button>'+
+        '<div>'+
+          '<div class="a360-section-title">\uD83D\uDCCA Positionnement tarifaire</div>'+
+          '<div class="a360-section-sub">Prix actuel \u2022 Conseil EVA \u2022 Concurrence \u2022 Plancher</div>'+
+        '</div>'+
+        '<button class="a360-action-btn" onclick="goTo(\'pricing\',document.querySelector(\'[data-page=pricing]\'))">EVA Pricing \u2192</button>'+
       '</div>'+
-      '<table class="a360-table"><thead><tr><th>Logement</th><th>Prix actuel</th><th>Conseil EVA</th><th>Concurrence</th><th>Plancher</th><th>Statut</th></tr></thead>'+
-      '<tbody>'+tableRows+'</tbody></table>'+
+      '<div class="a360-table-wrap">'+
+        '<table class="a360-table">'+
+          '<thead><tr>'+
+            '<th>Logement</th>'+
+            '<th>Prix actuel</th>'+
+            '<th style="color:#7C3AED">Conseil EVA</th>'+
+            '<th>Concurrence</th>'+
+            '<th>Plancher</th>'+
+            '<th>Statut</th>'+
+          '</tr></thead>'+
+          '<tbody>'+tableRows+'</tbody>'+
+        '</table>'+
+      '</div>'+
     '</div>'+
 
     '<div class="a360-section">'+
-      '<div class="a360-section-head"><div><div class="a360-section-title">\uD83D\uDEA8 Alertes EVA Tarification</div><div class="a360-section-sub">Actions recommand\u00e9es par EVA</div></div></div>'+
+      '<div class="a360-section-head">'+
+        '<div>'+
+          '<div class="a360-section-title">\uD83D\uDEA8 Alertes EVA \u2014 Tarification</div>'+
+          '<div class="a360-section-sub">Actions recommand\u00e9es par EVA</div>'+
+        '</div>'+
+        '<span class="a360-badge a360-badge-purple">EVA Engine</span>'+
+      '</div>'+
       alerts+
     '</div>';
 }
