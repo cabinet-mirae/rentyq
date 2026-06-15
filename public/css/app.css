@@ -1189,3 +1189,165 @@ tr:hover td { background: #FAF6FF !important; }
   margin: 6px 1.25rem;
 }
 /* ===== end Sidebar accordéon ===== */
+
+/* ===== RentyQ — Cockpit EVA ===== */
+.ck-section {
+  background: white;
+  border: 1px solid rgba(139,92,246,.13);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 14px;
+  box-shadow: 0 8px 28px rgba(69,39,120,.05);
+}
+.ck-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  gap: 10px;
+}
+.ck-section-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: #17122E;
+  letter-spacing: -.3px;
+}
+.ck-section-sub {
+  font-size: 12px;
+  color: #8A8A99;
+  margin-top: 2px;
+}
+.ck-badge {
+  font-size: 10px;
+  font-weight: 900;
+  border-radius: 999px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+.ck-badge-green { background: #DCFCE7; color: #047857; }
+.ck-badge-red   { background: #FEE2E2; color: #DC2626; }
+.ck-badge-purple { background: #F3E8FF; color: #7C3AED; }
+.ck-badge-orange { background: #FEF3C7; color: #D97706; }
+
+/* Items opportunités / risques */
+.ck-list { display: grid; gap: 8px; }
+.ck-item {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+}
+.ck-item-up   { background: #F0FDF4; border-color: rgba(5,150,105,.14); }
+.ck-item-risk { background: #FEF2F2; border-color: rgba(220,38,38,.12); }
+.ck-item-warn { background: #FFFBEB; border-color: rgba(217,119,6,.14); }
+.ck-item-info { background: #F5F3FF; border-color: rgba(124,58,237,.12); }
+.ck-item-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  background: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.07);
+  flex-shrink: 0;
+}
+.ck-item-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #17122E;
+  margin-bottom: 2px;
+}
+.ck-item-desc  { font-size: 11px; color: #7B708F; line-height: 1.4; }
+.ck-item-gain  { font-size: 12px; font-weight: 900; margin-top: 3px; }
+.ck-gain-green  { color: #059669; }
+.ck-gain-red    { color: #DC2626; }
+.ck-gain-orange { color: #D97706; }
+.ck-item-btn {
+  border: none;
+  border-radius: 9px;
+  padding: 7px 13px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Actions prioritaires */
+.ck-action-list { display: grid; gap: 8px; }
+.ck-action {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  background: #FAFAFA;
+  border: 1px solid #F0EAFF;
+}
+.ck-action-rank {
+  font-size: 13px;
+  font-weight: 900;
+  color: #7C3AED;
+  text-align: center;
+}
+.ck-action-label { font-size: 13px; font-weight: 600; color: #17122E; }
+.ck-action-sub   { font-size: 11px; color: #8A8A99; margin-top: 1px; }
+.ck-action-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  background: linear-gradient(135deg,#6D28D9,#EC4899);
+  color: white;
+  white-space: nowrap;
+}
+
+/* KPIs portefeuille */
+.ck-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0,1fr));
+  gap: 10px;
+}
+.ck-kpi {
+  background: #FAFAFE;
+  border: 1px solid rgba(139,92,246,.11);
+  border-radius: 14px;
+  padding: 14px;
+  text-align: center;
+}
+.ck-kpi-label { font-size: 9px; text-transform: uppercase; letter-spacing: .7px; color: #8A8A99; font-weight: 900; margin-bottom: 6px; }
+.ck-kpi-value { font-size: 22px; font-weight: 950; color: #17122E; letter-spacing: -.5px; line-height: 1; }
+.ck-kpi-help  { font-size: 10px; color: #B0A8C8; margin-top: 5px; }
+
+/* Empty state cockpit */
+.ck-empty {
+  text-align: center;
+  padding: 3.5rem 2rem;
+  background: white;
+  border: 1px dashed rgba(139,92,246,.28);
+  border-radius: 20px;
+}
+.ck-empty-icon  { font-size: 44px; margin-bottom: 14px; }
+.ck-empty-title { font-family: 'Sora',sans-serif; font-size: 17px; font-weight: 800; color: #17122E; margin-bottom: 8px; }
+.ck-empty-sub   { font-size: 13px; color: #8A8A99; line-height: 1.65; max-width: 400px; margin: 0 auto 20px; }
+
+/* Responsive */
+@media(max-width:900px){
+  .ck-kpi-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+}
+@media(max-width:640px){
+  .ck-kpi-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .ck-item     { grid-template-columns: 36px 1fr; }
+  .ck-item-btn { display: none; }
+  .ck-action   { grid-template-columns: 24px 1fr; }
+  .ck-action-btn { display: none; }
+}
+/* ===== end Cockpit EVA ===== */
