@@ -1219,58 +1219,74 @@
       </div>
 
       <!-- AUDIT 360 — REVENUS -->
-      <div class="page" id="page-audit-revenus">
-        <div class="page-header"><div><div class="page-title">Audit 360 — Revenus</div><div class="page-sub">Analyse d&#233;taill&#233;e de vos revenus bruts et nets.</div></div></div>
-        <div class="card" style="text-align:center;padding:3rem 2rem">
-          <div style="font-size:48px;margin-bottom:1rem">&#x1F4B6;</div>
-          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Audit 360 — Revenus</div>
-          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Analyse d&#233;taill&#233;e de vos revenus bruts et nets.</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+      <!-- AUDIT 360 — REVENUS -->
+      <div class="page a360-page" id="page-audit-revenus">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Audit 360 &#8212; Revenus</div>
+            <div class="page-sub">Analyse de vos revenus par logement, par mois et par tendance.</div>
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="goTo('eva-audit',document.querySelector('[data-page=eva-audit]'))"><i class="ti ti-chart-dots-3"></i> Vue globale</button>
+          </div>
         </div>
+        <div id="audit-revenus-dash"></div>
       </div>
 
       <!-- AUDIT 360 — OCCUPATION -->
-      <div class="page" id="page-audit-occupation">
-        <div class="page-header"><div><div class="page-title">Audit 360 — Occupation</div><div class="page-sub">Taux d&#39;occupation par logement, p&#233;riode et canal.</div></div></div>
-        <div class="card" style="text-align:center;padding:3rem 2rem">
-          <div style="font-size:48px;margin-bottom:1rem">&#x1F4CA;</div>
-          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Audit 360 — Occupation</div>
-          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Taux d&#39;occupation par logement, p&#233;riode et canal.</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+      <div class="page a360-page" id="page-audit-occupation">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Audit 360 &#8212; Occupation</div>
+            <div class="page-sub">Taux d&#8217;occupation par logement, nuits vacantes et alertes EVA.</div>
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="goTo('eva-audit',document.querySelector('[data-page=eva-audit]'))"><i class="ti ti-chart-dots-3"></i> Vue globale</button>
+          </div>
         </div>
+        <div id="audit-occupation-dash"></div>
       </div>
 
       <!-- AUDIT 360 — QUALITÉ VOYAGEURS -->
-      <div class="page" id="page-audit-qualite">
-        <div class="page-header"><div><div class="page-title">Audit 360 — Qualit&#233; voyageurs</div><div class="page-sub">Notes, avis et satisfaction de vos voyageurs.</div></div></div>
-        <div class="card" style="text-align:center;padding:3rem 2rem">
-          <div style="font-size:48px;margin-bottom:1rem">&#x2B50;</div>
-          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Audit 360 — Qualit&#233; voyageurs</div>
-          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Notes, avis et satisfaction de vos voyageurs.</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+      <div class="page a360-page" id="page-audit-qualite">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Audit 360 &#8212; Qualit&#233; voyageurs</div>
+            <div class="page-sub">Notes, satisfaction et recommandations EVA par logement.</div>
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="goTo('eva-audit',document.querySelector('[data-page=eva-audit]'))"><i class="ti ti-chart-dots-3"></i> Vue globale</button>
+          </div>
         </div>
+        <div id="audit-qualite-dash"></div>
       </div>
 
       <!-- AUDIT 360 — DISTRIBUTION OTA -->
-      <div class="page" id="page-audit-ota">
-        <div class="page-header"><div><div class="page-title">Audit 360 — Distribution OTA</div><div class="page-sub">R&#233;partition de vos r&#233;servations par plateforme.</div></div></div>
-        <div class="card" style="text-align:center;padding:3rem 2rem">
-          <div style="font-size:48px;margin-bottom:1rem">&#x1F310;</div>
-          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Audit 360 — Distribution OTA</div>
-          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">R&#233;partition de vos r&#233;servations par plateforme (Airbnb, Booking&#8230;).</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+      <div class="page a360-page" id="page-audit-ota">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Audit 360 &#8212; Distribution OTA</div>
+            <div class="page-sub">R&#233;partition des r&#233;servations par plateforme et alertes de d&#233;pendance.</div>
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="goTo('eva-audit',document.querySelector('[data-page=eva-audit]'))"><i class="ti ti-chart-dots-3"></i> Vue globale</button>
+          </div>
         </div>
+        <div id="audit-ota-dash"></div>
       </div>
 
       <!-- AUDIT 360 — TARIFICATION -->
-      <div class="page" id="page-audit-tarification">
-        <div class="page-header"><div><div class="page-title">Audit 360 — Tarification</div><div class="page-sub">Positionnement tarifaire vs march&#233;.</div></div></div>
-        <div class="card" style="text-align:center;padding:3rem 2rem">
-          <div style="font-size:48px;margin-bottom:1rem">&#x1F4B9;</div>
-          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Audit 360 — Tarification</div>
-          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Analyse de votre positionnement tarifaire vs march&#233;.</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+      <div class="page a360-page" id="page-audit-tarification">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Audit 360 &#8212; Tarification</div>
+            <div class="page-sub">Positionnement tarifaire, biens sous-tarifés et opportunités EVA.</div>
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="goTo('eva-audit',document.querySelector('[data-page=eva-audit]'))"><i class="ti ti-chart-dots-3"></i> Vue globale</button>
+          </div>
         </div>
+        <div id="audit-tarification-dash"></div>
       </div>
 
       <!-- PROFIT 360 — PAR LOGEMENT -->
