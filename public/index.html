@@ -979,7 +979,16 @@
 
       <!-- PROFIT 360 -->
       <div class="page" id="page-profit360">
-        <div class="page-header"><div><div class="page-title">Profit 360°</div><div class="page-sub">La vérité financière de votre parc — ce que chaque bien rapporte réellement chaque mois.</div></div></div>
+        <div class="page-header">
+          <div>
+            <div class="page-title">Profit 360 &#8212; Vue globale</div>
+            <div class="page-sub">Ce que votre parc rapporte r&#233;ellement &#8212; estimation d&#233;cisionnelle EVA.</div>
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="goTo('profit-opportunites',document.querySelector('[data-page=profit-opportunites]'))"><i class="ti ti-rocket"></i> Opportunit&#233;s</button>
+            <button class="btn" onclick="goTo('profit-simulations',document.querySelector('[data-page=profit-simulations]'))"><i class="ti ti-calculator"></i> Simulations</button>
+          </div>
+        </div>
         <div id="profit360-content"></div>
       </div>      <div class="page" id="page-eva-data">
         <div class="page-header">
@@ -1290,36 +1299,46 @@
       </div>
 
       <!-- PROFIT 360 — PAR LOGEMENT -->
+      <!-- PROFIT 360 — PAR LOGEMENT -->
       <div class="page" id="page-profit-logement">
-        <div class="page-header"><div><div class="page-title">Profit 360 — Par logement</div><div class="page-sub">P&amp;L d&#233;taill&#233; logement par logement.</div></div></div>
-        <div class="card" style="text-align:center;padding:3rem 2rem">
-          <div style="font-size:48px;margin-bottom:1rem">&#x1F3E0;</div>
-          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Profit 360 — Par logement</div>
-          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">P&amp;L d&#233;taill&#233; logement par logement.</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        <div class="page-header">
+          <div>
+            <div class="page-title">Profit 360 &#8212; Par logement</div>
+            <div class="page-sub">Performance individuelle de chaque bien &#8212; revenus, occupation et potentiel EVA.</div>
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="goTo('profit360',document.querySelector('[data-page=profit360]'))"><i class="ti ti-chart-pie"></i> Vue globale</button>
+          </div>
         </div>
+        <div id="profit-logement-dash"></div>
       </div>
 
       <!-- PROFIT 360 — OPPORTUNITÉS -->
       <div class="page" id="page-profit-opportunites">
-        <div class="page-header"><div><div class="page-title">Profit 360 — Opportunit&#233;s</div><div class="page-sub">D&#233;tectez les leviers pour augmenter votre rentabilit&#233; nette.</div></div></div>
-        <div class="card" style="text-align:center;padding:3rem 2rem">
-          <div style="font-size:48px;margin-bottom:1rem">&#x1F680;</div>
-          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Profit 360 — Opportunit&#233;s</div>
-          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">D&#233;tectez les leviers pour augmenter votre rentabilit&#233; nette.</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        <div class="page-header">
+          <div>
+            <div class="page-title">Profit 360 &#8212; Opportunit&#233;s</div>
+            <div class="page-sub">Leviers d&#233;tect&#233;s par EVA pour augmenter votre rentabilit&#233; nette.</div>
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="goTo('profit360',document.querySelector('[data-page=profit360]'))"><i class="ti ti-chart-pie"></i> Vue globale</button>
+          </div>
         </div>
+        <div id="profit-opportunites-dash"></div>
       </div>
 
       <!-- PROFIT 360 — SIMULATIONS -->
       <div class="page" id="page-profit-simulations">
-        <div class="page-header"><div><div class="page-title">Profit 360 — Simulations</div><div class="page-sub">Simulez l&#39;impact de vos d&#233;cisions tarifaires et de charges.</div></div></div>
-        <div class="card" style="text-align:center;padding:3rem 2rem">
-          <div style="font-size:48px;margin-bottom:1rem">&#x1F9EE;</div>
-          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Profit 360 — Simulations</div>
-          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Simulez l&#39;impact de vos d&#233;cisions tarifaires et de charges.</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        <div class="page-header">
+          <div>
+            <div class="page-title">Profit 360 &#8212; Simulations</div>
+            <div class="page-sub">Visualisez l&#8217;impact de vos d&#233;cisions sur vos revenus estim&#233;s.</div>
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="goTo('profit360',document.querySelector('[data-page=profit360]'))"><i class="ti ti-chart-pie"></i> Vue globale</button>
+          </div>
         </div>
+        <div id="profit-simulations-dash"></div>
       </div>
 
       <!-- PARC — FICHES LOGEMENTS -->
