@@ -1830,6 +1830,11 @@ function goTo(page,btn){
   if(page==='eva-data'){renderEvaDataPage();}
   if(page==='profit360'){renderProfit360();}
   if(page==='eva-audit'){if(typeof renderEvaAuditPage==='function')renderEvaAuditPage();}
+  if(page==='audit-revenus')renderAudit360Revenus();
+  if(page==='audit-occupation')renderAudit360Occupation();
+  if(page==='audit-qualite')renderAudit360Qualite();
+  if(page==='audit-ota')renderAudit360Ota();
+  if(page==='audit-tarification')renderAudit360Tarification();
 }
 
 /* ====================================================
@@ -2165,6 +2170,473 @@ function renderEvaAuditPage(){
         </div>
       </div>`).join('');
   }
+}
+
+
+/* ====================================================
+   AUDIT 360 — 5 sous-sections
+   Fonctions : renderAudit360Revenus, renderAudit360Occupation,
+               renderAudit360Qualite, renderAudit360Ota,
+               renderAudit360Tarification
+   ==================================================== */
+
+// ── Helpers partagés ──
+function a360NbNuits(r){
+  try{
+    if(!r.date_from||!r.date_to)return r.nights||0;
+    var n=Math.max(0,Math.round((new Date(r.date_to)-new Date(r.date_from))/(1000*60*60*24)));
+    return n||r.nights||0;
+  }catch(e){return r.nights||0;}
+}
+
+function a360Empty(msg){
+  return '<div class="a360-empty"><div class="a360-empty-icon">\uD83E\uDD16</div>'+
+    '<div class="a360-empty-title">Donn\u00e9es insuffisantes</div>'+
+    '<div class="a360-empty-sub">'+(msg||'Ajoutez vos biens et r\u00e9servations pour g\u00e9n\u00e9rer cette analyse.')+'</div></div>';
+}
+
+function a360Alert(type,icon,title,desc){
+  return '<div class="a360-alert a360-alert-'+type+'">'+
+    '<div class="a360-alert-icon">'+icon+'</div>'+
+    '<div><div class="a360-alert-title">'+title+'</div>'+
+    (desc?'<div class="a360-alert-desc">'+desc+'</div>':'')+
+    '</div></div>';
+}
+
+// ── 1. REVENUS ──
+function renderAudit360Revenus(){
+  var dash=document.getElementById('audit-revenus-dash');
+  if(!dash)return;
+  var apts=apparts||[];
+  var allRes=reservations||[];
+
+  if(!apts.length&&!allRes.length){dash.innerHTML=a360Empty();return;}
+
+  var today=new Date();
+  var month=today.toISOString().slice(0,7);
+  var prevDate=new Date(today.getFullYear(),today.getMonth()-1,1);
+  var prevMonth=prevDate.toISOString().slice(0,7);
+  var daysElapsed=Math.max(1,today.getDate());
+  var daysInMonth=new Date(today.getFullYear(),today.getMonth()+1,0).getDate();
+
+  var monthRes=allRes.filter(function(r){return r.date_from&&r.date_from.startsWith(month);});
+  var prevRes=allRes.filter(function(r){return r.date_from&&r.date_from.startsWith(prevMonth);});
+  var monthRev=monthRes.reduce(function(s,r){return s+(r.price_total||0);},0);
+  var prevRev=prevRes.reduce(function(s,r){return s+(r.price_total||0);},0);
+
+  // Tendance
+  var trendHtml='';
+  if(prevRev>0){
+    var diff=Math.round((monthRev-prevRev)/prevRev*100);
+    if(diff>0) trendHtml='<span class="a360-trend-up">\u25b2 +'+diff+'% vs mois pr\u00e9c\u00e9dent</span>';
+    else if(diff<0) trendHtml='<span class="a360-trend-down">\u25bc '+diff+'% vs mois pr\u00e9c\u00e9dent</span>';
+    else trendHtml='<span class="a360-trend-flat">= stable vs mois pr\u00e9c\u00e9dent</span>';
+  } else {
+    trendHtml='<span class="a360-trend-flat">Pas de donn\u00e9es pour le mois pr\u00e9c\u00e9dent</span>';
+  }
+
+  // Revenus par logement
+  var aptRevs=apts.map(function(a){
+    var aRes=allRes.filter(function(r){return r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(month);});
+    var rev=aRes.reduce(function(s,r){return s+(r.price_total||0);},0);
+    var nb=aRes.length;
+    return {a:a,rev:rev,nb:nb};
+  }).sort(function(x,y){return y.rev-x.rev;});
+
+  var best=aptRevs[0];
+  var worst=aptRevs[aptRevs.length-1];
+
+  // Nuits vendues pour ADR
+  var totalNights=monthRes.reduce(function(s,r){return s+a360NbNuits(r);},0);
+  var adr=totalNights>0?Math.round(monthRev/totalNights):0;
+
+  // Alertes
+  var alerts='';
+  aptRevs.forEach(function(ar){
+    if(ar.rev===0&&ar.a.price>0){
+      alerts+=a360Alert('risk','\u26a0\ufe0f',ar.a.name+' \u2014 aucun revenu ce mois','Aucune r\u00e9servation enregistr\u00e9e. V\u00e9rifiez la disponibilit\u00e9 et le pricing.');
+    } else if(ar.rev>0&&ar.nb===1&&adr>0&&(ar.rev/ar.nb)<adr*0.7){
+      alerts+=a360Alert('warn','\uD83D\uDCB6',ar.a.name+' \u2014 revenu par r\u00e9sa inf\u00e9rieur \u00e0 la moyenne','Ce bien g\u00e9n\u00e8re moins que l\u2019ADR moyen du parc.');
+    }
+  });
+  if(!alerts) alerts=a360Alert('ok','\u2705','Tous les biens g\u00e9n\u00e8rent des revenus ce mois','Parc actif et performant.');
+
+  var tableRows=aptRevs.map(function(ar,i){
+    var badge=i===0?'<span class="a360-badge a360-badge-green">Meilleur</span>':
+              i===aptRevs.length-1&&aptRevs.length>1?'<span class="a360-badge a360-badge-orange">En retrait</span>':'';
+    var revColor=ar.rev>0?'#17122E':'#DC2626';
+    return '<tr>'+
+      '<td><span style="margin-right:6px">'+(ar.a.emoji||'\uD83C\uDFE0')+'</span>'+ar.a.name+' '+badge+'</td>'+
+      '<td style="font-weight:800;color:'+revColor+'">'+ar.rev+'\u20AC</td>'+
+      '<td>'+ar.nb+' r\u00e9sa'+(ar.nb>1?'s':'')+'</td>'+
+      '<td style="color:#8A8A99">'+(ar.a.price||'—')+'\u20AC/nuit</td>'+
+    '</tr>';
+  }).join('');
+
+  dash.innerHTML=
+    '<div class="a360-kpi-row">'+
+      '<div class="a360-kpi"><div class="a360-kpi-label">Revenus du mois</div><div class="a360-kpi-value">'+monthRev+'\u20AC</div><div class="a360-kpi-help">'+daysElapsed+'/'+daysInMonth+' jours</div></div>'+
+      '<div class="a360-kpi"><div class="a360-kpi-label">R\u00e9servations</div><div class="a360-kpi-value">'+monthRes.length+'</div><div class="a360-kpi-help">ce mois</div></div>'+
+      '<div class="a360-kpi"><div class="a360-kpi-label">ADR</div><div class="a360-kpi-value">'+adr+'\u20AC</div><div class="a360-kpi-help">prix moyen/nuit</div></div>'+
+      '<div class="a360-kpi"><div class="a360-kpi-label">Mois pr\u00e9c\u00e9dent</div><div class="a360-kpi-value">'+prevRev+'\u20AC</div><div class="a360-kpi-help">'+trendHtml+'</div></div>'+
+      '<div class="a360-kpi"><div class="a360-kpi-label">Logements</div><div class="a360-kpi-value">'+apts.length+'</div><div class="a360-kpi-help">dans le parc</div></div>'+
+    '</div>'+
+
+    '<div class="a360-section">'+
+      '<div class="a360-section-head">'+
+        '<div><div class="a360-section-title">\uD83C\uDFC6 Revenus par logement</div><div class="a360-section-sub">Classement du mois en cours</div></div>'+
+        (best?'<span class="a360-badge a360-badge-purple">Meilleur : '+best.a.name+' \u2014 '+best.rev+'\u20AC</span>':'')+'</div>'+
+      '<table class="a360-table"><thead><tr><th>Logement</th><th>Revenus</th><th>R\u00e9servations</th><th>Prix/nuit</th></tr></thead>'+
+      '<tbody>'+tableRows+'</tbody></table>'+
+    '</div>'+
+
+    '<div class="a360-section">'+
+      '<div class="a360-section-head"><div><div class="a360-section-title">\uD83D\uDEA8 Alertes EVA Revenus</div><div class="a360-section-sub">Signaux d\u00e9tect\u00e9s par EVA</div></div></div>'+
+      alerts+
+    '</div>';
+}
+
+// ── 2. OCCUPATION ──
+function renderAudit360Occupation(){
+  var dash=document.getElementById('audit-occupation-dash');
+  if(!dash)return;
+  var apts=apparts||[];
+  var allRes=reservations||[];
+
+  if(!apts.length){dash.innerHTML=a360Empty();return;}
+
+  var today=new Date();
+  var todayIso=today.toISOString().slice(0,10);
+  var month=today.toISOString().slice(0,7);
+  var daysElapsed=Math.max(1,today.getDate());
+
+  // Taux d'occupation global du mois
+  var totalNights=0;
+  var monthRes=allRes.filter(function(r){return r.date_from&&r.date_from.startsWith(month);});
+  monthRes.forEach(function(r){totalNights+=a360NbNuits(r);});
+  var availableNights=apts.length*daysElapsed;
+  var globalOcc=availableNights>0?Math.min(100,Math.round(totalNights/availableNights*100)):0;
+
+  // Taux par logement sur 30 jours
+  var aptOccs=apts.map(function(a){
+    var aRes=allRes.filter(function(r){return r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(month);});
+    var nights=aRes.reduce(function(s,r){return s+a360NbNuits(r);},0);
+    var occ=daysElapsed>0?Math.min(100,Math.round(nights/daysElapsed*100)):0;
+    return {a:a,occ:occ,nights:nights,res:aRes.length};
+  }).sort(function(x,y){return y.occ-x.occ;});
+
+  // Nuits vacantes J+1..J+14
+  var next14=[];
+  for(var di=1;di<=14;di++){var dd=new Date(today);dd.setDate(dd.getDate()+di);next14.push(dd.toISOString().slice(0,10));}
+  var vacantsByApt=apts.map(function(a){
+    var vacant=next14.filter(function(day){
+      return !allRes.some(function(r){return r.appartement_id===a.id&&r.date_from&&r.date_to&&r.date_from<=day&&r.date_to>day;});
+    });
+    return {a:a,vacant:vacant};
+  });
+
+  // Alertes
+  var alerts='';
+  var lowOcc=aptOccs.filter(function(x){return x.occ<50&&daysElapsed>=7;});
+  lowOcc.forEach(function(x){
+    alerts+=a360Alert('risk','\uD83D\uDCC9',x.a.name+' \u2014 occupation faible : '+x.occ+'%',
+      'Objectif recommand\u00e9 : 65\u00a0%. '+x.nights+' nuits vendues sur '+daysElapsed+' jours.');
+  });
+  var highVacant=vacantsByApt.filter(function(x){return x.vacant.length>=7;});
+  highVacant.forEach(function(x){
+    if(!lowOcc.some(function(l){return l.a.id===x.a.id;})){
+      alerts+=a360Alert('warn','\uD83C\uDF19',x.a.name+' \u2014 '+x.vacant.length+' nuits libres dans les 14 jours',
+        'Envisagez un ajustement de prix ou une promotion pour augmenter le remplissage.');
+    }
+  });
+  if(globalOcc>=65) alerts+=a360Alert('ok','\u2705','Taux d\u2019occupation global satisfaisant : '+globalOcc+'%','EVA recommande de maintenir le cap et d\u2019optimiser les prix en hausse.');
+  if(!alerts) alerts=a360Alert('ok','\u2705','Aucune alerte d\u2019occupation','Le parc est correctement suivi.');
+
+  // Table
+  var tableRows=aptOccs.map(function(ar){
+    var occColor=ar.occ>=65?'#059669':ar.occ>=45?'#D97706':'#DC2626';
+    var badge=ar.occ>=65?'<span class="a360-badge a360-badge-green">OK</span>':
+              ar.occ>=45?'<span class="a360-badge a360-badge-orange">\u00c0 optimiser</span>':
+              '<span class="a360-badge a360-badge-red">Sous-perf.</span>';
+    var vacApt=vacantsByApt.find(function(x){return x.a.id===ar.a.id;});
+    var vacN=vacApt?vacApt.vacant.length:0;
+    return '<tr>'+
+      '<td><span style="margin-right:6px">'+(ar.a.emoji||'\uD83C\uDFE0')+'</span>'+ar.a.name+'</td>'+
+      '<td style="font-weight:800;color:'+occColor+'">'+ar.occ+'%</td>'+
+      '<td>'+ar.nights+' nuit'+(ar.nights>1?'s':'')+' vendues</td>'+
+      '<td>'+vacN+' libre'+(vacN>1?'s':'')+' /14j</td>'+
+      '<td>'+badge+'</td>'+
+    '</tr>';
+  }).join('');
+
+  var occColor=globalOcc>=65?'#059669':globalOcc>=45?'#D97706':'#DC2626';
+
+  dash.innerHTML=
+    '<div class="a360-kpi-row">'+
+      '<div class="a360-kpi"><div class="a360-kpi-label">Occupation globale</div><div class="a360-kpi-value" style="color:'+occColor+'">'+globalOcc+'%</div><div class="a360-kpi-help">'+daysElapsed+' jours \u00e9coul\u00e9s</div></div>'+
+      '<div class="a360-kpi"><div class="a360-kpi-label">Nuits vendues</div><div class="a360-kpi-value">'+totalNights+'</div><div class="a360-kpi-help">ce mois</div></div>'+
+      '<div class="a360-kpi"><div class="a360-kpi-label">Biens libres ce soir</div><div class="a360-kpi-value" style="color:'+(apts.filter(function(a){return !a.booked;}).length?'#DC2626':'#059669')+'">'+apts.filter(function(a){return !a.booked;}).length+'</div><div class="a360-kpi-help">sur '+apts.length+' biens</div></div>'+
+      '<div class="a360-kpi"><div class="a360-kpi-label">Nuits vacantes /14j</div><div class="a360-kpi-value">'+vacantsByApt.reduce(function(s,x){return s+x.vacant.length;},0)+'</div><div class="a360-kpi-help">tous biens confondus</div></div>'+
+      '<div class="a360-kpi"><div class="a360-kpi-label">Objectif EVA</div><div class="a360-kpi-value" style="color:#7C3AED">65%</div><div class="a360-kpi-help">taux cible</div></div>'+
+    '</div>'+
+
+    '<div class="a360-section">'+
+      '<div class="a360-section-head">'+
+        '<div><div class="a360-section-title">\uD83C\uDFE0 Occupation par logement</div><div class="a360-section-sub">Mois en cours</div></div>'+
+        '<span class="a360-badge a360-badge-purple">'+globalOcc+'% global</span>'+
+      '</div>'+
+      '<table class="a360-table"><thead><tr><th>Logement</th><th>Occupation</th><th>Nuits vendues</th><th>Nuits libres/14j</th><th>Statut</th></tr></thead>'+
+      '<tbody>'+tableRows+'</tbody></table>'+
+    '</div>'+
+
+    '<div class="a360-section">'+
+      '<div class="a360-section-head"><div><div class="a360-section-title">\uD83D\uDEA8 Alertes EVA Occupation</div><div class="a360-section-sub">Signaux d\u00e9tect\u00e9s</div></div></div>'+
+      alerts+
+    '</div>';
+}
+
+// ── 3. QUALITÉ VOYAGEURS ──
+function renderAudit360Qualite(){
+  var dash=document.getElementById('audit-qualite-dash');
+  if(!dash)return;
+  var apts=apparts||[];
+
+  if(!apts.length){dash.innerHTML=a360Empty();return;}
+
+  // Notes depuis a.note (champ Supabase)
+  var withNote=apts.filter(function(a){return a.note&&Number(a.note)>0;});
+  var avgNote=withNote.length?Math.round(withNote.reduce(function(s,a){return s+Number(a.note);},0)/withNote.length*10)/10:0;
+
+  // Si aucune note : afficher état partiel avec recommandations
+  var noteSection='';
+  if(!withNote.length){
+    noteSection='<div class="a360-empty" style="margin-bottom:14px">'+
+      '<div class="a360-empty-icon">\u2B50</div>'+
+      '<div class="a360-empty-title">Aucune note enregistr\u00e9e</div>'+
+      '<div class="a360-empty-sub">Ajoutez la note Airbnb/Booking de chaque logement dans sa fiche pour activer l\u2019analyse qualit\u00e9.</div>'+
+    '</div>';
+  } else {
+    var noteColor=avgNote>=4.5?'#059669':avgNote>=4?'#D97706':'#DC2626';
+    var aptNoteRows=apts.map(function(a){
+      if(!a.note||!Number(a.note))return '<tr><td><span style="margin-right:6px">'+(a.emoji||'\uD83C\uDFE0')+'</span>'+a.name+'</td><td colspan="3" style="color:#8A8A99">Note non renseign\u00e9e</td></tr>';
+      var n=Number(a.note);
+      var stars='\u2605'.repeat(Math.round(n))+'\u2606'.repeat(5-Math.round(n));
+      var badge=n>=4.8?'<span class="a360-badge a360-badge-green">Excellent</span>':
+                n>=4.5?'<span class="a360-badge a360-badge-purple">Bon</span>':
+                n>=4?'<span class="a360-badge a360-badge-orange">\u00c0 am\u00e9liorer</span>':
+                '<span class="a360-badge a360-badge-red">Critique</span>';
+      var nColor=n>=4.5?'#059669':n>=4?'#D97706':'#DC2626';
+      return '<tr>'+
+        '<td><span style="margin-right:6px">'+(a.emoji||'\uD83C\uDFE0')+'</span>'+a.name+'</td>'+
+        '<td style="font-weight:800;color:'+nColor+'">'+n+'/5 <span style="color:#F59E0B;font-size:11px">'+stars+'</span></td>'+
+        '<td>'+(a.nb_avis?a.nb_avis+' avis':'—')+'</td>'+
+        '<td>'+badge+'</td>'+
+      '</tr>';
+    }).join('');
+
+    noteSection='<div class="a360-section" style="margin-bottom:14px">'+
+      '<div class="a360-section-head">'+
+        '<div><div class="a360-section-title">\u2B50 Notes par logement</div><div class="a360-section-sub">Source : donn\u00e9es renseign\u00e9es dans les fiches</div></div>'+
+        '<span class="a360-badge a360-badge-purple">Moyenne : '+avgNote+'/5</span>'+
+      '</div>'+
+      '<div class="a360-kpi-row" style="margin-bottom:14px">'+
+        '<div class="a360-kpi"><div class="a360-kpi-label">Note moyenne</div><div class="a360-kpi-value" style="color:'+noteColor+'">'+avgNote+'</div><div class="a360-kpi-help">sur 5 \u00e9toiles</div></div>'+
+        '<div class="a360-kpi"><div class="a360-kpi-label">Biens not\u00e9s</div><div class="a360-kpi-value">'+withNote.length+'/'+apts.length+'</div><div class="a360-kpi-help">fiches renseign\u00e9es</div></div>'+
+        '<div class="a360-kpi"><div class="a360-kpi-label">Note &ge; 4,5</div><div class="a360-kpi-value" style="color:#059669">'+withNote.filter(function(a){return Number(a.note)>=4.5;}).length+'</div><div class="a360-kpi-help">biens excellents</div></div>'+
+        '<div class="a360-kpi"><div class="a360-kpi-label">Note &lt; 4</div><div class="a360-kpi-value" style="color:#DC2626">'+withNote.filter(function(a){return Number(a.note)<4;}).length+'</div><div class="a360-kpi-help">action requise</div></div>'+
+        '<div class="a360-kpi"><div class="a360-kpi-label">Avis totaux</div><div class="a360-kpi-value">'+apts.reduce(function(s,a){return s+(a.nb_avis||0);},0)||'—'+'</div><div class="a360-kpi-help">tous logements</div></div>'+
+      '</div>'+
+      '<table class="a360-table"><thead><tr><th>Logement</th><th>Note</th><th>Avis</th><th>Statut</th></tr></thead><tbody>'+aptNoteRows+'</tbody></table>'+
+    '</div>';
+  }
+
+  // Recommandations EVA
+  var reco='';
+  apts.forEach(function(a){
+    var n=Number(a.note||0);
+    if(n>0&&n<4) reco+=a360Alert('risk','\u26a0\ufe0f',a.name+' \u2014 note critique : '+n+'/5','Priorit\u00e9 absolue : identifier la cause (m\u00e9nage, \u00e9quipements, annonce) et corriger avant de relever les prix.');
+    else if(n>=4&&n<4.5) reco+=a360Alert('warn','\uD83D\uDCA1',a.name+' \u2014 note \u00e0 am\u00e9liorer : '+n+'/5','Petites am\u00e9liorations possibles : photos, description, \u00e9quipements. Chaque demi-point de note peut augmenter la conversion de 10\u00a0%.');
+    else if(n>=4.8) reco+=a360Alert('ok','\uD83C\uDFC6',a.name+' \u2014 note excellente : '+n+'/5','Ce bien peut justifier une hausse de prix. Les voyageurs sont pr\u00eats \u00e0 payer plus pour un bien bien not\u00e9.');
+  });
+  if(!reco) reco=a360Alert('ok','\uD83D\uDCA1','Conseil EVA','Renseignez la note Airbnb/Booking dans chaque fiche logement pour activer l\u2019analyse compl\u00e8te.');
+
+  dash.innerHTML=
+    noteSection+
+    '<div class="a360-section">'+
+      '<div class="a360-section-head"><div><div class="a360-section-title">\uD83D\uDEA8 Recommandations EVA Qualit\u00e9</div><div class="a360-section-sub">Actions pour am\u00e9liorer la satisfaction voyageurs</div></div></div>'+
+      reco+
+    '</div>';
+}
+
+// ── 4. DISTRIBUTION OTA — version simple V1 ──
+function renderAudit360Ota(){
+  var dash=document.getElementById('audit-ota-dash');
+  if(!dash)return;
+  var allRes=reservations||[];
+  var today=new Date();
+  var month=today.toISOString().slice(0,7);
+  var monthRes=allRes.filter(function(r){return r.date_from&&r.date_from.startsWith(month);});
+
+  // Vérifier si données canal disponibles
+  var withPlatform=monthRes.filter(function(r){return r.platform&&r.platform!=='';});
+
+  if(!monthRes.length||withPlatform.length<2){
+    dash.innerHTML='<div class="a360-empty">'+
+      '<div class="a360-empty-icon">\uD83C\uDF10</div>'+
+      '<div class="a360-empty-title">Donn\u00e9es OTA insuffisantes pour l\u2019instant</div>'+
+      '<div class="a360-empty-sub">Cette analyse sera enrichie avec les donn\u00e9es PMS. Connectez Smoobu ou ajoutez manuellement vos r\u00e9servations avec le canal source pour activer cette vue.</div>'+
+    '</div>';
+    return;
+  }
+
+  // Répartition par canal
+  var channels={};
+  var labels={'airbnb':'Airbnb','booking':'Booking.com','vrbo':'VRBO','homeaway':'HomeAway','direct':'Direct','autre':'Autre'};
+  var colors={'airbnb':'#FF5A5F','booking':'#003580','vrbo':'#0C8FE8','direct':'#059669','autre':'#8A8A99'};
+  monthRes.forEach(function(r){
+    var c=(r.platform||'autre').toLowerCase();
+    if(c!=='airbnb'&&c!=='booking'&&c!=='vrbo'&&c!=='homeaway'&&c!=='direct')c='autre';
+    channels[c]=(channels[c]||0)+1;
+  });
+  var total=monthRes.length;
+  var sorted=Object.entries(channels).sort(function(a,b){return b[1]-a[1];});
+
+  // Détection dépendance
+  var topEntry=sorted[0];
+  var depAlert='';
+  if(topEntry&&topEntry[1]/total>0.85){
+    depAlert=a360Alert('warn','\uD83D\uDD17','D\u00e9pendance \u00e0 '+(labels[topEntry[0]]||topEntry[0]),
+      Math.round(topEntry[1]/total*100)+'% de vos r\u00e9servations viennent d\u2019une seule source. Diversifiez pour r\u00e9duire le risque de d\u00e9plistage.');
+  } else {
+    depAlert=a360Alert('ok','\u2705','Distribution OTA saine','Vos r\u00e9servations sont r\u00e9parties sur plusieurs canaux.');
+  }
+
+  var bars=sorted.map(function(e){
+    var key=e[0];var count=e[1];
+    var pct=Math.round(count/total*100);
+    var color=colors[key]||'#6D28D9';
+    return '<div class="a360-ota-row">'+
+      '<div class="a360-ota-label">'+
+        '<span>'+(labels[key]||key)+'</span>'+
+        '<span style="font-weight:800">'+count+' r\u00e9sa \u2014 '+pct+'%</span>'+
+      '</div>'+
+      '<div class="a360-ota-bar-wrap"><div class="a360-ota-bar-fill" style="width:'+pct+'%;background:'+color+'"></div></div>'+
+    '</div>';
+  }).join('');
+
+  dash.innerHTML=
+    '<div class="a360-kpi-row">'+
+      '<div class="a360-kpi"><div class="a360-kpi-label">R\u00e9servations</div><div class="a360-kpi-value">'+total+'</div><div class="a360-kpi-help">ce mois</div></div>'+
+      '<div class="a360-kpi"><div class="a360-kpi-label">Canaux actifs</div><div class="a360-kpi-value">'+sorted.length+'</div><div class="a360-kpi-help">sources diff\u00e9rentes</div></div>'+
+      '<div class="a360-kpi"><div class="a360-kpi-label">Canal principal</div><div class="a360-kpi-value" style="font-size:14px">'+(labels[topEntry[0]]||topEntry[0])+'</div><div class="a360-kpi-help">'+Math.round(topEntry[1]/total*100)+'% des r\u00e9sas</div></div>'+
+    '</div>'+
+    '<div class="a360-section">'+
+      '<div class="a360-section-head"><div><div class="a360-section-title">\uD83C\uDF10 R\u00e9partition par canal</div><div class="a360-section-sub">Mois en cours</div></div></div>'+
+      bars+
+    '</div>'+
+    '<div class="a360-section">'+
+      '<div class="a360-section-head"><div><div class="a360-section-title">\uD83D\uDEA8 Alerte EVA OTA</div></div></div>'+
+      depAlert+
+    '</div>';
+}
+
+// ── 5. TARIFICATION ──
+function renderAudit360Tarification(){
+  var dash=document.getElementById('audit-tarification-dash');
+  if(!dash)return;
+  var apts=apparts||[];
+  var allRes=reservations||[];
+
+  if(!apts.length){dash.innerHTML=a360Empty();return;}
+
+  var today=new Date();
+  var month=today.toISOString().slice(0,7);
+  var monthRes=allRes.filter(function(r){return r.date_from&&r.date_from.startsWith(month);});
+  var totalNights=monthRes.reduce(function(s,r){return s+a360NbNuits(r);},0);
+  var totalRev=monthRes.reduce(function(s,r){return s+(r.price_total||0);},0);
+  var adr=totalNights>0?Math.round(totalRev/totalNights):0;
+  var avgPrice=apts.length?Math.round(apts.reduce(function(s,a){return s+(a.price||0);},0)/apts.length):0;
+
+  // Catégoriser les biens
+  var underPriced=apts.filter(function(a){return (a.price||0)>0&&(a.ai_rec||0)>(a.price||0);});
+  var belowFloor=apts.filter(function(a){return (a.price||0)>0&&(a.price||0)<floor(a);});
+  var overComp=apts.filter(function(a){return (a.comp||0)>0&&(a.price||0)>(a.comp||0)*1.2;});
+  var hotEvts=Object.values(eventsCache||{}).flat().filter(function(e){return e.hot;});
+  var eventOpps=apts.filter(function(a){
+    var city=a.city||'';
+    return (eventsCache[city]||[]).some(function(e){return e.hot;});
+  });
+
+  // Table tarifaire
+  var tableRows=apts.map(function(a){
+    var fl=floor(a);
+    var status='';
+    var statusBadge='';
+    if((a.price||0)<fl){
+      status='Sous plancher';statusBadge='<span class="a360-badge a360-badge-red">Sous plancher</span>';
+    } else if((a.ai_rec||0)>(a.price||0)){
+      status='Sous-tarif\u00e9';statusBadge='<span class="a360-badge a360-badge-orange">Sous-tarif\u00e9</span>';
+    } else if((a.comp||0)>0&&(a.price||0)>(a.comp||0)*1.2){
+      status='Potentiellement sur-tarif\u00e9';statusBadge='<span class="a360-badge a360-badge-orange">Vrai vs concurrence</span>';
+    } else {
+      statusBadge='<span class="a360-badge a360-badge-green">OK</span>';
+    }
+    return '<tr>'+
+      '<td><span style="margin-right:6px">'+(a.emoji||'\uD83C\uDFE0')+'</span>'+a.name+'</td>'+
+      '<td style="font-weight:800">'+( a.price||'—')+'\u20AC</td>'+
+      '<td style="color:#7C3AED">'+(a.ai_rec||'—')+'\u20AC</td>'+
+      '<td style="color:#8A8A99">'+(a.comp||'—')+'\u20AC</td>'+
+      '<td>'+fl+'\u20AC</td>'+
+      '<td>'+statusBadge+'</td>'+
+    '</tr>';
+  }).join('');
+
+  // Alertes
+  var alerts='';
+  belowFloor.forEach(function(a){
+    alerts+=a360Alert('risk','\uD83D\uDD3B',a.name+' \u2014 prix sous plancher ('+floor(a)+'\u20AC requis)','Chaque nuit vendue \u00e0 '+(a.price||0)+'\u20AC g\u00e9n\u00e8re une perte nette. Corrigez en urgence.');
+  });
+  underPriced.forEach(function(a){
+    if(!belowFloor.includes(a)){
+      var gain=((a.ai_rec||0)-(a.price||0));
+      alerts+=a360Alert('warn','\uD83D\uDCC8',a.name+' \u2014 sous-tarif\u00e9 : +'+(gain)+'\u20AC potentiels/nuit','EVA conseille '+(a.ai_rec||0)+'\u20AC vs '+(a.price||0)+'\u20AC actuel.');
+    }
+  });
+  eventOpps.forEach(function(a){
+    var city=a.city||'';
+    var ev=(eventsCache[city]||[]).find(function(e){return e.hot;});
+    if(ev) alerts+=a360Alert('warn','\uD83C\uDF89',a.name+' \u2014 \u00e9v\u00e9nement local : '+( ev.name||'pic de demande'),
+      'EVA recommande d\u2019appliquer un boost de +'+(ev.boost||10)+'% sur les nuits proches de l\u2019\u00e9v\u00e9nement.');
+  });
+  overComp.forEach(function(a){
+    alerts+=a360Alert('warn','\uD83D\uDCA1',a.name+' \u2014 prix \u00e9lev\u00e9 vs concurrence ('+(a.comp||0)+'\u20AC)','Prix actuel : '+(a.price||0)+'\u20AC. Surveillez l\u2019impact sur le taux de r\u00e9servation.');
+  });
+  if(!alerts) alerts=a360Alert('ok','\u2705','Tarification globalement optimis\u00e9e','Tous vos biens sont correctement positionn\u00e9s. Continuez \u00e0 ajuster selon les \u00e9v\u00e9nements locaux.');
+
+  var priceColor=avgPrice>0?'#17122E':'#8A8A99';
+
+  dash.innerHTML=
+    '<div class="a360-kpi-row">'+
+      '<div class="a360-kpi"><div class="a360-kpi-label">Prix moyen pratiqu\u00e9</div><div class="a360-kpi-value" style="color:'+priceColor+'">'+avgPrice+'\u20AC</div><div class="a360-kpi-help">tous biens</div></div>'+
+      '<div class="a360-kpi"><div class="a360-kpi-label">ADR r\u00e9alis\u00e9</div><div class="a360-kpi-value">'+adr+'\u20AC</div><div class="a360-kpi-help">ce mois</div></div>'+
+      '<div class="a360-kpi"><div class="a360-kpi-label">Biens sous-tarif\u00e9s</div><div class="a360-kpi-value" style="color:'+(underPriced.length?'#D97706':'#059669')+'">'+underPriced.length+'</div><div class="a360-kpi-help">vs conseil EVA</div></div>'+
+      '<div class="a360-kpi"><div class="a360-kpi-label">Sous plancher</div><div class="a360-kpi-value" style="color:'+(belowFloor.length?'#DC2626':'#059669')+'">'+belowFloor.length+'</div><div class="a360-kpi-help">action urgente</div></div>'+
+      '<div class="a360-kpi"><div class="a360-kpi-label">Opps. \u00e9v\u00e9nements</div><div class="a360-kpi-value" style="color:'+(hotEvts.length?'#7C3AED':'#8A8A99')+'">'+hotEvts.length+'</div><div class="a360-kpi-help">pics d\u00e9tect\u00e9s</div></div>'+
+    '</div>'+
+
+    '<div class="a360-section">'+
+      '<div class="a360-section-head">'+
+        '<div><div class="a360-section-title">\uD83D\uDCCA Positionnement tarifaire</div><div class="a360-section-sub">Prix actuel vs conseil EVA vs concurrence vs plancher</div></div>'+
+        '<button onclick="goTo(\'pricing\',document.querySelector(\'[data-page=pricing]\'))" style="border:none;border-radius:9px;padding:7px 14px;background:linear-gradient(135deg,#6D28D9,#EC4899);color:white;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit">EVA Pricing \u2192</button>'+
+      '</div>'+
+      '<table class="a360-table"><thead><tr><th>Logement</th><th>Prix actuel</th><th>Conseil EVA</th><th>Concurrence</th><th>Plancher</th><th>Statut</th></tr></thead>'+
+      '<tbody>'+tableRows+'</tbody></table>'+
+    '</div>'+
+
+    '<div class="a360-section">'+
+      '<div class="a360-section-head"><div><div class="a360-section-title">\uD83D\uDEA8 Alertes EVA Tarification</div><div class="a360-section-sub">Actions recommand\u00e9es par EVA</div></div></div>'+
+      alerts+
+    '</div>';
 }
 
 function openAddModal(){editId=null;['m-name','m-city','m-zone','m-rent','m-clean','m-price','m-comp','m-address','m-lat','m-lng'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('m-address-preview').style.display='none';document.getElementById('m-address-results').style.display='none';document.getElementById('m-degressif-toggle').className='toggle off';document.getElementById('m-degressif-config').style.display='none';document.getElementById('m-deg-start').value='14';document.getElementById('m-deg-step').value='5';document.getElementById('m-deg-min').value='';document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');
