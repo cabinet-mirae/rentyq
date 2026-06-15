@@ -18,6 +18,95 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="js/auth.js" defer></script>
 <script src="js/app.js" defer></script>
+
+<style id="rq-sidebar-accordion-fix">
+/* Correctif sidebar EVA : évite l'affichage des boutons HTML par défaut */
+.sidebar-nav-zone button,
+.sidebar-nav-zone .nav-group-header,
+.sidebar-nav-zone .nav-sub-item{
+  appearance:none;
+  -webkit-appearance:none;
+  border:0;
+  outline:0;
+  font-family:'Inter',system-ui,sans-serif;
+}
+.nav-group{margin:2px 6px 4px 6px;}
+.nav-group-header{
+  width:calc(100% - 0px);
+  min-height:36px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 10px;
+  border-radius:8px;
+  background:transparent;
+  color:rgba(255,255,255,.62);
+  cursor:pointer;
+  font-size:13px;
+  font-weight:600;
+  text-align:left;
+  transition:all .14s ease;
+}
+.nav-group-header:hover{
+  background:rgba(147,51,234,.18);
+  color:#fff;
+}
+.nav-group.open>.nav-group-header{
+  color:#fff;
+  background:rgba(147,51,234,.12);
+}
+.nav-chevron{
+  margin-left:auto;
+  font-size:10px;
+  opacity:.55;
+  transition:transform .16s ease;
+}
+.nav-group.open .nav-chevron{transform:rotate(90deg);opacity:.9;}
+.nav-sub-items{
+  display:none;
+  padding:2px 0 4px 0;
+}
+.nav-group.open .nav-sub-items{display:block;}
+.nav-sub-item{
+  width:calc(100% - 12px);
+  margin:1px 0 1px 12px;
+  min-height:30px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:7px 10px 7px 34px;
+  border-radius:8px;
+  background:transparent;
+  color:rgba(255,255,255,.52);
+  cursor:pointer;
+  font-size:12.5px;
+  font-weight:500;
+  text-align:left;
+  transition:all .14s ease;
+}
+.nav-sub-item:hover{
+  background:rgba(147,51,234,.14);
+  color:#fff;
+}
+.nav-sub-item.active{
+  background:linear-gradient(90deg,rgba(109,40,217,.48),rgba(236,72,153,.26));
+  color:#fff;
+  font-weight:750;
+  box-shadow:0 6px 20px rgba(109,40,217,.18);
+}
+.nav-sep{
+  height:1px;
+  background:rgba(255,255,255,.10);
+  margin:10px 14px;
+}
+.sidebar-nav-zone .nav-badge{
+  margin-left:auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+</style>
+
 </head>
 <body>
 
