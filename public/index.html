@@ -1195,36 +1195,46 @@
            ════════════════════════════════════════ -->
 
       <!-- MISSIONS EVA — TOUTES -->
+      <!-- MISSIONS EVA — TOUTES -->
       <div class="page" id="page-missions-all">
-        <div class="page-header"><div><div class="page-title">Missions EVA — Toutes</div><div class="page-sub">Toutes vos missions EVA en cours et pass&#233;es.</div></div></div>
-        <div class="card" style="text-align:center;padding:3rem 2rem">
-          <div style="font-size:48px;margin-bottom:1rem">&#x1F4CB;</div>
-          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Missions EVA — Toutes</div>
-          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Toutes vos missions EVA en cours et pass&#233;es.</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        <div class="page-header">
+          <div>
+            <div class="page-title">Missions EVA</div>
+            <div class="page-sub">Toutes vos missions g&#233;n&#233;r&#233;es par EVA &#8212; priorit&#233;s, opportunit&#233;s et actions recommand&#233;es.</div>
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="renderMissionsEva('all')"><i class="ti ti-refresh"></i> Actualiser</button>
+          </div>
         </div>
+        <div id="missions-eva-all"></div>
       </div>
 
       <!-- MISSIONS EVA — À TRAITER -->
       <div class="page" id="page-missions-todo">
-        <div class="page-header"><div><div class="page-title">Missions EVA — &#192; traiter</div><div class="page-sub">Les missions EVA qui attendent votre action.</div></div></div>
-        <div class="card" style="text-align:center;padding:3rem 2rem">
-          <div style="font-size:48px;margin-bottom:1rem">&#x23F3;</div>
-          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Missions EVA — &#192; traiter</div>
-          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Les missions EVA qui attendent votre action.</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        <div class="page-header">
+          <div>
+            <div class="page-title">Missions EVA &#8212; &#192; traiter</div>
+            <div class="page-sub">Les missions EVA qui attendent votre action.</div>
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="renderMissionsEva('todo')"><i class="ti ti-refresh"></i> Actualiser</button>
+          </div>
         </div>
+        <div id="missions-eva-todo"></div>
       </div>
 
       <!-- MISSIONS EVA — TERMINÉES -->
       <div class="page" id="page-missions-done">
-        <div class="page-header"><div><div class="page-title">Missions EVA — Termin&#233;es</div><div class="page-sub">Historique des missions EVA compl&#233;t&#233;es.</div></div></div>
-        <div class="card" style="text-align:center;padding:3rem 2rem">
-          <div style="font-size:48px;margin-bottom:1rem">&#x2705;</div>
-          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Missions EVA — Termin&#233;es</div>
-          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Historique des missions EVA compl&#233;t&#233;es.</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        <div class="page-header">
+          <div>
+            <div class="page-title">Missions EVA &#8212; Termin&#233;es</div>
+            <div class="page-sub">Historique des missions EVA compl&#233;t&#233;es.</div>
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="renderMissionsEva('done')"><i class="ti ti-refresh"></i> Actualiser</button>
+          </div>
         </div>
+        <div id="missions-eva-done"></div>
       </div>
 
       <!-- AUDIT 360 — REVENUS -->
