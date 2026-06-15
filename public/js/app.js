@@ -1829,6 +1829,9 @@ function goTo(page,btn){
   if(page==='scanner')renderScannerPage();
   if(page==='eva-data'){renderEvaDataPage();}
   if(page==='profit360'){renderProfit360();}
+  if(page==='profit-logement')renderProfit360ParLogement();
+  if(page==='profit-opportunites')renderProfit360Opportunites();
+  if(page==='profit-simulations')renderProfit360Simulations();
   if(page==='eva-audit'){if(typeof renderEvaAuditPage==='function')renderEvaAuditPage();}
   if(page==='audit-revenus')renderAudit360Revenus();
   if(page==='audit-occupation')renderAudit360Occupation();
@@ -6470,129 +6473,563 @@ async function checkOAuthCallback(){
 /* ===== end GOOGLE OAUTH ===== */
 
 /* ===== PROFIT 360 ===== */
-function renderProfit360(){
-  const el=document.getElementById('profit360-content');if(!el)return;
-  const sources=typeof evaGetSources==='function'?evaGetSources():{};
+/* ====================================================
+   PROFIT 360 — Helper partagé
+   ==================================================== */
+function p360Empty(msg){
+  return '<div class="p360-empty">'+
+    '<div style="font-size:40px;margin-bottom:14px">\uD83D\uDCB0</div>'+
+    '<div style="font-size:17px;font-weight:800;color:#0B0722;font-family:Sora,sans-serif;margin-bottom:8px">Donn\u00e9es insuffisantes pour cette estimation</div>'+
+    '<div style="font-size:13px;color:#8A8A99;line-height:1.65;max-width:380px;margin:0 auto">'+(msg||'Ajoutez vos biens et r\u00e9servations pour g\u00e9n\u00e9rer l\u2019analyse Profit 360.')+'</div>'+
+  '</div>';
+}
 
-  if(!apparts.length){
-    el.innerHTML=`<div class="p360-empty">
-      <div style="font-size:40px;margin-bottom:14px">📊</div>
-      <div style="font-size:18px;font-weight:800;color:#0B0722;font-family:Sora,sans-serif;margin-bottom:8px">Ajoutez des biens à votre parc</div>
-      <div style="font-size:13px;color:#8A8A99;line-height:1.65">EVA analysera la rentabilité réelle de chaque logement.</div>
-    </div>`;
-    return;
+function p360Score(monthRev, occ, price, aiRec, fl){
+  var s=40;
+  if(occ>=65) s+=20; else if(occ>=45) s+=10;
+  if(monthRev>0) s+=15;
+  if(price>=fl) s+=10; else s-=10;
+  if(aiRec>0&&price>=aiRec) s+=15; else if(aiRec>0&&price>=aiRec*0.9) s+=7;
+  return Math.max(10,Math.min(98,s));
+}
+
+function p360NbNuits(r){
+  try{
+    if(!r.date_from||!r.date_to)return r.nights||0;
+    return Math.max(0,Math.round((new Date(r.date_to)-new Date(r.date_from))/(1000*60*60*24)));
+  }catch(e){return r.nights||0;}
+}
+
+/* ====================================================
+   PROFIT 360 — Vue globale (refonte de renderProfit360)
+   ==================================================== */
+function renderProfit360(){
+  var el=document.getElementById('profit360-content');
+  if(!el)return;
+
+  if(!apparts.length){el.innerHTML=p360Empty();return;}
+
+  var today=new Date();
+  var month=today.toISOString().slice(0,7);
+  var daysElapsed=Math.max(1,today.getDate());
+  var daysInMonth=new Date(today.getFullYear(),today.getMonth()+1,0).getDate();
+
+  // Stats par logement
+  var aptStats=apparts.map(function(a){
+    var aptRes=reservations.filter(function(r){return r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(month);});
+    var monthRev=aptRes.reduce(function(s,r){return s+(r.price_total||0);},0);
+    var totalNights=aptRes.reduce(function(s,r){return s+p360NbNuits(r);},0);
+    var occ=daysElapsed>0?Math.min(100,Math.round(totalNights/daysElapsed*100)):0;
+    var adr=totalNights>0?Math.round(monthRev/totalNights):0;
+    var fl=floor(a);
+    var potential=Math.max(0,Math.round((a.price||0)*0.15*30));
+    var sc=p360Score(monthRev,occ,a.price||0,a.ai_rec||0,fl);
+    return {a:a,monthRev:monthRev,totalNights:totalNights,occ:occ,adr:adr,fl:fl,potential:potential,sc:sc};
+  }).sort(function(x,y){return y.monthRev-x.monthRev;});
+
+  var totalRev=aptStats.reduce(function(s,r){return s+r.monthRev;},0);
+  var totalAnnual=Math.round(totalRev*12);
+  var totalNightsAll=aptStats.reduce(function(s,r){return s+r.totalNights;},0);
+  var adrGlobal=totalNightsAll>0?Math.round(totalRev/totalNightsAll):0;
+  var availableNights=apparts.length*daysElapsed;
+  var revpar=availableNights>0?Math.round(totalRev/availableNights):0;
+  var occGlobal=availableNights>0?Math.min(100,Math.round(totalNightsAll/availableNights*100)):0;
+  var totalPotential=aptStats.reduce(function(s,r){return s+r.potential;},0);
+  var best=aptStats[0];
+  var avgScore=aptStats.length?Math.round(aptStats.reduce(function(s,r){return s+r.sc;},0)/aptStats.length):0;
+  var scoreColor=avgScore>=70?'#10B981':avgScore>=45?'#F59E0B':'#EF4444';
+  var hotEvts=Object.values(eventsCache||{}).flat().filter(function(e){return e.hot;});
+
+  // KPI cards
+  var kpis='<div class="p360-kpi-strip">'+
+    '<div class="p360-kpi-card accent">'+
+      '<div class="p360-kpi-lbl">Revenus estim\u00e9s / mois</div>'+
+      '<div class="p360-kpi-val">'+totalRev+'\u20AC</div>'+
+      '<div class="p360-kpi-help">'+daysElapsed+'/'+daysInMonth+' jours \u00e9coul\u00e9s</div>'+
+    '</div>'+
+    '<div class="p360-kpi-card">'+
+      '<div class="p360-kpi-lbl">Estim\u00e9 annuel</div>'+
+      '<div class="p360-kpi-val">'+totalAnnual.toLocaleString('fr-FR')+'\u20AC</div>'+
+      '<div class="p360-kpi-help">projection 12 mois</div>'+
+    '</div>'+
+    '<div class="p360-kpi-card">'+
+      '<div class="p360-kpi-lbl">ADR global</div>'+
+      '<div class="p360-kpi-val">'+adrGlobal+'\u20AC</div>'+
+      '<div class="p360-kpi-help">prix moyen / nuit</div>'+
+    '</div>'+
+    '<div class="p360-kpi-card">'+
+      '<div class="p360-kpi-lbl">RevPAR</div>'+
+      '<div class="p360-kpi-val">'+revpar+'\u20AC</div>'+
+      '<div class="p360-kpi-help">revenu / bien disponible</div>'+
+    '</div>'+
+  '</div>';
+
+  // Classement résumé
+  var rankRows=aptStats.map(function(r,i){
+    var revColor=r.monthRev>0?'#17122E':'#DC2626';
+    var occColor=r.occ>=65?'#059669':r.occ>=45?'#D97706':'#DC2626';
+    return '<tr>'+
+      '<td style="font-weight:700"><span style="margin-right:8px">'+( r.a.emoji||'\uD83C\uDFE0')+'</span>'+r.a.name+
+        (i===0?'<span class="a360-badge a360-badge-green" style="margin-left:6px">#1</span>':'')+
+      '</td>'+
+      '<td style="font-weight:900;color:'+revColor+'">'+r.monthRev+'\u20AC</td>'+
+      '<td style="color:'+occColor+';font-weight:700">'+r.occ+'%</td>'+
+      '<td style="color:#7C3AED;font-weight:700">'+r.adr+'\u20AC</td>'+
+      '<td><div style="display:flex;align-items:center;gap:6px">'+
+        '<div style="flex:1;height:5px;background:#F3F0FA;border-radius:999px;overflow:hidden">'+
+          '<div style="height:100%;width:'+r.sc+'%;background:'+(r.sc>=70?'#10B981':r.sc>=45?'#F59E0B':'#EF4444')+';border-radius:999px"></div>'+
+        '</div>'+
+        '<span style="font-size:11px;font-weight:800;color:'+(r.sc>=70?'#059669':r.sc>=45?'#D97706':'#DC2626')+'">'+r.sc+'</span>'+
+      '</div></td>'+
+    '</tr>';
+  }).join('');
+
+  var reco=best&&best.monthRev>0
+    ?'\uD83C\uDFC6 Meilleur bien : <strong>'+best.a.name+'</strong> \u2014 '+best.monthRev+'\u20AC ce mois.'
+    :'\uD83D\uDCA1 Ajoutez des r\u00e9servations pour calculer les revenus r\u00e9els par logement.';
+
+  el.innerHTML=
+    // Hero
+    '<div class="a360-hero" style="margin-bottom:14px">'+
+      '<div class="a360-hero-kicker">EVA Profit 360 \u00b7 Vue globale</div>'+
+      '<div class="a360-hero-title">'+totalRev+'\u20AC g\u00e9n\u00e9r\u00e9s ce mois \u2014 '+totalAnnual.toLocaleString('fr-FR')+'\u20AC estim\u00e9s / an</div>'+
+      '<div class="a360-hero-sub">'+apparts.length+' logement'+(apparts.length>1?'s':'')+' \u00b7 Occupation : '+occGlobal+'% \u00b7 Potentiel d\u00e9tect\u00e9 : +'+totalPotential+'\u20AC / an</div>'+
+      '<div class="a360-hero-chips">'+
+        '<span class="a360-hero-chip accent">'+totalRev+'\u20AC / mois</span>'+
+        '<span class="a360-hero-chip">ADR '+adrGlobal+'\u20AC</span>'+
+        '<span class="a360-hero-chip">'+occGlobal+'% occupation</span>'+
+        '<span class="a360-hero-chip">Score EVA : '+avgScore+'/100</span>'+
+        (hotEvts.length?'<span class="a360-hero-chip">'+hotEvts.length+' \u00e9v\u00e9nement'+(hotEvts.length>1?'s':'')+' d\u00e9tect\u00e9'+(hotEvts.length>1?'s':'')+'</span>':'')+
+      '</div>'+
+    '</div>'+
+
+    kpis+
+
+    // Classement
+    '<div class="p360-section">'+
+      '<div class="p360-section-head">'+
+        '<div>'+
+          '<div class="p360-section-title">\uD83C\uDFC6 Classement de vos logements</div>'+
+          '<div class="p360-section-sub">Revenus, occupation, ADR et score Profit EVA</div>'+
+        '</div>'+
+        '<span class="a360-badge a360-badge-purple">Score moyen : '+avgScore+'/100</span>'+
+      '</div>'+
+      '<div class="a360-table-wrap">'+
+        '<table class="a360-table">'+
+          '<thead><tr><th>Logement</th><th>Revenus / mois</th><th>Occupation</th><th>ADR</th><th>Score Profit</th></tr></thead>'+
+          '<tbody>'+rankRows+'</tbody>'+
+        '</table>'+
+      '</div>'+
+    '</div>'+
+
+    // Reco EVA
+    '<div class="p360-reco">'+
+      '<div class="p360-reco-icon">\uD83E\uDD16</div>'+
+      '<div class="p360-reco-text">'+reco+' Utilisez <strong>Opportunit\u00e9s</strong> pour d\u00e9couvrir les leviers de croissance, et <strong>Simulations</strong> pour estimer l\u2019impact de vos d\u00e9cisions.</div>'+
+    '</div>'+
+
+    // CTA nav
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">'+
+      '<button class="a360-action-btn" onclick="goTo(\'profit-logement\',document.querySelector(\'[data-page=profit-logement]\'))">\uD83C\uDFE0 D\u00e9tail par logement</button>'+
+      '<button class="a360-action-btn" onclick="goTo(\'profit-opportunites\',document.querySelector(\'[data-page=profit-opportunites]\'))">\uD83D\uDE80 Voir les opportunit\u00e9s</button>'+
+      '<button class="a360-action-btn" onclick="goTo(\'profit-simulations\',document.querySelector(\'[data-page=profit-simulations]\'))">\uD83E\uDDEE Simulations</button>'+
+    '</div>';
+}
+
+/* ====================================================
+   PROFIT 360 — Par logement
+   ==================================================== */
+function renderProfit360ParLogement(){
+  var dash=document.getElementById('profit-logement-dash');
+  if(!dash)return;
+  if(!apparts.length){dash.innerHTML=p360Empty();return;}
+
+  var today=new Date();
+  var month=today.toISOString().slice(0,7);
+  var daysElapsed=Math.max(1,today.getDate());
+
+  var aptStats=apparts.map(function(a){
+    var aptRes=reservations.filter(function(r){return r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(month);});
+    var monthRev=aptRes.reduce(function(s,r){return s+(r.price_total||0);},0);
+    var totalNights=aptRes.reduce(function(s,r){return s+p360NbNuits(r);},0);
+    var occ=daysElapsed>0?Math.min(100,Math.round(totalNights/daysElapsed*100)):0;
+    var adr=totalNights>0?Math.round(monthRev/totalNights):0;
+    var fl=floor(a);
+    var potential=Math.max(0,(a.ai_rec||0)-(a.price||0));
+    var sc=p360Score(monthRev,occ,a.price||0,a.ai_rec||0,fl);
+    return {a:a,monthRev:monthRev,totalNights:totalNights,occ:occ,adr:adr,fl:fl,potential:potential,sc:sc};
+  }).sort(function(x,y){return y.monthRev-x.monthRev;});
+
+  var totalRev=aptStats.reduce(function(s,r){return s+r.monthRev;},0);
+
+  var cards=aptStats.map(function(r,i){
+    var occColor=r.occ>=65?'#059669':r.occ>=45?'#D97706':'#DC2626';
+    var scoreColor=r.sc>=70?'#059669':r.sc>=45?'#D97706':'#DC2626';
+    var revColor=r.monthRev>0?'#17122E':'#DC2626';
+    var barW=r.occ;
+    var barC=occColor;
+    var verdictBadge=r.sc>=70?'<span class="a360-badge a360-badge-green">\u00c0 conserver</span>':
+                     r.sc>=45?'<span class="a360-badge a360-badge-orange">\u00c0 optimiser</span>':
+                     '<span class="a360-badge a360-badge-red">Action requise</span>';
+    return '<div class="p360-apt-v2">'+
+      // Head
+      '<div class="p360-apt-v2-head">'+
+        '<div class="p360-apt-v2-emoji">'+(r.a.emoji||'\uD83C\uDFE0')+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div class="p360-apt-v2-name">'+r.a.name+'</div>'+
+          '<div class="p360-apt-v2-city">'+(r.a.city||'')+' \u00b7 Rang #'+(i+1)+' du parc</div>'+
+        '</div>'+
+        verdictBadge+
+      '</div>'+
+      // Métriques
+      '<div class="p360-apt-v2-metrics">'+
+        '<div class="p360-apt-v2-metric">'+
+          '<div class="p360-apt-v2-metric-val" style="color:'+revColor+'">'+r.monthRev+'\u20AC</div>'+
+          '<div class="p360-apt-v2-metric-lbl">Revenus / mois</div>'+
+        '</div>'+
+        '<div class="p360-apt-v2-metric">'+
+          '<div class="p360-apt-v2-metric-val" style="color:'+occColor+'">'+r.occ+'%</div>'+
+          '<div class="p360-apt-v2-metric-lbl">Occupation</div>'+
+        '</div>'+
+        '<div class="p360-apt-v2-metric">'+
+          '<div class="p360-apt-v2-metric-val">'+r.adr+'\u20AC</div>'+
+          '<div class="p360-apt-v2-metric-lbl">ADR</div>'+
+        '</div>'+
+      '</div>'+
+      // Barre occupation
+      '<div>'+
+        '<div style="display:flex;justify-content:space-between;font-size:10px;color:#8A8A99;margin-bottom:4px"><span>Occupation</span><span style="font-weight:700;color:'+occColor+'">'+r.occ+'% / 65% objectif</span></div>'+
+        '<div class="p360-apt-v2-bar-wrap"><div class="p360-apt-v2-bar" style="width:'+barW+'%;background:'+barC+'"></div></div>'+
+      '</div>'+
+      // Footer
+      '<div class="p360-apt-v2-footer">'+
+        '<div class="p360-apt-v2-score">'+
+          '<div style="width:32px;height:32px;border-radius:50%;background:conic-gradient('+scoreColor+' '+r.sc+'%,#F3F0FA 0);display:flex;align-items:center;justify-content:center">'+
+            '<div style="width:22px;height:22px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:'+scoreColor+'">'+r.sc+'</div>'+
+          '</div>'+
+          '<span>Score Profit</span>'+
+        '</div>'+
+        (r.potential>0?
+          '<div style="font-size:11px;color:#7C3AED;font-weight:700">\uD83D\uDCC8 +'+r.potential+'\u20AC/nuit potentiel</div>':
+          '<div style="font-size:11px;color:#059669;font-weight:700">\u2705 Prix optimis\u00e9</div>')+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  dash.innerHTML=
+    '<div class="a360-hero" style="margin-bottom:14px">'+
+      '<div class="a360-hero-kicker">EVA Profit 360 \u00b7 Par logement</div>'+
+      '<div class="a360-hero-title">'+apparts.length+' logement'+(apparts.length>1?'s'+'  analys\u00e9s':' analys\u00e9')+'</div>'+
+      '<div class="a360-hero-sub">'+totalRev+'\u20AC estim\u00e9s au total ce mois \u2014 d\u00e9tail bien par bien</div>'+
+      '<div class="a360-hero-chips">'+
+        '<span class="a360-hero-chip accent">'+totalRev+'\u20AC total</span>'+
+        '<span class="a360-hero-chip">'+aptStats.length+' biens</span>'+
+        (aptStats[0]?'<span class="a360-hero-chip">Meilleur : '+aptStats[0].a.name+'</span>':'')+
+      '</div>'+
+    '</div>'+
+    '<div class="p360-apt-grid">'+cards+'</div>'+
+    '<div style="display:flex;gap:10px;flex-wrap:wrap">'+
+      '<button class="a360-action-btn" onclick="goTo(\'profit-opportunites\',document.querySelector(\'[data-page=profit-opportunites]\'))">\uD83D\uDE80 Voir les opportunit\u00e9s</button>'+
+      '<button class="a360-action-btn" onclick="goTo(\'pricing\',document.querySelector(\'[data-page=pricing]\'))">\u2728 EVA Pricing</button>'+
+    '</div>';
+}
+
+/* ====================================================
+   PROFIT 360 — Opportunités
+   ==================================================== */
+function renderProfit360Opportunites(){
+  var dash=document.getElementById('profit-opportunites-dash');
+  if(!dash)return;
+  if(!apparts.length){dash.innerHTML=p360Empty();return;}
+
+  var today=new Date();
+  var month=today.toISOString().slice(0,7);
+  var daysElapsed=Math.max(1,today.getDate());
+  var allRes=reservations||[];
+  var cache=eventsCache||{};
+
+  var opps=[];
+
+  apparts.forEach(function(a){
+    var aptRes=allRes.filter(function(r){return r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(month);});
+    var monthRev=aptRes.reduce(function(s,r){return s+(r.price_total||0);},0);
+    var totalNights=aptRes.reduce(function(s,r){return s+p360NbNuits(r);},0);
+    var occ=daysElapsed>0?Math.min(100,Math.round(totalNights/daysElapsed*100)):0;
+    var fl=floor(a);
+    var price=a.price||0;
+    var aiRec=a.ai_rec||0;
+    var city=a.city||'';
+    var hotEvs=(cache[city]||[]).filter(function(e){return e.hot;});
+
+    // 1. Hausse tarifaire (sous ai_rec)
+    if(aiRec>price&&price>0){
+      var gainNuit=aiRec-price;
+      var gainMois=Math.round(gainNuit*Math.max(4,totalNights));
+      opps.push({
+        icon:'\uD83D\uDCC8',bg:'#F0FDF4',bc:'rgba(5,150,105,.14)',
+        impact:'high',impactLbl:'Impact fort',
+        apt:a.name,
+        title:'Hausse tarifaire recommand\u00e9e \u2014 '+a.name,
+        desc:'EVA conseille '+aiRec+'\u20AC vs '+price+'\u20AC actuel. Gain estim\u00e9 de +'+gainNuit+'\u20AC par nuit.',
+        monthly:gainMois,annual:gainMois*12,
+        cta:'EVA Pricing',ctaPage:'pricing'
+      });
+    }
+
+    // 2. Prix sous plancher
+    if(price>0&&price<fl){
+      var perte=Math.round((fl-price)*Math.max(4,totalNights));
+      opps.push({
+        icon:'\uD83D\uDD3B',bg:'#FEF2F2',bc:'rgba(220,38,38,.14)',
+        impact:'high',impactLbl:'Urgent',
+        apt:a.name,
+        title:'Prix sous plancher \u2014 '+a.name,
+        desc:'Chaque nuit \u00e0 '+price+'\u20AC est vendue sous le co\u00fbt estimé ('+fl+'\u20AC). Corrigez en priorit\u00e9.',
+        monthly:perte,annual:perte*12,
+        cta:'Corriger',ctaPage:'pricing'
+      });
+    }
+
+    // 3. Nuits vacantes (occ < 60%)
+    if(occ<60&&price>0){
+      var nuitsLibres=Math.round((60-occ)/100*daysElapsed);
+      var gainOcc=Math.round(nuitsLibres*price*0.82);
+      opps.push({
+        icon:'\uD83C\uDF19',bg:'#FFFBEB',bc:'rgba(217,119,6,.14)',
+        impact:'medium',impactLbl:'Impact moyen',
+        apt:a.name,
+        title:'R\u00e9duction des nuits vacantes \u2014 '+a.name,
+        desc:nuitsLibres+' nuit'+(nuitsLibres>1?'s':'')+' libre'+(nuitsLibres>1?'s':'')+' estim\u00e9e'+(nuitsLibres>1?'s':'')+' ce mois. Ajustez le prix ou activez un nouveau canal.',
+        monthly:gainOcc,annual:gainOcc*12,
+        cta:'Optimiser',ctaPage:'pricing'
+      });
+    }
+
+    // 4. Événements locaux
+    if(hotEvs.length&&price>0){
+      var boost=Math.round(price*0.12*hotEvs.length*2);
+      opps.push({
+        icon:'\uD83C\uDF89',bg:'#F5F0FF',bc:'rgba(124,58,237,.14)',
+        impact:'high',impactLbl:'Impact fort',
+        apt:a.name,
+        title:hotEvs.length+' pic'+(hotEvs.length>1?'s':'')+' de demande \u2014 '+a.name,
+        desc:hotEvs.slice(0,2).map(function(e){return e.name||'\u00c9v\u00e9nement local';}).join(', ')+'. Appliquez un boost de prix sur ces dates.',
+        monthly:boost,annual:boost*12,
+        cta:'Pricer',ctaPage:'pricing'
+      });
+    }
+
+    // 5. Note basse
+    var note=Number(a.note||0);
+    if(note>0&&note<4.5){
+      var gainNote=Math.round(price*0.08*Math.max(4,totalNights));
+      opps.push({
+        icon:'\u2B50',bg:'#FFF7ED',bc:'rgba(234,88,12,.12)',
+        impact:'medium',impactLbl:'Impact moyen',
+        apt:a.name,
+        title:'Am\u00e9lioration de l\u2019annonce \u2014 '+a.name,
+        desc:'Note actuelle : '+note+'/5. Am\u00e9liorer les photos, description et \u00e9quipements peut augmenter la conversion et justifier +8% de prix.',
+        monthly:gainNote,annual:gainNote*12,
+        cta:'Voir le bien',ctaPage:'parc'
+      });
+    }
+  });
+
+  // Canal OTA — opportunité globale si dépendance
+  var withPlatform=allRes.filter(function(r){return r.date_from&&r.date_from.startsWith(month)&&r.platform;});
+  if(withPlatform.length>=3){
+    var channels={};
+    withPlatform.forEach(function(r){var c=r.platform||'autre';channels[c]=(channels[c]||0)+1;});
+    var top=Object.entries(channels).sort(function(a,b){return b[1]-a[1];})[0];
+    if(top&&top[1]/withPlatform.length>0.85){
+      var gainCanal=Math.round(apparts.reduce(function(s,a){return s+(a.price||0);},0)/Math.max(1,apparts.length)*0.08*30);
+      opps.push({
+        icon:'\uD83C\uDF10',bg:'#F0F9FF',bc:'rgba(14,165,233,.14)',
+        impact:'medium',impactLbl:'Impact moyen',
+        apt:'Tous les biens',
+        title:'Diversification des canaux OTA',
+        desc:Math.round(top[1]/withPlatform.length*100)+'% de vos r\u00e9sas viennent de '+top[0]+'. Activer un 2e canal r\u00e9duit le risque et augmente la visibilit\u00e9.',
+        monthly:gainCanal,annual:gainCanal*12,
+        cta:'Voir int\u00e9grations',ctaPage:'settings'
+      });
+    }
   }
 
-  // ── Calculs par logement ──
-  const month=new Date().toISOString().slice(0,7);
-  const aptStats=apparts.map(a=>{
-    const charges=chargesData.filter(c=>c.appartement_id===a.id);
-    const fixedMonthly=charges.filter(c=>c.type==='fixe').reduce((s,c)=>s+(c.amount||0),0);
-    const varPerRes=charges.filter(c=>c.type==='variable'&&c.category!=='commission_plateforme').reduce((s,c)=>s+(c.amount||0),0);
-    const commPct=charges.find(c=>c.category==='commission_plateforme')?.amount||3;
-    const aptRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(month));
-    const monthRev=aptRes.reduce((s,r)=>s+(r.price_total||0),0);
-    const nbRes=aptRes.length;
-    const varTotal=varPerRes*nbRes+Math.round(monthRev*commPct/100);
-    const totalCharges=fixedMonthly+varTotal;
-    const netMonthly=monthRev-totalCharges;
-    const netAnnual=netMonthly*12;
-    const occ=getOccupancyRate(a,30);
-    let verdict,verdictIcon,verdictColor,verdictBg,verdictBorder;
-    if(netMonthly>=800){verdict='À conserver';verdictIcon='✅';verdictColor='#059669';verdictBg='#ECFDF5';verdictBorder='#BBF7D0';}
-    else if(netMonthly>=200){verdict='À optimiser';verdictIcon='⚠️';verdictColor='#D97706';verdictBg='#FFFBEB';verdictBorder='#FDE68A';}
-    else{verdict='À remettre en question';verdictIcon='❌';verdictColor='#DC2626';verdictBg='#FEF2F2';verdictBorder='#FECACA';}
-    return{a,netMonthly,netAnnual,monthRev,totalCharges,occ,verdict,verdictIcon,verdictColor,verdictBg,verdictBorder};
-  }).sort((x,y)=>y.netMonthly-x.netMonthly);
+  if(!opps.length){
+    opps.push({
+      icon:'\u2705',bg:'#F0FDF4',bc:'rgba(5,150,105,.14)',
+      impact:'low',impactLbl:'Bonne sant\u00e9',
+      apt:'Tous les biens',
+      title:'Parc bien optimis\u00e9',
+      desc:'EVA ne d\u00e9tecte pas d\u2019opportunit\u00e9 majeure pour l\u2019instant. Continuez le suivi hebdomadaire.',
+      monthly:0,annual:0,
+      cta:'Lancer un audit',ctaPage:'eva-audit'
+    });
+  }
 
-  const totalNetMonthly=aptStats.reduce((s,r)=>s+r.netMonthly,0);
-  const totalNetAnnual=totalNetMonthly*12;
+  opps.sort(function(a,b){return b.monthly-a.monthly;});
+  var totalMonthly=opps.reduce(function(s,o){return s+o.monthly;},0);
 
-  // ── HERO ──
-  const heroHtml=`
-    <div class="p360-hero">
-      <div class="p360-hero-inner">
-        <div class="opp-kicker">RentyQ × Profit 360°</div>
-        <h2 class="opp-title">La vérité financière de votre parc.</h2>
-        <p class="opp-sub">Découvrez ce que chaque logement vous rapporte réellement après charges.</p>
-        <div class="opp-kpi-row">
-          <div class="opp-kpi-main">
-            <div class="opp-kpi-main-value">${totalNetMonthly>=0?'+':''}${totalNetMonthly} €</div>
-            <div class="opp-kpi-main-label">profit net mensuel</div>
-            <div class="opp-kpi-secondary">${totalNetAnnual>=0?'+':''}${totalNetAnnual.toLocaleString('fr-FR')} € / an</div>
-          </div>
-          <div class="opp-hero-ctas">
-            <button class="btn btn-purple" onclick="document.getElementById('p360-ranking').scrollIntoView({behavior:'smooth'})"><i class="ti ti-chart-bar"></i> Analyser mon profit</button>
-            <button class="btn" onclick="document.getElementById('p360-ranking').scrollIntoView({behavior:'smooth'})"><i class="ti ti-building"></i> Comparer mes logements</button>
-          </div>
-        </div>
-      </div>
-    </div>`;
+  var impactColors={'high':'p360-opp-impact-high','medium':'p360-opp-impact-medium','low':'p360-opp-impact-low'};
 
-  // ── CLASSEMENT ──
-  const rankingHtml=`
-    <div id="p360-ranking" style="margin-bottom:1.25rem">
-      <div class="opp-section-label">Classement EVA de vos logements</div>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        ${aptStats.map((r,i)=>`
-          <div class="p360-apt-card">
-            <div class="p360-apt-rank">${i+1}</div>
-            <div style="font-size:20px">${r.a.emoji||'🏠'}</div>
-            <div style="flex:1;min-width:0">
-              <div style="font-size:14px;font-weight:700;color:#0B0722;margin-bottom:2px">${escapeHtml(r.a.name||'Bien')}</div>
-              <div style="font-size:11px;color:#8A8A99">${r.occ}% occupation · CA ${r.monthRev} € · Charges ${r.totalCharges} €</div>
-            </div>
-            <div class="p360-net">
-              <div class="p360-net-monthly" style="color:${r.netMonthly>=0?'#059669':'#DC2626'}">${r.netMonthly>=0?'+':''}${r.netMonthly} €<span class="p360-unit"> / mois</span></div>
-              <div class="p360-net-annual" style="color:${r.netAnnual>=0?'#8A8A99':'#DC2626'}">${r.netAnnual>=0?'+':''}${r.netAnnual.toLocaleString('fr-FR')} € / an</div>
-            </div>
-            <div class="p360-verdict" style="color:${r.verdictColor};background:${r.verdictBg};border:1px solid ${r.verdictBorder}">${r.verdictIcon} ${r.verdict}</div>
-          </div>`).join('')}
-      </div>
-    </div>`;
+  var cards=opps.map(function(o){
+    return '<div class="p360-opp-card" style="background:'+o.bg+';border-color:'+o.bc+'">'+
+      '<div class="p360-opp-icon" style="background:white">'+o.icon+'</div>'+
+      '<div>'+
+        '<div class="p360-opp-title">'+o.title+'</div>'+
+        '<div class="p360-opp-desc">'+o.desc+'</div>'+
+        '<div style="margin-top:6px;display:flex;align-items:center;gap:6px">'+
+          '<span class="p360-opp-impact '+impactColors[o.impact]+'">'+o.impactLbl+'</span>'+
+          '<span style="font-size:10px;color:#8A8A99">\u00b7 '+o.apt+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div class="p360-opp-right">'+
+        (o.monthly>0?
+          '<div class="p360-opp-monthly">+'+o.monthly+'\u20AC</div>'+
+          '<div class="p360-opp-annual">+'+o.annual.toLocaleString('fr-FR')+'\u20AC / an</div>':
+          '<div style="font-size:12px;color:#8A8A99">—</div>')+
+        '<div style="margin-top:8px">'+
+          '<button onclick="goTo(\''+o.ctaPage+'\',document.querySelector(\'[data-page='+o.ctaPage+']\'))" style="border:none;border-radius:8px;padding:6px 12px;background:linear-gradient(135deg,#6D28D9,#EC4899);color:white;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit">'+o.cta+' \u2192</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
 
-  // ── LEVIERS EVA ──
-  const leviers=[
-    {icon:'📅',title:'Augmenter les tarifs week-end',monthly:120,annual:1440},
-    {icon:'🧹',title:'Réduire le coût ménage',monthly:60,annual:720},
-    {icon:'🏨',title:'Activer Booking.com',monthly:165,annual:1980}
-  ];
-  const leviersHtml=`
-    <div style="margin-bottom:1.25rem">
-      <div class="opp-section-label">Leviers EVA pour augmenter votre profit</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
-        ${leviers.map(l=>`
-          <div class="p360-levier">
-            <div class="p360-levier-icon">${l.icon}</div>
-            <div class="p360-levier-title">${l.title}</div>
-            <div class="p360-levier-monthly">+${l.monthly} €<span class="p360-unit"> / mois</span></div>
-            <div class="p360-levier-annual">+${l.annual.toLocaleString('fr-FR')} € / an</div>
-          </div>`).join('')}
-      </div>
-    </div>`;
+  dash.innerHTML=
+    '<div class="a360-hero" style="margin-bottom:14px">'+
+      '<div class="a360-hero-kicker">EVA Profit 360 \u00b7 Opportunit\u00e9s</div>'+
+      '<div class="a360-hero-title">'+opps.length+' opportunit\u00e9'+(opps.length>1?'s':'')+' d\u00e9tect\u00e9e'+(opps.length>1?'s':'')+' par EVA</div>'+
+      '<div class="a360-hero-sub">Potentiel total : +'+(totalMonthly>0?totalMonthly+'\u20AC / mois \u2014 +'+totalMonthly*12+'\u20AC / an':'non estim\u00e9')+'</div>'+
+      '<div class="a360-hero-chips">'+
+        '<span class="a360-hero-chip accent">'+opps.length+' levier'+(opps.length>1?'s':'')+'</span>'+
+        (totalMonthly>0?'<span class="a360-hero-chip">+'+totalMonthly+'\u20AC / mois</span>':'')+
+      '</div>'+
+    '</div>'+
+    '<div class="p360-section">'+
+      '<div class="p360-section-head">'+
+        '<div>'+
+          '<div class="p360-section-title">\uD83D\uDE80 Leviers d\u00e9tect\u00e9s par EVA</div>'+
+          '<div class="p360-section-sub">Tri\u00e9s par impact financier estim\u00e9</div>'+
+        '</div>'+
+        '<span class="a360-badge a360-badge-purple">EVA Engine</span>'+
+      '</div>'+
+      '<div class="p360-opp-list">'+cards+'</div>'+
+    '</div>';
+}
 
-  // ── RECOMMANDATION EVA ──
-  const worst=aptStats[aptStats.length-1];
-  const recoText=worst&&worst.netMonthly<200
-    ?`EVA estime que <strong>${escapeHtml(worst.a.name||'votre dernier bien')}</strong> mobilise du temps sans générer suffisamment de valeur. Une optimisation ou une sortie du parc doit être envisagée.`
-    :`EVA estime que votre parc est <strong>bien équilibré</strong>. Concentrez vos efforts sur les leviers ci-dessus pour maximiser votre profit mensuel.`;
-  const recoHtml=`
-    <div class="p360-reco">
-      <div class="p360-reco-icon">🤖</div>
-      <div class="p360-reco-text">${recoText}</div>
-    </div>`;
+/* ====================================================
+   PROFIT 360 — Simulations (cartes statiques V1)
+   ==================================================== */
+function renderProfit360Simulations(){
+  var dash=document.getElementById('profit-simulations-dash');
+  if(!dash)return;
+  if(!apparts.length){dash.innerHTML=p360Empty();return;}
 
-  // ── SAISIE MANUELLE (preserved) ──
-  const manualHtml=`
-    <div style="margin-top:1rem">
-      <button onclick="p360OpenManualEntry()" class="btn"><i class="ti ti-edit"></i> Saisir mes données manuellement</button>
-      <div id="p360-manual-entry" style="display:none"></div>
-    </div>`;
+  var today=new Date();
+  var month=today.toISOString().slice(0,7);
+  var daysElapsed=Math.max(1,today.getDate());
+  var daysInMonth=new Date(today.getFullYear(),today.getMonth()+1,0).getDate();
 
-  el.innerHTML=heroHtml+rankingHtml+leviersHtml+recoHtml+manualHtml;
+  var monthRes=reservations.filter(function(r){return r.date_from&&r.date_from.startsWith(month);});
+  var monthRev=monthRes.reduce(function(s,r){return s+(r.price_total||0);},0);
+  var totalNights=monthRes.reduce(function(s,r){return s+p360NbNuits(r);},0);
+  var avgPrice=apparts.length?Math.round(apparts.reduce(function(s,a){return s+(a.price||0);},0)/apparts.length):0;
+  var availableNights=apparts.length*daysElapsed;
+  var occRate=availableNights>0?Math.min(100,Math.round(totalNights/availableNights*100)):0;
+
+  // Base annuelle estimée
+  var baseAnnual=Math.round(monthRev*12);
+
+  // Scénario 1 : +5% sur les prix
+  var sim1Monthly=Math.round(monthRev*0.05);
+  var sim1Annual=sim1Monthly*12;
+
+  // Scénario 2 : +10% d'occupation
+  var sim2Monthly=Math.round(avgPrice*(10/100)*daysInMonth*apparts.length*0.82*0.10);
+  // Plus simple : 10% de nuits supplémentaires × prix moyen
+  var extraNights10=Math.round(availableNights*0.10);
+  sim2Monthly=Math.round(extraNights10*avgPrice*0.82);
+  var sim2Annual=sim2Monthly*12;
+
+  // Scénario 3 : Réduction des nuits vacantes (objectif 65% d'occupation)
+  var vacantNights=Math.max(0,Math.round((0.65-occRate/100)*availableNights));
+  var sim3Monthly=Math.round(vacantNights*avgPrice*0.78);
+  var sim3Annual=sim3Monthly*12;
+
+  // Scénario 4 : Amélioration du score qualité (+1 point de note → +8% de prix)
+  var sim4Monthly=Math.round(monthRev*0.08);
+  var sim4Annual=sim4Monthly*12;
+
+  function simCard(icon,title,scenario,monthly,annual,explication,cta,ctaPage){
+    return '<div class="p360-sim-card">'+
+      '<div class="p360-sim-icon">'+icon+'</div>'+
+      '<div class="p360-sim-title">'+title+'</div>'+
+      '<div class="p360-sim-scenario">'+scenario+'</div>'+
+      '<div class="p360-sim-gains">'+
+        '<div class="p360-sim-gain-monthly">'+
+          '<div class="p360-sim-gain-val" style="color:#059669">+'+(monthly>0?monthly:'—')+'\u20AC</div>'+
+          '<div class="p360-sim-gain-lbl" style="color:#059669">/ mois</div>'+
+        '</div>'+
+        '<div class="p360-sim-gain-annual">'+
+          '<div class="p360-sim-gain-val" style="color:#7C3AED">+'+(annual>0?annual.toLocaleString('fr-FR'):'—')+'\u20AC</div>'+
+          '<div class="p360-sim-gain-lbl" style="color:#7C3AED">/ an</div>'+
+        '</div>'+
+      '</div>'+
+      '<div style="font-size:11px;color:#8A8A99;line-height:1.5;background:#F8F5FF;border-radius:8px;padding:8px 10px">'+explication+'</div>'+
+      '<button class="p360-sim-cta" onclick="goTo(\''+ctaPage+'\',document.querySelector(\'[data-page='+ctaPage+']\'))">'+cta+' \u2192</button>'+
+    '</div>';
+  }
+
+  var totalSimMonthly=sim1Monthly+sim2Monthly+sim3Monthly+sim4Monthly;
+
+  dash.innerHTML=
+    '<div class="a360-hero" style="margin-bottom:14px">'+
+      '<div class="a360-hero-kicker">EVA Profit 360 \u00b7 Simulations</div>'+
+      '<div class="a360-hero-title">Et si vous d\u00e9bloqu\u00eez tous ces leviers\u00a0?</div>'+
+      '<div class="a360-hero-sub">Potentiel cumul\u00e9 : +'+(totalSimMonthly>0?totalSimMonthly+'\u20AC / mois \u2014 +'+totalSimMonthly*12+'\u20AC / an':'calcul en cours')+'</div>'+
+      '<div class="a360-hero-chips">'+
+        '<span class="a360-hero-chip accent">Base : '+monthRev+'\u20AC / mois</span>'+
+        '<span class="a360-hero-chip">+'+totalSimMonthly+'\u20AC potentiels</span>'+
+        '<span class="a360-hero-chip">'+occRate+'% occupation actuelle</span>'+
+      '</div>'+
+    '</div>'+
+
+    '<div style="background:linear-gradient(135deg,#F3E8FF,#FFF1F9);border:1px solid rgba(168,85,247,.18);border-radius:16px;padding:14px 18px;margin-bottom:14px;font-size:13px;color:#5B2C91;line-height:1.6">'+
+      '\uD83D\uDCA1 <strong>Ces simulations sont indicatives.</strong> Elles reposent sur vos revenus et prix actuels. Les charges, fiscalit\u00e9 et saisonnalit\u00e9 ne sont pas int\u00e9gr\u00e9es dans cette V1.'+
+    '</div>'+
+
+    '<div class="p360-sim-grid">'+
+      simCard(
+        '\uD83D\uDCB0','+5% sur les prix',
+        'Vous pratiquez en moyenne '+avgPrice+'\u20AC / nuit. Augmenter de 5% = +'+(Math.round(avgPrice*0.05))+'\u20AC par nuit.',
+        sim1Monthly,sim1Annual,
+        'Calcul\u00e9 sur vos revenus du mois courant ('+monthRev+'\u20AC) \u00d7 5%. Impact appliqu\u00e9 imm\u00e9diatement si vous montez vos prix.',
+        'EVA Pricing','pricing'
+      )+
+      simCard(
+        '\uD83D\uDCC5','+10% d\u2019occupation',
+        'Votre taux actuel est '+occRate+'%. Atteindre '+(Math.min(100,occRate+10))+'% ajouterait '+extraNights10+' nuits vendues.',
+        sim2Monthly,sim2Annual,
+        'Calcul\u00e9 sur '+extraNights10+' nuits suppl\u00e9mentaires \u00d7 '+avgPrice+'\u20AC \u00d7 82% (nette de frais).',
+        'Voir l\u2019occupation','audit-occupation'
+      )+
+      simCard(
+        '\uD83C\uDF19','R\u00e9duction des nuits vacantes',
+        'Objectif : atteindre 65% d\u2019occupation. '+vacantNights+' nuit'+(vacantNights>1?'s':'')+' \u00e0 remplir ce mois.',
+        sim3Monthly,sim3Annual,
+        'Calcul\u00e9 sur '+vacantNights+' nuit'+(vacantNights>1?'s':'')+' \u00d7 '+avgPrice+'\u20AC \u00d7 78% (taux de conversion estim\u00e9). R\u00e9sultat si objectif 65% atteint.',
+        'Voir les nuits','audit-occupation'
+      )+
+      simCard(
+        '\u2B50','Am\u00e9lioration du score qualit\u00e9',
+        'Une note + 0,5 point peut justifier +8% sur les prix selon les donn\u00e9es Airbnb.',
+        sim4Monthly,sim4Annual,
+        'Calcul\u00e9 sur vos revenus actuels ('+monthRev+'\u20AC) \u00d7 8%. S\u2019active par l\u2019am\u00e9lioration des photos, \u00e9quipements et descripti.',
+        'Voir la qualit\u00e9','audit-qualite'
+      )+
+    '</div>';
 }
 
 
-/* ===== end PROFIT 360 ===== */
 
 
