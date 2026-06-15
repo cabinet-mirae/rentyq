@@ -1103,251 +1103,34 @@ tr:hover td { background: #FAF6FF !important; }
 /* ===== end EVA ENGINE LAYER ===== */
 
 
-/* ===== RentyQ — Sidebar accordéon ===== */
-.nav-group { display: block; }
 
-.nav-group-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  margin: 1px 6px;
-  border-radius: 8px;
-  color: rgba(255,255,255,.62);
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  border: none;
-  background: none;
-  font-family: 'Inter', sans-serif;
-  width: calc(100% - 12px);
-  text-align: left;
-  transition: all .14s;
-  position: relative;
-}
-.nav-group-header:hover {
-  background: rgba(147,51,234,.18) !important;
-  color: #fff !important;
-}
-.nav-group-header.open {
-  color: rgba(255,255,255,.85);
-}
 
-.nav-chevron {
-  margin-left: auto;
-  font-size: 10px;
-  color: rgba(255,255,255,.22);
-  transition: transform .22s ease;
-  display: inline-block;
-  flex-shrink: 0;
-}
-.nav-group-header.open .nav-chevron {
-  transform: rotate(90deg);
-  color: rgba(236,72,153,.7);
-}
-
-.nav-sub-items {
-  overflow: hidden;
-  max-height: 0;
-  transition: max-height .26s ease;
-}
-.nav-group.open .nav-sub-items {
-  max-height: 400px;
-}
-
-.nav-sub-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 10px 6px 36px;
-  margin: 0 6px;
-  border-radius: 7px;
-  color: rgba(255,255,255,.45);
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  border: none;
-  background: none;
-  font-family: 'Inter', sans-serif;
-  width: calc(100% - 12px);
-  text-align: left;
-  transition: all .12s;
-}
-.nav-sub-item:hover {
-  background: rgba(147,51,234,.14) !important;
-  color: rgba(255,255,255,.85) !important;
-}
-.nav-sub-item.active {
-  background: linear-gradient(90deg, rgba(109,40,217,.38), rgba(236,72,153,.18)) !important;
-  color: #fff !important;
-  font-weight: 600 !important;
-}
-
-.nav-sep {
-  height: 1px;
-  background: rgba(255,255,255,.07);
-  margin: 6px 1.25rem;
-}
-/* ===== end Sidebar accordéon ===== */
-
-/* ===== RentyQ — Cockpit EVA ===== */
-.ck-section {
-  background: white;
-  border: 1px solid rgba(139,92,246,.13);
-  border-radius: 20px;
-  padding: 20px;
-  margin-bottom: 14px;
-  box-shadow: 0 8px 28px rgba(69,39,120,.05);
-}
-.ck-section-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
-  gap: 10px;
-}
-.ck-section-title {
-  font-family: 'Sora', sans-serif;
-  font-size: 16px;
-  font-weight: 800;
-  color: #17122E;
-  letter-spacing: -.3px;
-}
-.ck-section-sub {
-  font-size: 12px;
-  color: #8A8A99;
-  margin-top: 2px;
-}
-.ck-badge {
-  font-size: 10px;
-  font-weight: 900;
-  border-radius: 999px;
-  padding: 3px 10px;
-  white-space: nowrap;
-}
-.ck-badge-green { background: #DCFCE7; color: #047857; }
-.ck-badge-red   { background: #FEE2E2; color: #DC2626; }
-.ck-badge-purple { background: #F3E8FF; color: #7C3AED; }
-.ck-badge-orange { background: #FEF3C7; color: #D97706; }
-
-/* Items opportunités / risques */
-.ck-list { display: grid; gap: 8px; }
-.ck-item {
-  display: grid;
-  grid-template-columns: 40px 1fr auto;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  border: 1px solid transparent;
-}
-.ck-item-up   { background: #F0FDF4; border-color: rgba(5,150,105,.14); }
-.ck-item-risk { background: #FEF2F2; border-color: rgba(220,38,38,.12); }
-.ck-item-warn { background: #FFFBEB; border-color: rgba(217,119,6,.14); }
-.ck-item-info { background: #F5F3FF; border-color: rgba(124,58,237,.12); }
-.ck-item-icon {
-  width: 40px; height: 40px;
-  border-radius: 12px;
-  background: white;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.07);
-  flex-shrink: 0;
-}
-.ck-item-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: #17122E;
-  margin-bottom: 2px;
-}
-.ck-item-desc  { font-size: 11px; color: #7B708F; line-height: 1.4; }
-.ck-item-gain  { font-size: 12px; font-weight: 900; margin-top: 3px; }
-.ck-gain-green  { color: #059669; }
-.ck-gain-red    { color: #DC2626; }
-.ck-gain-orange { color: #D97706; }
-.ck-item-btn {
-  border: none;
-  border-radius: 9px;
-  padding: 7px 13px;
-  font-size: 11px;
-  font-weight: 800;
-  cursor: pointer;
-  font-family: inherit;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-/* Actions prioritaires */
-.ck-action-list { display: grid; gap: 8px; }
-.ck-action {
-  display: grid;
-  grid-template-columns: 28px 1fr auto;
-  align-items: center;
-  gap: 12px;
-  padding: 11px 14px;
-  border-radius: 12px;
-  background: #FAFAFA;
-  border: 1px solid #F0EAFF;
-}
-.ck-action-rank {
-  font-size: 13px;
-  font-weight: 900;
-  color: #7C3AED;
-  text-align: center;
-}
-.ck-action-label { font-size: 13px; font-weight: 600; color: #17122E; }
-.ck-action-sub   { font-size: 11px; color: #8A8A99; margin-top: 1px; }
-.ck-action-btn {
-  border: none;
-  border-radius: 8px;
-  padding: 6px 12px;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  background: linear-gradient(135deg,#6D28D9,#EC4899);
-  color: white;
-  white-space: nowrap;
-}
-
-/* KPIs portefeuille */
-.ck-kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0,1fr));
-  gap: 10px;
-}
-.ck-kpi {
-  background: #FAFAFE;
-  border: 1px solid rgba(139,92,246,.11);
-  border-radius: 14px;
-  padding: 14px;
-  text-align: center;
-}
-.ck-kpi-label { font-size: 9px; text-transform: uppercase; letter-spacing: .7px; color: #8A8A99; font-weight: 900; margin-bottom: 6px; }
-.ck-kpi-value { font-size: 22px; font-weight: 950; color: #17122E; letter-spacing: -.5px; line-height: 1; }
-.ck-kpi-help  { font-size: 10px; color: #B0A8C8; margin-top: 5px; }
-
-/* Empty state cockpit */
-.ck-empty {
-  text-align: center;
-  padding: 3.5rem 2rem;
-  background: white;
-  border: 1px dashed rgba(139,92,246,.28);
-  border-radius: 20px;
-}
-.ck-empty-icon  { font-size: 44px; margin-bottom: 14px; }
-.ck-empty-title { font-family: 'Sora',sans-serif; font-size: 17px; font-weight: 800; color: #17122E; margin-bottom: 8px; }
-.ck-empty-sub   { font-size: 13px; color: #8A8A99; line-height: 1.65; max-width: 400px; margin: 0 auto 20px; }
-
-/* Responsive */
-@media(max-width:900px){
-  .ck-kpi-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
-}
-@media(max-width:640px){
-  .ck-kpi-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
-  .ck-item     { grid-template-columns: 36px 1fr; }
-  .ck-item-btn { display: none; }
-  .ck-action   { grid-template-columns: 24px 1fr; }
-  .ck-action-btn { display: none; }
-}
-/* ===== end Cockpit EVA ===== */
+/* ===== MISSIONS EVA V1 ===== */
+.missions-eva-wrap{display:flex;flex-direction:column;gap:14px}
+.missions-hero{background:linear-gradient(135deg,#211051 0%,#7C3AED 46%,#EC4899 100%);border-radius:24px;padding:22px;color:#fff;position:relative;overflow:hidden;box-shadow:0 20px 50px rgba(124,58,237,.18)}
+.missions-hero:after{content:"";position:absolute;right:-70px;top:-90px;width:280px;height:280px;background:radial-gradient(circle,rgba(255,255,255,.18),transparent 62%);pointer-events:none}
+.missions-hero>*{position:relative;z-index:1}
+.missions-hero-kicker{font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:900;color:rgba(255,255,255,.65);margin-bottom:8px}
+.missions-hero-title{font-family:'Sora',sans-serif;font-size:clamp(22px,3vw,31px);font-weight:950;letter-spacing:-.8px;line-height:1.08;margin-bottom:8px}
+.missions-hero-sub{font-size:13px;line-height:1.55;color:rgba(255,255,255,.75);max-width:760px}
+.missions-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.mission-kpi{background:#fff;border:1px solid rgba(139,92,246,.14);border-radius:18px;padding:14px;box-shadow:0 8px 24px rgba(69,39,120,.05)}
+.mission-kpi-label{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;font-weight:900;margin-bottom:8px}
+.mission-kpi-value{font-size:26px;font-weight:950;color:#17122E;letter-spacing:-.8px;line-height:1}
+.mission-kpi-sub{font-size:12px;color:#7B708F;margin-top:6px;line-height:1.35}
+.missions-list{display:grid;gap:10px}
+.mission-card{display:grid;grid-template-columns:8px 1fr auto;gap:14px;align-items:center;background:#fff;border:1px solid rgba(139,92,246,.14);border-radius:18px;padding:14px;box-shadow:0 8px 24px rgba(69,39,120,.05)}
+.mission-card.done{opacity:.68;background:#FAFAFF}
+.mission-severity{height:100%;min-height:84px;border-radius:999px;background:#7C3AED}
+.mission-severity.haute{background:#EF4444}.mission-severity.moyenne{background:#F59E0B}.mission-severity.faible{background:#10B981}
+.mission-main{min-width:0}.mission-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:6px}
+.mission-type{font-size:11px;font-weight:900;border-radius:999px;padding:4px 9px;background:#F3E8FF;color:#7C3AED}
+.mission-priority{font-size:11px;font-weight:900;border-radius:999px;padding:4px 9px;background:#FEE2E2;color:#B91C1C}.mission-priority.moyenne{background:#FFEDD5;color:#C2410C}.mission-priority.faible{background:#DCFCE7;color:#047857}
+.mission-title{font-size:15px;font-weight:950;color:#17122E;letter-spacing:-.2px;margin-bottom:4px}
+.mission-desc{font-size:12px;color:#6B6380;line-height:1.45}.mission-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;font-size:11px;color:#8A8A99}.mission-meta span{background:#F8F4FF;border-radius:999px;padding:4px 8px}
+.mission-impact{text-align:right;min-width:125px}.mission-impact strong{display:block;font-size:22px;color:#059669;font-weight:950;letter-spacing:-.7px}.mission-impact span{font-size:11px;color:#8A8A99}
+.mission-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;margin-top:10px}.mission-actions .btn{padding:6px 10px;font-size:12px}
+.missions-empty{background:#fff;border:1px dashed rgba(139,92,246,.28);border-radius:18px;padding:24px;text-align:center;color:#7B708F}.missions-empty strong{display:block;color:#17122E;font-size:16px;margin-bottom:6px}
+@media(max-width:900px){.missions-summary{grid-template-columns:repeat(2,1fr)}.mission-card{grid-template-columns:6px 1fr}.mission-impact{text-align:left}.mission-actions{justify-content:flex-start}}
+@media(max-width:640px){.missions-summary{grid-template-columns:1fr}}
+/* ===== end MISSIONS EVA V1 ===== */
