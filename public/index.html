@@ -653,7 +653,7 @@
         </div>
 
         <!-- Vue détail logement -->
-        <div id="parc-detail-view" style="display:none"></div>
+        <div id="parc-detail-view" style="display:none"><div id="parc-detail"></div></div>
       </div>
 
       <!-- IA PRICING -->
@@ -1352,25 +1352,33 @@
       </div>
 
       <!-- PARC — FICHES LOGEMENTS -->
+      <!-- PARC — FICHES LOGEMENTS -->
       <div class="page" id="page-parc-fiches">
-        <div class="page-header"><div><div class="page-title">Parc — Fiches logements</div><div class="page-sub">Fiches d&#233;taill&#233;es de chaque logement de votre parc.</div></div></div>
-        <div class="card" style="text-align:center;padding:3rem 2rem">
-          <div style="font-size:48px;margin-bottom:1rem">&#x1F4C4;</div>
-          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Parc — Fiches logements</div>
-          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Fiches d&#233;taill&#233;es de chaque logement de votre parc.</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        <div class="page-header">
+          <div>
+            <div class="page-title">Fiches logements</div>
+            <div class="page-sub">Vue synth&#233;tique de chaque bien avec missions EVA et recommandations.</div>
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="goTo('parc',document.querySelector('[data-page=parc]'))"><i class="ti ti-building"></i> Tous les logements</button>
+            <button class="btn btn-purple" onclick="openAddModal()"><i class="ti ti-plus"></i> Ajouter un bien</button>
+          </div>
         </div>
+        <div id="parc-fiches-dash"></div>
       </div>
 
       <!-- PARC — COMPARAISON -->
       <div class="page" id="page-parc-comparaison">
-        <div class="page-header"><div><div class="page-title">Parc — Comparaison</div><div class="page-sub">Comparez les performances de vos logements c&#244;te &#224; c&#244;te.</div></div></div>
-        <div class="card" style="text-align:center;padding:3rem 2rem">
-          <div style="font-size:48px;margin-bottom:1rem">&#x2696;&#xFE0F;</div>
-          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Parc — Comparaison</div>
-          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Comparez les performances de vos logements c&#244;te &#224; c&#244;te.</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        <div class="page-header">
+          <div>
+            <div class="page-title">Comparaison des logements</div>
+            <div class="page-sub">Classements EVA par revenu, occupation, score et potentiel.</div>
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="goTo('parc',document.querySelector('[data-page=parc]'))"><i class="ti ti-building"></i> Tous les logements</button>
+          </div>
         </div>
+        <div id="parc-comparaison-dash"></div>
       </div>
 
       <!-- NUITS VACANTES -->
