@@ -175,10 +175,10 @@
         <img src="assets/logo horizontal.jpg" alt="RentyQ" class="sidebar-brand-logo"/>
       </div>
 
-      <!-- Zone 2 : Gestion / Conciergerie -->
+      <!-- Zone 2 : mode-switcher conservé masqué (compatibilité switchMode) -->
       <div id="mode-switcher" class="sidebar-mode-zone" style="display:none">
-        <button id="mode-btn-solo" onclick="switchMode('solo')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:rgba(83,74,183,0.3);color:white;transition:all .15s"><i class="ti ti-building" style="margin-right:3px;font-size:13px;vertical-align:-1px" aria-hidden="true"></i>Gestion</button>
-        <button id="mode-btn-concierge" onclick="switchMode('concierge')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:rgba(255,255,255,0.4);transition:all .15s"><i class="ti ti-users" style="margin-right:3px;font-size:13px;vertical-align:-1px" aria-hidden="true"></i>Conciergerie</button>
+        <button id="mode-btn-solo" onclick="switchMode('solo')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:rgba(83,74,183,0.3);color:white;transition:all .15s">Gestion</button>
+        <button id="mode-btn-concierge" onclick="switchMode('concierge')" style="flex:1;padding:7px 4px;border-radius:8px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:transparent;color:rgba(255,255,255,0.4);transition:all .15s">Conciergerie</button>
       </div>
 
       <div class="sidebar-sep"></div>
@@ -188,61 +188,107 @@
 
       <div id="nav-solo">
 
-      <button class="nav-item active" onclick="goTo('cockpit',this)" style="font-weight:800;font-size:14px">
-        <span class="nav-emoji">&#x1F3E0;</span>Cockpit EVA
-      </button>
+        <!-- ── Cockpit EVA ── -->
+        <button class="nav-item active" data-page="cockpit" onclick="goTo('cockpit',this)" style="font-weight:800;font-size:14px">
+          <span class="nav-emoji"><i class="ti ti-home" aria-hidden="true"></i></span>Cockpit EVA
+        </button>
 
-      <div class="nav-section-label" style="margin-top:10px">Mon Parc</div>
-      <button class="nav-item nav-sub" onclick="goTo('parc',this)"><span class="nav-emoji"><i class="ti ti-building"></i></span>Mes biens <span class="nav-badge" id="parc-badge">0</span></button>
-      <button class="nav-item nav-sub" onclick="goTo('scanner',this)"><span class="nav-emoji"><i class="ti ti-radar-2"></i></span>Scanner EVA</button>
-      <button class="nav-item nav-sub" onclick="goTo('eva-data',this)" id="nav-eva-data"><span class="nav-emoji"><i class="ti ti-database"></i></span>Sources EVA <span id="eva-confidence-badge" style="margin-left:auto;font-size:10px;font-weight:900;padding:2px 7px;border-radius:4px;background:rgba(83,74,183,.25);color:#CECBF6">--%</span></button>
+        <!-- ── Missions EVA ── -->
+        <div class="nav-group" id="grp-missions">
+          <button class="nav-group-header" onclick="toggleGroup('grp-missions')">
+            <span class="nav-emoji"><i class="ti ti-checklist" aria-hidden="true"></i></span>Missions EVA<span class="nav-chevron">&#9658;</span>
+          </button>
+          <div class="nav-sub-items">
+            <button class="nav-sub-item" data-page="missions-all" onclick="goTo('missions-all',this)">Toutes</button>
+            <button class="nav-sub-item" data-page="missions-todo" onclick="goTo('missions-todo',this)">&#192; traiter</button>
+            <button class="nav-sub-item" data-page="missions-done" onclick="goTo('missions-done',this)">Termin&#233;es</button>
+          </div>
+        </div>
 
-      <div class="nav-section-label" style="margin-top:10px">Activit&#233;</div>
-      <button class="nav-item nav-sub" onclick="goTo('calendrier',this)"><span class="nav-emoji"><i class="ti ti-calendar"></i></span>Calendrier</button>
-      <button class="nav-item nav-sub" onclick="goTo('reservations',this)"><span class="nav-emoji"><i class="ti ti-bookmark"></i></span>R&#233;servations</button>
-      <button class="nav-item nav-sub" onclick="goTo('pricing',this)"><span class="nav-emoji"><i class="ti ti-sparkles"></i></span>Opportunit&#233;s EVA</button>
+        <!-- ── Audit 360 ── -->
+        <div class="nav-group" id="grp-audit">
+          <button class="nav-group-header" onclick="toggleGroup('grp-audit')">
+            <span class="nav-emoji"><i class="ti ti-chart-dots-3" aria-hidden="true"></i></span>Audit 360<span class="nav-chevron">&#9658;</span>
+          </button>
+          <div class="nav-sub-items">
+            <button class="nav-sub-item" data-page="eva-audit" onclick="goTo('eva-audit',this)">Vue globale</button>
+            <button class="nav-sub-item" data-page="audit-revenus" onclick="goTo('audit-revenus',this)">Revenus</button>
+            <button class="nav-sub-item" data-page="audit-occupation" onclick="goTo('audit-occupation',this)">Occupation</button>
+            <button class="nav-sub-item" data-page="audit-qualite" onclick="goTo('audit-qualite',this)">Qualit&#233; voyageurs</button>
+            <button class="nav-sub-item" data-page="audit-ota" onclick="goTo('audit-ota',this)">Distribution OTA</button>
+            <button class="nav-sub-item" data-page="audit-tarification" onclick="goTo('audit-tarification',this)">Tarification</button>
+          </div>
+        </div>
 
-      <div class="nav-section-label" style="margin-top:10px">EVA Engine</div>
-      <button class="nav-item nav-sub" onclick="goTo('eva-audit',this)"><span class="nav-emoji"><i class="ti ti-chart-dots-3"></i></span>Audit 360&#176;</button>
-      <button class="nav-item nav-sub" onclick="goTo('profit360',this)"><span class="nav-emoji"><i class="ti ti-coin"></i></span>Profit 360&#176;</button>
-      <button class="nav-item nav-sub" onclick="goTo('clean',this)" id="nav-cleanyq"><span class="nav-emoji"><i class="ti ti-spray"></i></span>CleanyQ</button>
+        <!-- ── Profit 360 ── -->
+        <div class="nav-group" id="grp-profit">
+          <button class="nav-group-header" onclick="toggleGroup('grp-profit')">
+            <span class="nav-emoji"><i class="ti ti-coin" aria-hidden="true"></i></span>Profit 360<span class="nav-chevron">&#9658;</span>
+          </button>
+          <div class="nav-sub-items">
+            <button class="nav-sub-item" data-page="profit360" onclick="goTo('profit360',this)">Vue globale</button>
+            <button class="nav-sub-item" data-page="profit-logement" onclick="goTo('profit-logement',this)">Par logement</button>
+            <button class="nav-sub-item" data-page="profit-opportunites" onclick="goTo('profit-opportunites',this)">Opportunit&#233;s</button>
+            <button class="nav-sub-item" data-page="profit-simulations" onclick="goTo('profit-simulations',this)">Simulations</button>
+          </div>
+        </div>
 
-      <div class="nav-section-label" style="margin-top:10px">Param&#232;tres</div>
-      <button class="nav-item nav-sub" onclick="goTo('settings',this)"><span class="nav-emoji"><i class="ti ti-settings"></i></span>Compte &amp; int&#233;grations</button>
-      <button class="nav-item nav-sub" onclick="goTo('tarifs',this)"><span class="nav-emoji"><i class="ti ti-credit-card"></i></span>Abonnement</button>
+        <!-- ── Scanner EVA ── -->
+        <button class="nav-item nav-sub" data-page="scanner" onclick="goTo('scanner',this)">
+          <span class="nav-emoji"><i class="ti ti-radar-2" aria-hidden="true"></i></span>Scanner EVA
+        </button>
 
-      </div>
-      <div id="nav-concierge" style="display:none">
+        <div class="nav-sep"></div>
 
-      <button class="nav-item" onclick="goTo('cockpit',this)" style="font-weight:800;font-size:14px">
-        <span class="nav-emoji">&#x1F3E0;</span>Cockpit EVA
-      </button>
+        <!-- ── Parc ── -->
+        <div class="nav-group" id="grp-parc">
+          <button class="nav-group-header" onclick="toggleGroup('grp-parc')">
+            <span class="nav-emoji"><i class="ti ti-building" aria-hidden="true"></i></span>Parc<span class="nav-chevron">&#9658;</span>
+          </button>
+          <div class="nav-sub-items">
+            <button class="nav-sub-item" data-page="parc" onclick="goTo('parc',this)">Tous les logements <span class="nav-badge" id="parc-badge" style="font-size:9px;padding:1px 5px">0</span></button>
+            <button class="nav-sub-item" data-page="parc-fiches" onclick="goTo('parc-fiches',this)">Fiches logements</button>
+            <button class="nav-sub-item" data-page="parc-comparaison" onclick="goTo('parc-comparaison',this)">Comparaison</button>
+          </div>
+        </div>
 
-      <div class="nav-section-label" style="margin-top:10px">Propri&#233;taires</div>
-      <button class="nav-item nav-sub" onclick="goTo('proprietaires',this)"><span class="nav-emoji"><i class="ti ti-users"></i></span>Mes propri&#233;taires</button>
-      <button class="nav-item nav-sub" onclick="goTo('parc-c',this)"><span class="nav-emoji"><i class="ti ti-building"></i></span>Parc g&#233;r&#233;</button>
-      <button class="nav-item nav-sub" onclick="goTo('rapports',this)"><span class="nav-emoji"><i class="ti ti-chart-bar"></i></span>Rapports propri&#233;taires</button>
+        <!-- ── Calendrier & Réservations ── -->
+        <div class="nav-group" id="grp-cal">
+          <button class="nav-group-header" onclick="toggleGroup('grp-cal')">
+            <span class="nav-emoji"><i class="ti ti-calendar" aria-hidden="true"></i></span>Calendrier &amp; R&#233;servations<span class="nav-chevron">&#9658;</span>
+          </button>
+          <div class="nav-sub-items">
+            <button class="nav-sub-item" data-page="calendrier" onclick="goTo('calendrier',this)">Calendrier</button>
+            <button class="nav-sub-item" data-page="reservations" onclick="goTo('reservations',this)">R&#233;servations</button>
+            <button class="nav-sub-item" data-page="nuits-vacantes" onclick="goTo('nuits-vacantes',this)">Nuits vacantes</button>
+          </div>
+        </div>
 
-      <div class="nav-section-label" style="margin-top:10px">Mon Parc</div>
-      <button class="nav-item nav-sub" onclick="goTo('parc',this)"><span class="nav-emoji"><i class="ti ti-building"></i></span>Mes biens <span class="nav-badge" id="parc-badge-c">0</span></button>
-      <button class="nav-item nav-sub" onclick="goTo('scanner',this)"><span class="nav-emoji"><i class="ti ti-radar-2"></i></span>Scanner EVA</button>
-      <button class="nav-item nav-sub" onclick="goTo('eva-data',this)"><span class="nav-emoji"><i class="ti ti-database"></i></span>Sources EVA</button>
+        <div class="nav-sep"></div>
 
-      <div class="nav-section-label" style="margin-top:10px">Activit&#233;</div>
-      <button class="nav-item nav-sub" onclick="goTo('calendrier',this)"><span class="nav-emoji"><i class="ti ti-calendar"></i></span>Calendrier</button>
-      <button class="nav-item nav-sub" onclick="goTo('reservations',this)"><span class="nav-emoji"><i class="ti ti-bookmark"></i></span>R&#233;servations</button>
-      <button class="nav-item nav-sub" onclick="goTo('pricing',this)"><span class="nav-emoji"><i class="ti ti-sparkles"></i></span>Opportunit&#233;s EVA</button>
+        <!-- ── Intégrations ── -->
+        <button class="nav-item nav-sub" data-page="settings" onclick="goTo('settings',this)">
+          <span class="nav-emoji"><i class="ti ti-plug" aria-hidden="true"></i></span>Int&#233;grations
+        </button>
 
-      <div class="nav-section-label" style="margin-top:10px">EVA Engine</div>
-      <button class="nav-item nav-sub" onclick="goTo('eva-audit',this)"><span class="nav-emoji"><i class="ti ti-chart-dots-3"></i></span>Audit 360&#176;</button>
-      <button class="nav-item nav-sub" onclick="goTo('profit360',this)"><span class="nav-emoji"><i class="ti ti-coin"></i></span>Profit 360&#176;</button>
-      <button class="nav-item nav-sub" onclick="goTo('clean',this)"><span class="nav-emoji"><i class="ti ti-spray"></i></span>CleanyQ</button>
+        <!-- ── Paramètres ── -->
+        <div class="nav-group" id="grp-settings">
+          <button class="nav-group-header" onclick="toggleGroup('grp-settings')">
+            <span class="nav-emoji"><i class="ti ti-settings" aria-hidden="true"></i></span>Param&#232;tres<span class="nav-chevron">&#9658;</span>
+          </button>
+          <div class="nav-sub-items">
+            <button class="nav-sub-item" data-page="settings-profil" onclick="goTo('settings-profil',this)">Profil</button>
+            <button class="nav-sub-item" data-page="squad" onclick="goTo('squad',this)">&#201;quipe</button>
+            <button class="nav-sub-item" data-page="settings-commissions" onclick="goTo('settings-commissions',this)">Commissions OTA</button>
+            <button class="nav-sub-item" data-page="clean" id="nav-cleanyq" onclick="goTo('clean',this)">CleanyQ</button>
+            <button class="nav-sub-item" data-page="tarifs" onclick="goTo('tarifs',this)">Abonnement</button>
+          </div>
+        </div>
 
-      <div class="nav-section-label" style="margin-top:10px">Param&#232;tres</div>
-      <button class="nav-item nav-sub" onclick="goTo('settings',this)"><span class="nav-emoji"><i class="ti ti-settings"></i></span>Compte &amp; int&#233;grations</button>
-      <button class="nav-item nav-sub" onclick="goTo('tarifs',this)"><span class="nav-emoji"><i class="ti ti-credit-card"></i></span>Abonnement</button>
+      </div><!-- /nav-solo -->
 
-      </div>
+      <!-- nav-concierge conservé masqué : pages cockpit-c, parc-c, proprietaires, rapports, annuaire accessibles via goTo() -->
+      <div id="nav-concierge" style="display:none"></div>
 
       </div><!-- /sidebar-nav-zone -->
 
@@ -414,55 +460,17 @@
       <!-- COCKPIT -->
       <div class="page active" id="page-cockpit">
         <div class="page-header">
-          <div><div class="page-title">Cockpit RentyQ</div><div class="page-sub" id="cockpit-date">Votre tour de contrôle : revenus, risques et prochaines actions EVA</div></div>
+          <div>
+            <div class="page-title">Cockpit EVA</div>
+            <div class="page-sub" id="cockpit-date">Votre copilote de pilotage pour gagner plus avec vos locations courte dur&#233;e.</div>
+          </div>
           <div class="actions">
-            <button class="btn btn-ai" onclick="goTo('eva-audit',document.querySelector('[onclick*=eva-audit]'))">📊 Lancer EVA Audit</button>
-            <button class="btn" onclick="goTo('pricing',document.querySelector('[onclick*=pricing]'))">🧠 EVA Pricing</button>
-            <button class="btn" onclick="goTo('scanner',document.querySelector('[onclick*=scanner]'))">📍 Scanner EVA</button>
+            <button class="btn btn-ai" onclick="goTo('eva-audit',document.querySelector('[data-page=eva-audit]'))"><i class="ti ti-chart-dots-3"></i> EVA Audit</button>
+            <button class="btn" onclick="goTo('pricing',document.querySelector('[data-page=pricing]'))"><i class="ti ti-sparkles"></i> EVA Pricing</button>
+            <button class="btn" onclick="goTo('scanner',document.querySelector('[data-page=scanner]'))"><i class="ti ti-radar-2"></i> Scanner</button>
           </div>
         </div>
         <div id="cockpit-dash"></div>
-      </div>
-
-
-      <!-- MISSIONS EVA -->
-      <div class="page" id="page-missions-all">
-        <div class="page-header">
-          <div>
-            <div class="page-title">Missions EVA</div>
-            <div class="page-sub">Toutes les actions recommandées pour augmenter vos revenus ou réduire vos risques.</div>
-          </div>
-          <div class="actions">
-            <button class="btn btn-ai" onclick="renderMissionsEva('all')">↻ Actualiser</button>
-          </div>
-        </div>
-        <div id="missions-eva-all"></div>
-      </div>
-
-      <div class="page" id="page-missions-todo">
-        <div class="page-header">
-          <div>
-            <div class="page-title">Missions EVA — À traiter</div>
-            <div class="page-sub">Les actions prioritaires à réaliser pour améliorer la rentabilité.</div>
-          </div>
-          <div class="actions">
-            <button class="btn btn-ai" onclick="renderMissionsEva('todo')">↻ Actualiser</button>
-          </div>
-        </div>
-        <div id="missions-eva-todo"></div>
-      </div>
-
-      <div class="page" id="page-missions-done">
-        <div class="page-header">
-          <div>
-            <div class="page-title">Missions EVA — Terminées</div>
-            <div class="page-sub">Les recommandations déjà traitées.</div>
-          </div>
-          <div class="actions">
-            <button class="btn btn-ai" onclick="renderMissionsEva('done')">↻ Actualiser</button>
-          </div>
-        </div>
-        <div id="missions-eva-done"></div>
       </div>
 
       <!-- CALENDRIER -->
@@ -1061,7 +1069,7 @@
             <div style="font-size:48px;margin-bottom:1rem">🎉</div>
             <div style="font-size:20px;font-weight:700;margin-bottom:8px;color:#059669">Paiement réussi !</div>
             <div style="font-size:13px;color:#8A8A99;margin-bottom:1.5rem">Votre abonnement est actif. Bienvenue dans RentyQ Pro !</div>
-            <button class="btn btn-purple" onclick="goTo('cockpit',document.querySelectorAll('.nav-item')[0])">Aller au Cockpit →</button>
+            <button class="btn btn-purple" onclick="goTo('cockpit',document.querySelector('[data-page=\"cockpit\"]'))">Aller au Cockpit &rarr;</button>
           </div>
         </div>
       </div>
@@ -1083,6 +1091,189 @@
           <button class="btn btn-purple" onclick="saveProfile()" style="margin-top:1rem">✓ Sauvegarder</button>
         </div>
       </div>
+
+      <!-- ════════════════════════════════════════
+           PAGES PLACEHOLDERS — nouvelles routes
+           ════════════════════════════════════════ -->
+
+      <!-- MISSIONS EVA — TOUTES -->
+      <div class="page" id="page-missions-all">
+        <div class="page-header"><div><div class="page-title">Missions EVA — Toutes</div><div class="page-sub">Toutes vos missions EVA en cours et pass&#233;es.</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem 2rem">
+          <div style="font-size:48px;margin-bottom:1rem">&#x1F4CB;</div>
+          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Missions EVA — Toutes</div>
+          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Toutes vos missions EVA en cours et pass&#233;es.</div>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        </div>
+      </div>
+
+      <!-- MISSIONS EVA — À TRAITER -->
+      <div class="page" id="page-missions-todo">
+        <div class="page-header"><div><div class="page-title">Missions EVA — &#192; traiter</div><div class="page-sub">Les missions EVA qui attendent votre action.</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem 2rem">
+          <div style="font-size:48px;margin-bottom:1rem">&#x23F3;</div>
+          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Missions EVA — &#192; traiter</div>
+          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Les missions EVA qui attendent votre action.</div>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        </div>
+      </div>
+
+      <!-- MISSIONS EVA — TERMINÉES -->
+      <div class="page" id="page-missions-done">
+        <div class="page-header"><div><div class="page-title">Missions EVA — Termin&#233;es</div><div class="page-sub">Historique des missions EVA compl&#233;t&#233;es.</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem 2rem">
+          <div style="font-size:48px;margin-bottom:1rem">&#x2705;</div>
+          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Missions EVA — Termin&#233;es</div>
+          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Historique des missions EVA compl&#233;t&#233;es.</div>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        </div>
+      </div>
+
+      <!-- AUDIT 360 — REVENUS -->
+      <div class="page" id="page-audit-revenus">
+        <div class="page-header"><div><div class="page-title">Audit 360 — Revenus</div><div class="page-sub">Analyse d&#233;taill&#233;e de vos revenus bruts et nets.</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem 2rem">
+          <div style="font-size:48px;margin-bottom:1rem">&#x1F4B6;</div>
+          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Audit 360 — Revenus</div>
+          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Analyse d&#233;taill&#233;e de vos revenus bruts et nets.</div>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        </div>
+      </div>
+
+      <!-- AUDIT 360 — OCCUPATION -->
+      <div class="page" id="page-audit-occupation">
+        <div class="page-header"><div><div class="page-title">Audit 360 — Occupation</div><div class="page-sub">Taux d&#39;occupation par logement, p&#233;riode et canal.</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem 2rem">
+          <div style="font-size:48px;margin-bottom:1rem">&#x1F4CA;</div>
+          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Audit 360 — Occupation</div>
+          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Taux d&#39;occupation par logement, p&#233;riode et canal.</div>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        </div>
+      </div>
+
+      <!-- AUDIT 360 — QUALITÉ VOYAGEURS -->
+      <div class="page" id="page-audit-qualite">
+        <div class="page-header"><div><div class="page-title">Audit 360 — Qualit&#233; voyageurs</div><div class="page-sub">Notes, avis et satisfaction de vos voyageurs.</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem 2rem">
+          <div style="font-size:48px;margin-bottom:1rem">&#x2B50;</div>
+          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Audit 360 — Qualit&#233; voyageurs</div>
+          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Notes, avis et satisfaction de vos voyageurs.</div>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        </div>
+      </div>
+
+      <!-- AUDIT 360 — DISTRIBUTION OTA -->
+      <div class="page" id="page-audit-ota">
+        <div class="page-header"><div><div class="page-title">Audit 360 — Distribution OTA</div><div class="page-sub">R&#233;partition de vos r&#233;servations par plateforme.</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem 2rem">
+          <div style="font-size:48px;margin-bottom:1rem">&#x1F310;</div>
+          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Audit 360 — Distribution OTA</div>
+          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">R&#233;partition de vos r&#233;servations par plateforme (Airbnb, Booking&#8230;).</div>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        </div>
+      </div>
+
+      <!-- AUDIT 360 — TARIFICATION -->
+      <div class="page" id="page-audit-tarification">
+        <div class="page-header"><div><div class="page-title">Audit 360 — Tarification</div><div class="page-sub">Positionnement tarifaire vs march&#233;.</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem 2rem">
+          <div style="font-size:48px;margin-bottom:1rem">&#x1F4B9;</div>
+          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Audit 360 — Tarification</div>
+          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Analyse de votre positionnement tarifaire vs march&#233;.</div>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        </div>
+      </div>
+
+      <!-- PROFIT 360 — PAR LOGEMENT -->
+      <div class="page" id="page-profit-logement">
+        <div class="page-header"><div><div class="page-title">Profit 360 — Par logement</div><div class="page-sub">P&amp;L d&#233;taill&#233; logement par logement.</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem 2rem">
+          <div style="font-size:48px;margin-bottom:1rem">&#x1F3E0;</div>
+          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Profit 360 — Par logement</div>
+          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">P&amp;L d&#233;taill&#233; logement par logement.</div>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        </div>
+      </div>
+
+      <!-- PROFIT 360 — OPPORTUNITÉS -->
+      <div class="page" id="page-profit-opportunites">
+        <div class="page-header"><div><div class="page-title">Profit 360 — Opportunit&#233;s</div><div class="page-sub">D&#233;tectez les leviers pour augmenter votre rentabilit&#233; nette.</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem 2rem">
+          <div style="font-size:48px;margin-bottom:1rem">&#x1F680;</div>
+          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Profit 360 — Opportunit&#233;s</div>
+          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">D&#233;tectez les leviers pour augmenter votre rentabilit&#233; nette.</div>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        </div>
+      </div>
+
+      <!-- PROFIT 360 — SIMULATIONS -->
+      <div class="page" id="page-profit-simulations">
+        <div class="page-header"><div><div class="page-title">Profit 360 — Simulations</div><div class="page-sub">Simulez l&#39;impact de vos d&#233;cisions tarifaires et de charges.</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem 2rem">
+          <div style="font-size:48px;margin-bottom:1rem">&#x1F9EE;</div>
+          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Profit 360 — Simulations</div>
+          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Simulez l&#39;impact de vos d&#233;cisions tarifaires et de charges.</div>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        </div>
+      </div>
+
+      <!-- PARC — FICHES LOGEMENTS -->
+      <div class="page" id="page-parc-fiches">
+        <div class="page-header"><div><div class="page-title">Parc — Fiches logements</div><div class="page-sub">Fiches d&#233;taill&#233;es de chaque logement de votre parc.</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem 2rem">
+          <div style="font-size:48px;margin-bottom:1rem">&#x1F4C4;</div>
+          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Parc — Fiches logements</div>
+          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Fiches d&#233;taill&#233;es de chaque logement de votre parc.</div>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        </div>
+      </div>
+
+      <!-- PARC — COMPARAISON -->
+      <div class="page" id="page-parc-comparaison">
+        <div class="page-header"><div><div class="page-title">Parc — Comparaison</div><div class="page-sub">Comparez les performances de vos logements c&#244;te &#224; c&#244;te.</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem 2rem">
+          <div style="font-size:48px;margin-bottom:1rem">&#x2696;&#xFE0F;</div>
+          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Parc — Comparaison</div>
+          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Comparez les performances de vos logements c&#244;te &#224; c&#244;te.</div>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        </div>
+      </div>
+
+      <!-- NUITS VACANTES -->
+      <div class="page" id="page-nuits-vacantes">
+        <div class="page-header"><div><div class="page-title">Nuits vacantes</div><div class="page-sub">Identifiez et optimisez vos nuits non r&#233;serv&#233;es.</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem 2rem">
+          <div style="font-size:48px;margin-bottom:1rem">&#x1F319;</div>
+          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Nuits vacantes</div>
+          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Identifiez et optimisez vos nuits non r&#233;serv&#233;es.</div>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        </div>
+      </div>
+
+      <!-- PARAMÈTRES — PROFIL -->
+      <div class="page" id="page-settings-profil">
+        <div class="page-header"><div><div class="page-title">Profil</div><div class="page-sub">Vos informations personnelles et pr&#233;f&#233;rences.</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem 2rem">
+          <div style="font-size:48px;margin-bottom:1rem">&#x1F464;</div>
+          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Profil</div>
+          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Vos informations personnelles et pr&#233;f&#233;rences de compte.</div>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        </div>
+      </div>
+
+      <!-- PARAMÈTRES — COMMISSIONS OTA -->
+      <div class="page" id="page-settings-commissions">
+        <div class="page-header"><div><div class="page-title">Commissions OTA</div><div class="page-sub">Configurez les taux de commission de chaque plateforme.</div></div></div>
+        <div class="card" style="text-align:center;padding:3rem 2rem">
+          <div style="font-size:48px;margin-bottom:1rem">&#x1F4B3;</div>
+          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Commissions OTA</div>
+          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Configurez les taux de commission de chaque plateforme (Airbnb, Booking&#8230;).</div>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        </div>
+      </div>
+
+      <!-- FIN PAGES PLACEHOLDERS -->
+
     </div><!-- /main -->
 
     </div>
