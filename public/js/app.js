@@ -296,169 +296,316 @@ function genAlerts(apts){
 }
 
 function renderCockpit(){
-  const dash=document.getElementById('cockpit-dash');if(!dash)return;
-  const apts=apparts||[];
-  const month=new Date().toISOString().slice(0,7);
-  const monthRes=reservations.filter(r=>r.date_from&&r.date_from.startsWith(month));
-  const monthRev=monthRes.reduce((s,r)=>s+(r.price_total||0),0);
-  const hotEvents=Object.values(eventsCache||{}).flat().filter(e=>e.hot);
-  const free=apts.filter(a=>!a.booked);
+  // ── Guard DOM ──
+  var dash=document.getElementById('cockpit-dash');
+  if(!dash)return;
 
-  // ── Calcul du potentiel annuel EVA ──
-  const annualPotential=apts.reduce((sum,a)=>{
-    const city=a.city||'';
-    const cityEvs=eventsCache[city]||[];
-    const hotEvs=cityEvs.filter(e=>e.hot);
-    const basePrice=Number(a.price||0);
-    const fl=floor(a);
-    // Nuits libres estimées × écart de prix
-    const freePotential=Math.max(0,Math.round(basePrice*0.15*30));
-    const eventPotential=hotEvs.length?Math.round(hotEvs.length*(basePrice*0.12)*3):0;
+  var apts=apparts||[];
+  var allRes=reservations||[];
+  var cache=eventsCache||{};
+
+  // ── État vide ──
+  if(!apts.length&&!allRes.length){
+    dash.innerHTML='<div class="ck-empty"><div class="ck-empty-icon">\uD83E\uDD16</div><div class="ck-empty-title">EVA attend vos donn\u00e9es</div><div class="ck-empty-sub">Aucune donn\u00e9e suffisante pour l\u2019instant. Connectez votre PMS ou ajoutez vos premiers biens pour lancer l\u2019analyse EVA.</div><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button onclick="goTo(\'settings\',document.querySelector(\'[data-page=settings]\'))" style="border:none;border-radius:12px;padding:10px 20px;background:linear-gradient(135deg,#6D28D9,#EC4899);color:white;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">Connecter un PMS</button><button onclick="openAddModal()" style="border:1px solid rgba(109,40,217,.3);border-radius:12px;padding:10px 20px;background:white;color:#6D28D9;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">+ Ajouter un bien</button></div></div>';
+    return;
+  }
+
+  // ── Dates ──
+  var today=new Date();
+  var todayIso=today.toISOString().slice(0,10);
+  var month=today.toISOString().slice(0,7);
+  var daysElapsed=Math.max(1,today.getDate());
+  var daysInMonth=new Date(today.getFullYear(),today.getMonth()+1,0).getDate();
+  var dateLabel=today.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+  var monthLabel=today.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+
+  // ── Réservations du mois ──
+  var monthRes=allRes.filter(function(r){return r.date_from&&r.date_from.startsWith(month);});
+  var monthRev=monthRes.reduce(function(s,r){return s+(r.price_total||0);},0);
+
+  // ── Biens libres ce soir ──
+  var free=apts.filter(function(a){return !a.booked;});
+
+  // ── Événements chauds ──
+  var hotEvents=Object.values(cache).flat().filter(function(e){return e.hot;});
+
+  // ── Nuits vendues (ADR / RevPAR / occupation) ──
+  var totalNights=0;
+  monthRes.forEach(function(r){
+    try{
+      if(!r.date_from||!r.date_to)return;
+      var from=new Date(r.date_from);
+      var to=new Date(r.date_to);
+      var n=Math.max(0,Math.round((to-from)/(1000*60*60*24)));
+      totalNights+=n;
+    }catch(e){}
+  });
+  var availableNights=apts.length*daysElapsed;
+  var occRate=availableNights>0?Math.min(100,Math.round((totalNights/availableNights)*100)):0;
+  var adr=totalNights>0?Math.round(monthRev/totalNights):0;
+  var revpar=availableNights>0?Math.round(monthRev/availableNights):0;
+
+  // ── Score EVA ──
+  var occScore=Math.min(100,occRate)*0.4;
+  var pricingScore=apts.length>0?(apts.filter(function(a){return (a.price||0)>=(a.ai_rec||0)&&(a.price||0)>=floor(a);}).length/apts.length)*100*0.3:0;
+  var evtScore=hotEvents.length>0?Math.min(100,hotEvents.length*20)*0.3:15;
+  var evaScore=Math.round(occScore+pricingScore+evtScore);
+
+  // ── Potentiel annuel ──
+  var annualPotential=apts.reduce(function(sum,a){
+    var city=a.city||'';
+    var cityEvs=cache[city]||[];
+    var hotEvs=cityEvs.filter(function(e){return e.hot;});
+    var basePrice=Number(a.price||0);
+    var freePotential=Math.max(0,Math.round(basePrice*0.15*30));
+    var eventPotential=hotEvs.length?Math.round(hotEvs.length*(basePrice*0.12)*3):0;
     return sum+freePotential+eventPotential;
   },0);
-  const annualFmt=annualPotential>=1000?(Math.round(annualPotential/100)*100).toLocaleString('fr-FR'):annualPotential;
+  var annualFmt=annualPotential>=1000?(Math.round(annualPotential/100)*100).toLocaleString('fr-FR'):String(annualPotential);
 
-  // ── Génération des 3 priorités ──
-  const priorities=[];
-  // Priorité 1 : biens avec événement chaud → monter les prix
-  const aptsWithHotEvent=apts.filter(a=>{
-    const city=a.city||'';
-    return (eventsCache[city]||[]).some(e=>e.hot);
+  // ── BLOC 2 : Argent à récupérer ──
+  var upItems=[];
+
+  // Nuits vacantes J+1..J+7
+  var next7=[];
+  for(var di=1;di<=7;di++){var dd=new Date(today);dd.setDate(dd.getDate()+di);next7.push(dd.toISOString().slice(0,10));}
+  var vacantDays=next7.filter(function(day){
+    return apts.some(function(a){
+      return !allRes.some(function(r){return r.appartement_id===a.id&&r.date_from&&r.date_to&&r.date_from<=day&&r.date_to>day;});
+    });
   });
-  if(aptsWithHotEvent.length){
-    const gain=aptsWithHotEvent.reduce((s,a)=>{
-      const city=a.city||'';
-      const ev=(eventsCache[city]||[]).find(e=>e.hot);
-      return s+Math.round((Number(a.price||0))*(ev?.boost||10)/100)*3;
-    },0);
-    priorities.push({
-      icon:'🔥',
-      color:'#FF6B35',
-      bg:'#FFF3EE',
-      border:'rgba(255,107,53,.18)',
-      title:`Augmenter les prix sur ${aptsWithHotEvent.length} bien${aptsWithHotEvent.length>1?'s':''}`,
-      desc:`${aptsWithHotEvent.map(a=>a.name).join(', ')} — événement local détecté`,
-      gain:`+${gain}€ estimés`,
-      action:"goTo('pricing',document.querySelector('[onclick*=pricing]'))",
-      btn:'Pricer'
+  if(vacantDays.length&&apts.length){
+    var avgPrice=apts.reduce(function(s,a){return s+(a.price||0);},0)/Math.max(1,apts.length);
+    var vacPotential=Math.round(avgPrice*vacantDays.length*0.78);
+    var vacNb=vacantDays.length;
+    upItems.push({
+      icon:'\uD83C\uDF19',cls:'ck-item-up',
+      title:vacNb+' nuit'+(vacNb>1?'s':'')+' vacante'+(vacNb>1?'s':'')+' dans les 7 jours',
+      desc:'Nuits sans r\u00e9servation d\u00e9tect\u00e9es \u2014 potentiel de remplissage disponible',
+      gain:'+'+vacPotential+'\u20AC estim\u00e9s',gainCls:'ck-gain-green',
+      btnLabel:'Pricer',btnAction:"goTo('pricing',document.querySelector('[data-page=pricing]'))"
     });
   }
-  // Priorité 2 : biens libres ce soir → sous-performance
-  if(free.length){
-    const lostRev=free.reduce((s,a)=>s+Math.round(Number(a.price||0)*0.82),0);
-    priorities.push({
-      icon:'⚠️',
-      color:'#DC2626',
-      bg:'#FEF2F2',
-      border:'rgba(220,38,38,.18)',
-      title:`${free.length} bien${free.length>1?'s':''} libre${free.length>1?'s':''} ce soir`,
-      desc:`${free.map(a=>a.name).join(', ')} — aucune réservation ce soir`,
-      gain:`${lostRev}€ en jeu`,
-      action:"goTo('pricing',document.querySelector('[onclick*=pricing]'))",
-      btn:'Agir'
+
+  // Biens sous-tarifés
+  var underPriced=apts.filter(function(a){return (a.price||0)>0&&(a.ai_rec||0)>(a.price||0);});
+  if(underPriced.length){
+    var upGain=underPriced.reduce(function(s,a){return s+((a.ai_rec||0)-(a.price||0))*4;},0);
+    var upDesc=underPriced.map(function(a){return a.name+' ('+a.price+'\u20AC vs '+(a.ai_rec||0)+'\u20AC);';}).join(' ');
+    var upNb=underPriced.length;
+    upItems.push({
+      icon:'\uD83D\uDCC8',cls:'ck-item-up',
+      title:upNb+' bien'+(upNb>1?'s':'')+' sous-tarif\u00e9'+(upNb>1?'s':''),
+      desc:upDesc,
+      gain:'+'+upGain+'\u20AC sur 4 nuits',gainCls:'ck-gain-green',
+      btnLabel:'Ajuster',btnAction:"goTo('pricing',document.querySelector('[data-page=pricing]'))"
     });
   }
-  // Priorité 3 : événements à venir non encore pricés
+
+  // Événements / pics de demande
   if(hotEvents.length){
-    priorities.push({
-      icon:'🎉',
-      color:'#7C3AED',
-      bg:'#F5F0FF',
-      border:'rgba(124,58,237,.18)',
-      title:`${hotEvents.length} opportunité${hotEvents.length>1?'s':''} de revenus détectée${hotEvents.length>1?'s':''}`,
-      desc:'EVA a détecté des pics de demande locale — appliquer les prix conseillés pour capter ces revenus',
-      gain:`Opportunité de hausse`,
-      action:"goTo('pricing',document.querySelector('[onclick*=pricing]'))",
-      btn:'Voir'
-    });
-  }
-  // Si rien d\u2019urgent
-  if(!priorities.length){
-    priorities.push({
-      icon:'✅',
-      color:'#059669',
-      bg:'#ECFDF5',
-      border:'rgba(5,150,105,.18)',
-      title:'Situation saine',
-      desc:'Tous vos biens sont correctement pilotés. Relancez un audit mensuel.',
-      gain:'',
-      action:"goTo('eva-audit',document.querySelector('[onclick*=eva-audit]'))",
-      btn:'Audit'
+    var boost=Math.round(apts.reduce(function(s,a){return s+(a.price||0);},0)/Math.max(1,apts.length)*0.12*hotEvents.length*2);
+    var evtNb=hotEvents.length;
+    var evtDesc=hotEvents.slice(0,2).map(function(e){return e.name||'\u00c9v\u00e9nement local';}).join(' \u00b7 ')+(hotEvents.length>2?' +'+(hotEvents.length-2)+' autre'+(hotEvents.length-2>1?'s':''):'');
+    upItems.push({
+      icon:'\uD83C\uDF89',cls:'ck-item-info',
+      title:evtNb+' pic'+(evtNb>1?'s':'')+' de demande d\u00e9tect\u00e9'+(evtNb>1?'s':''),
+      desc:evtDesc,
+      gain:'+'+boost+'\u20AC estim\u00e9s',gainCls:'ck-gain-green',
+      btnLabel:'Voir',btnAction:"goTo('pricing',document.querySelector('[data-page=pricing]'))"
     });
   }
 
-  // Compléter à 3 priorités si besoin
-  if(apts.length&&priorities.length<3){
-    priorities.push({
-      icon:'📊',
-      color:'#6B3FA0',
-      bg:'#F5F0FF',
-      border:'rgba(107,63,160,.18)',
-      title:'Lancer l\u2019audit mensuel',
-      desc:'Comprenez ce que chaque bien rapporte vraiment après charges.',
-      gain:'',
-      action:"goTo('eva-audit',document.querySelector('[onclick*=eva-audit]'))",
-      btn:'Lancer'
+  // Biens avec potentiel de hausse vs concurrence
+  var raisable=apts.filter(function(a){return (a.price||0)>floor(a)*1.3&&(a.comp||0)>0&&(a.price||0)<(a.comp||0);});
+  if(raisable.length){
+    var rNb=raisable.length;
+    upItems.push({
+      icon:'\uD83D\uDCA1',cls:'ck-item-up',
+      title:rNb+' bien'+(rNb>1?'s':'')+' avec potentiel de hausse',
+      desc:'Prix inf\u00e9rieur \u00e0 la concurrence \u2014 marge de man\u0153uvre disponible',
+      gain:'Opportunit\u00e9 identifi\u00e9e',gainCls:'ck-gain-green',
+      btnLabel:'Analyser',btnAction:"goTo('eva-audit',document.querySelector('[data-page=eva-audit]'))"
     });
   }
 
-  const prioritiesHtml=priorities.slice(0,3).map((p,i)=>`
-    <div style="display:grid;grid-template-columns:44px 1fr auto;gap:14px;align-items:center;background:${p.bg};border:1px solid ${p.border};border-radius:18px;padding:16px">
-      <div style="width:44px;height:44px;border-radius:14px;background:white;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 12px rgba(0,0,0,.06)">${p.icon}</div>
-      <div>
-        <div style="font-size:14px;font-weight:800;color:#17122E;margin-bottom:3px">${i+1}. ${p.title}</div>
-        <div style="font-size:12px;color:#7B708F;line-height:1.4">${p.desc}</div>
-        ${p.gain?`<div style="font-size:12px;font-weight:900;color:${p.color};margin-top:4px">${p.gain}</div>`:''}
-      </div>
-      <button onclick="${p.action}" style="border:none;border-radius:10px;padding:8px 14px;background:${p.color};color:white;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap">${p.btn}</button>
-    </div>`).join('');
+  if(!upItems.length){
+    upItems.push({
+      icon:'\u2705',cls:'ck-item-up',
+      title:'Parc bien optimis\u00e9',
+      desc:'Aucune opportunit\u00e9 \u00e9vidente d\u00e9tect\u00e9e pour l\u2019instant. Relancez un audit pour affiner.',
+      gain:'',gainCls:'',
+      btnLabel:'Audit',btnAction:"goTo('eva-audit',document.querySelector('[data-page=eva-audit]'))"
+    });
+  }
 
-  dash.innerHTML=`
-    <!-- Hero EVA -->
-    <div style="background:linear-gradient(135deg,#211051 0%,#7C3AED 46%,#EC4899 100%);border-radius:24px;padding:28px;margin-bottom:16px;color:#fff;position:relative;overflow:hidden">
-      <div style="position:absolute;right:-80px;top:-90px;width:320px;height:320px;background:radial-gradient(circle,rgba(255,255,255,.18),transparent 62%);pointer-events:none"></div>
-      <div style="position:relative;z-index:1">
-        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:900;color:rgba(255,255,255,.65);margin-bottom:10px">EVA Engine · ${new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</div>
-        <div style="font-size:clamp(22px,3vw,32px);font-weight:950;letter-spacing:-.8px;line-height:1.1;margin-bottom:8px">EVA a trouvé <span style="color:#FCD34D">${annualFmt} €</span><br>de potentiel cette année.</div>
-        <div style="font-size:14px;color:rgba(255,255,255,.75);margin-bottom:20px">Sur ${apts.length} logement${apts.length>1?'s':''} · ${hotEvents.length} événement${hotEvents.length>1?'s':''} détecté${hotEvents.length>1?'s':''} · ${free.length} nuit${free.length>1?'s':''} libre${free.length>1?'s':''} ce soir</div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button onclick="goTo('pricing',document.querySelector('[onclick*=pricing]'))" style="border:none;border-radius:12px;padding:10px 18px;background:white;color:#7C3AED;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit">🧠 EVA Pricing</button>
-          <button onclick="goTo('eva-audit',document.querySelector('[onclick*=eva-audit]'))" style="border:none;border-radius:12px;padding:10px 18px;background:rgba(255,255,255,.15);color:white;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit;border:1px solid rgba(255,255,255,.25)">📊 Lancer l\u2019audit</button>
-        </div>
-      </div>
-    </div>
+  // ── BLOC 3 : Argent à risque ──
+  var riskItems=[];
 
-    <!-- Les 3 priorités -->
-    <div style="background:white;border:1px solid rgba(139,92,246,.14);border-radius:22px;padding:20px;margin-bottom:16px;box-shadow:0 14px 40px rgba(69,39,120,.06)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <div>
-          <div style="font-size:18px;font-weight:950;color:#17122E;letter-spacing:-.3px">Les 3 priorités du jour</div>
-          <div style="font-size:12px;color:#8A8A99;margin-top:3px">Ce que EVA recommande de faire maintenant</div>
-        </div>
-        <span style="font-size:11px;font-weight:900;background:#F3E8FF;color:#7C3AED;border-radius:999px;padding:4px 10px">EVA Engine</span>
-      </div>
-      <div style="display:grid;gap:10px">${prioritiesHtml}</div>
-    </div>
+  if(free.length){
+    var lostRev=free.reduce(function(s,a){return s+Math.round((a.price||0)*0.82);},0);
+    var freeNb=free.length;
+    var freeNames=free.map(function(a){return a.name;}).join(' \u00b7 ');
+    riskItems.push({
+      icon:'\u26a0\ufe0f',cls:'ck-item-risk',
+      title:freeNb+' bien'+(freeNb>1?'s':'')+' libre'+(freeNb>1?'s':'')+' ce soir',
+      desc:freeNames+' \u2014 aucune r\u00e9servation active',
+      gain:lostRev+'\u20AC en jeu',gainCls:'ck-gain-red',
+      btnLabel:'Agir',btnAction:"goTo('pricing',document.querySelector('[data-page=pricing]'))"
+    });
+  }
 
-    <!-- 3 KPIs essentiels seulement -->
-    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">
-      <div style="background:white;border:1px solid rgba(139,92,246,.14);border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(69,39,120,.05)">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;font-weight:900;margin-bottom:8px">Revenus ce mois</div>
-        <div style="font-size:28px;font-weight:950;color:#17122E;letter-spacing:-.8px">${monthRev}€</div>
-        <div style="font-size:12px;color:#7B708F;margin-top:6px">${monthRes.length} réservation${monthRes.length>1?'s':''}</div>
-      </div>
-      <div style="background:white;border:1px solid rgba(139,92,246,.14);border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(69,39,120,.05)">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;font-weight:900;margin-bottom:8px">État ce soir</div>
-        <div style="font-size:28px;font-weight:950;color:${free.length?'#DC2626':'#059669'};letter-spacing:-.8px">${apts.length-free.length}/${apts.length}</div>
-        <div style="font-size:12px;color:#7B708F;margin-top:6px">${free.length?free.length+' libre'+(free.length>1?'s':''):'Tout loué ✓'}</div>
-      </div>
-      <div style="background:white;border:1px solid rgba(139,92,246,.14);border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(69,39,120,.05)">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;font-weight:900;margin-bottom:8px">Opportunités EVA</div>
-        <div style="font-size:28px;font-weight:950;color:${hotEvents.length?'#D97706':'#17122E'};letter-spacing:-.8px">${hotEvents.length}</div>
-        <div style="font-size:12px;color:#7B708F;margin-top:6px">${hotEvents.length?hotEvents.length+' signal'+( hotEvents.length>1?'s':'')+' EVA':'Aucune cette semaine'}</div>
-      </div>
-    </div>`;
+  if(occRate<50&&apts.length>0){
+    riskItems.push({
+      icon:'\uD83D\uDCC9',cls:'ck-item-risk',
+      title:'Occupation faible : '+occRate+'%',
+      desc:'Objectif recommand\u00e9 : 65\u00a0%. '+daysElapsed+'\u00a0jours \u00e9coul\u00e9s sur '+daysInMonth+' ce mois.',
+      gain:'Baisse de revenus probable',gainCls:'ck-gain-red',
+      btnLabel:'Analyser',btnAction:"goTo('eva-audit',document.querySelector('[data-page=eva-audit]'))"
+    });
+  }
+
+  var belowFloor=apts.filter(function(a){return (a.price||0)>0&&(a.price||0)<floor(a);});
+  if(belowFloor.length){
+    var bfNb=belowFloor.length;
+    var bfDesc=belowFloor.map(function(a){return a.name+'\u00a0: '+(a.price||0)+'\u20AC < '+floor(a)+'\u20AC requis';}).join(' \u00b7 ');
+    riskItems.push({
+      icon:'\uD83D\uDD3B',cls:'ck-item-warn',
+      title:bfNb+' bien'+(bfNb>1?'s':'')+' sous le plancher de rentabilit\u00e9',
+      desc:bfDesc,
+      gain:'Perte nette sur chaque nuit vendue',gainCls:'ck-gain-orange',
+      btnLabel:'Corriger',btnAction:"goTo('pricing',document.querySelector('[data-page=pricing]'))"
+    });
+  }
+
+  if(monthRes.length>=3){
+    var channels={};
+    monthRes.forEach(function(r){var c=r.platform||r.source||'other';channels[c]=(channels[c]||0)+1;});
+    var topEntry=Object.entries(channels).sort(function(a,b){return b[1]-a[1];})[0];
+    if(topEntry&&(topEntry[1]/monthRes.length)>0.85){
+      var chLabels={'airbnb':'Airbnb','booking':'Booking.com','vrbo':'VRBO','direct':'Direct','other':'Canal inconnu'};
+      var chName=chLabels[topEntry[0]]||topEntry[0];
+      var chPct=Math.round(topEntry[1]/monthRes.length*100);
+      riskItems.push({
+        icon:'\uD83D\uDD17',cls:'ck-item-warn',
+        title:'D\u00e9pendance OTA : '+chName,
+        desc:chPct+'\u00a0% de vos r\u00e9servations viennent d\u2019une seule source',
+        gain:'Risque de diversification',gainCls:'ck-gain-orange',
+        btnLabel:'Voir',btnAction:"goTo('audit-ota',document.querySelector('[data-page=audit-ota]'))"
+      });
+    }
+  }
+
+  if(!riskItems.length){
+    riskItems.push({
+      icon:'\uD83D\uDEE1\uFE0F',cls:'ck-item-up',
+      title:'Aucun risque critique d\u00e9tect\u00e9',
+      desc:'Votre parc est dans une position saine. Continuez le suivi hebdomadaire.',
+      gain:'',gainCls:'',
+      btnLabel:'Audit',btnAction:"goTo('eva-audit',document.querySelector('[data-page=eva-audit]'))"
+    });
+  }
+
+  // ── BLOC 4 : Actions prioritaires ──
+  var actions=[];
+  if(free.length) actions.push({label:'Ajuster le prix de '+free[0].name,sub:'Bien libre ce soir \u2014 r\u00e9duire ou booster pour attirer',btn:'Pricer',action:"goTo('pricing',document.querySelector('[data-page=pricing]'))"});
+  if(underPriced.length) actions.push({label:'Appliquer le prix EVA sur '+underPriced[0].name,sub:'EVA conseille '+(underPriced[0].ai_rec||0)+'\u20AC/nuit vs '+(underPriced[0].price||0)+'\u20AC actuel',btn:'Appliquer',action:"goTo('pricing',document.querySelector('[data-page=pricing]'))"});
+  if(hotEvents.length) actions.push({label:'Capter les revenus des \u00e9v\u00e9nements locaux',sub:hotEvents.length+' pic'+(hotEvents.length>1?'s':'')+' de demande d\u00e9tect\u00e9'+(hotEvents.length>1?'s':''),btn:'Pricer',action:"goTo('pricing',document.querySelector('[data-page=pricing]'))"});
+  if(free.length) actions.push({label:'Planifier le m\u00e9nage pour '+free[0].name,sub:'Pr\u00e9parer le bien pour une r\u00e9servation express',btn:'CleanyQ',action:"goTo('clean',document.querySelector('[data-page=clean]'))"});
+  if(belowFloor.length) actions.push({label:'Corriger le plancher de '+belowFloor[0].name,sub:(belowFloor[0].price||0)+'\u20AC/nuit est insuffisant pour couvrir les charges',btn:'Corriger',action:"goTo('pricing',document.querySelector('[data-page=pricing]'))"});
+  actions.push({label:'Lancer un audit EVA mensuel',sub:'Analyser la rentabilit\u00e9 r\u00e9elle de chaque bien',btn:'Lancer',action:"goTo('eva-audit',document.querySelector('[data-page=eva-audit]'))"});
+
+  // ── Helpers HTML ──
+  function renderItem(item){
+    return '<div class="ck-item '+item.cls+'">'+
+      '<div class="ck-item-icon">'+item.icon+'</div>'+
+      '<div>'+
+        '<div class="ck-item-title">'+item.title+'</div>'+
+        '<div class="ck-item-desc">'+item.desc+'</div>'+
+        (item.gain?'<div class="ck-item-gain '+item.gainCls+'">'+item.gain+'</div>':'')+
+      '</div>'+
+      '<button class="ck-item-btn" onclick="'+item.btnAction+'" style="background:linear-gradient(135deg,#6D28D9,#EC4899);color:white">'+item.btnLabel+'</button>'+
+    '</div>';
+  }
+
+  function renderAction(a,i){
+    return '<div class="ck-action">'+
+      '<div class="ck-action-rank">'+(i+1)+'</div>'+
+      '<div><div class="ck-action-label">'+a.label+'</div><div class="ck-action-sub">'+a.sub+'</div></div>'+
+      '<button class="ck-action-btn" onclick="'+a.action+'">'+a.btn+'</button>'+
+    '</div>';
+  }
+
+  var occColor=occRate>=65?'#059669':occRate>=45?'#D97706':'#DC2626';
+  var scoreColor=evaScore>=70?'#059669':evaScore>=45?'#D97706':'#DC2626';
+  var freeColor=free.length?'#DC2626':'#059669';
+
+  // ── Injection HTML ──
+  dash.innerHTML=
+
+    // Hero EVA
+    '<div style="background:linear-gradient(135deg,#211051 0%,#7C3AED 46%,#EC4899 100%);border-radius:22px;padding:26px 28px;margin-bottom:14px;color:#fff;position:relative;overflow:hidden">'+
+      '<div style="position:absolute;right:-60px;top:-80px;width:280px;height:280px;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 62%);pointer-events:none"></div>'+
+      '<div style="position:relative;z-index:1">'+
+        '<div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:900;color:rgba(255,255,255,.55);margin-bottom:10px">EVA Engine \u00b7 '+dateLabel+'</div>'+
+        '<div style="font-size:clamp(20px,2.6vw,30px);font-weight:950;letter-spacing:-.7px;line-height:1.15;margin-bottom:8px">EVA a identifi\u00e9 <span style="color:#FCD34D">'+annualFmt+'\u00a0\u20AC</span><br>de potentiel cette ann\u00e9e.</div>'+
+        '<div style="font-size:13px;color:rgba(255,255,255,.7);margin-bottom:18px">'+apts.length+' logement'+(apts.length>1?'s':'')+' \u00b7 '+hotEvents.length+' \u00e9v\u00e9nement'+(hotEvents.length>1?'s':'')+' d\u00e9tect\u00e9'+(hotEvents.length>1?'s':'')+' \u00b7 '+free.length+' nuit'+(free.length>1?'s':'')+' libre'+(free.length>1?'s':'')+' ce soir</div>'+
+        '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+          '<button onclick="goTo(\'pricing\',document.querySelector(\'[data-page=pricing]\'))" style="border:none;border-radius:11px;padding:9px 16px;background:white;color:#7C3AED;font-size:12px;font-weight:900;cursor:pointer;font-family:inherit">EVA Pricing</button>'+
+          '<button onclick="goTo(\'eva-audit\',document.querySelector(\'[data-page=eva-audit]\'))" style="border:none;border-radius:11px;padding:9px 16px;background:rgba(255,255,255,.15);color:white;font-size:12px;font-weight:900;cursor:pointer;font-family:inherit;border:1px solid rgba(255,255,255,.22)">Lancer l\u2019audit</button>'+
+          '<button onclick="goTo(\'scanner\',document.querySelector(\'[data-page=scanner]\'))" style="border:none;border-radius:11px;padding:9px 16px;background:rgba(255,255,255,.15);color:white;font-size:12px;font-weight:900;cursor:pointer;font-family:inherit;border:1px solid rgba(255,255,255,.22)">Scanner</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+
+    // Blocs 2+3 côte à côte
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">'+
+
+      // BLOC 2 : Argent à récupérer
+      '<div class="ck-section">'+
+        '<div class="ck-section-head">'+
+          '<div><div class="ck-section-title">\uD83D\uDCB0 Argent \u00e0 r\u00e9cup\u00e9rer</div><div class="ck-section-sub">Opportunit\u00e9s d\u00e9tect\u00e9es par EVA</div></div>'+
+          '<span class="ck-badge ck-badge-green">'+upItems.length+' signal'+(upItems.length>1?'s':'')+'</span>'+
+        '</div>'+
+        '<div class="ck-list">'+upItems.map(renderItem).join('')+'</div>'+
+      '</div>'+
+
+      // BLOC 3 : Argent à risque
+      '<div class="ck-section">'+
+        '<div class="ck-section-head">'+
+          '<div><div class="ck-section-title">\u26a0\ufe0f Argent \u00e0 risque</div><div class="ck-section-sub">Alertes EVA \u00e0 traiter en priorit\u00e9</div></div>'+
+          '<span class="ck-badge ck-badge-red">'+riskItems.length+' alerte'+(riskItems.length>1?'s':'')+'</span>'+
+        '</div>'+
+        '<div class="ck-list">'+riskItems.map(renderItem).join('')+'</div>'+
+      '</div>'+
+
+    '</div>'+
+
+    // BLOC 4 : Actions prioritaires
+    '<div class="ck-section" style="margin-bottom:14px">'+
+      '<div class="ck-section-head">'+
+        '<div><div class="ck-section-title">\u26a1 Actions prioritaires EVA</div><div class="ck-section-sub">Ce que EVA recommande de faire maintenant</div></div>'+
+        '<span class="ck-badge ck-badge-purple">EVA Engine</span>'+
+      '</div>'+
+      '<div class="ck-action-list">'+actions.slice(0,5).map(renderAction).join('')+'</div>'+
+    '</div>'+
+
+    // BLOC 5 : Résumé portefeuille
+    '<div class="ck-section">'+
+      '<div class="ck-section-head">'+
+        '<div><div class="ck-section-title">\uD83D\uDCCA R\u00e9sum\u00e9 portefeuille</div><div class="ck-section-sub">'+monthLabel+' \u00b7 '+daysElapsed+'/'+daysInMonth+' jours \u00e9coul\u00e9s</div></div>'+
+        '<span class="ck-badge ck-badge-purple">Score EVA : '+evaScore+'/100</span>'+
+      '</div>'+
+      '<div class="ck-kpi-grid">'+
+        '<div class="ck-kpi"><div class="ck-kpi-label">Revenus du mois</div><div class="ck-kpi-value">'+monthRev+'\u20AC</div><div class="ck-kpi-help">'+monthRes.length+' r\u00e9sa'+(monthRes.length>1?'s':'')+'</div></div>'+
+        '<div class="ck-kpi"><div class="ck-kpi-label">Taux d\u2019occupation</div><div class="ck-kpi-value" style="color:'+occColor+'">'+occRate+'%</div><div class="ck-kpi-help">'+totalNights+' nuit'+(totalNights>1?'s':'')+' vendues</div></div>'+
+        '<div class="ck-kpi"><div class="ck-kpi-label">ADR</div><div class="ck-kpi-value">'+adr+'\u20AC</div><div class="ck-kpi-help">Prix moyen/nuit</div></div>'+
+        '<div class="ck-kpi"><div class="ck-kpi-label">RevPAR</div><div class="ck-kpi-value">'+revpar+'\u20AC</div><div class="ck-kpi-help">Revenu/bien disponible</div></div>'+
+        '<div class="ck-kpi"><div class="ck-kpi-label">Score EVA</div><div class="ck-kpi-value" style="color:'+scoreColor+'">'+evaScore+'</div><div class="ck-kpi-help">sur 100</div></div>'+
+      '</div>'+
+    '</div>';
 }
+
 
 function toggleCockpitTodo(id){
   cockpitTodos=cockpitTodos.map(t=>t.id===id?{...t,done:!t.done}:t);
@@ -5742,5 +5889,3 @@ function renderProfit360(){
 /* ===== end PROFIT 360 ===== */
 
 
-
-   
