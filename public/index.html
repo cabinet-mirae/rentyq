@@ -460,11 +460,14 @@
       <!-- COCKPIT -->
       <div class="page active" id="page-cockpit">
         <div class="page-header">
-          <div><div class="page-title">Cockpit RentyQ</div><div class="page-sub" id="cockpit-date">Votre tour de contrôle : revenus, risques et prochaines actions EVA</div></div>
+          <div>
+            <div class="page-title">Cockpit EVA</div>
+            <div class="page-sub" id="cockpit-date">Votre copilote de pilotage pour gagner plus avec vos locations courte dur&#233;e.</div>
+          </div>
           <div class="actions">
-            <button class="btn btn-ai" onclick="goTo('eva-audit',document.querySelector('[onclick*=eva-audit]'))">📊 Lancer EVA Audit</button>
-            <button class="btn" onclick="goTo('pricing',document.querySelector('[onclick*=pricing]'))">🧠 EVA Pricing</button>
-            <button class="btn" onclick="goTo('scanner',document.querySelector('[onclick*=scanner]'))">📍 Scanner EVA</button>
+            <button class="btn btn-ai" onclick="goTo('eva-audit',document.querySelector('[data-page=eva-audit]'))"><i class="ti ti-chart-dots-3"></i> EVA Audit</button>
+            <button class="btn" onclick="goTo('pricing',document.querySelector('[data-page=pricing]'))"><i class="ti ti-sparkles"></i> EVA Pricing</button>
+            <button class="btn" onclick="goTo('scanner',document.querySelector('[data-page=scanner]'))"><i class="ti ti-radar-2"></i> Scanner</button>
           </div>
         </div>
         <div id="cockpit-dash"></div>
