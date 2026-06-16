@@ -272,7 +272,7 @@
 
       <div class="sidebar-sep"></div>
 
-      <!-- Zone 3 : Navigation -->
+      <!-- Zone 3 : Navigation V2 -->
       <div class="sidebar-nav-zone">
 
       <div id="nav-solo">
@@ -282,43 +282,28 @@
           <span class="nav-emoji"><i class="ti ti-home" aria-hidden="true"></i></span>Cockpit EVA
         </button>
 
-        <!-- ── Missions EVA ── -->
-        <div class="nav-group" id="grp-missions">
-          <button class="nav-group-header" onclick="toggleGroup('grp-missions')">
-            <span class="nav-emoji"><i class="ti ti-checklist" aria-hidden="true"></i></span>Missions EVA<span class="nav-chevron">&#9658;</span>
+        <!-- ── Parc ── -->
+        <div class="nav-group" id="grp-parc">
+          <button class="nav-group-header" onclick="toggleGroup('grp-parc')">
+            <span class="nav-emoji"><i class="ti ti-building" aria-hidden="true"></i></span>Parc<span class="nav-chevron">&#9658;</span>
           </button>
           <div class="nav-sub-items">
-            <button class="nav-sub-item" data-page="missions-all" onclick="goTo('missions-all',this)">Toutes</button>
-            <button class="nav-sub-item" data-page="missions-todo" onclick="goTo('missions-todo',this)">&#192; traiter</button>
-            <button class="nav-sub-item" data-page="missions-done" onclick="goTo('missions-done',this)">Termin&#233;es</button>
+            <button class="nav-sub-item" data-page="parc-fiches" onclick="goTo('parc-fiches',this)">Fiches logements <span class="nav-badge" id="parc-badge" style="font-size:9px;padding:1px 5px">0</span></button>
+            <button class="nav-sub-item" data-page="parc-comparaison" onclick="goTo('parc-comparaison',this)">Comparaison</button>
           </div>
         </div>
 
-        <!-- ── Audit 360 ── -->
-        <div class="nav-group" id="grp-audit">
-          <button class="nav-group-header" onclick="toggleGroup('grp-audit')">
-            <span class="nav-emoji"><i class="ti ti-chart-dots-3" aria-hidden="true"></i></span>Audit 360<span class="nav-chevron">&#9658;</span>
+        <!-- ── Analyse EVA ── -->
+        <div class="nav-group" id="grp-analyse">
+          <button class="nav-group-header" onclick="toggleGroup('grp-analyse')">
+            <span class="nav-emoji"><i class="ti ti-chart-bar" aria-hidden="true"></i></span>Analyse EVA<span class="nav-chevron">&#9658;</span>
           </button>
           <div class="nav-sub-items">
-            <button class="nav-sub-item" data-page="eva-audit" onclick="goTo('eva-audit',this)">Vue globale</button>
-            <button class="nav-sub-item" data-page="audit-revenus" onclick="goTo('audit-revenus',this)">Revenus</button>
-            <button class="nav-sub-item" data-page="audit-occupation" onclick="goTo('audit-occupation',this)">Occupation</button>
-            <button class="nav-sub-item" data-page="audit-qualite" onclick="goTo('audit-qualite',this)">Qualit&#233; voyageurs</button>
-            <button class="nav-sub-item" data-page="audit-ota" onclick="goTo('audit-ota',this)">Distribution OTA</button>
-            <button class="nav-sub-item" data-page="audit-tarification" onclick="goTo('audit-tarification',this)">Tarification</button>
-          </div>
-        </div>
-
-        <!-- ── Profit 360 ── -->
-        <div class="nav-group" id="grp-profit">
-          <button class="nav-group-header" onclick="toggleGroup('grp-profit')">
-            <span class="nav-emoji"><i class="ti ti-coin" aria-hidden="true"></i></span>Profit 360<span class="nav-chevron">&#9658;</span>
-          </button>
-          <div class="nav-sub-items">
-            <button class="nav-sub-item" data-page="profit360" onclick="goTo('profit360',this)">Vue globale</button>
-            <button class="nav-sub-item" data-page="profit-logement" onclick="goTo('profit-logement',this)">Par logement</button>
-            <button class="nav-sub-item" data-page="profit-opportunites" onclick="goTo('profit-opportunites',this)">Opportunit&#233;s</button>
-            <button class="nav-sub-item" data-page="profit-simulations" onclick="goTo('profit-simulations',this)">Simulations</button>
+            <button class="nav-sub-item" data-page="analyse-globale" onclick="goTo('analyse-globale',this)">Vue globale</button>
+            <button class="nav-sub-item" data-page="analyse-rentabilite" onclick="goTo('analyse-rentabilite',this)">Rentabilit&#233;</button>
+            <button class="nav-sub-item" data-page="analyse-opportunites" onclick="goTo('analyse-opportunites',this)">Opportunit&#233;s EVA</button>
+            <button class="nav-sub-item" data-page="analyse-economies" onclick="goTo('analyse-economies',this)">&#201;conomies EVA</button>
+            <button class="nav-sub-item" data-page="analyse-qualite" onclick="goTo('analyse-qualite',this)">Qualit&#233; voyageurs</button>
           </div>
         </div>
 
@@ -329,27 +314,15 @@
 
         <div class="nav-sep"></div>
 
-        <!-- ── Parc ── -->
-        <div class="nav-group" id="grp-parc">
-          <button class="nav-group-header" onclick="toggleGroup('grp-parc')">
-            <span class="nav-emoji"><i class="ti ti-building" aria-hidden="true"></i></span>Parc<span class="nav-chevron">&#9658;</span>
+        <!-- ── CleanyQ ── -->
+        <div class="nav-group" id="grp-cleanyq">
+          <button class="nav-group-header" onclick="toggleGroup('grp-cleanyq')">
+            <span class="nav-emoji"><i class="ti ti-sparkles" aria-hidden="true"></i></span>CleanyQ<span class="nav-chevron">&#9658;</span>
           </button>
           <div class="nav-sub-items">
-            <button class="nav-sub-item" data-page="parc" onclick="goTo('parc',this)">Tous les logements <span class="nav-badge" id="parc-badge" style="font-size:9px;padding:1px 5px">0</span></button>
-            <button class="nav-sub-item" data-page="parc-fiches" onclick="goTo('parc-fiches',this)">Fiches logements</button>
-            <button class="nav-sub-item" data-page="parc-comparaison" onclick="goTo('parc-comparaison',this)">Comparaison</button>
-          </div>
-        </div>
-
-        <!-- ── Calendrier & Réservations ── -->
-        <div class="nav-group" id="grp-cal">
-          <button class="nav-group-header" onclick="toggleGroup('grp-cal')">
-            <span class="nav-emoji"><i class="ti ti-calendar" aria-hidden="true"></i></span>Calendrier &amp; R&#233;servations<span class="nav-chevron">&#9658;</span>
-          </button>
-          <div class="nav-sub-items">
-            <button class="nav-sub-item" data-page="calendrier" onclick="goTo('calendrier',this)">Calendrier</button>
-            <button class="nav-sub-item" data-page="reservations" onclick="goTo('reservations',this)">R&#233;servations</button>
-            <button class="nav-sub-item" data-page="nuits-vacantes" onclick="goTo('nuits-vacantes',this)">Nuits vacantes</button>
+            <button class="nav-sub-item" data-page="cleanyq-today" onclick="goTo('cleanyq-today',this)">Aujourd&#8217;hui</button>
+            <button class="nav-sub-item" data-page="cleanyq-missions" onclick="goTo('cleanyq-missions',this)">Missions</button>
+            <button class="nav-sub-item" data-page="cleanyq-squad" onclick="goTo('cleanyq-squad',this)">Squad</button>
           </div>
         </div>
 
@@ -369,7 +342,6 @@
             <button class="nav-sub-item" data-page="settings-profil" onclick="goTo('settings-profil',this)">Profil</button>
             <button class="nav-sub-item" data-page="squad" onclick="goTo('squad',this)">&#201;quipe</button>
             <button class="nav-sub-item" data-page="settings-commissions" onclick="goTo('settings-commissions',this)">Commissions OTA</button>
-            <button class="nav-sub-item" data-page="clean" id="nav-cleanyq" onclick="goTo('clean',this)">CleanyQ</button>
             <button class="nav-sub-item" data-page="tarifs" onclick="goTo('tarifs',this)">Abonnement</button>
           </div>
         </div>
@@ -1863,7 +1835,91 @@
         </div>
       </div>
 
-      <!-- PARAMÈTRES — PROFIL -->
+      <!-- ANALYSE EVA — VUE GLOBALE -->
+      <div class="page" id="page-analyse-globale">
+        <div class="page-header">
+          <div><div class="page-title">Analyse EVA &#8212; Vue globale</div><div class="page-sub">CA brut, charges, r&#233;sultat net et potentiel EVA de votre parc.</div></div>
+        </div>
+        <div id="analyse-globale-dash"></div>
+      </div>
+
+      <!-- ANALYSE EVA — RENTABILITÉ -->
+      <div class="page" id="page-analyse-rentabilite">
+        <div class="page-header">
+          <div><div class="page-title">Analyse EVA &#8212; Rentabilit&#233;</div><div class="page-sub">CA, charges, r&#233;sultat et marge nette par logement.</div></div>
+          <div class="actions">
+            <button class="btn" onclick="goTo('analyse-globale',document.querySelector('[data-page=analyse-globale]'))"><i class="ti ti-chart-bar"></i> Vue globale</button>
+          </div>
+        </div>
+        <div id="analyse-rentabilite-dash"></div>
+      </div>
+
+      <!-- ANALYSE EVA — OPPORTUNITÉS -->
+      <div class="page" id="page-analyse-opportunites">
+        <div class="page-header">
+          <div><div class="page-title">Analyse EVA &#8212; Opportunit&#233;s</div><div class="page-sub">Pricing, remplissage, &#233;v&#233;nements et upsells d&#233;tect&#233;s par EVA.</div></div>
+          <div class="actions">
+            <button class="btn" onclick="goTo('analyse-globale',document.querySelector('[data-page=analyse-globale]'))"><i class="ti ti-chart-bar"></i> Vue globale</button>
+          </div>
+        </div>
+        <div id="analyse-opportunites-dash"></div>
+      </div>
+
+      <!-- ANALYSE EVA — ÉCONOMIES -->
+      <div class="page" id="page-analyse-economies">
+        <div class="page-header">
+          <div><div class="page-title">Analyse EVA &#8212; &#201;conomies EVA</div><div class="page-sub">Logements &#233;nergivores, co&#251;ts &#233;lev&#233;s et r&#233;parations r&#233;p&#233;t&#233;es.</div></div>
+          <div class="actions">
+            <button class="btn" onclick="goTo('analyse-globale',document.querySelector('[data-page=analyse-globale]'))"><i class="ti ti-chart-bar"></i> Vue globale</button>
+          </div>
+        </div>
+        <div id="analyse-economies-dash"></div>
+      </div>
+
+      <!-- ANALYSE EVA — QUALITÉ VOYAGEURS -->
+      <div class="page" id="page-analyse-qualite">
+        <div class="page-header">
+          <div><div class="page-title">Analyse EVA &#8212; Qualit&#233; voyageurs</div><div class="page-sub">Notes, satisfaction, probl&#232;mes m&#233;nage et signaux de baisse.</div></div>
+          <div class="actions">
+            <button class="btn" onclick="goTo('analyse-globale',document.querySelector('[data-page=analyse-globale]'))"><i class="ti ti-chart-bar"></i> Vue globale</button>
+          </div>
+        </div>
+        <div id="analyse-qualite-dash"></div>
+      </div>
+
+      <!-- CLEANYQ V2 — AUJOURD'HUI -->
+      <div class="page" id="page-cleanyq-today">
+        <div class="page-header">
+          <div><div class="page-title">CleanyQ &#8212; Aujourd&#8217;hui</div><div class="page-sub">M&#233;nages pr&#233;vus, valid&#233;s, en retard et &#224; risque.</div></div>
+          <div class="actions">
+            <button class="btn btn-purple" onclick="openMissionModal()"><i class="ti ti-plus"></i> Cr&#233;er une mission</button>
+          </div>
+        </div>
+        <div id="cleanyq-today-dash"></div>
+      </div>
+
+      <!-- CLEANYQ V2 — MISSIONS -->
+      <div class="page" id="page-cleanyq-missions">
+        <div class="page-header">
+          <div><div class="page-title">CleanyQ &#8212; Missions</div><div class="page-sub">M&#233;nages, petits travaux et contr&#244;les qualit&#233;.</div></div>
+          <div class="actions">
+            <button class="btn btn-purple" onclick="openMissionModal()"><i class="ti ti-plus"></i> Cr&#233;er une mission</button>
+          </div>
+        </div>
+        <div id="cleanyq-missions-dash"></div>
+      </div>
+
+      <!-- CLEANYQ V2 — SQUAD -->
+      <div class="page" id="page-cleanyq-squad">
+        <div class="page-header">
+          <div><div class="page-title">CleanyQ &#8212; Squad</div><div class="page-sub">Vos cleaners, disponibilit&#233;s et historique.</div></div>
+          <div class="actions">
+            <button class="btn btn-purple" onclick="openCleanerModal()"><i class="ti ti-plus"></i> Ajouter un cleaner</button>
+          </div>
+        </div>
+        <div id="cleanyq-squad-dash"></div>
+      </div>
+
       <!-- PARAMÈTRES — PROFIL -->
       <div class="page" id="page-settings-profil">
         <div class="page-header">
