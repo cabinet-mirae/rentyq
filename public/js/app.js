@@ -6786,16 +6786,10 @@ async function resendConfirmEmail(){
 async function doGoogleLogin(){
   console.log('Google login clicked');
   try{
-    console.log('Calling supabase.auth.signInWithOAuth...');
-    const{data,error}=await supabase.auth.signInWithOAuth({
-      provider:'google',
-      options:{redirectTo:'https://rentyq.fr/'}
-    });
-    console.log('signInWithOAuth result:',{data,error});
-    if(error){
-      console.error('OAuth error:',error);
-      showErr('login-error','Connexion Google indisponible : '+error.message);
-    }
+    const redirectTo=encodeURIComponent('https://rentyq.fr/');
+    const url=SB_URL+'/auth/v1/authorize?provider=google&redirect_to='+redirectTo;
+    console.log('Redirecting to:',url);
+    window.location.href=url;
   }catch(e){
     console.error('doGoogleLogin catch:',e);
     showErr('login-error','Erreur Google : '+e.message);
