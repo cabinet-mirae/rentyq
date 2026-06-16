@@ -216,8 +216,11 @@ async function loadApp(){
     const pData=await pRes.json();
     currentProfile=(pData&&pData.length>0)?pData[0]:{id:currentUser.user.id,name:currentUser.user.email.split('@')[0],email:currentUser.user.email,type:'solo',plan:'Starter'};
     const aRes=await sbFetch(`appartements?user_id=eq.${currentUser.user.id}&select=*&order=created_at.asc`);
-    const allApparts=await aRes.json()||[];apparts=allApparts.filter(a=>!a.archived);archivedApparts=allApparts.filter(a=>a.archived);
-    try{const rRes=await sbFetch(`reservations?user_id=eq.${currentUser.user.id}&select=*&order=date_from.desc`);reservations=await rRes.json()||[];}catch(e){reservations=[];}
+    const allAppartsRaw=await aRes.json();
+    if(!Array.isArray(allAppartsRaw)){console.error('loadApp: allApparts not array',allAppartsRaw);} 
+    const allApparts=Array.isArray(allAppartsRaw)?allAppartsRaw:[];
+    apparts=allApparts.filter(a=>!a.archived);archivedApparts=allApparts.filter(a=>a.archived);
+    try{const rRes=await sbFetch(`reservations?user_id=eq.${currentUser.user.id}&select=*&order=date_from.desc`);const resRaw=await rRes.json();if(!Array.isArray(resRaw)){console.error('loadApp: reservations not array',resRaw);}reservations=Array.isArray(resRaw)?resRaw:[];}catch(e){console.error('loadApp: reservations fetch error',e);reservations=[];}
     document.getElementById('loading').style.display='none';
     document.getElementById('app').style.display='flex';
     renderSidebar();renderAll();
