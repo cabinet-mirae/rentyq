@@ -1940,3 +1940,64 @@ tr:hover td { background: #FAF6FF !important; }
   font-size: 11px; color: #0369A1; line-height: 1.6;
 }
 /* ===== end Intégrations config v2 ===== */
+
+/* ===== RentyQ — EVA Logic v2 (Parc hiérarchie) ===== */
+
+/* Action EVA du jour — bloc unique */
+.eva-action-day {
+  border-radius: 14px; padding: 14px 16px; margin-bottom: 10px;
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.eva-action-day.urgent { background: #FEF2F2; border: 1px solid rgba(220,38,38,.18); }
+.eva-action-day.warn   { background: #FFFBEB; border: 1px solid rgba(217,119,6,.18); }
+.eva-action-day.hot    { background: #F5F0FF; border: 1px solid rgba(124,58,237,.2); }
+.eva-action-day.ok     { background: #F0FDF4; border: 1px solid rgba(5,150,105,.14); }
+.eva-action-day-icon   { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+.eva-action-day-title  { font-size: 13px; font-weight: 800; color: #17122E; margin-bottom: 3px; }
+.eva-action-day-desc   { font-size: 11px; color: #7B708F; line-height: 1.45; }
+.eva-action-day-btn    {
+  margin-top: 8px; border: none; border-radius: 8px; padding: 6px 14px;
+  background: linear-gradient(135deg,#6D28D9,#EC4899);
+  color: white; font-size: 11px; font-weight: 800; cursor: pointer; font-family: inherit;
+}
+
+/* Missions EVA à venir */
+.eva-missions-section { margin-bottom: 10px; }
+.eva-missions-label {
+  font-size: 10px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .6px; color: #8A8A99; margin-bottom: 6px;
+}
+.eva-mission-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 7px 0; border-bottom: 1px solid #F3F0FA; font-size: 12px;
+}
+.eva-mission-item:last-child { border-bottom: none; }
+.eva-mission-dot {
+  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px;
+}
+.eva-mission-title { font-size: 12px; font-weight: 700; color: #17122E; }
+.eva-mission-sub   { font-size: 10px; color: #8A8A99; }
+
+/* Recommandations long terme */
+.eva-longterm-section { margin-bottom: 10px; }
+.eva-longterm-item {
+  display: flex; align-items: flex-start; gap: 7px;
+  font-size: 12px; color: #17122E; margin-bottom: 5px; line-height: 1.4;
+}
+.eva-longterm-arrow { color: #7C3AED; flex-shrink: 0; font-weight: 700; }
+
+/* Contexte EVA */
+.eva-context-grid {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 6px;
+  padding: 10px; background: #F8F5FF; border-radius: 10px;
+}
+.eva-context-item { text-align: center; }
+.eva-context-val { font-size: 14px; font-weight: 900; color: #17122E; letter-spacing: -.2px; }
+.eva-context-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: .5px; color: #8A8A99; font-weight: 800; margin-top: 2px; }
+
+/* Section label générique */
+.eva-section-label {
+  font-size: 10px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .6px; color: #8A8A99; margin-bottom: 6px;
+}
+/* ===== end EVA Logic v2 ===== */
