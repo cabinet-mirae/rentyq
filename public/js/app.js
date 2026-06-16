@@ -299,168 +299,186 @@ function genAlerts(apts){
 }
 
 function renderCockpit(){
-  const dash=document.getElementById('cockpit-dash');if(!dash)return;
-  const apts=apparts||[];
-  const month=new Date().toISOString().slice(0,7);
-  const monthRes=reservations.filter(r=>r.date_from&&r.date_from.startsWith(month));
-  const monthRev=monthRes.reduce((s,r)=>s+(r.price_total||0),0);
-  const hotEvents=Object.values(eventsCache||{}).flat().filter(e=>e.hot);
-  const free=apts.filter(a=>!a.booked);
+  var dash=document.getElementById('cockpit-dash');if(!dash)return;
+  var apts=apparts||[];
+  var today=new Date();
+  var todayIso=today.toISOString().slice(0,10);
+  var month=today.toISOString().slice(0,7);
+  var monthRes=reservations.filter(function(r){return r.date_from&&r.date_from.startsWith(month);});
+  var monthRev=monthRes.reduce(function(s,r){return s+(r.price_total||0);},0);
+  var hotEvents=Object.values(eventsCache||{}).flat().filter(function(e){return e.hot;});
+  var free=apts.filter(function(a){return !a.booked;});
+  var allM=cleaningMissions||[];
 
-  // ── Calcul du potentiel annuel EVA ──
-  const annualPotential=apts.reduce((sum,a)=>{
-    const city=a.city||'';
-    const cityEvs=eventsCache[city]||[];
-    const hotEvs=cityEvs.filter(e=>e.hot);
-    const basePrice=Number(a.price||0);
-    const fl=floor(a);
-    // Nuits libres estimées × écart de prix
-    const freePotential=Math.max(0,Math.round(basePrice*0.15*30));
-    const eventPotential=hotEvs.length?Math.round(hotEvs.length*(basePrice*0.12)*3):0;
-    return sum+freePotential+eventPotential;
-  },0);
-  const annualFmt=annualPotential>=1000?(Math.round(annualPotential/100)*100).toLocaleString('fr-FR'):annualPotential;
+  // ─── COLONNE GAUCHE : À faire aujourd'hui (max 5) ───
+  var todoItems=[];
 
-  // ── Génération des 3 priorités ──
-  const priorities=[];
-  // Priorité 1 : biens avec événement chaud → monter les prix
-  const aptsWithHotEvent=apts.filter(a=>{
-    const city=a.city||'';
-    return (eventsCache[city]||[]).some(e=>e.hot);
+  // 1. Ménage non attribué pour check-in imminent (aujourd'hui ou demain)
+  var tomorrow=new Date(today);tomorrow.setDate(tomorrow.getDate()+1);
+  var tomorrowIso=tomorrow.toISOString().slice(0,10);
+  var checkinsImminents=reservations.filter(function(r){return r.date_from===todayIso||r.date_from===tomorrowIso;});
+  checkinsImminents.forEach(function(r){
+    var hasMission=allM.some(function(m){return m.appartement_id===r.appartement_id&&(m.date===todayIso||m.date===tomorrowIso);});
+    if(!hasMission){
+      todoItems.push({type:'urgent',icon:'\uD83D\uDEA8',title:'M\u00e9nage non assign\u00e9 \u2014 '+r.apartment_name,desc:'Check-in '+(r.date_from===todayIso?'aujourd\u2019hui':'demain')+' pour '+r.guest_name,btn:'Assigner',action:"openMissionModal()"});
+    }
   });
-  if(aptsWithHotEvent.length){
-    const gain=aptsWithHotEvent.reduce((s,a)=>{
-      const city=a.city||'';
-      const ev=(eventsCache[city]||[]).find(e=>e.hot);
-      return s+Math.round((Number(a.price||0))*(ev?.boost||10)/100)*3;
-    },0);
-    priorities.push({
-      icon:'🔥',
-      color:'#FF6B35',
-      bg:'#FFF3EE',
-      border:'rgba(255,107,53,.18)',
-      title:`Augmenter les prix sur ${aptsWithHotEvent.length} bien${aptsWithHotEvent.length>1?'s':''}`,
-      desc:`${aptsWithHotEvent.map(a=>a.name).join(', ')} — événement local détecté`,
-      gain:`+${gain}€ estimés`,
-      action:"goTo('pricing',document.querySelector('[onclick*=pricing]'))",
-      btn:'Pricer'
-    });
+
+  // 2. Nuits libres ce soir (biens importants)
+  if(free.length&&todoItems.length<5){
+    var lostRev=free.reduce(function(s,a){return s+Math.round(Number(a.price||0)*0.82);},0);
+    todoItems.push({type:'warn',icon:'\uD83C\uDF19',title:free.length+' nuit'+(free.length>1?'s':'')+' libre'+(free.length>1?'s':'')+' ce soir',desc:free.slice(0,2).map(function(a){return a.name;}).join(', ')+(free.length>2?' +'+( free.length-2)+' autre'+(free.length>3?'s':''):'')+' \u2014 '+lostRev+'\u20AC en jeu',btn:'Agir',action:"goTo('parc-fiches',document.querySelector('[data-page=parc-fiches]'))"});
   }
-  // Priorité 2 : biens libres ce soir → sous-performance
-  if(free.length){
-    const lostRev=free.reduce((s,a)=>s+Math.round(Number(a.price||0)*0.82),0);
-    priorities.push({
-      icon:'⚠️',
-      color:'#DC2626',
-      bg:'#FEF2F2',
-      border:'rgba(220,38,38,.18)',
-      title:`${free.length} bien${free.length>1?'s':''} libre${free.length>1?'s':''} ce soir`,
-      desc:`${free.map(a=>a.name).join(', ')} — aucune réservation ce soir`,
-      gain:`${lostRev}€ en jeu`,
-      action:"goTo('pricing',document.querySelector('[onclick*=pricing]'))",
-      btn:'Agir'
-    });
+
+  // 3. Événements locaux sans hausse tarifaire
+  if(hotEvents.length&&todoItems.length<5){
+    var evApts=apts.filter(function(a){var c=a.city||'';return (eventsCache[c]||[]).some(function(e){return e.hot;})&&a.price>0&&(!a.ai_rec||a.price<a.ai_rec);});
+    if(evApts.length){
+      todoItems.push({type:'warn',icon:'\uD83C\uDF89',title:evApts.length+' bien'+(evApts.length>1?'s':'')+' avec \u00e9v\u00e9nement local non pric\u00e9',desc:hotEvents[0].name+(hotEvents.length>1?' et '+(hotEvents.length-1)+' autre'+(hotEvents.length>2?'s':''):'')+' \u2014 appliquer le boost EVA',btn:'Pricer',action:"goTo('parc-fiches',document.querySelector('[data-page=parc-fiches]'))"});
+    }
   }
-  // Priorité 3 : événements à venir non encore pricés
+
+  // 4. Biens sous-tarifés (potential urgent)
+  if(todoItems.length<5){
+    var undertarif=apts.filter(function(a){return a.ai_rec&&a.price&&(a.ai_rec-a.price)/a.price>0.12;});
+    if(undertarif.length){
+      var gain=undertarif.reduce(function(s,a){return s+(a.ai_rec-a.price);},0);
+      todoItems.push({type:'',icon:'\uD83D\uDCC8',title:undertarif.length+' bien'+(undertarif.length>1?'s':'')+' sous-tarif\u00e9'+(undertarif.length>1?'s':''),desc:'+'+Math.round(gain)+'\u20AC/nuit de potentiel non captur\u00e9 selon EVA',btn:'Ajuster',action:"goTo('parc-fiches',document.querySelector('[data-page=parc-fiches]'))"});
+    }
+  }
+
+  // 5. Analyse EVA disponible
+  if(todoItems.length<5){
+    todoItems.push({type:'',icon:'\uD83D\uDCCA',title:'Consulter l\u2019Analyse EVA',desc:'Vue rentabilit\u00e9, opportunit\u00e9s et \u00e9conomies disponibles',btn:'Voir',action:"goTo('analyse-globale',document.querySelector('[data-page=analyse-globale]'))"});
+  }
+
+  var todoHtml=todoItems.slice(0,5).map(function(t){
+    var bg=t.type==='urgent'?'#FEF2F2':t.type==='warn'?'#FFFBEB':'#F8F5FF';
+    var border=t.type==='urgent'?'rgba(220,38,38,.18)':t.type==='warn'?'rgba(217,119,6,.14)':'rgba(109,40,217,.12)';
+    var btnC=t.type==='urgent'?'#DC2626':t.type==='warn'?'#D97706':'#6D28D9';
+    return '<div style="display:flex;align-items:flex-start;gap:12px;background:'+bg+';border:1px solid '+border+';border-radius:14px;padding:13px 14px">'+
+      '<div style="font-size:20px;flex-shrink:0;margin-top:1px">'+t.icon+'</div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:13px;font-weight:700;color:#17122E;margin-bottom:2px">'+t.title+'</div>'+
+        '<div style="font-size:11px;color:#7B708F;line-height:1.4">'+t.desc+'</div>'+
+      '</div>'+
+      '<button onclick="'+t.action+'" style="border:none;border-radius:9px;padding:6px 12px;background:'+btnC+';color:white;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0">'+t.btn+'</button>'+
+    '</div>';
+  }).join('');
+
+  // ─── COLONNE DROITE : Ce qui va bien ───
+  var daysElapsed=Math.max(1,today.getDate());
+  var totalNights14=0;
+  var next14=[];
+  for(var di=0;di<14;di++){var dd=new Date(today);dd.setDate(dd.getDate()+di);next14.push(dd.toISOString().slice(0,10));}
+  var occ14=0;
+  next14.forEach(function(day){
+    var booked=apts.filter(function(a){return reservations.some(function(r){return r.appartement_id===a.id&&r.date_from<=day&&r.date_to>day;});}).length;
+    occ14+=booked;
+  });
+  var occ14pct=apts.length?Math.round(occ14/(next14.length*Math.max(1,apts.length))*100):0;
+  var avgNote=0;var notedApts=apts.filter(function(a){return a.note&&Number(a.note)>0;});
+  if(notedApts.length)avgNote=Math.round(notedApts.reduce(function(s,a){return s+Number(a.note);},0)/notedApts.length*10)/10;
+  var menagesValides=allM.filter(function(m){return m.status==='termine'&&m.date>=month;}).length;
+  var checkinsSafe=reservations.filter(function(r){return r.date_from===todayIso;}).length-todoItems.filter(function(t){return t.type==='urgent';}).length;
+  var upsellsTotal=monthRev>0?Math.round(monthRev*0.08):0; // estimation upsells
+
+  var goodItems=[
+    {icon:'\uD83E\uDDF9',label:menagesValides+' m\u00e9nage'+(menagesValides>1?'s':'')+' valid\u00e9'+(menagesValides>1?'s':'')+' ce mois','ok':true},
+    {icon:'\uD83D\uDCC5',label:'Occupation 14j : '+occ14pct+'%','ok':occ14pct>=65},
+    {icon:'\u2B50',label:'Note moyenne : '+(avgNote||'—')+'/5','ok':avgNote>=4.5},
+    {icon:'\uD83D\uDCB0',label:monthRev.toLocaleString('fr-FR')+'\u20AC g\u00e9n\u00e9r\u00e9s ce mois','ok':monthRev>0},
+    {icon:'\uD83D\uDCE6',label:monthRes.length+' r\u00e9servation'+(monthRes.length>1?'s':'')+' confirm\u00e9e'+(monthRes.length>1?'s':''),'ok':monthRes.length>0}
+  ];
+
+  var goodHtml=goodItems.map(function(g){
+    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F3F0FA">'+
+      '<div style="font-size:18px;flex-shrink:0">'+g.icon+'</div>'+
+      '<div style="flex:1;font-size:13px;font-weight:600;color:#17122E">'+g.label+'</div>'+
+      '<div style="font-size:14px">'+(g.ok?'\u2705':'\uD83D\uDFE1')+'</div>'+
+    '</div>';
+  }).join('');
+
+  // ─── BAS : Opportunités EVA ───
+  var oppItems=[];
+  apts.forEach(function(a){
+    if(a.ai_rec&&a.price&&a.ai_rec>a.price){
+      oppItems.push({icon:'\uD83D\uDCC8',title:'Hausse tarifaire \u2014 '+a.name,gain:'+'+Math.round((a.ai_rec-a.price)*10)+'\u20AC/mois',action:"goTo('parc-fiches',document.querySelector('[data-page=parc-fiches]'))"});
+    }
+  });
   if(hotEvents.length){
-    priorities.push({
-      icon:'🎉',
-      color:'#7C3AED',
-      bg:'#F5F0FF',
-      border:'rgba(124,58,237,.18)',
-      title:`${hotEvents.length} opportunité${hotEvents.length>1?'s':''} de revenus détectée${hotEvents.length>1?'s':''}`,
-      desc:'EVA a détecté des pics de demande locale — appliquer les prix conseillés pour capter ces revenus',
-      gain:`Opportunité de hausse`,
-      action:"goTo('pricing',document.querySelector('[onclick*=pricing]'))",
-      btn:'Voir'
-    });
+    oppItems.push({icon:'\uD83C\uDF89',title:hotEvents.length+' \u00e9v\u00e9nement'+(hotEvents.length>1?'s':'')+' local \u2014 boost possible',gain:'+'+Math.round(hotEvents.length*150)+'\u20AC estim\u00e9s',action:"goTo('analyse-opportunites',document.querySelector('[data-page=analyse-opportunites]'))"});
   }
-  // Si rien d\u2019urgent
-  if(!priorities.length){
-    priorities.push({
-      icon:'✅',
-      color:'#059669',
-      bg:'#ECFDF5',
-      border:'rgba(5,150,105,.18)',
-      title:'Situation saine',
-      desc:'Tous vos biens sont correctement pilotés. Relancez un audit mensuel.',
-      gain:'',
-      action:"goTo('eva-audit',document.querySelector('[onclick*=eva-audit]'))",
-      btn:'Audit'
-    });
-  }
+  oppItems.push({icon:'\u2B50',title:'Upsells activ\u00e9s ce mois',gain:'+'+upsellsTotal.toLocaleString('fr-FR')+'\u20AC estim\u00e9s',action:"goTo('analyse-opportunites',document.querySelector('[data-page=analyse-opportunites]'))"});
 
-  // Compléter à 3 priorités si besoin
-  if(apts.length&&priorities.length<3){
-    priorities.push({
-      icon:'📊',
-      color:'#6B3FA0',
-      bg:'#F5F0FF',
-      border:'rgba(107,63,160,.18)',
-      title:'Lancer l\u2019audit mensuel',
-      desc:'Comprenez ce que chaque bien rapporte vraiment après charges.',
-      gain:'',
-      action:"goTo('eva-audit',document.querySelector('[onclick*=eva-audit]'))",
-      btn:'Lancer'
-    });
-  }
+  var oppHtml=oppItems.slice(0,4).map(function(o){
+    return '<div style="background:white;border:1px solid rgba(139,92,246,.1);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px">'+
+      '<div style="font-size:22px;flex-shrink:0">'+o.icon+'</div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:13px;font-weight:700;color:#17122E">'+o.title+'</div>'+
+      '</div>'+
+      '<div style="text-align:right;flex-shrink:0">'+
+        '<div style="font-size:15px;font-weight:900;color:#059669">'+o.gain+'</div>'+
+        '<button onclick="'+o.action+'" style="border:none;border-radius:8px;padding:4px 10px;background:linear-gradient(135deg,#6D28D9,#EC4899);color:white;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:4px">Voir \u2192</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
 
-  const prioritiesHtml=priorities.slice(0,3).map((p,i)=>`
-    <div style="display:grid;grid-template-columns:44px 1fr auto;gap:14px;align-items:center;background:${p.bg};border:1px solid ${p.border};border-radius:18px;padding:16px">
-      <div style="width:44px;height:44px;border-radius:14px;background:white;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 12px rgba(0,0,0,.06)">${p.icon}</div>
-      <div>
-        <div style="font-size:14px;font-weight:800;color:#17122E;margin-bottom:3px">${i+1}. ${p.title}</div>
-        <div style="font-size:12px;color:#7B708F;line-height:1.4">${p.desc}</div>
-        ${p.gain?`<div style="font-size:12px;font-weight:900;color:${p.color};margin-top:4px">${p.gain}</div>`:''}
-      </div>
-      <button onclick="${p.action}" style="border:none;border-radius:10px;padding:8px 14px;background:${p.color};color:white;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap">${p.btn}</button>
-    </div>`).join('');
+  // ─── ASSEMBLAGE HTML ───
+  dash.innerHTML=
+    // Hero
+    '<div style="background:linear-gradient(135deg,#211051 0%,#7C3AED 46%,#EC4899 100%);border-radius:22px;padding:24px 28px;margin-bottom:16px;color:#fff;position:relative;overflow:hidden">'+
+      '<div style="position:absolute;right:-60px;top:-70px;width:260px;height:260px;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 62%);pointer-events:none"></div>'+
+      '<div style="position:relative;z-index:1">'+
+        '<div style="font-size:10px;text-transform:uppercase;letter-spacing:1.2px;font-weight:900;color:rgba(255,255,255,.55);margin-bottom:8px">EVA Engine \u00b7 '+today.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'</div>'+
+        '<div style="font-size:clamp(18px,2.5vw,26px);font-weight:950;letter-spacing:-.5px;line-height:1.2;margin-bottom:6px">Bonjour \u2014 voici l\u2019essentiel d\u2019aujourd\u2019hui</div>'+
+        '<div style="font-size:13px;color:rgba(255,255,255,.7);margin-bottom:16px">'+monthRev.toLocaleString('fr-FR')+'\u20AC ce mois \u00b7 '+(apts.length-free.length)+'/'+apts.length+' biens lou\u00e9s ce soir \u00b7 '+occ14pct+'% occupation 14j</div>'+
+        '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+          '<span style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:4px 12px;font-size:12px;font-weight:700;color:#fff">'+monthRes.length+' r\u00e9sas</span>'+
+          (free.length?'<span style="background:rgba(220,38,38,.3);border:1px solid rgba(220,38,38,.4);border-radius:999px;padding:4px 12px;font-size:12px;font-weight:700;color:#fff">'+free.length+' libre'+(free.length>1?'s':'')+' ce soir</span>':'<span style="background:rgba(5,150,105,.3);border:1px solid rgba(5,150,105,.4);border-radius:999px;padding:4px 12px;font-size:12px;font-weight:700;color:#fff">\u2714 Tout lou\u00e9 ce soir</span>')+
+          (hotEvents.length?'<span style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:4px 12px;font-size:12px;font-weight:700;color:#fff">'+hotEvents.length+' \u00e9v\u00e9nement'+(hotEvents.length>1?'s':'')+' local</span>':'')+
+        '</div>'+
+      '</div>'+
+    '</div>'+
 
-  dash.innerHTML=`
-    <!-- Hero EVA -->
-    <div style="background:linear-gradient(135deg,#211051 0%,#7C3AED 46%,#EC4899 100%);border-radius:24px;padding:28px;margin-bottom:16px;color:#fff;position:relative;overflow:hidden">
-      <div style="position:absolute;right:-80px;top:-90px;width:320px;height:320px;background:radial-gradient(circle,rgba(255,255,255,.18),transparent 62%);pointer-events:none"></div>
-      <div style="position:relative;z-index:1">
-        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:900;color:rgba(255,255,255,.65);margin-bottom:10px">EVA Engine · ${new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</div>
-        <div style="font-size:clamp(22px,3vw,32px);font-weight:950;letter-spacing:-.8px;line-height:1.1;margin-bottom:8px">EVA a trouvé <span style="color:#FCD34D">${annualFmt} €</span><br>de potentiel cette année.</div>
-        <div style="font-size:14px;color:rgba(255,255,255,.75);margin-bottom:20px">Sur ${apts.length} logement${apts.length>1?'s':''} · ${hotEvents.length} événement${hotEvents.length>1?'s':''} détecté${hotEvents.length>1?'s':''} · ${free.length} nuit${free.length>1?'s':''} libre${free.length>1?'s':''} ce soir</div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button onclick="goTo('pricing',document.querySelector('[onclick*=pricing]'))" style="border:none;border-radius:12px;padding:10px 18px;background:white;color:#7C3AED;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit">🧠 EVA Pricing</button>
-          <button onclick="goTo('eva-audit',document.querySelector('[onclick*=eva-audit]'))" style="border:none;border-radius:12px;padding:10px 18px;background:rgba(255,255,255,.15);color:white;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit;border:1px solid rgba(255,255,255,.25)">📊 Lancer l\u2019audit</button>
-        </div>
-      </div>
-    </div>
+    // 2 colonnes
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">'+
 
-    <!-- Les 3 priorités -->
-    <div style="background:white;border:1px solid rgba(139,92,246,.14);border-radius:22px;padding:20px;margin-bottom:16px;box-shadow:0 14px 40px rgba(69,39,120,.06)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <div>
-          <div style="font-size:18px;font-weight:950;color:#17122E;letter-spacing:-.3px">Les 3 priorités du jour</div>
-          <div style="font-size:12px;color:#8A8A99;margin-top:3px">Ce que EVA recommande de faire maintenant</div>
-        </div>
-        <span style="font-size:11px;font-weight:900;background:#F3E8FF;color:#7C3AED;border-radius:999px;padding:4px 10px">EVA Engine</span>
-      </div>
-      <div style="display:grid;gap:10px">${prioritiesHtml}</div>
-    </div>
+      // Colonne gauche : À faire
+      '<div style="background:white;border:1px solid rgba(139,92,246,.12);border-radius:20px;padding:18px;box-shadow:0 6px 20px rgba(69,39,120,.06)">'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'+
+          '<div>'+
+            '<div style="font-family:Sora,sans-serif;font-size:15px;font-weight:800;color:#17122E">\uD83C\uDFAF \u00c0 faire aujourd\u2019hui</div>'+
+            '<div style="font-size:11px;color:#8A8A99;margin-top:2px">Priorit\u00e9s EVA du jour</div>'+
+          '</div>'+
+          '<span style="font-size:11px;font-weight:900;background:#F3E8FF;color:#7C3AED;border-radius:999px;padding:3px 9px">'+todoItems.slice(0,5).length+' action'+(todoItems.slice(0,5).length>1?'s':'')+'</span>'+
+        '</div>'+
+        '<div style="display:flex;flex-direction:column;gap:8px">'+todoHtml+'</div>'+
+      '</div>'+
 
-    <!-- 3 KPIs essentiels seulement -->
-    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">
-      <div style="background:white;border:1px solid rgba(139,92,246,.14);border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(69,39,120,.05)">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;font-weight:900;margin-bottom:8px">Revenus ce mois</div>
-        <div style="font-size:28px;font-weight:950;color:#17122E;letter-spacing:-.8px">${monthRev}€</div>
-        <div style="font-size:12px;color:#7B708F;margin-top:6px">${monthRes.length} réservation${monthRes.length>1?'s':''}</div>
-      </div>
-      <div style="background:white;border:1px solid rgba(139,92,246,.14);border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(69,39,120,.05)">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;font-weight:900;margin-bottom:8px">État ce soir</div>
-        <div style="font-size:28px;font-weight:950;color:${free.length?'#DC2626':'#059669'};letter-spacing:-.8px">${apts.length-free.length}/${apts.length}</div>
-        <div style="font-size:12px;color:#7B708F;margin-top:6px">${free.length?free.length+' libre'+(free.length>1?'s':''):'Tout loué ✓'}</div>
-      </div>
-      <div style="background:white;border:1px solid rgba(139,92,246,.14);border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(69,39,120,.05)">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;font-weight:900;margin-bottom:8px">Opportunités EVA</div>
-        <div style="font-size:28px;font-weight:950;color:${hotEvents.length?'#D97706':'#17122E'};letter-spacing:-.8px">${hotEvents.length}</div>
-        <div style="font-size:12px;color:#7B708F;margin-top:6px">${hotEvents.length?hotEvents.length+' signal'+( hotEvents.length>1?'s':'')+' EVA':'Aucune cette semaine'}</div>
-      </div>
-    </div>`;
+      // Colonne droite : Ce qui va bien
+      '<div style="background:white;border:1px solid rgba(5,150,105,.14);border-radius:20px;padding:18px;box-shadow:0 6px 20px rgba(5,150,105,.05)">'+
+        '<div style="margin-bottom:14px">'+
+          '<div style="font-family:Sora,sans-serif;font-size:15px;font-weight:800;color:#17122E">\u2728 Ce qui va bien</div>'+
+          '<div style="font-size:11px;color:#8A8A99;margin-top:2px">Situation op\u00e9rationnelle</div>'+
+        '</div>'+
+        '<div>'+goodHtml+'</div>'+
+        '<div style="margin-top:14px;padding-top:12px;border-top:1px solid #F3F0FA;font-size:12px;color:#059669;font-weight:700">\uD83D\uDCA1 Votre activit\u00e9 est sous contr\u00f4le.</div>'+
+      '</div>'+
+
+    '</div>'+
+
+    // Opportunités EVA (bas)
+    '<div style="background:linear-gradient(135deg,#F5F0FF,#FFF0F9);border:1px solid rgba(168,85,247,.16);border-radius:20px;padding:18px">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'+
+        '<div>'+
+          '<div style="font-family:Sora,sans-serif;font-size:15px;font-weight:800;color:#17122E">\uD83D\uDE80 Opportunit\u00e9s EVA</div>'+
+          '<div style="font-size:11px;color:#8A8A99;margin-top:2px">Gains potentiels identifi\u00e9s par EVA</div>'+
+        '</div>'+
+        '<button onclick="goTo(\'analyse-opportunites\',document.querySelector(\'[data-page=analyse-opportunites]\'))" style="border:none;border-radius:10px;padding:7px 14px;background:linear-gradient(135deg,#6D28D9,#EC4899);color:white;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit">Voir tout \u2192</button>'+
+      '</div>'+
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px">'+oppHtml+'</div>'+
+    '</div>';
 }
 
 function toggleCockpitTodo(id){
@@ -2133,13 +2151,16 @@ function toggleGroup(id){
 
 function openParentGroup(page){
   const map={
-    'missions-all':'grp-missions','missions-todo':'grp-missions','missions-done':'grp-missions',
-    'eva-audit':'grp-audit','audit-revenus':'grp-audit','audit-occupation':'grp-audit',
-    'audit-qualite':'grp-audit','audit-ota':'grp-audit','audit-tarification':'grp-audit',
-    'profit360':'grp-profit','profit-logement':'grp-profit','profit-opportunites':'grp-profit','profit-simulations':'grp-profit',
+    'missions-all':'grp-cleanyq','missions-todo':'grp-cleanyq','missions-done':'grp-cleanyq',
+    'cleanyq-today':'grp-cleanyq','cleanyq-missions':'grp-cleanyq','cleanyq-squad':'grp-cleanyq','clean':'grp-cleanyq',
+    'eva-audit':'grp-analyse','audit-revenus':'grp-analyse','audit-occupation':'grp-analyse',
+    'audit-qualite':'grp-analyse','audit-ota':'grp-analyse','audit-tarification':'grp-analyse',
+    'profit360':'grp-analyse','profit-logement':'grp-analyse','profit-opportunites':'grp-analyse','profit-simulations':'grp-analyse',
+    'analyse-globale':'grp-analyse','analyse-rentabilite':'grp-analyse','analyse-opportunites':'grp-analyse',
+    'analyse-economies':'grp-analyse','analyse-qualite':'grp-analyse',
     'parc':'grp-parc','parc-fiches':'grp-parc','parc-comparaison':'grp-parc',
     'calendrier':'grp-cal','reservations':'grp-cal','nuits-vacantes':'grp-cal',
-    'settings-profil':'grp-settings','squad':'grp-settings','settings-commissions':'grp-settings','clean':'grp-settings','tarifs':'grp-settings'
+    'settings-profil':'grp-settings','squad':'grp-settings','settings-commissions':'grp-settings','tarifs':'grp-settings'
   };
   const grpId=map[page];
   if(!grpId)return;
@@ -2192,6 +2213,17 @@ function goTo(page,btn){
   if(page==='audit-qualite')renderAudit360Qualite();
   if(page==='audit-ota')renderAudit360Ota();
   if(page==='audit-tarification')renderAudit360Tarification();
+  // Analyse EVA V2
+  if(page==='analyse-globale')renderAnalyseGlobale();
+  if(page==='analyse-rentabilite')renderAnalyseRentabilite();
+  if(page==='analyse-opportunites')renderAnalyseOpportunites();
+  if(page==='analyse-economies')renderAnalyseEconomies();
+  if(page==='analyse-qualite')renderAnalyseQualite();
+  // CleanyQ V2
+  if(page==='cleanyq-today')renderCleanyQToday();
+  if(page==='cleanyq-missions')renderCleanyQMissions();
+  if(page==='cleanyq-squad')renderCleanyQSquad();
+  if(page==='clean')renderCleanyQToday();
 }
 
 /* ====================================================
@@ -3241,6 +3273,602 @@ function renderAudit360Tarification(){
         '<span class="a360-badge a360-badge-purple">EVA Engine</span>'+
       '</div>'+
       alerts+
+    '</div>';
+}
+
+/* ====================================================
+   ANALYSE EVA V2 — 5 sections
+   ==================================================== */
+
+function analyseEmpty(msg){
+  return '<div class="a360-empty"><div class="a360-empty-icon">\uD83D\uDCCA</div>'+
+    '<div class="a360-empty-title">Donn\u00e9es insuffisantes</div>'+
+    '<div class="a360-empty-sub">'+(msg||'Ajoutez des logements et des r\u00e9servations pour activer cette analyse.')+'</div></div>';
+}
+
+/* ── 1. VUE GLOBALE ── */
+function renderAnalyseGlobale(){
+  var dash=document.getElementById('analyse-globale-dash');
+  if(!dash)return;
+  if(!apparts.length){dash.innerHTML=analyseEmpty();return;}
+
+  var today=new Date();
+  var month=today.toISOString().slice(0,7);
+  var daysElapsed=Math.max(1,today.getDate());
+  var daysInMonth=new Date(today.getFullYear(),today.getMonth()+1,0).getDate();
+
+  // CA brut du mois
+  var monthRes=reservations.filter(function(r){return r.date_from&&r.date_from.startsWith(month);});
+  var caTotal=monthRes.reduce(function(s,r){return s+(r.price_total||0);},0);
+  var totalNights=monthRes.reduce(function(s,r){return s+(r.nights||0);},0);
+  var adr=totalNights>0?Math.round(caTotal/totalNights):0;
+  var avNights=apparts.length*daysElapsed;
+  var revpar=avNights>0?Math.round(caTotal/avNights):0;
+  var occ=avNights>0?Math.min(100,Math.round(totalNights/avNights*100)):0;
+
+  // Charges mensuelles estimées (depuis charges fixes)
+  var chargesTotal=chargesData?chargesData.filter(function(c){return c.per==='mois'&&c.type==='fixe';}).reduce(function(s,c){return s+(c.amount||0);},0):0;
+  var resultatNet=caTotal-chargesTotal;
+  var marge=caTotal>0?Math.round(resultatNet/caTotal*100):0;
+  var margeColor=marge>=40?'#059669':marge>=25?'#D97706':'#DC2626';
+
+  // Potentiel EVA
+  var potentialTotal=apparts.reduce(function(s,a){return s+(a.ai_rec>a.price?(a.ai_rec-a.price)*Math.max(4,Math.round(totalNights/Math.max(1,apparts.length))):0);},0);
+  var caAnnuel=Math.round(caTotal*12);
+
+  // KPIs par mois (6 derniers mois pour sparkline)
+  var months6=[];
+  for(var i=5;i>=0;i--){var d=new Date(today.getFullYear(),today.getMonth()-i,1);months6.push(d.toISOString().slice(0,7));}
+  var monthlyCA=months6.map(function(m){
+    return reservations.filter(function(r){return r.date_from&&r.date_from.startsWith(m);}).reduce(function(s,r){return s+(r.price_total||0);},0);
+  });
+  var maxCA=Math.max.apply(null,monthlyCA)||1;
+
+  var sparkBars=monthlyCA.map(function(v,i){
+    var h=Math.max(4,Math.round(v/maxCA*48));
+    var isCurrentMonth=(months6[i]===month);
+    return '<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1">'+
+      '<div style="width:100%;height:'+h+'px;background:'+(isCurrentMonth?'linear-gradient(180deg,#6D28D9,#EC4899)':'rgba(109,40,217,.25)')+';border-radius:4px 4px 0 0;min-height:4px"></div>'+
+      '<div style="font-size:8px;color:#B0A8C8;font-weight:700">'+months6[i].slice(5)+'</div>'+
+    '</div>';
+  }).join('');
+
+  dash.innerHTML=
+    '<div class="a360-hero" style="margin-bottom:16px">'+
+      '<div class="a360-hero-kicker">Analyse EVA \u00b7 Vue globale</div>'+
+      '<div class="a360-hero-title">'+caTotal.toLocaleString('fr-FR')+'\u20AC g\u00e9n\u00e9r\u00e9s ce mois \u2014 '+caAnnuel.toLocaleString('fr-FR')+'\u20AC estim\u00e9s / an</div>'+
+      '<div class="a360-hero-sub">Marge nette : '+marge+'% \u00b7 '+apparts.length+' logements \u00b7 Occupation : '+occ+'%</div>'+
+      '<div class="a360-hero-chips">'+
+        '<span class="a360-hero-chip accent">'+caTotal.toLocaleString('fr-FR')+'\u20AC CA brut</span>'+
+        '<span class="a360-hero-chip">'+resultatNet.toLocaleString('fr-FR')+'\u20AC net estim\u00e9</span>'+
+        '<span class="a360-hero-chip">'+marge+'% marge</span>'+
+        (potentialTotal>0?'<span class="a360-hero-chip">+'+Math.round(potentialTotal)+'\u20AC potentiel EVA</span>':'')+
+      '</div>'+
+    '</div>'+
+
+    // KPI strip
+    '<div class="p360-kpi-strip" style="margin-bottom:14px">'+
+      '<div class="p360-kpi-card accent">'+
+        '<div class="p360-kpi-lbl">CA brut / mois</div>'+
+        '<div class="p360-kpi-val">'+caTotal.toLocaleString('fr-FR')+'\u20AC</div>'+
+        '<div class="p360-kpi-help">'+daysElapsed+'/'+daysInMonth+' jours</div>'+
+      '</div>'+
+      '<div class="p360-kpi-card">'+
+        '<div class="p360-kpi-lbl">Charges estim\u00e9es</div>'+
+        '<div class="p360-kpi-val" style="color:#DC2626">'+chargesTotal.toLocaleString('fr-FR')+'\u20AC</div>'+
+        '<div class="p360-kpi-help">charges fixes</div>'+
+      '</div>'+
+      '<div class="p360-kpi-card">'+
+        '<div class="p360-kpi-lbl">R\u00e9sultat net</div>'+
+        '<div class="p360-kpi-val" style="color:'+margeColor+'">'+resultatNet.toLocaleString('fr-FR')+'\u20AC</div>'+
+        '<div class="p360-kpi-help">'+marge+'% de marge</div>'+
+      '</div>'+
+      '<div class="p360-kpi-card">'+
+        '<div class="p360-kpi-lbl">ADR</div>'+
+        '<div class="p360-kpi-val">'+adr+'\u20AC</div>'+
+        '<div class="p360-kpi-help">prix moyen / nuit</div>'+
+      '</div>'+
+      '<div class="p360-kpi-card">'+
+        '<div class="p360-kpi-lbl">Potentiel EVA</div>'+
+        '<div class="p360-kpi-val" style="color:#7C3AED">+'+(potentialTotal>0?Math.round(potentialTotal):'—')+( potentialTotal>0?'\u20AC':'')+' </div>'+
+        '<div class="p360-kpi-help">par mois</div>'+
+      '</div>'+
+    '</div>'+
+
+    // Graphique CA mensuel
+    '<div class="p360-section">'+
+      '<div class="p360-section-head">'+
+        '<div><div class="p360-section-title">\uD83D\uDCC8 Evolution du CA sur 6 mois</div></div>'+
+        '<span class="a360-badge a360-badge-purple">'+caAnnuel.toLocaleString('fr-FR')+'\u20AC / an estim\u00e9</span>'+
+      '</div>'+
+      '<div style="display:flex;align-items:flex-end;gap:8px;height:80px;padding:0 4px">'+sparkBars+'</div>'+
+    '</div>'+
+
+    // Navigation vers sous-sections
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:4px">'+
+      ['analyse-rentabilite:\uD83C\uDFE0 Rentabilit\u00e9 par logement',
+       'analyse-opportunites:\uD83D\uDE80 Opportunit\u00e9s EVA',
+       'analyse-economies:\uD83D\uDCB0 \u00c9conomies EVA',
+       'analyse-qualite:\u2B50 Qualit\u00e9 voyageurs'].map(function(x){
+        var parts=x.split(':');
+        return '<button class="a360-action-btn" onclick="goTo(\''+parts[0]+'\',document.querySelector(\'[data-page='+parts[0]+']\'))">'+parts[1]+' \u2192</button>';
+      }).join('')+
+    '</div>';
+}
+
+/* ── 2. RENTABILITÉ ── */
+function renderAnalyseRentabilite(){
+  var dash=document.getElementById('analyse-rentabilite-dash');
+  if(!dash)return;
+  if(!apparts.length){dash.innerHTML=analyseEmpty();return;}
+
+  var today=new Date();
+  var month=today.toISOString().slice(0,7);
+  var daysElapsed=Math.max(1,today.getDate());
+
+  var stats=apparts.map(function(a){
+    var aptRes=reservations.filter(function(r){return r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(month);});
+    var ca=aptRes.reduce(function(s,r){return s+(r.price_total||0);},0);
+    var nights=aptRes.reduce(function(s,r){return s+(r.nights||0);},0);
+    var occ=daysElapsed>0?Math.min(100,Math.round(nights/daysElapsed*100)):0;
+    var adr=nights>0?Math.round(ca/nights):0;
+    // Charges fixes pour ce bien
+    var aptCharges=chargesData?chargesData.filter(function(c){return c.appartement_id===a.id&&c.per==='mois'&&c.type==='fixe';}).reduce(function(s,c){return s+(c.amount||0);},0):0;
+    // Charges fixes globales (sans appartement_id)
+    var net=ca-aptCharges;
+    var marge=ca>0?Math.round(net/ca*100):0;
+    var margeColor=marge>=40?'#059669':marge>=25?'#D97706':'#DC2626';
+    var margeBadge=marge>=40?'a360-badge-green':marge>=25?'a360-badge-orange':'a360-badge-red';
+    return {a:a,ca:ca,aptCharges:aptCharges,net:net,marge:marge,margeColor:margeColor,margeBadge:margeBadge,occ:occ,adr:adr};
+  }).sort(function(x,y){return y.net-x.net;});
+
+  var totalCA=stats.reduce(function(s,r){return s+r.ca;},0);
+  var totalCharges=stats.reduce(function(s,r){return s+r.aptCharges;},0);
+  var totalNet=totalCA-totalCharges;
+  var avgMarge=totalCA>0?Math.round(totalNet/totalCA*100):0;
+  var margeGlobalColor=avgMarge>=40?'#059669':avgMarge>=25?'#D97706':'#DC2626';
+
+  var rows=stats.map(function(s,i){
+    var occColor=s.occ>=65?'#059669':s.occ>=45?'#D97706':'#DC2626';
+    var occBar='<div style="height:4px;background:#F3F0FA;border-radius:999px;overflow:hidden;margin-top:4px">'+
+      '<div style="height:100%;width:'+s.occ+'%;background:'+occColor+';border-radius:999px"></div></div>';
+    return '<tr>'+
+      '<td><div style="display:flex;align-items:center;gap:8px">'+
+        '<div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);display:flex;align-items:center;justify-content:center;font-size:14px">'+(s.a.emoji||'\uD83C\uDFE0')+'</div>'+
+        '<div><div style="font-size:13px;font-weight:700;color:#17122E">'+s.a.name+'</div><div style="font-size:10px;color:#8A8A99">'+s.a.city+'</div></div></div></td>'+
+      '<td style="font-weight:800;color:#17122E">'+s.ca.toLocaleString('fr-FR')+'\u20AC</td>'+
+      '<td style="color:#DC2626">'+s.aptCharges.toLocaleString('fr-FR')+'\u20AC</td>'+
+      '<td style="font-weight:800;color:'+s.margeColor+'">'+s.net.toLocaleString('fr-FR')+'\u20AC</td>'+
+      '<td><span class="a360-badge '+s.margeBadge+'">'+s.marge+'%</span></td>'+
+      '<td><div style="font-size:12px;color:'+occColor+';font-weight:700">'+s.occ+'%</div>'+occBar+'</td>'+
+    '</tr>';
+  }).join('');
+
+  dash.innerHTML=
+    '<div class="a360-hero" style="margin-bottom:16px">'+
+      '<div class="a360-hero-kicker">Analyse EVA \u00b7 Rentabilit\u00e9</div>'+
+      '<div class="a360-hero-title">'+totalNet.toLocaleString('fr-FR')+'\u20AC de r\u00e9sultat net ce mois</div>'+
+      '<div class="a360-hero-sub">'+apparts.length+' logements \u00b7 Marge moyenne : '+avgMarge+'% \u00b7 Charges : '+totalCharges.toLocaleString('fr-FR')+'\u20AC</div>'+
+      '<div class="a360-hero-chips">'+
+        '<span class="a360-hero-chip accent">'+totalCA.toLocaleString('fr-FR')+'\u20AC CA</span>'+
+        '<span class="a360-hero-chip">'+totalCharges.toLocaleString('fr-FR')+'\u20AC charges</span>'+
+        '<span class="a360-hero-chip">'+avgMarge+'% marge</span>'+
+      '</div>'+
+    '</div>'+
+    '<div class="p360-kpi-strip" style="margin-bottom:14px">'+
+      '<div class="p360-kpi-card accent"><div class="p360-kpi-lbl">CA brut</div><div class="p360-kpi-val">'+totalCA.toLocaleString('fr-FR')+'\u20AC</div></div>'+
+      '<div class="p360-kpi-card"><div class="p360-kpi-lbl">Charges fixes</div><div class="p360-kpi-val" style="color:#DC2626">'+totalCharges.toLocaleString('fr-FR')+'\u20AC</div></div>'+
+      '<div class="p360-kpi-card"><div class="p360-kpi-lbl">R\u00e9sultat net</div><div class="p360-kpi-val" style="color:'+margeGlobalColor+'">'+totalNet.toLocaleString('fr-FR')+'\u20AC</div></div>'+
+      '<div class="p360-kpi-card"><div class="p360-kpi-lbl">Marge moyenne</div><div class="p360-kpi-val" style="color:'+margeGlobalColor+'">'+avgMarge+'%</div></div>'+
+    '</div>'+
+    '<div class="p360-section">'+
+      '<div class="p360-section-head">'+
+        '<div><div class="p360-section-title">\uD83C\uDFE0 Rentabilit\u00e9 par logement</div><div class="p360-section-sub">CA, charges, r\u00e9sultat net et marge ce mois</div></div>'+
+        '<span class="a360-badge a360-badge-purple">'+apparts.length+' logements</span>'+
+      '</div>'+
+      '<div class="a360-table-wrap">'+
+        '<table class="a360-table"><thead><tr>'+
+          '<th>Logement</th><th>CA</th><th>Charges</th><th>Net</th><th>Marge</th><th>Occupation</th>'+
+        '</tr></thead><tbody>'+rows+'</tbody></table>'+
+      '</div>'+
+    '</div>';
+}
+
+/* ── 3. OPPORTUNITÉS EVA ── */
+function renderAnalyseOpportunites(){
+  var dash=document.getElementById('analyse-opportunites-dash');
+  if(!dash)return;
+  if(!apparts.length){dash.innerHTML=analyseEmpty();return;}
+  // Réutilise renderProfit360Opportunites() sur le bon conteneur
+  var tmp=document.createElement('div');
+  var oldId='profit-opportunites-dash';
+  var realDash=document.getElementById(oldId);
+  // Créer un conteneur temporaire, injecter, copier
+  if(typeof renderProfit360Opportunites==='function'){
+    var el=document.getElementById('profit-opportunites-dash');
+    if(!el){
+      el=document.createElement('div');
+      el.id='profit-opportunites-dash';
+      el.style.display='none';
+      document.body.appendChild(el);
+    }
+    renderProfit360Opportunites();
+    dash.innerHTML='<div class="a360-hero" style="margin-bottom:16px">'+
+      '<div class="a360-hero-kicker">Analyse EVA \u00b7 Opportunit\u00e9s</div>'+
+      '<div class="a360-hero-title">Leviers identifi\u00e9s par EVA pour augmenter votre CA</div>'+
+      '<div class="a360-hero-sub">Pricing, remplissage, \u00e9v\u00e9nements locaux et upsells</div>'+
+    '</div>'+el.innerHTML;
+  } else {
+    dash.innerHTML=analyseEmpty('Opportunit\u00e9s en cours de chargement.');
+  }
+}
+
+/* ── 4. ÉCONOMIES EVA ── */
+function renderAnalyseEconomies(){
+  var dash=document.getElementById('analyse-economies-dash');
+  if(!dash)return;
+  if(!apparts.length){dash.innerHTML=analyseEmpty();return;}
+
+  var allCharges=chargesData||[];
+  var today=new Date();
+  var month=today.toISOString().slice(0,7);
+
+  // Identifier les anomalies par logement
+  var anomalies=[];
+
+  apparts.forEach(function(a){
+    var aptCharges=allCharges.filter(function(c){return c.appartement_id===a.id;});
+    // Charges énergivores : électricité > 0.6€/m² (vs 0.55€/m² standard)
+    var elec=aptCharges.find(function(c){return c.category==='Électricité';});
+    if(elec&&a.surface_m2&&(elec.amount/a.surface_m2)>0.62){
+      anomalies.push({type:'risk',icon:'\u26A1',apt:a.name,title:'Consommation \u00e9lectrique \u00e9lev\u00e9e',desc:elec.amount+'\u20AC/mois \u2014 '+(Math.round(elec.amount/a.surface_m2*100)/100).toFixed(2)+'\u20AC/m\u00b2 (moy. 0,55\u20AC)',gain:Math.round((elec.amount/a.surface_m2-0.55)*a.surface_m2*12)});
+    }
+    // Réparations répétées : plusieurs charges exceptionnelles
+    var repairs=aptCharges.filter(function(c){return c.type==='variable';});
+    if(repairs.length>=2){
+      var totalRepairs=repairs.reduce(function(s,c){return s+(c.amount||0);},0);
+      anomalies.push({type:'warn',icon:'\uD83D\uDD27',apt:a.name,title:repairs.length+' charge'+(repairs.length>1?'s':'')+' exceptionnelle'+(repairs.length>1?'s':'')+' d\u00e9tect\u00e9e'+(repairs.length>1?'s':''),desc:'Total : '+totalRepairs+'\u20AC ('+repairs.map(function(r){return r.label;}).slice(0,2).join(', ')+'...)',gain:Math.round(totalRepairs*0.3)});
+    }
+    // Ménage coûteux vs occupation
+    var menage=aptCharges.find(function(c){return c.category==='M\u00e9nage';});
+    var aptRes=reservations.filter(function(r){return r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(month);});
+    var nbRes=aptRes.length;
+    if(menage&&nbRes>0&&menage.amount/nbRes>18){
+      anomalies.push({type:'warn',icon:'\uD83E\uDDF9',apt:a.name,title:'Co\u00fbt m\u00e9nage \u00e9lev\u00e9 par rotation',desc:menage.amount+'\u20AC/mois pour '+nbRes+' rotation'+(nbRes>1?'s':'')+' \u2014 '+(Math.round(menage.amount/nbRes))+'\u20AC/r\u00e9sa (moy. 15\u20AC)',gain:Math.round((menage.amount/nbRes-15)*nbRes*12)});
+    }
+  });
+
+  if(!anomalies.length){
+    anomalies.push({type:'ok',icon:'\u2705',apt:'Tous les biens',title:'Aucune anomalie de co\u00fbt d\u00e9tect\u00e9e',desc:'Vos charges sont dans les normes. EVA surveille en continu.',gain:0});
+  }
+
+  var totalGain=anomalies.reduce(function(s,a){return s+(a.gain||0);},0);
+  var typeColors={'risk':'#FEF2F2','warn':'#FFFBEB','ok':'#F0FDF4'};
+  var typeBorders={'risk':'rgba(220,38,38,.14)','warn':'rgba(217,119,6,.14)','ok':'rgba(5,150,105,.14)'};
+
+  var cards=anomalies.map(function(an){
+    return '<div style="background:'+typeColors[an.type]+';border:1px solid '+typeBorders[an.type]+';border-radius:14px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px;margin-bottom:10px">'+
+      '<div style="font-size:22px;flex-shrink:0">'+an.icon+'</div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:13px;font-weight:800;color:#17122E;margin-bottom:3px">'+an.apt+' \u2014 '+an.title+'</div>'+
+        '<div style="font-size:11px;color:#7B708F;line-height:1.45">'+an.desc+'</div>'+
+      '</div>'+
+      (an.gain>0?'<div style="text-align:right;flex-shrink:0"><div style="font-size:16px;font-weight:900;color:#059669">+'+an.gain+'\u20AC</div><div style="font-size:9px;color:#8A8A99;text-transform:uppercase;letter-spacing:.5px">/ an</div></div>':'')+
+    '</div>';
+  }).join('');
+
+  dash.innerHTML=
+    '<div class="a360-hero" style="margin-bottom:16px">'+
+      '<div class="a360-hero-kicker">Analyse EVA \u00b7 \u00c9conomies EVA</div>'+
+      '<div class="a360-hero-title">'+anomalies.length+' signal'+(anomalies.length>1?'s':'')+' d\u00e9tect\u00e9'+(anomalies.length>1?'s':'')+' par EVA</div>'+
+      '<div class="a360-hero-sub">'+( totalGain>0?'Potentiel d\u2019\u00e9conomie : +'+totalGain.toLocaleString('fr-FR')+'\u20AC / an':'Vos co\u00fbts sont optimis\u00e9s')+'</div>'+
+      '<div class="a360-hero-chips">'+
+        '<span class="a360-hero-chip accent">'+anomalies.length+' signal'+(anomalies.length>1?'s':'')+'</span>'+
+        (totalGain>0?'<span class="a360-hero-chip">+'+totalGain.toLocaleString('fr-FR')+'\u20AC / an potentiel</span>':'')+
+      '</div>'+
+    '</div>'+
+    '<div class="p360-section">'+
+      '<div class="p360-section-head">'+
+        '<div><div class="p360-section-title">\uD83D\uDCB0 Signaux \u00e9conomies EVA</div><div class="p360-section-sub">Anomalies co\u00fbts et leviers d\u2019optimisation</div></div>'+
+        '<span class="a360-badge a360-badge-purple">EVA Engine</span>'+
+      '</div>'+
+      cards+
+    '</div>';
+}
+
+/* ── 5. QUALITÉ VOYAGEURS ── */
+function renderAnalyseQualite(){
+  var dash=document.getElementById('analyse-qualite-dash');
+  if(!dash)return;
+  if(!apparts.length){dash.innerHTML=analyseEmpty();return;}
+
+  var withNote=apparts.filter(function(a){return a.note&&Number(a.note)>0;});
+  var avgNote=withNote.length?Math.round(withNote.reduce(function(s,a){return s+Number(a.note);},0)/withNote.length*10)/10:0;
+  var noteColor=avgNote>=4.5?'#059669':avgNote>=4?'#D97706':'#DC2626';
+
+  // Missions avec mauvaise note hôte
+  var allMissions=[];
+  try{allMissions=generateEvaMissions();}catch(e){}
+  var badMissions=allMissions.filter(function(m){return m.type==='qualite'||m.type==='menage';}).slice(0,4);
+
+  var noteCards=apparts.map(function(a){
+    var n=Number(a.note||0);
+    if(!n)return '';
+    var nColor=n>=4.5?'#059669':n>=4?'#D97706':'#DC2626';
+    var stars='\u2605'.repeat(Math.round(n))+'\u2606'.repeat(5-Math.round(n));
+    var badge=n>=4.8?'<span class="a360-badge a360-badge-green">Excellent</span>':
+              n>=4.5?'<span class="a360-badge a360-badge-purple">Bon</span>':
+              n>=4?'<span class="a360-badge a360-badge-orange">\u00c0 am\u00e9liorer</span>':
+              '<span class="a360-badge a360-badge-red">Critique</span>';
+    var barW=Math.round((n/5)*100);
+    return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F3F0FA">'+
+      '<div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">'+(a.emoji||'\uD83C\uDFE0')+'</div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:13px;font-weight:700;color:#17122E">'+a.name+'</div>'+
+        '<div style="height:4px;background:#F3F0FA;border-radius:999px;margin-top:5px;overflow:hidden">'+
+          '<div style="height:100%;width:'+barW+'%;background:'+nColor+';border-radius:999px"></div>'+
+        '</div>'+
+      '</div>'+
+      '<div style="text-align:right;flex-shrink:0">'+
+        '<div style="font-size:16px;font-weight:900;color:'+nColor+'">'+n+'<span style="font-size:10px;color:#8A8A99">/5</span></div>'+
+        '<div style="font-size:10px;color:#F59E0B">'+stars+'</div>'+
+      '</div>'+
+      '<div style="flex-shrink:0">'+badge+'</div>'+
+    '</div>';
+  }).filter(Boolean).join('');
+
+  var alertsQualite=[];
+  apparts.forEach(function(a){
+    var n=Number(a.note||0);
+    if(n>0&&n<4) alertsQualite.push('<div class="a360-alert a360-alert-risk"><div class="a360-alert-icon">\u26A0\uFE0F</div><div><div class="a360-alert-title">'+a.name+' \u2014 note critique : '+n+'/5</div><div class="a360-alert-desc">Priorit\u00e9 : am\u00e9liorer m\u00e9nage, \u00e9quipements ou description avant d\u2019augmenter les prix.</div></div></div>');
+    else if(n>=4&&n<4.5) alertsQualite.push('<div class="a360-alert a360-alert-warn"><div class="a360-alert-icon">\uD83D\uDCA1</div><div><div class="a360-alert-title">'+a.name+' \u2014 note \u00e0 am\u00e9liorer : '+n+'/5</div><div class="a360-alert-desc">Chaque +0,5 point de note peut augmenter la conversion de 10% et justifier une hausse tarifaire.</div></div></div>');
+    else if(n>=4.8) alertsQualite.push('<div class="a360-alert a360-alert-ok"><div class="a360-alert-icon">\uD83C\uDFC6</div><div><div class="a360-alert-title">'+a.name+' \u2014 note excellente : '+n+'/5</div><div class="a360-alert-desc">Ce bien peut justifier une hausse de prix. Les voyageurs paient plus pour l\u2019excellence.</div></div></div>');
+  });
+  if(!alertsQualite.length) alertsQualite.push('<div class="a360-alert a360-alert-ok"><div class="a360-alert-icon">\u2705</div><div><div class="a360-alert-title">Renseignez les notes Airbnb/Booking dans les fiches logements</div><div class="a360-alert-desc">EVA g\u00e9n\u00e8rera des recommandations personnalis\u00e9es pour chaque bien.</div></div></div>');
+
+  dash.innerHTML=
+    '<div class="a360-hero" style="margin-bottom:16px">'+
+      '<div class="a360-hero-kicker">Analyse EVA \u00b7 Qualit\u00e9 voyageurs</div>'+
+      '<div class="a360-hero-title">Note moyenne parc : '+avgNote+'/5</div>'+
+      '<div class="a360-hero-sub">'+withNote.length+' logement'+(withNote.length>1?'s':'')+' not\u00e9'+(withNote.length>1?'s':'')+' \u2014 '+withNote.filter(function(a){return Number(a.note)>=4.5;}).length+' excellent'+(withNote.filter(function(a){return Number(a.note)>=4.5;}).length>1?'s':'')+'</div>'+
+      '<div class="a360-hero-chips">'+
+        '<span class="a360-hero-chip accent">'+avgNote+'/5 moyenne</span>'+
+        '<span class="a360-hero-chip">'+withNote.filter(function(a){return Number(a.note)>=4.5;}).length+' biens excellents</span>'+
+        (withNote.filter(function(a){return Number(a.note)<4;}).length?'<span class="a360-hero-chip" style="background:rgba(220,38,38,.25);border-color:rgba(220,38,38,.4)">'+withNote.filter(function(a){return Number(a.note)<4;}).length+' action'+(withNote.filter(function(a){return Number(a.note)<4;}).length>1?'s':'')+' requise'+(withNote.filter(function(a){return Number(a.note)<4;}).length>1?'s':'')+'</span>':'')+
+      '</div>'+
+    '</div>'+
+    '<div class="p360-section" style="margin-bottom:14px">'+
+      '<div class="p360-section-head"><div><div class="p360-section-title">\u2B50 Notes par logement</div></div><span class="a360-badge a360-badge-purple">'+avgNote+'/5</span></div>'+
+      (noteCards||'<div style="font-size:13px;color:#8A8A99;padding:10px 0">Renseignez les notes dans les fiches logements pour activer cette vue.</div>')+
+    '</div>'+
+    '<div class="p360-section">'+
+      '<div class="p360-section-head"><div><div class="p360-section-title">\uD83D\uDEA8 Alertes EVA Qualit\u00e9</div></div><span class="a360-badge a360-badge-purple">EVA Engine</span></div>'+
+      alertsQualite.join('')+
+    '</div>';
+}
+
+/* ====================================================
+   CLEANYQ V2 — 3 sous-sections
+   ==================================================== */
+
+/* ── Aujourd'hui ── */
+function renderCleanyQToday(){
+  var dash=document.getElementById('cleanyq-today-dash');
+  if(!dash)return;
+  var today=new Date();
+  var todayIso=today.toISOString().slice(0,10);
+
+  // Réservations avec check-in ou check-out aujourd'hui
+  var checkinsToday=reservations.filter(function(r){return r.date_from===todayIso;});
+  var checkoutsToday=reservations.filter(function(r){return r.date_to===todayIso;});
+  // Missions du jour
+  var allMissions=cleaningMissions||[];
+  var todayMissions=allMissions.filter(function(m){return m.date===todayIso;});
+  var done=todayMissions.filter(function(m){return m.status==='termine';});
+  var pending=todayMissions.filter(function(m){return m.status==='en_attente';});
+  var inProgress=todayMissions.filter(function(m){return m.status==='en_cours';});
+  var risk=checkinsToday.filter(function(r){
+    return !allMissions.some(function(m){return m.appartement_id===r.appartement_id&&m.date===todayIso;});
+  });
+
+  var heroClass=risk.length?'urgent':'ok';
+  var heroTitle=risk.length?risk.length+' check-in sans m\u00e9nage assign\u00e9 !':
+    done.length===todayMissions.length&&todayMissions.length>0?'Tous les m\u00e9nages valid\u00e9s \u2714':
+    'Op\u00e9rations du jour sous contr\u00f4le';
+
+  // KPI strip
+  var kpiHtml='<div class="p360-kpi-strip" style="margin-bottom:14px">'+
+    '<div class="p360-kpi-card '+(risk.length?'':'accent')+'">'+
+      '<div class="p360-kpi-lbl">Check-ins</div>'+
+      '<div class="p360-kpi-val" style="color:'+(checkinsToday.length?'#17122E':'#8A8A99')+'">'+checkinsToday.length+'</div>'+
+      '<div class="p360-kpi-help">aujourd\u2019hui</div>'+
+    '</div>'+
+    '<div class="p360-kpi-card">'+
+      '<div class="p360-kpi-lbl">Check-outs</div>'+
+      '<div class="p360-kpi-val">'+checkoutsToday.length+'</div>'+
+      '<div class="p360-kpi-help">aujourd\u2019hui</div>'+
+    '</div>'+
+    '<div class="p360-kpi-card">'+
+      '<div class="p360-kpi-lbl">M\u00e9nages</div>'+
+      '<div class="p360-kpi-val">'+todayMissions.length+'</div>'+
+      '<div class="p360-kpi-help">pr\u00e9vus</div>'+
+    '</div>'+
+    '<div class="p360-kpi-card">'+
+      '<div class="p360-kpi-lbl">Valid\u00e9s</div>'+
+      '<div class="p360-kpi-val" style="color:#059669">'+done.length+'</div>'+
+      '<div class="p360-kpi-help">termin\u00e9s</div>'+
+    '</div>'+
+    '<div class="p360-kpi-card '+(risk.length?'accent':'')+'">'+
+      '<div class="p360-kpi-lbl">\u00c0 risque</div>'+
+      '<div class="p360-kpi-val" style="color:'+(risk.length?'#DC2626':'#059669')+'">'+risk.length+'</div>'+
+      '<div class="p360-kpi-help">'+(risk.length?'sans cleaner':'OK')+'</div>'+
+    '</div>'+
+  '</div>';
+
+  // Alerte risque
+  var riskAlert='';
+  if(risk.length){
+    riskAlert=risk.map(function(r){
+      return '<div class="a360-alert a360-alert-risk" style="margin-bottom:8px">'+
+        '<div class="a360-alert-icon">\uD83D\uDEA8</div>'+
+        '<div style="flex:1">'+
+          '<div class="a360-alert-title">Check-in sans m\u00e9nage : '+r.apartment_name+'</div>'+
+          '<div class="a360-alert-desc">Voyageur : '+r.guest_name+' \u2014 arriv\u00e9e aujourd\u2019hui. Aucune mission de m\u00e9nage assign\u00e9e.</div>'+
+        '</div>'+
+        '<button class="eva-action-day-btn" onclick="openMissionModal()">Cr\u00e9er</button>'+
+      '</div>';
+    }).join('');
+  }
+
+  // Missions du jour liste
+  var missionsList='';
+  if(todayMissions.length){
+    missionsList=todayMissions.map(function(m){
+      var apt=apparts.find(function(a){return a.id===m.appartement_id;})||{name:m.appartement_id,emoji:'\uD83C\uDFE0'};
+      var statusLabel=m.status==='termine'?'\u2705 Valid\u00e9':m.status==='en_cours'?'\uD83D\uDD04 En cours':'\u23F3 En attente';
+      var statusColor=m.status==='termine'?'#059669':m.status==='en_cours'?'#D97706':'#8A8A99';
+      return '<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #F3F0FA">'+
+        '<div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">'+(apt.emoji||'\uD83C\uDFE0')+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-size:13px;font-weight:700;color:#17122E">'+apt.name+'</div>'+
+          '<div style="font-size:11px;color:#8A8A99">'+(m.heure||'10:00')+' \u00b7 '+(m.duree_min||90)+' min \u00b7 '+m.tarif+'\u20AC</div>'+
+        '</div>'+
+        '<div style="font-size:11px;font-weight:700;color:'+statusColor+'">'+statusLabel+'</div>'+
+      '</div>';
+    }).join('');
+  } else {
+    missionsList='<div style="text-align:center;padding:2rem;color:#8A8A99;font-size:13px">Aucune mission de m\u00e9nage pr\u00e9vue aujourd\u2019hui.</div>';
+  }
+
+  dash.innerHTML=
+    '<div class="a360-hero" style="margin-bottom:16px;background:'+(risk.length?'linear-gradient(135deg,#7F1D1D,#DC2626)':'linear-gradient(135deg,#211051,#6D28D9,#EC4899)')+'">'+
+      '<div class="a360-hero-kicker">CleanyQ \u00b7 Aujourd\u2019hui \u00b7 '+todayIso+'</div>'+
+      '<div class="a360-hero-title">'+heroTitle+'</div>'+
+      '<div class="a360-hero-sub">'+checkinsToday.length+' check-in \u00b7 '+checkoutsToday.length+' check-out \u00b7 '+todayMissions.length+' m\u00e9nage'+(todayMissions.length>1?'s':'')+' pr\u00e9vu'+(todayMissions.length>1?'s':'')+'</div>'+
+      '<div class="a360-hero-chips">'+
+        '<span class="a360-hero-chip accent">'+done.length+'/'+todayMissions.length+' valid\u00e9'+(done.length>1?'s':'')+'</span>'+
+        (risk.length?'<span class="a360-hero-chip" style="background:rgba(255,255,255,.25)">'+risk.length+' check-in \u00e0 risque</span>':'')+
+      '</div>'+
+    '</div>'+
+    kpiHtml+
+    (riskAlert?'<div style="margin-bottom:14px">'+riskAlert+'</div>':'')+
+    '<div class="p360-section">'+
+      '<div class="p360-section-head">'+
+        '<div><div class="p360-section-title">\uD83D\uDDC3\uFE0F Missions du jour</div></div>'+
+        '<button class="a360-action-btn" onclick="openMissionModal()">\uD83D\uDCCB Cr\u00e9er une mission</button>'+
+      '</div>'+
+      missionsList+
+    '</div>';
+}
+
+/* ── Missions ── */
+function renderCleanyQMissions(){
+  var dash=document.getElementById('cleanyq-missions-dash');
+  if(!dash)return;
+  var allM=cleaningMissions||[];
+  var today=new Date().toISOString().slice(0,10);
+
+  var upcoming=allM.filter(function(m){return m.date>=today;}).sort(function(a,b){return a.date.localeCompare(b.date);}).slice(0,20);
+  var past=allM.filter(function(m){return m.date<today;}).sort(function(a,b){return b.date.localeCompare(a.date);}).slice(0,10);
+
+  function missionCard(m,showDate){
+    var apt=apparts.find(function(a){return a.id===m.appartement_id;})||{name:'—',emoji:'\uD83C\uDFE0'};
+    var statusLabel=m.status==='termine'?'\u2705 Valid\u00e9':m.status==='en_cours'?'\uD83D\uDD04 En cours':'\u23F3 En attente';
+    var statusColor=m.status==='termine'?'#059669':m.status==='en_cours'?'#D97706':'#8A8A99';
+    var urgBg=m.status==='en_attente'&&m.date===today?'#FEF2F2':'white';
+    return '<div style="background:'+urgBg+';border:1px solid rgba(139,92,246,.1);border-radius:14px;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px">'+
+      '<div style="width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">'+(apt.emoji||'\uD83C\uDFE0')+'</div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:13px;font-weight:700;color:#17122E">'+apt.name+'</div>'+
+        '<div style="font-size:11px;color:#8A8A99">'+(showDate?m.date+' \u00b7 ':'')+( m.heure||'10:00')+' \u00b7 '+(m.duree_min||90)+' min</div>'+
+      '</div>'+
+      '<div style="text-align:right;flex-shrink:0">'+
+        '<div style="font-size:12px;font-weight:700;color:'+statusColor+'">'+statusLabel+'</div>'+
+        '<div style="font-size:11px;color:#8A8A99;margin-top:2px">'+m.tarif+'\u20AC</div>'+
+      '</div>'+
+    '</div>';
+  }
+
+  dash.innerHTML=
+    '<div class="a360-hero" style="margin-bottom:16px">'+
+      '<div class="a360-hero-kicker">CleanyQ \u00b7 Missions</div>'+
+      '<div class="a360-hero-title">'+allM.length+' mission'+(allM.length>1?'s':'')+' au total</div>'+
+      '<div class="a360-hero-sub">'+upcoming.length+' \u00e0 venir \u00b7 '+past.filter(function(m){return m.status==='termine';}).length+' termin\u00e9es</div>'+
+      '<div class="a360-hero-chips">'+
+        '<span class="a360-hero-chip accent">'+upcoming.length+' \u00e0 venir</span>'+
+        '<span class="a360-hero-chip">'+allM.filter(function(m){return m.status==='en_attente';}).length+' en attente</span>'+
+      '</div>'+
+    '</div>'+
+    '<div class="p360-section" style="margin-bottom:14px">'+
+      '<div class="p360-section-head"><div><div class="p360-section-title">\uD83D\uDCC5 Prochaines missions</div></div>'+
+        '<button class="a360-action-btn" onclick="openMissionModal()">\uD83D\uDCCB Nouvelle mission</button></div>'+
+      (upcoming.length?upcoming.map(function(m){return missionCard(m,true);}).join(''):
+        '<div style="text-align:center;padding:2rem;color:#8A8A99;font-size:13px">Aucune mission \u00e0 venir. Cliquez sur "Nouvelle mission" pour en cr\u00e9er une.</div>')+
+    '</div>'+
+    (past.length?'<div class="p360-section">'+
+      '<div class="p360-section-head"><div><div class="p360-section-title">\uD83D\uDDC3\uFE0F Historique r\u00e9cent</div></div></div>'+
+      past.map(function(m){return missionCard(m,true);}).join('')+
+    '</div>':'');
+}
+
+/* ── Squad ── */
+function renderCleanyQSquad(){
+  var dash=document.getElementById('cleanyq-squad-dash');
+  if(!dash)return;
+  // Réutilise les données cleaners depuis cleaningMissions et squad
+  var squadData=typeof squad!=='undefined'?squad:[];
+  var allM=cleaningMissions||[];
+
+  if(!squadData.length){
+    dash.innerHTML=
+      '<div class="a360-hero" style="margin-bottom:16px">'+
+        '<div class="a360-hero-kicker">CleanyQ \u00b7 Squad</div>'+
+        '<div class="a360-hero-title">Votre \u00e9quipe de cleaners</div>'+
+        '<div class="a360-hero-sub">Ajoutez vos cleaners pour g\u00e9rer les missions</div>'+
+      '</div>'+
+      '<div class="a360-empty">'+
+        '<div class="a360-empty-icon">\uD83E\uDDF9</div>'+
+        '<div class="a360-empty-title">Aucun cleaner dans la Squad</div>'+
+        '<div class="a360-empty-sub">Ajoutez vos cleaners pour automatiser la gestion des m\u00e9nages.</div>'+
+        '<div style="margin-top:16px"><button class="a360-action-btn" onclick="openCleanerModal()">\u002B Ajouter un cleaner</button></div>'+
+      '</div>';
+    return;
+  }
+
+  var cards=squadData.map(function(s){
+    var nb=allM.filter(function(m){return m.status!=='termine';}).length;
+    var scoreColor=s.note>=4.5?'#059669':s.note>=4?'#D97706':'#DC2626';
+    return '<div style="background:white;border:1px solid rgba(139,92,246,.12);border-radius:18px;padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:14px">'+
+      '<div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#6D28D9,#EC4899);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:white;flex-shrink:0">'+s.name.charAt(0)+'</div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:14px;font-weight:800;color:#17122E">'+s.name+'</div>'+
+        '<div style="font-size:11px;color:#8A8A99;margin-top:2px">'+(s.role||'Cleaner')+' \u00b7 '+(s.zones||'Toutes zones')+'</div>'+
+        '<div style="height:3px;background:#F3F0FA;border-radius:999px;margin-top:7px;overflow:hidden">'+
+          '<div style="height:100%;width:'+(s.note/5*100)+'%;background:'+scoreColor+';border-radius:999px"></div>'+
+        '</div>'+
+      '</div>'+
+      '<div style="text-align:right;flex-shrink:0">'+
+        '<div style="font-size:18px;font-weight:900;color:'+scoreColor+'">'+s.note+'<span style="font-size:10px;color:#8A8A99">/5</span></div>'+
+        '<div style="font-size:10px;color:#8A8A99;margin-top:2px">'+s.missions+' missions</div>'+
+        '<span class="a360-badge a360-badge-green" style="margin-top:4px;display:inline-block">Actif</span>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  dash.innerHTML=
+    '<div class="a360-hero" style="margin-bottom:16px">'+
+      '<div class="a360-hero-kicker">CleanyQ \u00b7 Squad</div>'+
+      '<div class="a360-hero-title">'+squadData.length+' cleaner'+(squadData.length>1?'s':'')+' dans la Squad</div>'+
+      '<div class="a360-hero-sub">Note moyenne : '+( squadData.length?Math.round(squadData.reduce(function(s,c){return s+(c.note||0);},0)/squadData.length*10)/10:0)+'/5</div>'+
+      '<div class="a360-hero-chips">'+
+        '<span class="a360-hero-chip accent">'+squadData.length+' cleaner'+(squadData.length>1?'s':'')+'</span>'+
+        '<span class="a360-hero-chip">'+allM.filter(function(m){return m.status==='en_attente';}).length+' missions en attente</span>'+
+      '</div>'+
+    '</div>'+
+    '<div class="p360-section">'+
+      '<div class="p360-section-head"><div><div class="p360-section-title">\uD83E\uDDF9 Cleaners</div></div>'+
+        '<button class="a360-action-btn" onclick="openCleanerModal()">\u002B Ajouter</button></div>'+
+      cards+
     '</div>';
 }
 
