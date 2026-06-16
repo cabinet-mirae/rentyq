@@ -1130,23 +1130,11 @@
         <div class="page-header">
           <div>
             <div class="page-title">Int&#233;grations EVA</div>
-            <div class="page-sub">Connectez votre &#233;cosyst&#232;me &#8212; PMS, finances et partenaires pour un pilotage complet.</div>
+            <div class="page-sub">Connectez vos outils &#224; RentyQ pour synchroniser vos donn&#233;es et enrichir les analyses EVA.</div>
           </div>
         </div>
 
-        <!-- Hero -->
-        <div class="int-hero">
-          <div class="int-hero-kicker">EVA Engine &#183; Connexions</div>
-          <div class="int-hero-title">Votre &#233;cosyst&#232;me de location courte dur&#233;e</div>
-          <div class="int-hero-sub">Plus vous connectez de sources, plus les recommandations EVA sont pr&#233;cises et rentables.</div>
-          <div class="int-hero-chips">
-            <span class="int-hero-chip accent" id="int-pms-status">PMS : en attente</span>
-            <span class="int-hero-chip">Finances : bient&#244;t</span>
-            <span class="int-hero-chip">Partenaires : bient&#244;t</span>
-          </div>
-        </div>
-
-        <!-- Section 1 : PMS -->
+        <!-- ══ SECTION 1 : PMS ══ -->
         <div class="int-section">
           <div class="int-section-head">
             <div>
@@ -1154,257 +1142,338 @@
               <div class="int-section-sub">Synchronisez automatiquement vos logements, r&#233;servations et revenus.</div>
             </div>
           </div>
-          <div class="integrations-grid">
 
-            <!-- Smoobu — fonctionnel -->
-            <div class="integration-card" id="int-card-smoobu">
-              <div class="integration-card-head">
-                <div class="integration-logo">&#x1F3E0;</div>
-                <div style="flex:1;min-width:0">
-                  <div class="integration-name">Smoobu</div>
-                  <div class="integration-desc">Sync Airbnb, Booking, VRBO et r&#233;servations directes</div>
+          <!-- ── SMOOBU (fonctionnel) ── -->
+          <div class="integration-card" id="int-card-smoobu" style="margin-bottom:14px">
+            <div class="integration-card-head">
+              <div class="integration-logo">&#x1F4F2;</div>
+              <div style="flex:1;min-width:0">
+                <div class="integration-name">Smoobu</div>
+                <div class="integration-desc">Sync Airbnb, Booking, VRBO et r&#233;servations directes</div>
+              </div>
+              <div class="integration-status soon" id="status-badge-smoobu" style="display:flex;align-items:center;gap:5px">
+                <div class="status-dot disconnected" id="status-dot"></div>
+                <span id="status-label">Non connect&#233;</span>
+              </div>
+            </div>
+
+            <!-- Stats si connecté -->
+            <div id="smoobu-data" style="display:none">
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">
+                <div style="background:#F0FDF4;border-radius:10px;padding:10px;text-align:center">
+                  <div style="font-size:18px;font-weight:900;color:#059669" id="sm-apts">0</div>
+                  <div style="font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#8A8A99;font-weight:800;margin-top:2px">Logements</div>
                 </div>
-                <div class="integration-status soon" id="status-badge-smoobu">
-                  <div class="status-dot disconnected" id="status-dot"></div>
-                  <span id="status-label">Non connect&#233;</span>
+                <div style="background:#F5F0FF;border-radius:10px;padding:10px;text-align:center">
+                  <div style="font-size:18px;font-weight:900;color:#7C3AED" id="sm-bookings">0</div>
+                  <div style="font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#8A8A99;font-weight:800;margin-top:2px">R&#233;sas</div>
+                </div>
+                <div style="background:#FEF3C7;border-radius:10px;padding:10px;text-align:center">
+                  <div style="font-size:18px;font-weight:900;color:#D97706" id="sm-revenue">0&#x20AC;</div>
+                  <div style="font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#8A8A99;font-weight:800;margin-top:2px">Revenus</div>
                 </div>
               </div>
-              <!-- Bloc fonctionnel conservé -->
-              <div class="smoobu-connect-box" style="margin:0;padding:0;border:none;background:none;box-shadow:none">
-                <div class="form-group" style="margin-bottom:8px">
-                  <label style="font-size:11px;font-weight:700;color:#8A8A99;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:block">Cl&#233; API Smoobu</label>
-                  <input type="text" id="smoobu-key" placeholder="Collez votre cl&#233; API ici&#8230;" style="font-family:monospace;font-size:12px;width:100%;height:36px;padding:0 10px;border-radius:8px;border:1px solid rgba(139,92,246,.22);background:#FAFAFE;outline:none"/>
-                  <div style="font-size:10px;color:#B0A8C8;margin-top:4px">Smoobu &#8594; Param&#232;tres &#8594; Avanc&#233; &#8594; Cl&#233;s API</div>
-                </div>
-                <div style="display:flex;gap:8px">
-                  <button class="integration-btn secondary" onclick="testSmoobu()" id="btn-test" style="flex:1">&#x1F50C; Tester</button>
-                  <button class="integration-btn primary" onclick="saveSmoobuKey()" id="btn-save-smoobu" style="flex:1;display:none">&#x1F4BE; Sauvegarder</button>
-                </div>
-                <div class="auth-error" id="smoobu-error" style="margin-top:6px"></div>
-                <div class="auth-success" id="smoobu-success" style="margin-top:6px"></div>
-              </div>
-              <div id="smoobu-data" style="display:none">
-                <div class="integration-divider"></div>
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-                  <div style="background:#F0FDF4;border-radius:10px;padding:10px;text-align:center">
-                    <div style="font-size:18px;font-weight:900;color:#059669" id="sm-apts">0</div>
-                    <div style="font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#8A8A99;font-weight:800;margin-top:2px">Logements</div>
+              <button class="integration-btn secondary" onclick="syncSmoobu()" style="margin-bottom:10px">&#x1F504; Resynchroniser</button>
+              <div class="table-wrap"><table id="smoobu-apts-table" style="width:100%"></table></div>
+              <div class="integration-divider" style="margin:10px 0"></div>
+            </div>
+
+            <!-- Config connexion (toujours visible) -->
+            <div class="smoobu-connect-box" style="margin:0;padding:0;border:none;background:none;box-shadow:none">
+              <div class="integration-config">
+                <div class="integration-inputs">
+                  <div class="integration-input-row">
+                    <div class="integration-input-label">Cl&#233; API Smoobu</div>
+                    <input type="text" id="smoobu-key" class="integration-input-field" placeholder="Collez votre cl&#233; API ici&#8230;"/>
+                    <div class="integration-input-hint">Smoobu &#8594; Param&#232;tres &#8594; Avanc&#233; &#8594; Cl&#233;s API &#8594; Cr&#233;er une cl&#233;</div>
                   </div>
-                  <div style="background:#F5F0FF;border-radius:10px;padding:10px;text-align:center">
-                    <div style="font-size:18px;font-weight:900;color:#7C3AED" id="sm-bookings">0</div>
-                    <div style="font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#8A8A99;font-weight:800;margin-top:2px">R&#233;sas</div>
-                  </div>
-                  <div style="background:#FEF3C7;border-radius:10px;padding:10px;text-align:center">
-                    <div style="font-size:18px;font-weight:900;color:#D97706" id="sm-revenue">0&#x20AC;</div>
-                    <div style="font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#8A8A99;font-weight:800;margin-top:2px">Revenus</div>
-                  </div>
                 </div>
-                <button class="integration-btn secondary" onclick="syncSmoobu()" style="margin-top:8px">&#x1F504; Resynchroniser</button>
-                <div class="table-wrap" style="margin-top:10px"><table id="smoobu-apts-table" style="width:100%"></table></div>
-              </div>
-              <div style="background:#F8F5FF;border-radius:10px;padding:10px;font-size:11px;color:#5B2C91;line-height:1.6">
-                &#x2139;&#xFE0F; <strong>Comment trouver votre cl&#233; API ?</strong><br>
-                Smoobu &#8594; Param&#232;tres &#8594; Avanc&#233; &#8594; Cl&#233;s API &#8594; Cr&#233;er une cl&#233;
+                <div class="integration-actions">
+                  <button class="integration-btn secondary" onclick="testSmoobu()" id="btn-test" style="flex:1">&#x1F50C; Tester la connexion</button>
+                  <button class="integration-btn primary" onclick="saveSmoobuKey()" id="btn-save-smoobu" style="flex:1;display:none">&#x1F4BE; Enregistrer</button>
+                </div>
+                <div class="auth-error" id="smoobu-error"></div>
+                <div class="auth-success" id="smoobu-success"></div>
               </div>
             </div>
-
-            <!-- Easy Concierge — prêt -->
-            <div class="integration-card">
-              <div class="integration-card-head">
-                <div class="integration-logo">&#x1F3E2;</div>
-                <div style="flex:1;min-width:0">
-                  <div class="integration-name">Easy Concierge</div>
-                  <div class="integration-desc">PMS fran&#231;ais &#8212; logements, r&#233;servations, m&#233;nages</div>
-                </div>
-                <span class="integration-status available">Disponible</span>
-              </div>
-              <div class="integration-meta">&#x1F4CC; Connexion via iCal ou API</div>
-              <button class="integration-btn primary" onclick="alert('Connexion Easy Concierge \u2014 disponible dans la prochaine mise \u00e0 jour EVA.')">Connecter</button>
-            </div>
-
-            <!-- Beds24 — bientôt -->
-            <div class="integration-card soon">
-              <div class="integration-card-head">
-                <div class="integration-logo">&#x1F4C6;</div>
-                <div style="flex:1;min-width:0">
-                  <div class="integration-name">Beds24</div>
-                  <div class="integration-desc">Channel manager multi-OTA avanc&#233;</div>
-                </div>
-                <span class="integration-status soon">Bient&#244;t</span>
-              </div>
-              <div class="integration-meta">&#x23F3; En cours de d&#233;veloppement</div>
-              <button class="integration-btn disabled" disabled>Bient&#244;t disponible</button>
-            </div>
-
-            <!-- Guesty — bientôt -->
-            <div class="integration-card soon">
-              <div class="integration-card-head">
-                <div class="integration-logo">&#x1F4BB;</div>
-                <div style="flex:1;min-width:0">
-                  <div class="integration-name">Guesty</div>
-                  <div class="integration-desc">PMS professionnel grande &#233;chelle</div>
-                </div>
-                <span class="integration-status soon">Bient&#244;t</span>
-              </div>
-              <div class="integration-meta">&#x23F3; Pr&#233;vu EVA Pro+</div>
-              <button class="integration-btn disabled" disabled>Bient&#244;t disponible</button>
-            </div>
-
           </div>
+
+          <!-- ── EASY CONCIERGE ── -->
+          <div class="integration-card" style="margin-bottom:14px">
+            <div class="integration-card-head">
+              <div class="integration-logo">&#x1F3E2;</div>
+              <div style="flex:1;min-width:0">
+                <div class="integration-name">Easy Concierge</div>
+                <div class="integration-desc">PMS fran&#231;ais &#8212; logements, r&#233;servations, m&#233;nages</div>
+              </div>
+              <span class="integration-status available">Disponible</span>
+            </div>
+            <div class="integration-stat-row">
+              <span class="integration-stat-label">Statut</span>
+              <span class="integration-stat-val" style="color:#DC2626">Non connect&#233;</span>
+            </div>
+            <div class="integration-stat-row">
+              <span class="integration-stat-label">Derni&#232;re synchronisation</span>
+              <span class="integration-stat-val" style="color:#B0A8C8">—</span>
+            </div>
+            <div class="integration-stat-row">
+              <span class="integration-stat-label">Logements synchronis&#233;s</span>
+              <span class="integration-stat-val" style="color:#B0A8C8">0</span>
+            </div>
+            <div class="integration-config">
+              <div class="integration-inputs">
+                <div class="integration-input-row">
+                  <div class="integration-input-label">Cl&#233; API Easy Concierge</div>
+                  <input type="text" class="integration-input-field" placeholder="Votre cl&#233; API Easy Concierge&#8230;"/>
+                </div>
+                <div class="integration-input-row">
+                  <div class="integration-input-label">URL Easy Concierge</div>
+                  <input type="text" class="integration-input-field" placeholder="https://votrecompte.easy-concierge.com"/>
+                </div>
+              </div>
+              <div class="integration-actions">
+                <button class="integration-btn secondary" style="flex:1" onclick="alert('Test Easy Concierge \u2014 disponible dans la prochaine mise \u00e0 jour EVA.')">Tester la connexion</button>
+                <button class="integration-btn primary" style="flex:1" onclick="alert('Connexion Easy Concierge \u2014 disponible dans la prochaine mise \u00e0 jour EVA.')">Enregistrer</button>
+              </div>
+              <div class="integration-info-box">
+                &#x2139;&#xFE0F; La connexion Easy Concierge sera active dans la prochaine mise &#224; jour EVA. Vous pouvez renseigner vos identifiants d&#232;s maintenant.
+              </div>
+            </div>
+          </div>
+
+          <!-- ── BEDS24 (bientôt) ── -->
+          <div class="integration-card soon" style="margin-bottom:14px">
+            <div class="integration-card-head">
+              <div class="integration-logo">&#x1F4C6;</div>
+              <div style="flex:1;min-width:0">
+                <div class="integration-name">Beds24</div>
+                <div class="integration-desc">Channel manager multi-OTA avanc&#233;</div>
+              </div>
+              <span class="integration-badge soon">Bient&#244;t</span>
+            </div>
+            <div class="integration-stat-row">
+              <span class="integration-stat-label">Statut</span>
+              <span class="integration-stat-val" style="color:#B0A8C8">Non disponible</span>
+            </div>
+            <div class="integration-config" style="opacity:.6">
+              <div class="integration-inputs">
+                <div class="integration-input-row">
+                  <div class="integration-input-label">Invite Code Beds24</div>
+                  <input type="text" class="integration-input-field" placeholder="Votre invite code&#8230;" disabled/>
+                  <div class="integration-input-hint">Beds24 &#8594; Account &#8594; API &#8594; Invite Code</div>
+                </div>
+              </div>
+              <div class="integration-actions">
+                <button class="integration-btn disabled" style="flex:1" disabled>Disponible prochainement</button>
+              </div>
+            </div>
+            <div style="font-size:11px;color:#8A8A99;line-height:1.5">
+              &#x23F3; Pr&#233;parez votre future connexion Beds24. Les champs seront actifs d&#232;s la disponibilit&#233; de l&#8217;int&#233;gration.
+            </div>
+          </div>
+
+          <!-- ── GUESTY (bientôt) ── -->
+          <div class="integration-card soon">
+            <div class="integration-card-head">
+              <div class="integration-logo">&#x1F4BB;</div>
+              <div style="flex:1;min-width:0">
+                <div class="integration-name">Guesty</div>
+                <div class="integration-desc">PMS professionnel grande &#233;chelle</div>
+              </div>
+              <span class="integration-badge soon">Bient&#244;t</span>
+            </div>
+            <div class="integration-stat-row">
+              <span class="integration-stat-label">Statut</span>
+              <span class="integration-stat-val" style="color:#B0A8C8">Non disponible</span>
+            </div>
+            <div class="integration-config" style="opacity:.6">
+              <div class="integration-inputs">
+                <div class="integration-input-row">
+                  <div class="integration-input-label">Cl&#233; API Guesty</div>
+                  <input type="text" class="integration-input-field" placeholder="Votre cl&#233; API Guesty&#8230;" disabled/>
+                </div>
+              </div>
+              <div class="integration-actions">
+                <button class="integration-btn disabled" style="flex:1" disabled>Disponible prochainement</button>
+              </div>
+            </div>
+            <div style="font-size:11px;color:#8A8A99;line-height:1.5">
+              &#x23F3; Pr&#233;vu EVA Pro+ &#8212; l&#8217;int&#233;gration Guesty arrivera avec les fonctionnalit&#233;s avanc&#233;es de gestion de parc.
+            </div>
+          </div>
+
         </div>
 
-        <!-- Section 2 : Finances -->
+        <!-- ══ SECTION 2 : FINANCES ══ -->
         <div class="int-section">
           <div class="int-section-head">
             <div>
               <div class="int-section-title">&#x1F4B3; Int&#233;grations financi&#232;res</div>
-              <div class="int-section-sub">Connectez vos outils comptables pour alimenter Profit 360 automatiquement.</div>
+              <div class="int-section-sub">Centralisez vos donn&#233;es financi&#232;res pour enrichir Profit 360.</div>
             </div>
-            <span class="a360-badge a360-badge-orange">EVA Pro+</span>
+            <span class="integration-badge pro">EVA Pro</span>
           </div>
-          <div class="integrations-grid">
 
-            <div class="integration-card soon">
-              <div class="integration-card-head">
-                <div class="integration-logo">&#x1F4B8;</div>
-                <div style="flex:1;min-width:0">
-                  <div class="integration-name">Qonto</div>
-                  <div class="integration-desc">Import automatique des transactions professionnelles</div>
-                </div>
-                <span class="integration-status pro">Pro</span>
+          <!-- Qonto -->
+          <div class="integration-card soon" style="margin-bottom:14px">
+            <div class="integration-card-head">
+              <div class="integration-logo">&#x1F4B8;</div>
+              <div style="flex:1;min-width:0">
+                <div class="integration-name">Qonto</div>
+                <div class="integration-desc">Import automatique des transactions professionnelles</div>
               </div>
-              <div class="integration-meta">&#x2728; Alimentera Profit 360 avec vos charges r&#233;elles</div>
-              <button class="integration-btn disabled" disabled>Activer avec EVA Pro</button>
+              <span class="integration-status soon">Non connect&#233;</span>
             </div>
-
-            <div class="integration-card soon">
-              <div class="integration-card-head">
-                <div class="integration-logo">&#x1F4CA;</div>
-                <div style="flex:1;min-width:0">
-                  <div class="integration-name">Pennylane</div>
-                  <div class="integration-desc">Comptabilit&#233; en ligne &#8212; d&#233;penses, factures, TVA</div>
+            <div class="integration-config" style="opacity:.65">
+              <div class="integration-inputs">
+                <div class="integration-input-row">
+                  <div class="integration-input-label">Client ID</div>
+                  <input type="text" class="integration-input-field" placeholder="Votre Client ID Qonto&#8230;" disabled/>
                 </div>
-                <span class="integration-status pro">Pro</span>
-              </div>
-              <div class="integration-meta">&#x2728; Sync automatique charges et revenus</div>
-              <button class="integration-btn disabled" disabled>Activer avec EVA Pro</button>
-            </div>
-
-            <div class="integration-card soon">
-              <div class="integration-card-head">
-                <div class="integration-logo">&#x1F4D1;</div>
-                <div style="flex:1;min-width:0">
-                  <div class="integration-name">Indy</div>
-                  <div class="integration-desc">Comptabilit&#233; auto-entrepreneur simplifi&#233;e</div>
+                <div class="integration-input-row">
+                  <div class="integration-input-label">Client Secret</div>
+                  <input type="password" class="integration-input-field" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" disabled/>
                 </div>
-                <span class="integration-status pro">Pro</span>
               </div>
-              <div class="integration-meta">&#x2728; Id&#233;al pour ind&#233;pendants et LMP</div>
-              <button class="integration-btn disabled" disabled>Activer avec EVA Pro</button>
-            </div>
-
-            <div class="integration-card soon">
-              <div class="integration-card-head">
-                <div class="integration-logo">&#x2728;</div>
-                <div style="flex:1;min-width:0">
-                  <div class="integration-name">Shine</div>
-                  <div class="integration-desc">Compte pro n&#233;obanque &#8212; d&#233;penses automatiques</div>
-                </div>
-                <span class="integration-status pro">Pro</span>
+              <div class="integration-actions">
+                <button class="integration-btn disabled" style="flex:1" disabled>Connecter &#8212; EVA Pro requis</button>
               </div>
-              <div class="integration-meta">&#x2728; Suivi de tr&#233;sorerie en temps r&#233;el</div>
-              <button class="integration-btn disabled" disabled>Activer avec EVA Pro</button>
             </div>
-
-            <div class="integration-card soon">
-              <div class="integration-card-head">
-                <div class="integration-logo">&#x1F3DB;&#xFE0F;</div>
-                <div style="flex:1;min-width:0">
-                  <div class="integration-name">Dougs</div>
-                  <div class="integration-desc">Expert-comptable en ligne sp&#233;cialis&#233; LMNP</div>
-                </div>
-                <span class="integration-status pro">Pro</span>
-              </div>
-              <div class="integration-meta">&#x2728; Pilotage fiscal et d&#233;clarations automatis&#233;es</div>
-              <button class="integration-btn disabled" disabled>Activer avec EVA Pro</button>
-            </div>
-
           </div>
+
+          <!-- Pennylane -->
+          <div class="integration-card soon" style="margin-bottom:14px">
+            <div class="integration-card-head">
+              <div class="integration-logo">&#x1F4CA;</div>
+              <div style="flex:1;min-width:0">
+                <div class="integration-name">Pennylane</div>
+                <div class="integration-desc">Comptabilit&#233; en ligne &#8212; d&#233;penses, factures, TVA</div>
+              </div>
+              <span class="integration-status soon">Non connect&#233;</span>
+            </div>
+            <div class="integration-config" style="opacity:.65">
+              <div class="integration-inputs">
+                <div class="integration-input-row">
+                  <div class="integration-input-label">Token API Pennylane</div>
+                  <input type="text" class="integration-input-field" placeholder="Votre token API&#8230;" disabled/>
+                </div>
+              </div>
+              <div class="integration-actions">
+                <button class="integration-btn disabled" style="flex:1" disabled>Connecter &#8212; EVA Pro requis</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Indy -->
+          <div class="integration-card soon" style="margin-bottom:14px">
+            <div class="integration-card-head">
+              <div class="integration-logo">&#x1F4D1;</div>
+              <div style="flex:1;min-width:0">
+                <div class="integration-name">Indy</div>
+                <div class="integration-desc">Comptabilit&#233; auto-entrepreneur simplifi&#233;e</div>
+              </div>
+              <span class="integration-status soon">Non connect&#233;</span>
+            </div>
+            <div class="integration-config" style="opacity:.65">
+              <div class="integration-inputs">
+                <div class="integration-input-row">
+                  <div class="integration-input-label">Token API Indy</div>
+                  <input type="text" class="integration-input-field" placeholder="Votre token API&#8230;" disabled/>
+                </div>
+              </div>
+              <div class="integration-actions">
+                <button class="integration-btn disabled" style="flex:1" disabled>Connecter &#8212; EVA Pro requis</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shine -->
+          <div class="integration-card soon" style="margin-bottom:14px">
+            <div class="integration-card-head">
+              <div class="integration-logo">&#x2728;</div>
+              <div style="flex:1;min-width:0">
+                <div class="integration-name">Shine</div>
+                <div class="integration-desc">Compte pro n&#233;obanque &#8212; d&#233;penses automatiques</div>
+              </div>
+              <span class="integration-status soon">Non connect&#233;</span>
+            </div>
+            <div class="integration-config" style="opacity:.65">
+              <div class="integration-inputs">
+                <div class="integration-input-row">
+                  <div class="integration-input-label">Client ID</div>
+                  <input type="text" class="integration-input-field" placeholder="Votre Client ID Shine&#8230;" disabled/>
+                </div>
+                <div class="integration-input-row">
+                  <div class="integration-input-label">Client Secret</div>
+                  <input type="password" class="integration-input-field" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" disabled/>
+                </div>
+              </div>
+              <div class="integration-actions">
+                <button class="integration-btn disabled" style="flex:1" disabled>Connecter &#8212; EVA Pro requis</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dougs -->
+          <div class="integration-card soon">
+            <div class="integration-card-head">
+              <div class="integration-logo">&#x1F3DB;&#xFE0F;</div>
+              <div style="flex:1;min-width:0">
+                <div class="integration-name">Dougs</div>
+                <div class="integration-desc">Expert-comptable en ligne sp&#233;cialis&#233; LMNP</div>
+              </div>
+              <span class="integration-status soon">Non connect&#233;</span>
+            </div>
+            <div class="integration-config" style="opacity:.65">
+              <div class="integration-inputs">
+                <div class="integration-input-row">
+                  <div class="integration-input-label">Token API Dougs</div>
+                  <input type="text" class="integration-input-field" placeholder="Votre token API&#8230;" disabled/>
+                </div>
+              </div>
+              <div class="integration-actions">
+                <button class="integration-btn disabled" style="flex:1" disabled>Connecter &#8212; EVA Pro requis</button>
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        <!-- Section 3 : Partenaires EVA -->
+        <!-- ══ SECTION 3 : CLEANYQ ══ -->
         <div class="int-section">
           <div class="int-section-head">
             <div>
-              <div class="int-section-title">&#x1F91D; Partenaires EVA</div>
-              <div class="int-section-sub">Des partenaires s&#233;lectionn&#233;s par EVA pour optimiser vos co&#251;ts d&#8217;exploitation.</div>
+              <div class="int-section-title">&#x1F9F9; CleanyQ</div>
+              <div class="int-section-sub">Connectez votre &#233;quipe op&#233;rationnelle &#224; EVA.</div>
             </div>
-            <span class="a360-badge a360-badge-purple">EVA &#201;conomies</span>
           </div>
-          <div style="display:flex;flex-direction:column;gap:10px">
-
-            <div class="partner-card">
-              <div class="partner-icon">&#x1F6AA;</div>
+          <div class="integration-card">
+            <div class="integration-card-head">
+              <div class="integration-logo">&#x1F9F9;</div>
               <div style="flex:1;min-width:0">
-                <div class="partner-name">Bemove &#8212; Conciergerie cl&#233;-en-main</div>
-                <div class="partner-desc">Gestion locative, check-in automatis&#233;, support voyageurs 7j/7</div>
-                <div class="partner-economy">&#x2605; Partenaire EVA recommand&#233;</div>
+                <div class="integration-name">CleanyQ</div>
+                <div class="integration-desc">Missions de m&#233;nage, &#233;quipe cleaners, synchro avec le Parc</div>
               </div>
-              <div class="partner-actions">
-                <button class="integration-btn secondary" style="width:auto;padding:8px 14px" onclick="alert('Bemove \u2014 partenaire EVA. Redirection prochainement disponible.')">D&#233;couvrir</button>
-              </div>
+              <span class="integration-status connected">Actif</span>
             </div>
-
-            <div class="partner-card">
-              <div class="partner-icon">&#x1F3E6;</div>
-              <div style="flex:1;min-width:0">
-                <div class="partner-name">Banque professionnelle</div>
-                <div class="partner-desc">Compte d&#233;di&#233; location courte dur&#233;e &#8212; s&#233;paration fiscale recommand&#233;e</div>
-                <div class="partner-economy">&#x1F4B0; &#201;conomie estim&#233;e : jusqu&#8217;&#224; 800&#x20AC; / an vs banque traditionnelle</div>
-              </div>
-              <div class="partner-actions">
-                <button class="integration-btn disabled" disabled>Bient&#244;t</button>
-              </div>
+            <div class="integration-stat-row">
+              <span class="integration-stat-label">Statut CleanyQ</span>
+              <span class="integration-stat-val" style="color:#059669">&#x2705; Actif</span>
             </div>
-
-            <div class="partner-card">
-              <div class="partner-icon">&#x1F4DC;</div>
-              <div style="flex:1;min-width:0">
-                <div class="partner-name">Comptabilit&#233; LMNP</div>
-                <div class="partner-desc">Expert-comptable sp&#233;cialis&#233; loueur en meubl&#233; professionnel</div>
-                <div class="partner-economy">&#x1F4B0; &#201;conomie estim&#233;e : jusqu&#8217;&#224; 1 200&#x20AC; / an via optimisation fiscale</div>
-              </div>
-              <div class="partner-actions">
-                <button class="integration-btn disabled" disabled>Bient&#244;t</button>
-              </div>
+            <div class="integration-stat-row">
+              <span class="integration-stat-label">Intervenants</span>
+              <span class="integration-stat-val" id="cleanyq-int-count">—</span>
             </div>
-
-            <div class="partner-card">
-              <div class="partner-icon">&#x1F6E1;&#xFE0F;</div>
-              <div style="flex:1;min-width:0">
-                <div class="partner-name">Assurance location courte dur&#233;e</div>
-                <div class="partner-desc">Couverture sp&#233;cifique multirisques &#8212; voyageurs, d&#233;g&#226;ts, annulations</div>
-                <div class="partner-economy">&#x1F4B0; &#201;conomie estim&#233;e : jusqu&#8217;&#224; 400&#x20AC; / an vs assurance classique</div>
-              </div>
-              <div class="partner-actions">
-                <button class="integration-btn disabled" disabled>Bient&#244;t</button>
-              </div>
+            <div class="integration-stat-row">
+              <span class="integration-stat-label">Missions synchronis&#233;es</span>
+              <span class="integration-stat-val" id="cleanyq-int-missions">—</span>
             </div>
-
-            <div class="partner-card">
-              <div class="partner-icon">&#x1F4F6;</div>
-              <div style="flex:1;min-width:0">
-                <div class="partner-name">Internet &amp; T&#233;l&#233;phonie</div>
-                <div class="partner-desc">Forfaits pro adapt&#233;s aux logements en location &#8212; fibre garantie</div>
-                <div class="partner-economy">&#x1F4B0; &#201;conomie estim&#233;e : jusqu&#8217;&#224; 300&#x20AC; / an par logement</div>
-              </div>
-              <div class="partner-actions">
-                <button class="integration-btn disabled" disabled>Bient&#244;t</button>
-              </div>
+            <div class="integration-actions" style="margin-top:4px">
+              <button class="integration-btn primary" style="flex:1" onclick="goTo('clean',document.querySelector('[data-page=clean]'))">&#x2699;&#xFE0F; Configurer CleanyQ</button>
             </div>
-
           </div>
         </div>
+
       </div>
 
       <!-- CLEAN -->
