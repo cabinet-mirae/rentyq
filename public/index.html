@@ -968,11 +968,73 @@
 
       <!-- SQUAD -->
       <div class="page" id="page-squad">
-        <div class="page-header"><div><div class="page-title">La Squad</div></div></div>
-        <div class="card" style="text-align:center;padding:3rem">
-          <div style="font-size:40px;margin-bottom:1rem">👥</div>
-          <div style="font-weight:600;font-size:16px">Gestion de l'équipe ménage</div>
-          <div style="font-size:13px;color:#8A8A99;margin-top:6px">Bientôt disponible</div>
+        <div class="page-header">
+          <div>
+            <div class="page-title">&#201;quipe EVA</div>
+            <div class="page-sub">G&#233;rez les acc&#232;s et les r&#244;les de vos collaborateurs.</div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-purple" onclick="alert('Invitation collaborateurs \u2014 disponible dans la prochaine mise \u00e0 jour EVA.')">&#x2B; Inviter un collaborateur</button>
+          </div>
+        </div>
+
+        <!-- Membre actuel : soi-même -->
+        <div class="settings-section">
+          <div class="settings-section-head">
+            <div class="settings-section-label">&#x1F465; Membres de l&#8217;&#233;quipe</div>
+            <span class="a360-badge a360-badge-purple" id="squad-count">1 membre</span>
+          </div>
+          <div class="team-member-row">
+            <div class="team-avatar" id="squad-avatar">U</div>
+            <div style="flex:1;min-width:0">
+              <div class="team-name" id="squad-name">Vous</div>
+              <div class="team-role" id="squad-email">Propri&#233;taire du compte</div>
+            </div>
+            <span class="team-badge" style="background:#F3E8FF;color:#7C3AED">Admin</span>
+          </div>
+        </div>
+
+        <!-- Rôles et permissions -->
+        <div class="settings-section">
+          <div class="settings-section-head">
+            <div class="settings-section-label">&#x1F512; R&#244;les et permissions</div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="a360-table" style="width:100%">
+              <thead>
+                <tr>
+                  <th>R&#244;le</th>
+                  <th>Cockpit</th>
+                  <th>Parc</th>
+                  <th>Pricing</th>
+                  <th>CleanyQ</th>
+                  <th>Param&#232;tres</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Admin</strong> <span class="a360-badge a360-badge-purple" style="margin-left:4px">Vous</span></td>
+                  <td>&#x2705;</td><td>&#x2705;</td><td>&#x2705;</td><td>&#x2705;</td><td>&#x2705;</td>
+                </tr>
+                <tr style="color:#B0A8C8">
+                  <td><strong>Manager</strong> <span class="a360-badge a360-badge-gray">Bient&#244;t</span></td>
+                  <td>&#x2705;</td><td>&#x2705;</td><td>&#x2705;</td><td>&#x2705;</td><td>&#x274C;</td>
+                </tr>
+                <tr style="color:#B0A8C8">
+                  <td><strong>Cleaner</strong> <span class="a360-badge a360-badge-gray">Bient&#244;t</span></td>
+                  <td>&#x274C;</td><td>&#x274C;</td><td>&#x274C;</td><td>&#x2705;</td><td>&#x274C;</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Invitation -->
+        <div class="settings-section" style="text-align:center;padding:2.5rem">
+          <div style="font-size:38px;margin-bottom:12px">&#x1F465;</div>
+          <div style="font-size:15px;font-weight:800;color:#17122E;margin-bottom:6px;font-family:Sora,sans-serif">Collaborez avec votre &#233;quipe</div>
+          <div style="font-size:13px;color:#8A8A99;line-height:1.6;max-width:380px;margin:0 auto 18px">Invitez des managers ou des cleaners. Chaque membre acc&#232;de uniquement aux sections de son r&#244;le.</div>
+          <button class="a360-action-btn" onclick="alert('Invitation collaborateurs \u2014 disponible dans la prochaine mise \u00e0 jour EVA.')">&#x2B; Inviter un collaborateur</button>
         </div>
       </div>
 
@@ -1063,53 +1125,284 @@
         </div>
       </div>
 
-      <!-- SMOOBU -->
+      <!-- INTÉGRATIONS EVA -->
       <div class="page" id="page-smoobu">
-        <div class="page-header"><div><div class="page-title">Intégration Smoobu</div><div class="page-sub">Importez vos données Airbnb & Booking automatiquement</div></div></div>
-        <div class="smoobu-connect-box">
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem">
-            <div style="font-size:36px">🔗</div>
+        <div class="page-header">
+          <div>
+            <div class="page-title">Int&#233;grations EVA</div>
+            <div class="page-sub">Connectez votre &#233;cosyst&#232;me &#8212; PMS, finances et partenaires pour un pilotage complet.</div>
+          </div>
+        </div>
+
+        <!-- Hero -->
+        <div class="int-hero">
+          <div class="int-hero-kicker">EVA Engine &#183; Connexions</div>
+          <div class="int-hero-title">Votre &#233;cosyst&#232;me de location courte dur&#233;e</div>
+          <div class="int-hero-sub">Plus vous connectez de sources, plus les recommandations EVA sont pr&#233;cises et rentables.</div>
+          <div class="int-hero-chips">
+            <span class="int-hero-chip accent" id="int-pms-status">PMS : en attente</span>
+            <span class="int-hero-chip">Finances : bient&#244;t</span>
+            <span class="int-hero-chip">Partenaires : bient&#244;t</span>
+          </div>
+        </div>
+
+        <!-- Section 1 : PMS -->
+        <div class="int-section">
+          <div class="int-section-head">
             <div>
-              <div style="font-size:16px;font-weight:700">Connecter Smoobu</div>
-              <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
-                <div class="status-dot disconnected" id="status-dot"></div>
-                <span id="status-label" style="font-size:13px;font-weight:600">Non connecté</span>
+              <div class="int-section-title">&#x1F50C; PMS connect&#233;s</div>
+              <div class="int-section-sub">Synchronisez automatiquement vos logements, r&#233;servations et revenus.</div>
+            </div>
+          </div>
+          <div class="integrations-grid">
+
+            <!-- Smoobu — fonctionnel -->
+            <div class="integration-card" id="int-card-smoobu">
+              <div class="integration-card-head">
+                <div class="integration-logo">&#x1F3E0;</div>
+                <div style="flex:1;min-width:0">
+                  <div class="integration-name">Smoobu</div>
+                  <div class="integration-desc">Sync Airbnb, Booking, VRBO et r&#233;servations directes</div>
+                </div>
+                <div class="integration-status soon" id="status-badge-smoobu">
+                  <div class="status-dot disconnected" id="status-dot"></div>
+                  <span id="status-label">Non connect&#233;</span>
+                </div>
+              </div>
+              <!-- Bloc fonctionnel conservé -->
+              <div class="smoobu-connect-box" style="margin:0;padding:0;border:none;background:none;box-shadow:none">
+                <div class="form-group" style="margin-bottom:8px">
+                  <label style="font-size:11px;font-weight:700;color:#8A8A99;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:block">Cl&#233; API Smoobu</label>
+                  <input type="text" id="smoobu-key" placeholder="Collez votre cl&#233; API ici&#8230;" style="font-family:monospace;font-size:12px;width:100%;height:36px;padding:0 10px;border-radius:8px;border:1px solid rgba(139,92,246,.22);background:#FAFAFE;outline:none"/>
+                  <div style="font-size:10px;color:#B0A8C8;margin-top:4px">Smoobu &#8594; Param&#232;tres &#8594; Avanc&#233; &#8594; Cl&#233;s API</div>
+                </div>
+                <div style="display:flex;gap:8px">
+                  <button class="integration-btn secondary" onclick="testSmoobu()" id="btn-test" style="flex:1">&#x1F50C; Tester</button>
+                  <button class="integration-btn primary" onclick="saveSmoobuKey()" id="btn-save-smoobu" style="flex:1;display:none">&#x1F4BE; Sauvegarder</button>
+                </div>
+                <div class="auth-error" id="smoobu-error" style="margin-top:6px"></div>
+                <div class="auth-success" id="smoobu-success" style="margin-top:6px"></div>
+              </div>
+              <div id="smoobu-data" style="display:none">
+                <div class="integration-divider"></div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+                  <div style="background:#F0FDF4;border-radius:10px;padding:10px;text-align:center">
+                    <div style="font-size:18px;font-weight:900;color:#059669" id="sm-apts">0</div>
+                    <div style="font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#8A8A99;font-weight:800;margin-top:2px">Logements</div>
+                  </div>
+                  <div style="background:#F5F0FF;border-radius:10px;padding:10px;text-align:center">
+                    <div style="font-size:18px;font-weight:900;color:#7C3AED" id="sm-bookings">0</div>
+                    <div style="font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#8A8A99;font-weight:800;margin-top:2px">R&#233;sas</div>
+                  </div>
+                  <div style="background:#FEF3C7;border-radius:10px;padding:10px;text-align:center">
+                    <div style="font-size:18px;font-weight:900;color:#D97706" id="sm-revenue">0&#x20AC;</div>
+                    <div style="font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#8A8A99;font-weight:800;margin-top:2px">Revenus</div>
+                  </div>
+                </div>
+                <button class="integration-btn secondary" onclick="syncSmoobu()" style="margin-top:8px">&#x1F504; Resynchroniser</button>
+                <div class="table-wrap" style="margin-top:10px"><table id="smoobu-apts-table" style="width:100%"></table></div>
+              </div>
+              <div style="background:#F8F5FF;border-radius:10px;padding:10px;font-size:11px;color:#5B2C91;line-height:1.6">
+                &#x2139;&#xFE0F; <strong>Comment trouver votre cl&#233; API ?</strong><br>
+                Smoobu &#8594; Param&#232;tres &#8594; Avanc&#233; &#8594; Cl&#233;s API &#8594; Cr&#233;er une cl&#233;
               </div>
             </div>
-          </div>
-          <div class="form-group">
-            <label>Clé API Smoobu</label>
-            <input type="text" id="smoobu-key" placeholder="Collez votre clé API ici…" style="font-family:monospace;font-size:12px"/>
-            <div style="font-size:11px;color:#8A8A99;margin-top:4px">Smoobu → Paramètres → Avancé → Clés API</div>
-          </div>
-          <div style="display:flex;gap:8px">
-            <button class="btn btn-green" onclick="testSmoobu()" id="btn-test">🔌 Tester</button>
-            <button class="btn btn-purple" onclick="saveSmoobuKey()" id="btn-save-smoobu" style="display:none">💾 Sauvegarder & Sync</button>
-          </div>
-          <div class="auth-error" id="smoobu-error"></div>
-          <div class="auth-success" id="smoobu-success"></div>
-        </div>
-        <div id="smoobu-data" style="display:none">
-          <div class="card">
-            <div class="card-head"><div class="card-title">Données Smoobu</div><button class="btn btn-green btn-sm" onclick="syncSmoobu()">🔄 Resync</button></div>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem">
-              <div class="kpi"><div class="kpi-label">Appartements</div><div class="kpi-value" id="sm-apts">0</div></div>
-              <div class="kpi"><div class="kpi-label">Réservations</div><div class="kpi-value" id="sm-bookings">0</div></div>
-              <div class="kpi"><div class="kpi-label">Revenus</div><div class="kpi-value" id="sm-revenue">0€</div></div>
+
+            <!-- Easy Concierge — prêt -->
+            <div class="integration-card">
+              <div class="integration-card-head">
+                <div class="integration-logo">&#x1F3E2;</div>
+                <div style="flex:1;min-width:0">
+                  <div class="integration-name">Easy Concierge</div>
+                  <div class="integration-desc">PMS fran&#231;ais &#8212; logements, r&#233;servations, m&#233;nages</div>
+                </div>
+                <span class="integration-status available">Disponible</span>
+              </div>
+              <div class="integration-meta">&#x1F4CC; Connexion via iCal ou API</div>
+              <button class="integration-btn primary" onclick="alert('Connexion Easy Concierge \u2014 disponible dans la prochaine mise \u00e0 jour EVA.')">Connecter</button>
             </div>
-          </div>
-          <div class="card">
-            <div class="card-head"><div class="card-title">Appartements Smoobu</div></div>
-            <div class="table-wrap"><table id="smoobu-apts-table"></table></div>
+
+            <!-- Beds24 — bientôt -->
+            <div class="integration-card soon">
+              <div class="integration-card-head">
+                <div class="integration-logo">&#x1F4C6;</div>
+                <div style="flex:1;min-width:0">
+                  <div class="integration-name">Beds24</div>
+                  <div class="integration-desc">Channel manager multi-OTA avanc&#233;</div>
+                </div>
+                <span class="integration-status soon">Bient&#244;t</span>
+              </div>
+              <div class="integration-meta">&#x23F3; En cours de d&#233;veloppement</div>
+              <button class="integration-btn disabled" disabled>Bient&#244;t disponible</button>
+            </div>
+
+            <!-- Guesty — bientôt -->
+            <div class="integration-card soon">
+              <div class="integration-card-head">
+                <div class="integration-logo">&#x1F4BB;</div>
+                <div style="flex:1;min-width:0">
+                  <div class="integration-name">Guesty</div>
+                  <div class="integration-desc">PMS professionnel grande &#233;chelle</div>
+                </div>
+                <span class="integration-status soon">Bient&#244;t</span>
+              </div>
+              <div class="integration-meta">&#x23F3; Pr&#233;vu EVA Pro+</div>
+              <button class="integration-btn disabled" disabled>Bient&#244;t disponible</button>
+            </div>
+
           </div>
         </div>
-        <div class="card">
-          <div class="card-head"><div class="card-title">📖 Comment trouver votre clé API ?</div></div>
-          <div style="font-size:13px;line-height:2">
-            1️⃣ Connectez-vous sur <strong>smoobu.com</strong><br>
-            2️⃣ Allez dans <strong>Paramètres → Avancé → Clés API</strong><br>
-            3️⃣ Cliquez <strong>"Créer une clé API"</strong><br>
-            4️⃣ Copiez-la et collez-la ci-dessus
+
+        <!-- Section 2 : Finances -->
+        <div class="int-section">
+          <div class="int-section-head">
+            <div>
+              <div class="int-section-title">&#x1F4B3; Int&#233;grations financi&#232;res</div>
+              <div class="int-section-sub">Connectez vos outils comptables pour alimenter Profit 360 automatiquement.</div>
+            </div>
+            <span class="a360-badge a360-badge-orange">EVA Pro+</span>
+          </div>
+          <div class="integrations-grid">
+
+            <div class="integration-card soon">
+              <div class="integration-card-head">
+                <div class="integration-logo">&#x1F4B8;</div>
+                <div style="flex:1;min-width:0">
+                  <div class="integration-name">Qonto</div>
+                  <div class="integration-desc">Import automatique des transactions professionnelles</div>
+                </div>
+                <span class="integration-status pro">Pro</span>
+              </div>
+              <div class="integration-meta">&#x2728; Alimentera Profit 360 avec vos charges r&#233;elles</div>
+              <button class="integration-btn disabled" disabled>Activer avec EVA Pro</button>
+            </div>
+
+            <div class="integration-card soon">
+              <div class="integration-card-head">
+                <div class="integration-logo">&#x1F4CA;</div>
+                <div style="flex:1;min-width:0">
+                  <div class="integration-name">Pennylane</div>
+                  <div class="integration-desc">Comptabilit&#233; en ligne &#8212; d&#233;penses, factures, TVA</div>
+                </div>
+                <span class="integration-status pro">Pro</span>
+              </div>
+              <div class="integration-meta">&#x2728; Sync automatique charges et revenus</div>
+              <button class="integration-btn disabled" disabled>Activer avec EVA Pro</button>
+            </div>
+
+            <div class="integration-card soon">
+              <div class="integration-card-head">
+                <div class="integration-logo">&#x1F4D1;</div>
+                <div style="flex:1;min-width:0">
+                  <div class="integration-name">Indy</div>
+                  <div class="integration-desc">Comptabilit&#233; auto-entrepreneur simplifi&#233;e</div>
+                </div>
+                <span class="integration-status pro">Pro</span>
+              </div>
+              <div class="integration-meta">&#x2728; Id&#233;al pour ind&#233;pendants et LMP</div>
+              <button class="integration-btn disabled" disabled>Activer avec EVA Pro</button>
+            </div>
+
+            <div class="integration-card soon">
+              <div class="integration-card-head">
+                <div class="integration-logo">&#x2728;</div>
+                <div style="flex:1;min-width:0">
+                  <div class="integration-name">Shine</div>
+                  <div class="integration-desc">Compte pro n&#233;obanque &#8212; d&#233;penses automatiques</div>
+                </div>
+                <span class="integration-status pro">Pro</span>
+              </div>
+              <div class="integration-meta">&#x2728; Suivi de tr&#233;sorerie en temps r&#233;el</div>
+              <button class="integration-btn disabled" disabled>Activer avec EVA Pro</button>
+            </div>
+
+            <div class="integration-card soon">
+              <div class="integration-card-head">
+                <div class="integration-logo">&#x1F3DB;&#xFE0F;</div>
+                <div style="flex:1;min-width:0">
+                  <div class="integration-name">Dougs</div>
+                  <div class="integration-desc">Expert-comptable en ligne sp&#233;cialis&#233; LMNP</div>
+                </div>
+                <span class="integration-status pro">Pro</span>
+              </div>
+              <div class="integration-meta">&#x2728; Pilotage fiscal et d&#233;clarations automatis&#233;es</div>
+              <button class="integration-btn disabled" disabled>Activer avec EVA Pro</button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Section 3 : Partenaires EVA -->
+        <div class="int-section">
+          <div class="int-section-head">
+            <div>
+              <div class="int-section-title">&#x1F91D; Partenaires EVA</div>
+              <div class="int-section-sub">Des partenaires s&#233;lectionn&#233;s par EVA pour optimiser vos co&#251;ts d&#8217;exploitation.</div>
+            </div>
+            <span class="a360-badge a360-badge-purple">EVA &#201;conomies</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+
+            <div class="partner-card">
+              <div class="partner-icon">&#x1F6AA;</div>
+              <div style="flex:1;min-width:0">
+                <div class="partner-name">Bemove &#8212; Conciergerie cl&#233;-en-main</div>
+                <div class="partner-desc">Gestion locative, check-in automatis&#233;, support voyageurs 7j/7</div>
+                <div class="partner-economy">&#x2605; Partenaire EVA recommand&#233;</div>
+              </div>
+              <div class="partner-actions">
+                <button class="integration-btn secondary" style="width:auto;padding:8px 14px" onclick="alert('Bemove \u2014 partenaire EVA. Redirection prochainement disponible.')">D&#233;couvrir</button>
+              </div>
+            </div>
+
+            <div class="partner-card">
+              <div class="partner-icon">&#x1F3E6;</div>
+              <div style="flex:1;min-width:0">
+                <div class="partner-name">Banque professionnelle</div>
+                <div class="partner-desc">Compte d&#233;di&#233; location courte dur&#233;e &#8212; s&#233;paration fiscale recommand&#233;e</div>
+                <div class="partner-economy">&#x1F4B0; &#201;conomie estim&#233;e : jusqu&#8217;&#224; 800&#x20AC; / an vs banque traditionnelle</div>
+              </div>
+              <div class="partner-actions">
+                <button class="integration-btn disabled" disabled>Bient&#244;t</button>
+              </div>
+            </div>
+
+            <div class="partner-card">
+              <div class="partner-icon">&#x1F4DC;</div>
+              <div style="flex:1;min-width:0">
+                <div class="partner-name">Comptabilit&#233; LMNP</div>
+                <div class="partner-desc">Expert-comptable sp&#233;cialis&#233; loueur en meubl&#233; professionnel</div>
+                <div class="partner-economy">&#x1F4B0; &#201;conomie estim&#233;e : jusqu&#8217;&#224; 1 200&#x20AC; / an via optimisation fiscale</div>
+              </div>
+              <div class="partner-actions">
+                <button class="integration-btn disabled" disabled>Bient&#244;t</button>
+              </div>
+            </div>
+
+            <div class="partner-card">
+              <div class="partner-icon">&#x1F6E1;&#xFE0F;</div>
+              <div style="flex:1;min-width:0">
+                <div class="partner-name">Assurance location courte dur&#233;e</div>
+                <div class="partner-desc">Couverture sp&#233;cifique multirisques &#8212; voyageurs, d&#233;g&#226;ts, annulations</div>
+                <div class="partner-economy">&#x1F4B0; &#201;conomie estim&#233;e : jusqu&#8217;&#224; 400&#x20AC; / an vs assurance classique</div>
+              </div>
+              <div class="partner-actions">
+                <button class="integration-btn disabled" disabled>Bient&#244;t</button>
+              </div>
+            </div>
+
+            <div class="partner-card">
+              <div class="partner-icon">&#x1F4F6;</div>
+              <div style="flex:1;min-width:0">
+                <div class="partner-name">Internet &amp; T&#233;l&#233;phonie</div>
+                <div class="partner-desc">Forfaits pro adapt&#233;s aux logements en location &#8212; fibre garantie</div>
+                <div class="partner-economy">&#x1F4B0; &#201;conomie estim&#233;e : jusqu&#8217;&#224; 300&#x20AC; / an par logement</div>
+              </div>
+              <div class="partner-actions">
+                <button class="integration-btn disabled" disabled>Bient&#244;t</button>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -1160,34 +1453,143 @@
 
       <!-- TARIFS -->
       <div class="page" id="page-tarifs">
-        <div class="page-header"><div><div class="page-title">Tarifs</div><div class="page-sub" id="tarifs-sub">14 jours d'essai gratuit — sans carte bancaire</div></div></div>
+        <div class="page-header">
+          <div>
+            <div class="page-title">Mon abonnement</div>
+            <div class="page-sub" id="tarifs-sub">14 jours d&#8217;essai gratuit &#8212; sans carte bancaire</div>
+          </div>
+        </div>
+
+        <!-- Résumé abonnement -->
+        <div class="plan-summary-card">
+          <div class="plan-summary-badge">
+            <div class="plan-summary-badge-name" id="tarifs-plan-name">Starter</div>
+            <div class="plan-summary-badge-lbl">Plan actuel</div>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div class="plan-summary-info-title">Votre plan RentyQ</div>
+            <div class="plan-summary-info-item">&#x2705; Logements illimit&#233;s</div>
+            <div class="plan-summary-info-item">&#x2705; EVA Engine &#8212; analyse en temps r&#233;el</div>
+            <div class="plan-summary-info-item">&#x2705; Smoobu, Opportunit&#233;s EVA, Scanner</div>
+            <div class="plan-summary-info-item" style="color:#B0A8C8">&#x26AA; Int&#233;grations financi&#232;res &#8212; EVA Pro+</div>
+            <div class="plan-summary-ctas">
+              <button class="integration-btn primary" style="width:auto;padding:8px 16px" onclick="document.getElementById('tarifs-content').scrollIntoView({behavior:'smooth'})">Passer &#224; EVA Pro &#8599;</button>
+              <button class="integration-btn secondary" style="width:auto;padding:8px 16px">G&#233;rer mon abonnement</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contenu existant (renderTarifs() injecte ici) -->
         <div id="tarifs-content"></div>
         <div id="tarifs-success" style="display:none">
           <div class="card" style="text-align:center;padding:3rem;border-color:#5DCAA5;background:#ECFDF5">
-            <div style="font-size:48px;margin-bottom:1rem">🎉</div>
-            <div style="font-size:20px;font-weight:700;margin-bottom:8px;color:#059669">Paiement réussi !</div>
+            <div style="font-size:48px;margin-bottom:1rem">&#x1F389;</div>
+            <div style="font-size:20px;font-weight:700;margin-bottom:8px;color:#059669">Paiement r&#233;ussi !</div>
             <div style="font-size:13px;color:#8A8A99;margin-bottom:1.5rem">Votre abonnement est actif. Bienvenue dans RentyQ Pro !</div>
-            <button class="btn btn-purple" onclick="goTo('cockpit',document.querySelector('[data-page=\"cockpit\"]'))">Aller au Cockpit &rarr;</button>
+            <button class="btn btn-purple" onclick="goTo('cockpit',document.querySelector('[data-page=&quot;cockpit&quot;]'))">Aller au Cockpit &rarr;</button>
           </div>
         </div>
       </div>
       <!-- SETTINGS -->
       <div class="page" id="page-settings">
-        <div class="page-header"><div><div class="page-title">Paramètres</div></div></div>
-        <div class="card">
-          <div class="settings-section-title">Mon compte</div>
-          <div class="setting-row"><div><div class="setting-label">Nom</div></div><input type="text" id="set-name" style="width:180px;padding:6px 10px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit"/></div>
-          <div class="setting-row"><div><div class="setting-label">Email</div></div><span id="set-email" style="font-size:13px;color:#8A8A99"></span></div>
-          <div style="margin-top:1rem" class="settings-section-title">Modules actifs</div>
-          <div class="setting-row"><div><div class="setting-label">🏠 Gestion sous-location</div><div class="setting-desc">Gérer vos propres appartements</div></div><button class="toggle" id="toggle-mod-solo" onclick="toggleModule('solo')"></button></div>
-          <div class="setting-row"><div><div class="setting-label">🏢 Conciergerie</div><div class="setting-desc">Gérer les biens de vos clients</div></div><button class="toggle" id="toggle-mod-concierge" onclick="toggleModule('concierge')"></button></div>
-          <div style="margin-top:1rem" class="settings-section-title">EVA Pricing</div>
-          <div class="setting-row"><div><div class="setting-label">Mode automatique</div><div class="setting-desc">EVA ajuste sans confirmation</div></div><button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button></div>
-          <div class="setting-row"><div><div class="setting-label">Alertes événements</div><div class="setting-desc">Notifier lors d'un événement détecté</div></div><button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button></div>
-          <div style="margin-top:1rem" class="settings-section-title">Abonnement</div>
-          <div class="setting-row"><div><div class="setting-label" id="set-plan">Plan Starter</div><div class="setting-desc">Appartements illimités · EVA · Smoobu · Opportunités EVA</div></div><button class="btn btn-purple btn-sm">Upgrader →</button></div>
-          <button class="btn btn-purple" onclick="saveProfile()" style="margin-top:1rem">✓ Sauvegarder</button>
+        <div class="page-header">
+          <div>
+            <div class="page-title">Param&#232;tres</div>
+            <div class="page-sub">Compte, modules EVA, pr&#233;f&#233;rences et abonnement.</div>
+          </div>
         </div>
+
+        <!-- Section Mon compte -->
+        <div class="settings-section">
+          <div class="settings-section-head">
+            <div class="settings-section-label">&#x1F464; Mon compte</div>
+            <button class="integration-btn secondary" style="width:auto;padding:7px 14px" onclick="saveProfile()">&#x2713; Sauvegarder</button>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-row-label">Nom</div></div>
+            <input type="text" id="set-name" class="settings-input" placeholder="Votre nom&#8230;"/>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-row-label">Email</div><div class="settings-row-sub">Non modifiable</div></div>
+            <span id="set-email" style="font-size:13px;color:#8A8A99;font-weight:500"></span>
+          </div>
+        </div>
+
+        <!-- Section Modules actifs -->
+        <div class="settings-section">
+          <div class="settings-section-head">
+            <div class="settings-section-label">&#x1F527; Modules actifs</div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">&#x1F3E0; Gestion sous-location</div>
+              <div class="settings-row-sub">G&#233;rez vos propres appartements avec EVA</div>
+            </div>
+            <button class="toggle" id="toggle-mod-solo" onclick="toggleModule('solo')"></button>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">&#x1F3E2; Mode conciergerie</div>
+              <div class="settings-row-sub">G&#233;rez les biens de vos clients propri&#233;taires</div>
+            </div>
+            <button class="toggle" id="toggle-mod-concierge" onclick="toggleModule('concierge')"></button>
+          </div>
+        </div>
+
+        <!-- Section EVA Pricing -->
+        <div class="settings-section">
+          <div class="settings-section-head">
+            <div class="settings-section-label">&#x1F9E0; Pr&#233;f&#233;rences EVA</div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Mode automatique</div>
+              <div class="settings-row-sub">EVA ajuste les prix sans confirmation manuelle</div>
+            </div>
+            <button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Alertes &#233;v&#233;nements</div>
+              <div class="settings-row-sub">Notification lors d&#8217;un pic de demande d&#233;tect&#233;</div>
+            </div>
+            <button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Plancher tarifaire automatique</div>
+              <div class="settings-row-sub">EVA ne descend jamais sous le co&#251;t de revient estim&#233;</div>
+            </div>
+            <button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Sensibilit&#233; du moteur EVA</div>
+              <div class="settings-row-sub">Agressif = plus de hausses &#8226; Conservateur = moins de variations</div>
+            </div>
+            <select style="height:34px;border-radius:8px;border:1px solid rgba(139,92,246,.22);padding:0 10px;font-size:12px;font-family:inherit;background:#FAFAFE;color:#17122E;font-weight:600">
+              <option>&#x26A1; Agressif</option>
+              <option selected>&#x2699;&#xFE0F; &#201;quilibr&#233;</option>
+              <option>&#x1F6E1;&#xFE0F; Conservateur</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Section Abonnement rapide -->
+        <div class="settings-section">
+          <div class="settings-section-head">
+            <div class="settings-section-label">&#x1F4E6; Abonnement</div>
+            <button class="integration-btn primary" style="width:auto;padding:7px 14px" onclick="goTo('tarifs',document.querySelector('[data-page=tarifs]'))">G&#233;rer &#8594;</button>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label" id="set-plan">Plan Starter</div>
+              <div class="settings-row-sub">Logements illimit&#233;s &#183; EVA Engine &#183; Smoobu &#183; Opportunit&#233;s EVA</div>
+            </div>
+            <span class="a360-badge a360-badge-purple">Actif</span>
+          </div>
+        </div>
+
       </div>
 
       <!-- ════════════════════════════════════════
@@ -1393,24 +1795,122 @@
       </div>
 
       <!-- PARAMÈTRES — PROFIL -->
+      <!-- PARAMÈTRES — PROFIL -->
       <div class="page" id="page-settings-profil">
-        <div class="page-header"><div><div class="page-title">Profil</div><div class="page-sub">Vos informations personnelles et pr&#233;f&#233;rences.</div></div></div>
-        <div class="card" style="text-align:center;padding:3rem 2rem">
-          <div style="font-size:48px;margin-bottom:1rem">&#x1F464;</div>
-          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Profil</div>
-          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Vos informations personnelles et pr&#233;f&#233;rences de compte.</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        <div class="page-header">
+          <div>
+            <div class="page-title">Mon profil</div>
+            <div class="page-sub">Informations de compte et pr&#233;f&#233;rences personnelles.</div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-purple" onclick="saveProfile()">&#x2713; Sauvegarder</button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-head">
+            <div class="settings-section-label">&#x1F464; Informations personnelles</div>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-row-label">Nom complet</div></div>
+            <input type="text" id="set-name-profil" class="settings-input" placeholder="Votre nom&#8230;" oninput="document.getElementById('set-name').value=this.value"/>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-row-label">Email</div><div class="settings-row-sub">Non modifiable &#8212; li&#233; au compte Supabase</div></div>
+            <span id="set-email-profil" style="font-size:13px;color:#8A8A99;font-weight:500">&#8212;</span>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-row-label">Entreprise / Raison sociale</div><div class="settings-row-sub">Optionnel &#8212; pour facturation et documents</div></div>
+            <input type="text" class="settings-input" placeholder="Nom de soci&#233;t&#233;&#8230;"/>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-row-label">Num&#233;ro SIRET</div><div class="settings-row-sub">Optionnel &#8212; requis pour les partenaires EVA</div></div>
+            <input type="text" class="settings-input" placeholder="123 456 789 00012" style="font-family:monospace"/>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-head">
+            <div class="settings-section-label">&#x1F512; S&#233;curit&#233;</div>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-row-label">Mot de passe</div><div class="settings-row-sub">G&#233;r&#233; par Supabase Auth</div></div>
+            <button class="integration-btn secondary" style="width:auto;padding:7px 14px" onclick="alert('Modification du mot de passe : utilisez le lien \u00ab Mot de passe oubli\u00e9 \u00bb sur la page de connexion.')">Modifier</button>
+          </div>
+        </div>
+
+        <div style="margin-top:6px">
+          <button class="a360-action-btn" onclick="saveProfile()">&#x2713; Sauvegarder les modifications</button>
         </div>
       </div>
 
       <!-- PARAMÈTRES — COMMISSIONS OTA -->
       <div class="page" id="page-settings-commissions">
-        <div class="page-header"><div><div class="page-title">Commissions OTA</div><div class="page-sub">Configurez les taux de commission de chaque plateforme.</div></div></div>
-        <div class="card" style="text-align:center;padding:3rem 2rem">
-          <div style="font-size:48px;margin-bottom:1rem">&#x1F4B3;</div>
-          <div style="font-size:17px;font-weight:800;color:#0B0722;margin-bottom:8px;font-family:Sora,sans-serif">Commissions OTA</div>
-          <div style="font-size:13px;color:#8A8A99;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">Configurez les taux de commission de chaque plateforme (Airbnb, Booking&#8230;).</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);border:1px solid #C4B5FD;border-radius:10px;padding:10px 20px"><span>&#x1F6A7;</span><span style="font-size:13px;font-weight:700;color:#6D28D9">En cours de d&#233;veloppement</span></div>
+        <div class="page-header">
+          <div>
+            <div class="page-title">Commissions OTA</div>
+            <div class="page-sub">D&#233;finissez les taux de commission par plateforme pour alimenter Profit 360.</div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-head">
+            <div class="settings-section-label">&#x1F4B0; Taux de commission par canal</div>
+            <span class="a360-badge a360-badge-purple">Profit 360</span>
+          </div>
+          <div style="font-size:12px;color:#8A8A99;margin-bottom:14px;line-height:1.6;background:#F8F5FF;border-radius:10px;padding:10px 12px">
+            &#x2139;&#xFE0F; Ces taux sont utilis&#233;s par Profit 360 pour calculer votre revenu net r&#233;el apr&#232;s commissions. Ils n&#8217;affectent pas votre compte Airbnb ou Booking.
+          </div>
+          <div style="overflow-x:auto">
+            <table class="ota-comm-table">
+              <thead>
+                <tr>
+                  <th>Plateforme</th>
+                  <th>Commission %</th>
+                  <th>Impact mensuel estim&#233;</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span style="font-size:16px;margin-right:8px">&#x1F3E0;</span><strong>Airbnb</strong></td>
+                  <td><input type="number" class="ota-comm-input" value="3" min="0" max="30" step="0.5" id="comm-airbnb"/> %</td>
+                  <td><span style="font-size:12px;color:#8A8A99" id="comm-airbnb-impact">&#8212;</span></td>
+                </tr>
+                <tr>
+                  <td><span style="font-size:16px;margin-right:8px">&#x1F4CB;</span><strong>Booking.com</strong></td>
+                  <td><input type="number" class="ota-comm-input" value="15" min="0" max="30" step="0.5" id="comm-booking"/> %</td>
+                  <td><span style="font-size:12px;color:#8A8A99" id="comm-booking-impact">&#8212;</span></td>
+                </tr>
+                <tr>
+                  <td><span style="font-size:16px;margin-right:8px">&#x1F91D;</span><strong>Direct</strong></td>
+                  <td><input type="number" class="ota-comm-input" value="0" min="0" max="30" step="0.5" id="comm-direct"/> %</td>
+                  <td><span style="font-size:12px;color:#059669;font-weight:700">0&#x20AC; de commission</span></td>
+                </tr>
+                <tr>
+                  <td><span style="font-size:16px;margin-right:8px">&#x1F310;</span><strong>Autres OTA</strong></td>
+                  <td><input type="number" class="ota-comm-input" value="12" min="0" max="30" step="0.5" id="comm-autres"/> %</td>
+                  <td><span style="font-size:12px;color:#8A8A99" id="comm-autres-impact">&#8212;</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="margin-top:14px">
+            <button class="a360-action-btn" onclick="showToast&&showToast('&#x2713; Commissions enregistr\u00e9es')">&#x2713; Enregistrer les taux</button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-head">
+            <div class="settings-section-label">&#x1F4CA; Impact sur Profit 360</div>
+          </div>
+          <div style="font-size:13px;color:#8A8A99;line-height:1.7">
+            Ces taux sont pris en compte dans le calcul du revenu net de la page <strong>Profit 360</strong>.<br>
+            Exemple : pour 1 000&#x20AC; de revenus Airbnb &#224; 3% &#8594; 30&#x20AC; de commission &#8594; 970&#x20AC; nets.<br>
+            Pour Booking.com &#224; 15% &#8594; 150&#x20AC; de commission &#8594; 850&#x20AC; nets.
+          </div>
+          <div style="margin-top:12px">
+            <button class="integration-btn secondary" style="width:auto;padding:8px 14px" onclick="goTo('profit360',document.querySelector('[data-page=profit360]'))">Voir Profit 360 &#8594;</button>
+          </div>
         </div>
       </div>
 
