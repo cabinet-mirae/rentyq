@@ -1886,3 +1886,57 @@ tr:hover td { background: #FAF6FF !important; }
   .plan-summary-card { flex-direction: column; }
 }
 /* ===== end Intégrations & Paramètres v2 ===== */
+
+/* ===== RentyQ — Intégrations config v2 ===== */
+.integration-config {
+  background: #F8F5FF;
+  border: 1px solid rgba(139,92,246,.13);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.integration-inputs { display: flex; flex-direction: column; gap: 8px; }
+.integration-input-row { display: flex; flex-direction: column; gap: 4px; }
+.integration-input-label {
+  font-size: 10px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .6px; color: #8A8A99;
+}
+.integration-input-field {
+  height: 36px; padding: 0 10px; border-radius: 8px;
+  border: 1px solid rgba(139,92,246,.2);
+  background: white; font-size: 12px; font-family: monospace;
+  color: #17122E; outline: none; width: 100%;
+}
+.integration-input-field:focus { border-color: #7C3AED; }
+.integration-input-field:disabled { background: #F3F4F6; color: #B0A8C8; cursor: not-allowed; }
+.integration-input-hint { font-size: 10px; color: #B0A8C8; line-height: 1.4; }
+.integration-actions { display: flex; gap: 8px; }
+.integration-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10px; font-weight: 800; border-radius: 999px;
+  padding: 3px 10px; white-space: nowrap;
+}
+.integration-badge.pro    { background: linear-gradient(135deg,#FEF3C7,#FDE68A); color: #92400E; }
+.integration-badge.soon   { background: #F3F4F6; color: #6B7280; }
+.integration-badge.active { background: #DCFCE7; color: #047857; }
+.integration-stat-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0; border-bottom: 1px solid rgba(139,92,246,.08);
+  font-size: 12px;
+}
+.integration-stat-row:last-child { border-bottom: none; padding-bottom: 0; }
+.integration-stat-label { color: #8A8A99; font-weight: 600; }
+.integration-stat-val    { font-weight: 800; color: #17122E; }
+.integration-empty {
+  text-align: center; padding: 1.5rem 1rem;
+  color: #B0A8C8; font-size: 12px; line-height: 1.6;
+}
+.integration-empty-icon { font-size: 28px; margin-bottom: 8px; }
+.integration-info-box {
+  background: #F0F9FF; border: 1px solid rgba(14,165,233,.18);
+  border-radius: 10px; padding: 10px 12px;
+  font-size: 11px; color: #0369A1; line-height: 1.6;
+}
+/* ===== end Intégrations config v2 ===== */
