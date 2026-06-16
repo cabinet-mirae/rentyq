@@ -6785,18 +6785,14 @@ async function resendConfirmEmail(){
 /* ===== GOOGLE OAUTH ===== */
 async function doGoogleLogin(){
   try{
-    // Supabase OAuth Google — redirige vers Google puis revient sur l\u2019URL actuelle
-    const redirectTo=window.location.origin+window.location.pathname;
-    const res=await fetch(`${SB_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectTo)}`,{
-      method:'GET',
-      headers:{'apikey':SB_KEY}
+    const{data,error}=await supabase.auth.signInWithOAuth({
+      provider:'google',
+      options:{redirectTo:'https://rentyq.fr/'}
     });
-    if(res.url&&res.url.includes('accounts.google.com')){
-      window.location.href=res.url;
-    } else {
-      // Fallback : ouvrir directement l\u2019URL OAuth Supabase
-      window.location.href=`${SB_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectTo)}`;
+    if(error){
+      showErr('login-error','Connexion Google indisponible : '+error.message);
     }
+    // Le SDK redirige le navigateur directement — pas de window.location manuel
   }catch(e){
     showErr('login-error','Connexion Google indisponible. Utilisez votre email et mot de passe.');
   }
