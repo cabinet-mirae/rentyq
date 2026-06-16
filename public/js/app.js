@@ -732,15 +732,45 @@ function showApartDetail(id){
       <div class="rq-night-day">${dayName(d.d)}</div><div class="rq-night-price">${d.booked?icon:d.rec+'€'}</div><div class="rq-night-status">${status}</div></div>`;
   }).join('');
 
-  const actions=[];
-  if(freeTonight)actions.push({type:'urgent',icon:'🚨',title:`Sauver la nuit de ce soir`,desc:`Prix conseillé ${recoPrice}€ au lieu de ${basePrice}€ pour éviter une nuit vide.`,btn:'Appliquer',rec:recoPrice});
-  if(lostNights72>0&&!freeTonight)actions.push({type:'urgent',icon:'⏱️',title:`${lostNights72} nuit${lostNights72>1?'s':''} à sauver sous 72h`,desc:`Baisser légèrement maintenant pour favoriser le remplissage.`,btn:'Appliquer',rec:recoPrice});
-  if(occ14<50)actions.push({type:'warn',icon:'📉',title:`Occupation à ${occ14}%`,desc:`Le bien manque de réservations sur les 14 prochains jours. Priorité au remplissage.`,btn:'Voir pricing',rec:recoPrice});
-  if(hotEvs.length)actions.push({type:'warn',icon:'🎉',title:`Événement local : ${hotEvs[0].name.slice(0,28)}…`,desc:`Hausse possible de ${hotEvs[0].boost||10}% sur les dates concernées.`,btn:'Appliquer',rec:Math.max(recoPrice,Math.round(basePrice*(1+(hotEvs[0].boost||10)/100)))});
-  if(note!=='—'&&+note<4)actions.push({type:'urgent',icon:'⭐',title:`Note Airbnb basse : ${note}/5`,desc:`Contrôler ménage, photos ou annonce avant d\u2019augmenter les prix.`,btn:'Modifier',edit:true});
-  if(!pendingM.length)actions.push({type:'warn',icon:'🧹',title:'Aucun ménage prévu',desc:'Créer une mission CleanyQ pour sécuriser l\u2019exploitation.',btn:'Créer',mission:true});
-  if(!actions.length)actions.push({type:'',icon:'✅',title:'Aucune action urgente',desc:'Le bien est correctement piloté pour les prochains jours.',btn:'Modifier',edit:true});
-  const actionsHtml=actions.slice(0,5).map(x=>`<div class="rq-action-v2 ${x.type}"><div class="rq-action-icon">${x.icon}</div><div><div class="rq-action-title">${esc(x.title)}</div><div class="rq-action-desc">${esc(x.desc)}</div></div><button class="rq-button-secondary" onclick="${x.mission?'openMissionModal()':x.edit?`openEdit('${a.id}')`:`applyAI('${a.id}',${x.rec||recoPrice})`}">${esc(x.btn)}</button></div>`).join('');
+  // ── Action EVA du Jour : une seule via cascade if/else if ──
+  let primaryAction;
+  const checkinToday=aptRes.some(r=>r.date_from===iso(today));
+  if(checkinToday&&!freeTonight){
+    primaryAction={type:'warn',icon:'🚪',title:'Check-in aujourd\'hui — vérifier la préparation',desc:'Un voyageur arrive ce jour. Confirmez le ménage et l\'accès au logement.',btn:'Voir CleanyQ',mission:true};
+  } else if(freeTonight){
+    primaryAction={type:'urgent',icon:'🔥',title:'Appliquer un tarif de remplissage ce soir',desc:`Prix conseillé : ${recoPrice}€. Chaque heure sans réservation est une nuit perdue.`,btn:`Appliquer ${recoPrice}€`,rec:recoPrice};
+  } else if(note!=='—'&&+note<4){
+    primaryAction={type:'urgent',icon:'⭐',title:`Corriger la qualité avant d'augmenter les prix`,desc:`Note actuelle : ${note}/5. Priorité aux photos, ménage et équipements.`,btn:'Modifier le bien',edit:true};
+  } else if(lostNights72>0){
+    primaryAction={type:'urgent',icon:'⏱️',title:`Baisser légèrement pour sécuriser ${lostNights72} nuit${lostNights72>1?'s':''} à venir`,desc:'Des nuits libres arrivent sous 72h. Un ajustement de prix maintenant évite les pertes.',btn:`Appliquer ${recoPrice}€`,rec:recoPrice};
+  } else if(hotEvs.length&&occ14>=50){
+    const evRec=Math.max(recoPrice,Math.round(basePrice*(1+(hotEvs[0].boost||10)/100)));
+    primaryAction={type:'warn',icon:'🎉',title:`Booster le prix pour l'événement : ${hotEvs[0].name.slice(0,28)}`,desc:`Hausse recommandée de +${hotEvs[0].boost||10}% sur les dates concernées.`,btn:`Appliquer ${evRec}€`,rec:evRec};
+  } else if(recoDirection==='up'){
+    primaryAction={type:'',icon:'📈',title:`Monter à ${recoPrice}€ conseillé par EVA`,desc:`Le bien est bien rempli (${occ14}% sur 14j). Potentiel estimé sans risque de perte.`,btn:`Appliquer ${recoPrice}€`,rec:recoPrice};
+  } else if(occ14<50){
+    primaryAction={type:'warn',icon:'📉',title:`Occupation à ${occ14}% — activer un canal supplémentaire`,desc:'Le bien manque de réservations sur les 14 prochains jours. Priorité au remplissage.',btn:'Voir intégrations',page:'smoobu'};
+  } else {
+    primaryAction={type:'',icon:'✅',title:'Aucune action urgente aujourd\'hui',desc:'Le bien est correctement piloté. EVA surveille les prochains jours.',btn:'Modifier',edit:true};
+  }
+
+  // Action principale — HTML
+  const primaryHtml=`<div class="rq-action-v2 ${primaryAction.type}"><div class="rq-action-icon">${primaryAction.icon}</div><div><div class="rq-action-title">${esc(primaryAction.title)}</div><div class="rq-action-desc">${esc(primaryAction.desc)}</div></div><button class="rq-button-secondary" onclick="${primaryAction.mission?'openMissionModal()':primaryAction.edit?`openEdit('${a.id}')`:primaryAction.page?`goTo('${primaryAction.page}',document.querySelector('[data-page=${primaryAction.page}]'))`:`applyAI('${a.id}',${primaryAction.rec||recoPrice})`}">${esc(primaryAction.btn)}</button></div>`;
+
+  // Signaux secondaires → bloc "À surveiller" (pas des actions, du contexte)
+  const watchSignals=[];
+  if(!freeTonight&&lostNights72>0&&primaryAction.icon!=='⏱️') watchSignals.push(`${lostNights72} nuit${lostNights72>1?'s':''} libre${lostNights72>1?'s':''} sous 72h`);
+  if(hotEvs.length&&primaryAction.icon!=='🎉') watchSignals.push(`Événement local : ${hotEvs[0].name.slice(0,32)}`);
+  if(occ14<65&&primaryAction.type!=='warn') watchSignals.push(`Occupation 14j : ${occ14}% (objectif : 65%)`);
+  if(!pendingM.length) watchSignals.push('Aucun ménage CleanyQ programmé');
+  const watchHtml=watchSignals.length?`<div style="margin-top:10px;padding:10px;background:#F8F5FF;border-radius:10px"><div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#8A8A99;margin-bottom:6px">À surveiller</div>${watchSignals.map(s=>`<div style="font-size:11px;color:#5B2C91;display:flex;gap:6px;margin-bottom:3px"><span>·</span><span>${esc(s)}</span></div>`).join('')}</div>`:'';
+
+  // Contexte EVA — données explicatives uniquement
+  const aiRecDetail=a.ai_rec?`Prix cible EVA : ${a.ai_rec}€`:'';
+  const contextDetail=[aiRecDetail,fl?`Plancher : ${fl}€`:'',`Score EVA : ${score}/100`].filter(Boolean).join(' · ');
+  const contextHtml=contextDetail?`<div style="font-size:11px;color:#8A8A99;margin-top:8px;line-height:1.5">📊 ${esc(contextDetail)}</div>`:'';
+
+  const actionsHtml=primaryHtml+watchHtml+contextHtml;
 
   const timelineItems=[];
   timelineItems.push({date:'Aujourd\u2019hui',icon:freeTonight?'🔴':'🟢',title:freeTonight?'Nuit libre à remplir':'Bien réservé ce soir',desc:freeTonight?`Action prioritaire : passer à ${recoPrice}€.`:'Aucune urgence immédiate.'});
@@ -782,7 +812,7 @@ function showApartDetail(id){
           <div class="rq-hero-kpi"><div class="rq-hero-kpi-label">Net ce mois</div><div class="rq-hero-kpi-value">${net>=0?'+':''}${net}€</div><div class="rq-hero-kpi-sub">CA ${rev}€ · charges ${charges}€</div></div>
           <div class="rq-hero-kpi"><div class="rq-hero-kpi-label">Occupation 14j</div><div class="rq-hero-kpi-value">${occ14}%</div><div class="rq-hero-kpi-sub">${14-free14}/14 nuits réservées</div></div>
           <div class="rq-hero-kpi"><div class="rq-hero-kpi-label">Revenu à récupérer</div><div class="rq-hero-kpi-value">${potential}€</div><div class="rq-hero-kpi-sub">sur nuits libres proches</div></div>
-          <div class="rq-hero-kpi"><div class="rq-hero-kpi-label">Actions</div><div class="rq-hero-kpi-value">${actions.filter(x=>x.type).length}</div><div class="rq-hero-kpi-sub">priorités opérationnelles</div></div>
+          <div class="rq-hero-kpi"><div class="rq-hero-kpi-label">Action EVA</div><div class="rq-hero-kpi-value">${primaryAction.type==='urgent'?'🔴':primaryAction.type==='warn'?'🟡':'🟢'}</div><div class="rq-hero-kpi-sub">${esc(primaryAction.title.slice(0,28))}…</div></div>
         </div>
         <div class="rq-property-tabs">
           <button class="rq-property-tab active" onclick="switchPropertyTab('overview')">Vue d\u2019ensemble</button>
@@ -803,7 +833,7 @@ function showApartDetail(id){
       <div class="rq-detail-grid">
         <div style="display:flex;flex-direction:column;gap:16px">
           <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">📅 7 prochaines nuits</div><div class="rq-card-sub-v2">Cliquez une nuit libre pour appliquer son prix conseillé.</div></div><span class="rq-health-badge ${freeTonight?'danger':(free14>4?'warn':'')}" style="color:#17122E;background:#F8F4FF"><span class="rq-health-dot"></span>${free14} libres / 14j</span></div><div class="rq-nights-grid">${nightsHtml}</div></section>
-          <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">🎯 Actions du jour</div><div class="rq-card-sub-v2">Priorité au remplissage : une nuit vide rapporte 0€.</div></div></div><div class="rq-actions-list">${actionsHtml}</div></section>
+          <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">🎯 Action EVA du jour</div><div class="rq-card-sub-v2">Une seule priorité opérationnelle par bien.</div></div></div><div class="rq-actions-list">${actionsHtml}</div></section>
           <section class="rq-card-v2"><div class="rq-card-head-v2"><div><div class="rq-card-title-v2">💰 Finances du bien</div><div class="rq-card-sub-v2">Lecture simple : chiffre d\u2019affaires, charges et résultat.</div></div><span class="rq-boost-badge" style="background:${net>=0?'#DCFCE7':'#FEE2E2'};color:${net>=0?'#047857':'#B91C1C'}">${net>=0?'Rentable':'Sous-performant'}</span></div><div class="rq-finance-grid"><div class="rq-finance-line"><div class="rq-finance-label">CA généré</div><div class="rq-finance-value">${rev}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Charges</div><div class="rq-finance-value">${charges}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Résultat net</div><div class="rq-finance-value ${net>=0?'good':'bad'}">${net>=0?'+':''}${net}€</div></div><div class="rq-finance-line"><div class="rq-finance-label">Rentabilité</div><div class="rq-finance-value ${profitability>=0?'good':'bad'}">${profitability}%</div></div></div><div class="rq-mini-bars">${revBars}</div></section>
         </div>
         <div style="display:flex;flex-direction:column;gap:16px">
@@ -972,21 +1002,111 @@ function renderParcFiches(){
       '</div>';
     }
 
-    var recos=[];
-    if(freeTonight) recos.push('Appliquer un tarif de remplissage ce soir');
-    if(potential>0) recos.push('Monter le prix \u00e0 '+aiRec+'\u20AC conseill\u00e9 par EVA (+'+potential+'\u20AC/nuit)');
-    if(hotEvs.length) recos.push('Booster +'+(hotEvs[0].boost||10)+'% sur l\u2019\u00e9v\u00e9nement : '+(hotEvs[0].name||'').slice(0,30));
-    if(occ<50) recos.push('Activer un canal suppl\u00e9mentaire pour augmenter le remplissage');
-    var recoHtml='';
-    if(recos.length){
-      recoHtml='<div style="margin-bottom:12px">'+
-        '<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#8A8A99;margin-bottom:6px">Recommandations EVA</div>'+
-        recos.slice(0,2).map(function(r){
-          return '<div style="display:flex;align-items:flex-start;gap:6px;font-size:12px;color:#17122E;margin-bottom:4px">'+
-            '<span style="color:#7C3AED;flex-shrink:0">\u2192</span><span>'+r+'</span></div>';
+    // ── Règle EVA : une seule Action du Jour (if/else if cascade) ──
+    var evaActionIcon,evaActionTitle,evaActionDesc,evaActionType,evaActionBtn,evaActionRec;
+    var note=Number(a.note||0);
+    var lostNights72=0; // Nuits libres dans les 72h (hors ce soir)
+    var today2=new Date();
+    for(var di=1;di<=3;di++){var dd=new Date(today2);dd.setDate(dd.getDate()+di);var ddIso=dd.toISOString().slice(0,10);var booked72=reservations.some(function(r){return r.appartement_id===a.id&&r.date_from&&r.date_to&&r.date_from<=ddIso&&r.date_to>ddIso;});if(!booked72)lostNights72++;}
+    var checkinImminent=!freeTonight&&(function(){var r=reservations.find(function(r){return r.appartement_id===a.id&&r.date_from===today2.toISOString().slice(0,10);});return !!r;}());
+
+    if(checkinImminent){
+      evaActionType='warn';evaActionIcon='\uD83D\uDEAA';
+      evaActionTitle='Check-in aujourd\u2019hui \u2014 v\u00e9rifier la pr\u00e9paration';
+      evaActionDesc='Un voyageur arrive ce jour. Confirmez le m\u00e9nage et l\u2019acc\u00e8s au logement.';
+      evaActionBtn='Voir CleanyQ';evaActionRec=null;
+    } else if(freeTonight){
+      evaActionType='urgent';evaActionIcon='\uD83D\uDD25';
+      evaActionTitle='Appliquer un tarif de remplissage ce soir';
+      evaActionDesc='Le logement est libre ce soir. Chaque heure sans r\u00e9servation est une nuit perdue.';
+      evaActionBtn='Appliquer';evaActionRec=Math.max(fl,Math.round((price||60)*0.82));
+    } else if(note>0&&note<4){
+      evaActionType='urgent';evaActionIcon='\u2605';
+      evaActionTitle='Corriger la qualit\u00e9 avant d\u2019augmenter les prix';
+      evaActionDesc='Note actuelle : '+note+'/5. Priorit\u00e9 aux photos, m\u00e9nage et \u00e9quipements.';
+      evaActionBtn='Voir la fiche';evaActionRec=null;
+    } else if(lostNights72>0){
+      evaActionType='urgent';evaActionIcon='\u23F1\uFE0F';
+      evaActionTitle='Baisser l\u00e9g\u00e8rement pour s\u00e9curiser '+lostNights72+' nuit'+(lostNights72>1?'s':'')+' \u00e0 venir';
+      evaActionDesc='Des nuits libres arrivent sous 72h. Un ajustement de prix maintenant peut \u00e9viter des pertes.';
+      evaActionBtn='Appliquer';evaActionRec=Math.max(fl,Math.round((price||60)*0.88));
+    } else if(hotEvs.length&&occ>=50){
+      evaActionType='hot';evaActionIcon='\uD83C\uDF89';
+      evaActionTitle='Booster le prix pour l\u2019\u00e9v\u00e9nement : '+(hotEvs[0].name||'').slice(0,28);
+      evaActionDesc='Pic de demande d\u00e9tect\u00e9. Hausse recommand\u00e9e de +'+(hotEvs[0].boost||10)+'%.';
+      evaActionBtn='Appliquer';evaActionRec=Math.max(price,Math.round((price||60)*(1+(hotEvs[0].boost||10)/100)));
+    } else if(potential>0&&occ>=50){
+      evaActionType='hot';evaActionIcon='\uD83D\uDCC8';
+      evaActionTitle='Monter le prix \u00e0 '+aiRec+'\u20AC conseill\u00e9 par EVA';
+      evaActionDesc='Le bien est bien rempli. EVA estime un potentiel de +'+potential+'\u20AC/nuit sans risque.';
+      evaActionBtn='Appliquer';evaActionRec=aiRec;
+    } else if(occ<50){
+      evaActionType='warn';evaActionIcon='\uD83D\uDCE1';
+      evaActionTitle='Activer un canal suppl\u00e9mentaire pour le remplissage';
+      evaActionDesc='Occupation \u00e0 '+occ+'% ce mois. Une deuxi\u00e8me plateforme augmenterait la visibilit\u00e9.';
+      evaActionBtn='Voir int\u00e9grations';evaActionRec=null;
+    } else {
+      evaActionType='ok';evaActionIcon='\u2705';
+      evaActionTitle='Aucune action urgente aujourd\u2019hui';
+      evaActionDesc='EVA surveille les prochains jours. Consultez les missions \u00e0 venir.';
+      evaActionBtn=null;evaActionRec=null;
+    }
+
+    // Action EVA du jour HTML
+    var evaActionHtml='<div class="eva-section-label">Action EVA du jour</div>'+
+      '<div class="eva-action-day '+evaActionType+'">'+
+        '<div class="eva-action-day-icon">'+evaActionIcon+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div class="eva-action-day-title">'+evaActionTitle+'</div>'+
+          '<div class="eva-action-day-desc">'+evaActionDesc+'</div>'+
+          (evaActionBtn?'<button class="eva-action-day-btn" onclick="'+(evaActionRec?'goTo(\'parc\',document.querySelector(\'[data-page=parc]\')); setTimeout(function(){showApartDetail(\''+a.id+'\')},150)':'evaActionRec===null&&\''+evaActionBtn+'\'===\'Voir CleanyQ\'?\'goTo(\\\'clean\\\',document.querySelector(\\\'[data-page=clean]\\\'))\':\'\'')+'" onclick="goTo(\'parc\',document.querySelector(\'[data-page=parc]\')); setTimeout(function(){showApartDetail(\''+a.id+'\')},150)">'+evaActionBtn+'</button>':'')+
+        '</div>'+
+      '</div>';
+
+    // ── Missions EVA à venir (signaux non retenus comme action principale) ──
+    var futureMissions=[];
+    if(!freeTonight&&lostNights72>0) futureMissions.push({dot:'#DC2626',title:'Nuits libres sous 72h','sub':lostNights72+' nuit'+(lostNights72>1?'s':'')+' \u00e0 remplir dans les 3 prochains jours'});
+    if(hotEvs.length&&!(!freeTonight===false||occ<50)) futureMissions.push({dot:'#D97706',title:'Pic de demande : '+(hotEvs[0].name||'').slice(0,32),sub:'Hausse de +'+(hotEvs[0].boost||10)+'% possible sur les dates concern\u00e9es'});
+    if(occ<65&&!freeTonight&&occ>=50) futureMissions.push({dot:'#D97706',title:'Taux d\u2019occupation sous l\u2019objectif (65%)',sub:'Actuel : '+occ+'%. Quelques nuits vacantes \u00e0 surveiller'});
+    aptMissions.filter(function(m){return m.status!=='done';}).slice(0,2).forEach(function(m){futureMissions.push({dot:m.priority==='haute'?'#DC2626':'#7C3AED',title:m.title,sub:m.type+' \u00b7 '+m.priority});});
+    var missionsHtml='';
+    if(futureMissions.length){
+      missionsHtml='<div class="eva-missions-section">'+
+        '<div class="eva-section-label">Missions EVA \u00e0 venir</div>'+
+        futureMissions.slice(0,3).map(function(m){
+          return '<div class="eva-mission-item">'+
+            '<div class="eva-mission-dot" style="background:'+m.dot+'"></div>'+
+            '<div><div class="eva-mission-title">'+m.title+'</div><div class="eva-mission-sub">'+m.sub+'</div></div>'+
+          '</div>';
         }).join('')+
       '</div>';
     }
+
+    // ── Recommandations long terme (structurelles) ──
+    var longTermRecos=[];
+    if(note>0&&note>=4&&note<4.5) longTermRecos.push('Am\u00e9liorer les \u00e9quipements ou les photos (+0,5 point de note = +8% de revenu)');
+    if(!a.platform||a.platform==='airbnb') longTermRecos.push('Activer Booking.com pour r\u00e9duire la d\u00e9pendance \u00e0 Airbnb');
+    if(potential>0&&occ<50) longTermRecos.push('Optimiser le pricing long terme : prix cible EVA \u00e0 '+aiRec+'\u20AC d\u00e8s que le taux d\u2019occupation sera stable');
+    var recoHtml='';
+    if(longTermRecos.length){
+      recoHtml='<div class="eva-longterm-section">'+
+        '<div class="eva-section-label">Recommandations long terme</div>'+
+        longTermRecos.slice(0,2).map(function(r){
+          return '<div class="eva-longterm-item"><span class="eva-longterm-arrow">\u2192</span><span>'+r+'</span></div>';
+        }).join('')+
+      '</div>';
+    }
+
+    // ── Contexte EVA (données explicatives, pas des actions) ──
+    var contextHtml='<div class="eva-section-label">Contexte EVA</div>'+
+      '<div class="eva-context-grid">'+
+        '<div class="eva-context-item"><div class="eva-context-val">'+price+'\u20AC</div><div class="eva-context-lbl">Prix actuel</div></div>'+
+        (aiRec>0?'<div class="eva-context-item"><div class="eva-context-val" style="color:#7C3AED">'+aiRec+'\u20AC</div><div class="eva-context-lbl">Cible EVA</div></div>':'<div class="eva-context-item"><div class="eva-context-val" style="color:#B0A8C8">—</div><div class="eva-context-lbl">Cible EVA</div></div>')+
+        '<div class="eva-context-item"><div class="eva-context-val" style="color:'+(occ>=65?'#059669':occ>=45?'#D97706':'#DC2626')+'">'+occ+'%</div><div class="eva-context-lbl">Occupation</div></div>'+
+        '<div class="eva-context-item"><div class="eva-context-val">'+adr+'\u20AC</div><div class="eva-context-lbl">ADR</div></div>'+
+        (fl>0?'<div class="eva-context-item"><div class="eva-context-val" style="color:#8A8A99">'+fl+'\u20AC</div><div class="eva-context-lbl">Plancher</div></div>':'<div class="eva-context-item"><div class="eva-context-val" style="color:#B0A8C8">—</div><div class="eva-context-lbl">Plancher</div></div>')+
+        '<div class="eva-context-item"><div class="eva-context-val" style="color:'+scoreColor+'">'+sc+'</div><div class="eva-context-lbl">Score EVA</div></div>'+
+      '</div>';
 
     var equipHtml='';
     if(a.equipements&&a.equipements.length){
@@ -1017,7 +1137,7 @@ function renderParcFiches(){
           '<span style="font-size:12px;font-weight:700">'+prioLabel+'</span>'+
           (potential>0?'<span style="margin-left:auto;font-size:11px;font-weight:900;white-space:nowrap">+'+potential+'\u20AC/nuit</span>':'')+
         '</div>'+
-        missionsHtml+recoHtml+equipHtml+
+        evaActionHtml+missionsHtml+recoHtml+contextHtml+equipHtml+
         '<div class="parc-fiche-footer">'+
           '<button class="parc-fiche-btn-primary" onclick="goTo(\'parc\',document.querySelector(\'[data-page=parc]\')); setTimeout(function(){showApartDetail(\''+a.id+'\')},150)">\uD83D\uDD0D Voir le d\u00e9tail complet</button>'+
           '<button class="parc-fiche-btn-secondary" onclick="openEdit(\''+a.id+'\')">Modifier</button>'+
