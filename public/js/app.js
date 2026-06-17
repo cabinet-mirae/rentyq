@@ -2293,6 +2293,15 @@ function goTo(page,btn){
 
 const SCANNER_STEPS=[
   {id:'address',question:'Où se situe le bien ?',type:'address',placeholder:'Ex : 12 rue Bannier, 45000 Orléans'},
+  {id:'typeBien',question:'Quel type de bien est-ce ?',type:'choice',choices:[
+    {val:'studio',label:'Studio',icon:'🛋️'},
+    {val:'t2',label:'T2',icon:'🏠'},
+    {val:'t3',label:'T3',icon:'🏡'},
+    {val:'t4plus',label:'T4 ou plus',icon:'🏘️'},
+    {val:'maison',label:'Maison',icon:'🏘️'},
+    {val:'villa',label:'Villa',icon:'🏰'}
+  ]},
+  {id:'surface',question:'Quelle est la surface du logement ?',type:'number',placeholder:'Ex : 45',suffix:'m²'},
   {id:'voyageurs',question:'Combien de voyageurs pouvez-vous accueillir ?',type:'choice',choices:[
     {val:'2',label:'2 voyageurs',icon:'👫'},
     {val:'4',label:'4 voyageurs',icon:'👨\u200d👩\u200d👧\u200d👦'},
@@ -2306,12 +2315,25 @@ const SCANNER_STEPS=[
     {val:'3',label:'3 chambres',icon:'🏠'},
     {val:'4',label:'4 chambres ou plus',icon:'🏡'}
   ]},
+  {id:'sdb',question:'Combien de salles de bain ?',type:'choice',choices:[
+    {val:'1',label:'1 salle de bain',icon:'🚿'},
+    {val:'2',label:'2 salles de bain',icon:'🛁'},
+    {val:'3',label:'3 ou plus',icon:'🛁'}
+  ]},
+  {id:'equipements',question:'Quels équipements le logement propose-t-il ?',type:'multichoice',choices:[
+    {val:'parking',label:'Parking',icon:'🅿️'},
+    {val:'exterieur',label:'Balcon, terrasse ou jardin',icon:'🌿'},
+    {val:'clim',label:'Climatisation',icon:'❄️'}
+  ]},
   {id:'loyer',question:'Quel est le loyer mensuel du logement ?',type:'number',placeholder:'Ex : 950',suffix:'€ / mois'},
   {id:'standing',question:'Comment qualifieriez-vous le standing du logement ?',type:'choice',choices:[
     {val:'eco',label:'Économique',icon:'💰',desc:'Fonctionnel, accessible, prix attractif'},
     {val:'std',label:'Standard',icon:'⭐',desc:'Bon niveau, équipements complets'},
     {val:'prem',label:'Premium',icon:'💎',desc:'Haut de gamme, expérience soignée'}
-  ]}
+  ]},
+  {id:'photos',question:'Ajoutez des photos du logement',type:'photos',optional:true,helpText:'Minimum 5 photos recommandées · Idéal 10 à 20 photos. Cette étape peut être passée.'},
+  {id:'otaLink',question:'Avez-vous un lien d\u2019annonce existante ?',type:'text',optional:true,placeholder:'Lien Airbnb, Booking, Abritel… (facultatif)',helpText:'Optionnel — EVA fonctionne très bien sans ce lien.'},
+  {id:'commercial',question:'Le bien est-il déjà exploité en location courte durée ?',type:'commercial-group',optional:true,helpText:'Renseignez ces informations seulement si le bien est déjà en activité.'}
 ];
 
 let scannerData={};
@@ -2370,6 +2392,64 @@ function renderScannerStep(){
       <span class="scn-suffix">${step.suffix}</span>
     </div>
     <button class="scn-next" onclick="scannerNextStep()">Continuer <i class="ti ti-arrow-right"></i></button>`;
+  } else if(step.type==='text'){
+    fieldHtml=`<div class="scn-field-wrap">
+      <input type="text" id="scn-input-${step.id}" class="scn-input" placeholder="${step.placeholder||''}" value="${scannerData[step.id]||''}"/>
+    </div>
+    ${step.helpText?`<div class="scn-v2-help">${step.helpText}</div>`:''}
+    <div class="scn-v2-btn-row">
+      <button class="scn-next" onclick="scannerNextStep()">Continuer <i class="ti ti-arrow-right"></i></button>
+      ${step.optional?`<button class="scn-v2-skip" onclick="scannerSkipStep()">Passer cette étape</button>`:''}
+    </div>`;
+  } else if(step.type==='multichoice'){
+    const sel=scannerData[step.id]||[];
+    fieldHtml=`<div class="scn-choices">
+      ${step.choices.map(c=>`<div class="scn-choice${sel.indexOf(c.val)>=0?' scn-choice--active':''}" onclick="scannerToggleMultiChoice('${step.id}','${c.val}',this)">
+        <span class="scn-choice-icon">${c.icon}</span>
+        <div><div class="scn-choice-label">${c.label}</div></div>
+        <span class="scn-choice-check"><i class="ti ti-check"></i></span>
+      </div>`).join('')}
+    </div>
+    <button class="scn-next" onclick="scannerNextStep()">Continuer <i class="ti ti-arrow-right"></i></button>`;
+  } else if(step.type==='photos'){
+    const photos=scannerData.photos||[];
+    fieldHtml=`<div class="scn-v2-photo-zone" onclick="document.getElementById('scn-photo-input').click()">
+        <input type="file" id="scn-photo-input" accept="image/*" multiple style="display:none" onchange="scannerHandlePhotos(this.files)"/>
+        <div class="scn-v2-photo-zone-icon"><i class="ti ti-camera-plus"></i></div>
+        <div class="scn-v2-photo-zone-title">Cliquez pour ajouter des photos</div>
+        <div class="scn-v2-photo-zone-sub">${step.helpText}</div>
+      </div>
+      <div class="scn-v2-photo-grid" id="scn-photo-grid">${scannerRenderPhotoGrid(photos)}</div>
+      ${step.helpText?`<div class="scn-v2-help">${photos.length} photo${photos.length>1?'s':''} ajoutée${photos.length>1?'s':''}</div>`:''}
+    <div class="scn-v2-btn-row">
+      <button class="scn-next" onclick="scannerNextStep()">Continuer <i class="ti ti-arrow-right"></i></button>
+      ${step.optional?`<button class="scn-v2-skip" onclick="scannerSkipStep()">Passer cette étape</button>`:''}
+    </div>`;
+  } else if(step.type==='commercial-group'){
+    const d=scannerData.commercial||{};
+    fieldHtml=`<div class="scn-v2-form-grid">
+      <div class="scn-v2-form-row">
+        <label class="scn-v2-form-label">Prix moyen actuel (€/nuit)</label>
+        <input type="number" id="scn-com-price" class="scn-input" placeholder="Ex : 85" value="${d.price||''}"/>
+      </div>
+      <div class="scn-v2-form-row">
+        <label class="scn-v2-form-label">Taux d\u2019occupation estimé (%)</label>
+        <input type="number" id="scn-com-occ" class="scn-input" placeholder="Ex : 70" value="${d.occ||''}"/>
+      </div>
+      <div class="scn-v2-form-row">
+        <label class="scn-v2-form-label">Nombre d\u2019avis</label>
+        <input type="number" id="scn-com-reviews" class="scn-input" placeholder="Ex : 32" value="${d.reviews||''}"/>
+      </div>
+      <div class="scn-v2-form-row">
+        <label class="scn-v2-form-label">Note moyenne (/5)</label>
+        <input type="number" step="0.1" id="scn-com-note" class="scn-input" placeholder="Ex : 4.7" value="${d.note||''}"/>
+      </div>
+    </div>
+    ${step.helpText?`<div class="scn-v2-help">${step.helpText}</div>`:''}
+    <div class="scn-v2-btn-row">
+      <button class="scn-next" onclick="scannerNextStep()">Lancer l\'analyse EVA <i class="ti ti-sparkles"></i></button>
+      ${step.optional?`<button class="scn-v2-skip" onclick="scannerSkipStep()">Passer cette étape</button>`:''}
+    </div>`;
   } else {
     fieldHtml=`<div class="scn-choices">
       ${step.choices.map(c=>`<div class="scn-choice${scannerData[step.id]===c.val?' scn-choice--active':''}" onclick="scannerPickChoice('${step.id}','${c.val}',this)">
@@ -2423,8 +2503,75 @@ function scannerPickChoice(stepId,val,el){
   if(btn)btn.disabled=false;
 }
 
+function scannerToggleMultiChoice(stepId,val,el){
+  if(!Array.isArray(scannerData[stepId]))scannerData[stepId]=[];
+  const arr=scannerData[stepId];
+  const idx=arr.indexOf(val);
+  if(idx>=0){arr.splice(idx,1);el.classList.remove('scn-choice--active');}
+  else{arr.push(val);el.classList.add('scn-choice--active');}
+}
+
+// Redimensionne une image en mémoire (max 800px) avant analyse — limite la charge navigateur
+function scannerResizeImage(file){
+  return new Promise((resolve)=>{
+    const reader=new FileReader();
+    reader.onload=function(e){
+      const img=new Image();
+      img.onload=function(){
+        const maxDim=800;
+        let w=img.width,h=img.height;
+        if(w>h&&w>maxDim){h=Math.round(h*maxDim/w);w=maxDim;}
+        else if(h>maxDim){w=Math.round(w*maxDim/h);h=maxDim;}
+        const canvas=document.createElement('canvas');
+        canvas.width=w;canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        resolve({dataUrl:canvas.toDataURL('image/jpeg',0.82),width:img.width,height:img.height,name:file.name});
+      };
+      img.onerror=function(){resolve(null);};
+      img.src=e.target.result;
+    };
+    reader.onerror=function(){resolve(null);};
+    reader.readAsDataURL(file);
+  });
+}
+
+async function scannerHandlePhotos(fileList){
+  if(!fileList||!fileList.length)return;
+  if(!Array.isArray(scannerData.photos))scannerData.photos=[];
+  const remaining=20-scannerData.photos.length;
+  const files=Array.from(fileList).slice(0,Math.max(0,remaining));
+  for(const f of files){
+    const resized=await scannerResizeImage(f);
+    if(resized)scannerData.photos.push(resized);
+  }
+  const grid=document.getElementById('scn-photo-grid');
+  if(grid)grid.innerHTML=scannerRenderPhotoGrid(scannerData.photos);
+  const help=document.querySelector('.scn-v2-help');
+  if(help)help.textContent=scannerData.photos.length+' photo'+(scannerData.photos.length>1?'s':'')+' ajoutée'+(scannerData.photos.length>1?'s':'');
+}
+
+function scannerRemovePhoto(idx){
+  if(!Array.isArray(scannerData.photos))return;
+  scannerData.photos.splice(idx,1);
+  const grid=document.getElementById('scn-photo-grid');
+  if(grid)grid.innerHTML=scannerRenderPhotoGrid(scannerData.photos);
+}
+
+function scannerRenderPhotoGrid(photos){
+  if(!photos||!photos.length)return'';
+  return photos.map((p,i)=>`<div class="scn-v2-photo-thumb">
+    <img src="${p.dataUrl}" alt="${p.name||''}"/>
+    <button class="scn-v2-photo-remove" onclick="event.stopPropagation();scannerRemovePhoto(${i})"><i class="ti ti-x"></i></button>
+  </div>`).join('');
+}
+
 function scannerPrevStep(){
   if(scannerStep>0){scannerStep--;renderScannerStep();}
+}
+
+function scannerSkipStep(){
+  if(scannerStep<SCANNER_STEPS.length-1){scannerStep++;renderScannerStep();}
+  else{scannerLaunchAnalysis();}
 }
 
 function scannerNextStep(){
@@ -2442,6 +2589,19 @@ function scannerNextStep(){
     if(!val||+val<=0){showToast('Veuillez entrer une valeur valide.');return;}
     scannerData[step.id]=+val;
     if(step.id==='loyer')document.getElementById('scanner-free-price').value=Math.round(+val/30);
+  } else if(step.type==='text'){
+    const val=(document.getElementById(`scn-input-${step.id}`)?.value||'').trim();
+    scannerData[step.id]=val;
+  } else if(step.type==='photos'){
+    // déjà géré dans scannerData.photos via scannerHandlePhotos — rien à valider, optionnel
+  } else if(step.type==='commercial-group'){
+    const price=+(document.getElementById('scn-com-price')?.value||0);
+    const occ=+(document.getElementById('scn-com-occ')?.value||0);
+    const reviews=+(document.getElementById('scn-com-reviews')?.value||0);
+    const note=+(document.getElementById('scn-com-note')?.value||0);
+    if(price||occ||reviews||note)scannerData.commercial={price,occ,reviews,note};
+  } else if(step.type==='multichoice'){
+    // optionnel — aucune validation requise
   } else {
     if(!scannerData[step.id]){showToast('Veuillez faire un choix.');return;}
   }
@@ -2454,16 +2614,16 @@ function scannerLaunchAnalysis(){
   const analysisEl=document.getElementById('scn-analysis');
   analysisEl.style.display='block';
   const steps=[
-    'EVA analyse le quartier\u2026',
-    'EVA étudie les événements locaux\u2026',
-    'EVA compare les logements similaires\u2026',
-    'EVA estime le potentiel réel\u2026',
-    'EVA calcule votre EVA Score\u2026'
+    'EVA localise l\u2019adresse\u2026',
+    'EVA analyse le quartier et les points d\u2019int\u00e9r\u00eat\u2026',
+    'EVA \u00e9tudie les \u00e9v\u00e9nements locaux\u2026',
+    'EVA estime le potentiel commercial\u2026',
+    'EVA calcule la d\u00e9cision finale\u2026'
   ];
   analysisEl.innerHTML=`<div class="scn-analysis-card">
     <div class="scn-analysis-icon">🧠</div>
     <div class="scn-analysis-title">EVA analyse votre bien</div>
-    <div class="scn-analysis-sub">Cela prend quelques instants — EVA croise plusieurs sources de données.</div>
+    <div class="scn-analysis-sub">Cela prend quelques instants — EVA croise plusieurs sources de données réelles.</div>
     <div class="scn-a-steps" id="scn-a-steps">
       ${steps.map((s,i)=>`<div class="scn-a-step" id="scn-a-${i}">
         <div class="scn-a-dot" id="scn-a-dot-${i}"></div>
@@ -2484,92 +2644,419 @@ function scannerLaunchAnalysis(){
       cur++;
     } else {
       clearInterval(iv);
-      setTimeout(scannerShowReport,700);
     }
-  },1100);
-  // Lance le vrai moteur en arrière-plan
-  const lat=document.getElementById('scanner-free-lat')?.value;
-  const lng=document.getElementById('scanner-free-lng')?.value;
-  if(lat&&lng)try{runEvaScannerFree();}catch(e){console.warn('scanner bg',e);}
+  },650);
+
+  // Branchement sur le vrai moteur géo (auth.js) : géocodage + POI réels + score d'emplacement
+  scannerRunRealEngine().then(function(geoAnalysis){
+    scannerData._geoAnalysis=geoAnalysis;
+    // Laisse le temps à l'animation de se terminer visuellement avant d'afficher le rapport
+    const minDelay=steps.length*650+500;
+    setTimeout(scannerShowReport,minDelay);
+  }).catch(function(e){
+    console.warn('Scanner EVA — moteur géo indisponible, fallback estimation',e);
+    scannerData._geoAnalysis=null;
+    const minDelay=steps.length*650+500;
+    setTimeout(scannerShowReport,minDelay);
+  });
+}
+
+// Appelle le vrai moteur géo existant (géocodage api-adresse.gouv.fr + POI Overpass + score)
+// Ces fonctions vivent dans auth.js et ne sont jamais modifiées ici.
+async function scannerRunRealEngine(){
+  const address=scannerData.address||(document.getElementById('scanner-free-address')?.value||'').trim();
+  if(!address)return null;
+  let lat=parseFloat(scannerData.lat||document.getElementById('scanner-free-lat')?.value||0);
+  let lng=parseFloat(scannerData.lng||document.getElementById('scanner-free-lng')?.value||0);
+  if((!lat||!lng)&&typeof fetch!=='undefined'){
+    try{
+      const r=await fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(address)+'&limit=1');
+      const d=await r.json();
+      const feat=d.features&&d.features[0];
+      if(feat){lat=feat.geometry.coordinates[1];lng=feat.geometry.coordinates[0];}
+    }catch(e){console.warn('Géocodage indisponible',e);}
+  }
+  if(!lat||!lng)return null;
+  scannerData.lat=lat;scannerData.lng=lng;
+  const fakeApt={
+    id:'scanner-v2',name:address,address,lat,lng,
+    price:scannerData.commercial&&scannerData.commercial.price?scannerData.commercial.price:null,
+    comp:null,
+    city:address.split(',').slice(-1)[0]?.trim()||'',
+    zone:'',emoji:'🔍'
+  };
+  let rawPois=[];
+  try{if(typeof fetchEvaNearbyPois==='function')rawPois=await fetchEvaNearbyPois(lat,lng);}catch(e){console.warn('Overpass indisponible',e);}
+  if(typeof enrichEvaLocalPois!=='function'||typeof computeEvaScannerAnalysis!=='function')return null;
+  const pois=enrichEvaLocalPois(fakeApt,rawPois);
+  const analysis=computeEvaScannerAnalysis(fakeApt,pois);
+  return {apt:fakeApt,analysis,pois};
+}
+
+/* ====================================================
+   SCANNER EVA V2 — fonctions de calcul des dimensions
+   ==================================================== */
+
+// ── Analyse photos (heuristique côté client, sans vision IA) ──
+// Honnête : se base sur le nombre de photos et leur résolution, pas sur le contenu visuel réel.
+function scannerAnalyzePhotos(photos){
+  photos=photos||[];
+  if(!photos.length){
+    return {score:0,count:0,strengths:[],weaknesses:['Aucune photo ajout\u00e9e \u2014 EVA ne peut pas \u00e9valuer la qualit\u00e9 perçue.'],note:'estimation indisponible'};
+  }
+  var count=photos.length;
+  var avgRes=photos.reduce(function(s,p){return s+(p.width||0)*(p.height||0);},0)/count;
+  var hqCount=photos.filter(function(p){return (p.width||0)>=1200;}).length;
+  var hqRatio=hqCount/count;
+
+  var countScore=count>=10?40:count>=5?28:count>=2?14:5;
+  var resScore=avgRes>=900000?35:avgRes>=400000?22:10;
+  var consistencyScore=Math.round(hqRatio*25);
+  var score=Math.min(100,countScore+resScore+consistencyScore);
+
+  var strengths=[],weaknesses=[];
+  if(count>=10)strengths.push('Nombre de photos excellent ('+count+') \u2014 couverture compl\u00e8te du logement');
+  else if(count>=5)strengths.push(count+' photos \u2014 base correcte pour pr\u00e9senter le logement');
+  else weaknesses.push('Seulement '+count+' photo'+(count>1?'s':'')+' \u2014 viser au moins 5 pour rassurer les voyageurs');
+
+  if(hqRatio>=0.7)strengths.push('Photos en bonne r\u00e9solution \u2014 qualit\u00e9 per\u00e7ue professionnelle');
+  else if(hqRatio<0.3)weaknesses.push('R\u00e9solution moyenne des photos perfectible \u2014 pr\u00e9f\u00e9rer des prises en haute qualit\u00e9');
+
+  if(count>=8&&hqRatio>=0.5)strengths.push('Pr\u00e9sentation coh\u00e9rente sur l\u2019ensemble des photos');
+
+  return {
+    score:score,count:count,hqRatio:Math.round(hqRatio*100),
+    strengths:strengths.length?strengths:['Photos ajout\u00e9es \u2014 base de pr\u00e9sentation disponible'],
+    weaknesses:weaknesses,
+    note:'Estimation bas\u00e9e sur le nombre et la r\u00e9solution des photos (pas une analyse visuelle du contenu)'
+  };
+}
+
+// ── Public cible — score par catégorie selon caractéristiques du bien ──
+function scannerComputeAudience(d){
+  var voyageurs=+(d.voyageurs||2);
+  var chambres=+(d.chambres||0);
+  var equip=d.equipements||[];
+  var standing=d.standing||'std';
+  var typeBien=d.typeBien||'studio';
+
+  var couples=Math.min(100,40+(voyageurs<=2?35:voyageurs<=4?15:0)+(standing==='prem'?20:standing==='std'?10:0)+(equip.indexOf('exterieur')>=0?10:0));
+  var affaires=Math.min(100,30+(equip.indexOf('clim')>=0?15:0)+(standing==='prem'?25:standing==='std'?12:0)+(voyageurs<=2?20:5)+((typeBien==='studio'||typeBien==='t2')?10:0));
+  var familles=Math.min(100,25+(chambres>=2?30:chambres===1?12:0)+(voyageurs>=4?25:0)+(equip.indexOf('exterieur')>=0?15:0)+(equip.indexOf('parking')>=0?10:0));
+  var groupes=Math.min(100,15+(voyageurs>=6?40:voyageurs>=4?18:0)+(chambres>=3?25:chambres===2?12:0)+((typeBien==='maison'||typeBien==='villa')?20:0));
+  var touristes=Math.min(100,45+(standing==='prem'?20:10)+(equip.indexOf('exterieur')>=0?10:0)+(voyageurs<=4?10:0));
+
+  var list=[
+    {key:'couples',label:'Couples',icon:'💑',score:Math.round(couples)},
+    {key:'affaires',label:'Voyageurs d\u2019affaires',icon:'💼',score:Math.round(affaires)},
+    {key:'familles',label:'Familles',icon:'👨\u200d👩\u200d👧\u200d👦',score:Math.round(familles)},
+    {key:'groupes',label:'Groupes',icon:'🎉',score:Math.round(groupes)},
+    {key:'touristes',label:'Touristes',icon:'🧳',score:Math.round(touristes)}
+  ].sort(function(a,b){return b.score-a.score;});
+  return list;
+}
+
+// ── Difficulté opérationnelle — ménage, fréquence, gestion, risque ──
+function scannerComputeOperationalDifficulty(d){
+  var surface=+(d.surface||40);
+  var voyageurs=+(d.voyageurs||2);
+  var chambres=+(d.chambres||0);
+  var sdb=+(d.sdb||1);
+  var equip=d.equipements||[];
+  var typeBien=d.typeBien||'studio';
+  var hasExterieur=equip.indexOf('exterieur')>=0;
+
+  // Difficulté ménage : surface + sdb + extérieur augmentent le temps
+  var menageMin=60+Math.round(surface*0.6)+sdb*15+(hasExterieur?20:0);
+  var menageDifficulty=menageMin<=70?'Faible':menageMin<=120?'Modérée':'Élevée';
+  var menageColor=menageMin<=70?'#059669':menageMin<=120?'#D97706':'#DC2626';
+
+  // Fréquence potentielle (rotations) selon taille du bien — petits biens tournent plus vite
+  var freqLabel=voyageurs<=2?'Élevée (courts séjours fréquents)':voyageurs<=4?'Modérée':'Plus faible (séjours plus longs en moyenne)';
+
+  // Difficulté de gestion globale
+  var complexityScore=(chambres>=3?2:chambres===2?1:0)+(typeBien==='maison'||typeBien==='villa'?2:0)+(hasExterieur?1:0)+(sdb>=2?1:0);
+  var gestionLevel=complexityScore<=1?'Simple':complexityScore<=3?'Modérée':'Complexe';
+  var gestionColor=complexityScore<=1?'#059669':complexityScore<=3?'#D97706':'#DC2626';
+
+  // Risque opérationnel
+  var riskItems=[];
+  if(hasExterieur)riskItems.push('Entretien extérieur (jardin/terrasse) à prévoir');
+  if(typeBien==='maison'||typeBien==='villa')riskItems.push('Maintenance bâtiment plus fréquente (chaudière, toiture, extérieurs)');
+  if(sdb>=2)riskItems.push('Plusieurs salles de bain \u2014 temps de ménage et risque de panne accrus');
+  if(voyageurs>=6)riskItems.push('Forte capacité \u2014 usure plus rapide des équipements');
+  var riskLevel=riskItems.length>=3?'Élevé':riskItems.length>=1?'Modéré':'Faible';
+  var riskColor=riskItems.length>=3?'#DC2626':riskItems.length>=1?'#D97706':'#059669';
+
+  return {
+    menageMin:menageMin,menageDifficulty:menageDifficulty,menageColor:menageColor,
+    freqLabel:freqLabel,
+    gestionLevel:gestionLevel,gestionColor:gestionColor,complexityScore:complexityScore,
+    riskLevel:riskLevel,riskColor:riskColor,riskItems:riskItems
+  };
+}
+
+// ── Potentiel commercial — ADR, occupation, revenus (prudent) ──
+function scannerComputeCommercialPotential(d,geoAnalysis){
+  var standing=d.standing||'std';
+  var voyageurs=+(d.voyageurs||2);
+  var chambres=+(d.chambres||0);
+  var locationScore=geoAnalysis&&geoAnalysis.analysis?geoAnalysis.analysis.locationScore:55;
+
+  var basePrice=standing==='prem'?125:standing==='std'?88:62;
+  var adjPrice=Math.round(basePrice+voyageurs*3.5+chambres*7);
+  // Le score d'emplacement réel module le prix (coefficient prudent, plafonné)
+  var locCoef=0.85+(locationScore/100)*0.35;
+  adjPrice=Math.round(adjPrice*locCoef);
+
+  // Si infos commerciales déjà renseignées (bien existant), on les utilise en priorité — plus crédible
+  var occPct;
+  if(d.commercial&&d.commercial.occ){
+    occPct=Math.min(95,Math.max(30,d.commercial.occ));
+    if(d.commercial.price)adjPrice=Math.round((adjPrice+d.commercial.price)/2);
+  } else {
+    occPct=Math.round(Math.min(85,Math.max(45,50+(locationScore-55)*0.5)));
+  }
+
+  var monthlyRevenue=Math.round(adjPrice*30*occPct/100);
+  var annualRevenue=Math.round(monthlyRevenue*12*0.94); // -6% prudence saisonnalité/vacance
+
+  return {adrPotential:adjPrice,occPotential:occPct,monthlyRevenue:monthlyRevenue,annualRevenue:annualRevenue,locationScore:locationScore};
+}
+
+// ── Potentiel conciergerie — commission 20% par défaut ──
+function scannerComputeConciergeriePotential(commercial,commissionRate){
+  commissionRate=commissionRate||20;
+  var caAnnuel=commercial.annualRevenue;
+  var commissionAnnuelle=Math.round(caAnnuel*commissionRate/100);
+  var commissionMensuelle=Math.round(commissionAnnuelle/12);
+  return {commissionRate:commissionRate,caAnnuel:caAnnuel,commissionAnnuelle:commissionAnnuelle,commissionMensuelle:commissionMensuelle};
+}
+
+// ── Score Effort / Rentabilité — croise revenus potentiels et charge opérationnelle ──
+function scannerComputeEffortScore(commercial,difficulty){
+  // Normalise le revenu mensuel sur une échelle 0-100 (plafond pragmatique à 4000€/mois)
+  var revenueScore=Math.min(100,Math.round(commercial.monthlyRevenue/4000*100));
+  // Inverse la complexité opérationnelle (plus c'est complexe, plus le score baisse)
+  var effortPenalty=difficulty.complexityScore*8+(difficulty.menageMin>120?15:difficulty.menageMin>70?7:0);
+  var score=Math.max(10,Math.min(100,Math.round(revenueScore-effortPenalty+30)));
+  var label=score>=75?'Excellent rapport effort / rentabilit\u00e9':score>=55?'Bon \u00e9quilibre':score>=35?'Effort important pour la rentabilit\u00e9 attendue':'Rentabilit\u00e9 ne justifie pas l\u2019effort op\u00e9rationnel';
+  var color=score>=75?'#059669':score>=55?'#7C3AED':score>=35?'#D97706':'#DC2626';
+  return {score:score,label:label,color:color};
+}
+
+// ── Verdict final — décision avant tout, 3 niveaux ──
+function scannerFinalVerdict(locationScore,effortScore,photosScore,commercial){
+  // Pondération : emplacement (40%), effort/rentabilité (40%), photos (20% — facilement améliorable donc moins pénalisant)
+  var globalScore=Math.round(locationScore*0.4+effortScore*0.4+(photosScore||50)*0.2);
+  if(globalScore>=72){
+    return {level:'go',icon:'🟢',label:'À prendre',color:'#059669',bg:'#ECFDF5',border:'#BBF7D0',
+      summary:'EVA recommande de prendre ce bien en gestion. L\u2019emplacement et le potentiel commercial sont solides.',globalScore:globalScore};
+  } else if(globalScore>=50){
+    return {level:'negotiate',icon:'🟠',label:'À négocier',color:'#D97706',bg:'#FFFBEB',border:'#FDE68A',
+      summary:'EVA voit un potentiel réel, mais certaines conditions (loyer, effort opérationnel) doivent être négociées avant de s\u2019engager.',globalScore:globalScore};
+  } else {
+    return {level:'avoid',icon:'🔴',label:'À éviter',color:'#DC2626',bg:'#FEF2F2',border:'#FECACA',
+      summary:'EVA déconseille ce bien en l\u2019état. Le rapport entre potentiel commercial et effort opérationnel n\u2019est pas favorable.',globalScore:globalScore};
+  }
 }
 
 function scannerShowReport(){
   document.getElementById('scn-analysis').style.display='none';
   const rep=document.getElementById('scn-report');
   rep.style.display='block';
-  const loyer=scannerData.loyer||900;
-  const standing=scannerData.standing||'std';
-  const voyageurs=+(scannerData.voyageurs||4);
-  const chambres=+(scannerData.chambres||1);
-  const basePrice=standing==='prem'?140:standing==='std'?95:65;
-  const adjPrice=basePrice+voyageurs*4+chambres*8;
-  const annual=Math.round(adjPrice*0.72*365*0.68/100)*100;
-  const netYield=Math.round((annual-loyer*12)/((loyer*12)*(standing==='prem'?18:14))*1000)/10;
-  const score=Math.min(98,Math.round(62+voyageurs*2+chambres*3+(standing==='prem'?18:standing==='std'?8:0)));
-  const dashArr=Math.round(score*2.639);
-  const v=score>=80
-    ?{icon:'✅',label:'À saisir',color:'#059669',bg:'#ECFDF5',border:'#BBF7D0'}
-    :score>=65
-    ?{icon:'⚠️',label:'À négocier',color:'#D97706',bg:'#FFFBEB',border:'#FDE68A'}
-    :{icon:'❌',label:'À éviter',color:'#DC2626',bg:'#FEF2F2',border:'#FECACA'};
+
+  const d=scannerData;
+  const loyer=d.loyer||900;
+  const geo=d._geoAnalysis; // résultat du vrai moteur (auth.js), ou null si indisponible
+
+  // ── 1. Localisation (vrai moteur si disponible, fallback sinon) ──
+  const locationScore=geo&&geo.analysis?geo.analysis.locationScore:55;
+  const locationFallback=!geo;
+
+  // ── 2. Potentiel commercial ──
+  const commercial=scannerComputeCommercialPotential(d,geo);
+
+  // ── 3. Potentiel conciergerie ──
+  const conciergerie=scannerComputeConciergeriePotential(commercial,20);
+
+  // ── 4. Difficulté opérationnelle ──
+  const difficulty=scannerComputeOperationalDifficulty(d);
+
+  // ── 5. Score effort / rentabilité ──
+  const effort=scannerComputeEffortScore(commercial,difficulty);
+
+  // ── 6. Analyse photos ──
+  const photos=scannerAnalyzePhotos(d.photos);
+
+  // ── 7. Public cible ──
+  const audience=scannerComputeAudience(d);
+
+  // ── Verdict final (décision avant tout) ──
+  const verdict=scannerFinalVerdict(locationScore,effort.score,photos.score,commercial);
+
+  // Net yield (gardé pour compat avec l'esprit initial, calculé proprement)
+  const netYield=loyer>0?Math.round((conciergerie.caAnnuel-loyer*12)/(loyer*12)*1000)/10:0;
+
+  // ── Localisation : forces / faiblesses ──
+  let locStrengths=[],locWeaknesses=[];
+  if(geo&&geo.analysis){
+    const sub=geo.analysis.sub||{};
+    if(sub.transport>=18)locStrengths.push('Excellente desserte en transports à proximité');
+    else if(sub.transport<8)locWeaknesses.push('Accès transports limité');
+    if(sub.food>=10)locStrengths.push('Nombreux restaurants et lieux de sortie à proximité');
+    if(sub.shops>=10)locStrengths.push('Commerces facilement accessibles');
+    if(sub.tourism>=8)locStrengths.push('Zone à forte attractivité touristique');
+    if(sub.parking<3)locWeaknesses.push('Stationnement limité dans le secteur');
+    if(geo.analysis.hotEvents&&geo.analysis.hotEvents.length)locStrengths.push(geo.analysis.hotEvents.length+' événement(s) local(aux) générant un pic de demande');
+    if(!locStrengths.length)locStrengths.push('Emplacement correctement desservi');
+    if(!locWeaknesses.length)locWeaknesses.push('Aucune faiblesse majeure détectée par EVA');
+  } else {
+    locStrengths=['Analyse de quartier non disponible pour cette adresse'];
+    locWeaknesses=['Vérifiez l\u2019adresse saisie pour une analyse de localisation complète'];
+  }
+
+  const verdictBtnLabel=verdict.level==='go'?'Ajouter ce bien à mon parc':verdict.level==='negotiate'?'Simuler une négociation':'Voir une autre adresse';
+
   rep.innerHTML=`<div class="scn-report">
     <div class="scn-report-header">
-      <div class="scn-report-address">📍 ${scannerData.address||'Bien analysé'}</div>
+      <div class="scn-report-address">📍 ${escapeHtml(d.address||'Bien analysé')}</div>
       <button class="scn-reset" onclick="renderScannerPage()"><i class="ti ti-refresh"></i> Nouvelle analyse</button>
     </div>
-    <div class="scn-report-hero">
-      <div class="scn-score-ring">
-        <svg viewBox="0 0 100 100" width="130" height="130">
-          <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="10"/>
-          <circle cx="50" cy="50" r="42" fill="none" stroke="white" stroke-width="10"
-            stroke-dasharray="${dashArr} 264" stroke-linecap="round" transform="rotate(-90 50 50)"/>
-        </svg>
-        <div class="scn-score-inner">
-          <div class="scn-score-num">${score}</div>
-          <div class="scn-score-lbl">EVA Score</div>
-        </div>
+
+    <!-- ═══ 1. RECOMMANDATION EVA — la décision, en premier ═══ -->
+    <div class="scn-v2-verdict-hero" style="background:${verdict.bg};border:1px solid ${verdict.border}">
+      <div class="scn-v2-verdict-icon">${verdict.icon}</div>
+      <div class="scn-v2-verdict-content">
+        <div class="scn-v2-verdict-kicker">Recommandation EVA</div>
+        <div class="scn-v2-verdict-label" style="color:${verdict.color}">${verdict.label}</div>
+        <div class="scn-v2-verdict-summary">${verdict.summary}</div>
       </div>
-      <div class="scn-report-kpis">
-        <div class="scn-kpi">
-          <div class="scn-kpi-label">Verdict EVA</div>
-          <div class="scn-kpi-verdict" style="color:${v.color};background:${v.bg};border:1px solid ${v.border}">${v.icon} ${v.label}</div>
+      <div class="scn-v2-verdict-score">
+        <div class="scn-v2-verdict-score-num" style="color:${verdict.color}">${verdict.globalScore}</div>
+        <div class="scn-v2-verdict-score-lbl">Score EVA</div>
+      </div>
+    </div>
+
+    <!-- ═══ 2. POTENTIEL COMMERCIAL ═══ -->
+    <div class="p360-section" style="margin-bottom:14px">
+      <div class="p360-section-head"><div><div class="p360-section-title">💶 Potentiel commercial</div><div class="p360-section-sub">Estimation prudente basée sur le standing, la capacité et l\u2019emplacement</div></div></div>
+      <div class="p360-kpi-strip">
+        <div class="p360-kpi-card accent"><div class="p360-kpi-lbl">ADR potentiel</div><div class="p360-kpi-val">${commercial.adrPotential}€</div><div class="p360-kpi-help">prix moyen / nuit</div></div>
+        <div class="p360-kpi-card"><div class="p360-kpi-lbl">Occupation potentielle</div><div class="p360-kpi-val">${commercial.occPotential}%</div></div>
+        <div class="p360-kpi-card"><div class="p360-kpi-lbl">Revenus mensuels estimés</div><div class="p360-kpi-val" style="color:#059669">${commercial.monthlyRevenue.toLocaleString('fr-FR')}€</div></div>
+        <div class="p360-kpi-card"><div class="p360-kpi-lbl">Revenus annuels estimés</div><div class="p360-kpi-val" style="color:#059669">${commercial.annualRevenue.toLocaleString('fr-FR')}€</div></div>
+      </div>
+    </div>
+
+    <!-- ═══ 3. POTENTIEL CONCIERGERIE ═══ -->
+    <div class="p360-section" style="margin-bottom:14px">
+      <div class="p360-section-head"><div><div class="p360-section-title">🤝 Potentiel conciergerie</div><div class="p360-section-sub">Commission conciergerie estimée à ${conciergerie.commissionRate}%</div></div></div>
+      <div style="background:#F5F0FF;border:1px solid rgba(124,58,237,.18);border-radius:14px;padding:16px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#7C3AED;margin-bottom:4px">Revenu conciergerie estimé</div>
+          <div style="font-size:26px;font-weight:950;color:#7C3AED">${conciergerie.commissionMensuelle.toLocaleString('fr-FR')}€<span style="font-size:13px;color:#9B8AC4">/mois</span></div>
+          <div style="font-size:12px;color:#9B8AC4;margin-top:2px">${conciergerie.commissionAnnuelle.toLocaleString('fr-FR')}€ / an</div>
         </div>
-        <div class="scn-kpi">
-          <div class="scn-kpi-label">Prix conseillé</div>
-          <div class="scn-kpi-value">${adjPrice} €<span class="scn-kpi-unit"> /nuit</span></div>
-        </div>
-        <div class="scn-kpi">
-          <div class="scn-kpi-label">Potentiel annuel estimé</div>
-          <div class="scn-kpi-value">${annual.toLocaleString('fr-FR')} €</div>
-        </div>
-        <div class="scn-kpi">
-          <div class="scn-kpi-label">Rentabilité nette estimée</div>
-          <div class="scn-kpi-value">${netYield} %</div>
+        <div style="flex:1;min-width:160px;font-size:12px;color:#5B2C91;line-height:1.6">
+          Bas\u00e9 sur un CA annuel estim\u00e9 de ${conciergerie.caAnnuel.toLocaleString('fr-FR')}€ et une commission de ${conciergerie.commissionRate}%.
         </div>
       </div>
     </div>
-    <div class="scn-why">
-      <div class="scn-why-title">Pourquoi ce score ?</div>
-      <div class="scn-why-grid">
-        <div class="scn-why-item scn-why-ok"><i class="ti ti-check"></i> Forte demande le week-end</div>
-        <div class="scn-why-item scn-why-ok"><i class="ti ti-check"></i> Événements récurrents à proximité</div>
-        <div class="scn-why-item scn-why-ok"><i class="ti ti-check"></i> Faible concurrence ${standing==='prem'?'ultra-':''}premium</div>
-        ${voyageurs>=6?'<div class="scn-why-item scn-why-ok"><i class="ti ti-check"></i> Capacité d\'accueil compétitive</div>':''}
-        <div class="scn-why-item scn-why-warn"><i class="ti ti-alert-triangle"></i> Saisonnalité marquée en janvier</div>
-        ${netYield<10?'<div class="scn-why-item scn-why-warn"><i class="ti ti-alert-triangle"></i> Loyer à surveiller par rapport au CA</div>':''}
+
+    <!-- ═══ 4. SCORE EFFORT / RENTABILITÉ ═══ -->
+    <div class="p360-section" style="margin-bottom:14px">
+      <div class="p360-section-head"><div><div class="p360-section-title">⚖️ Score Effort / Rentabilité</div></div></div>
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="width:64px;height:64px;border-radius:16px;background:${effort.color}15;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <div style="font-size:24px;font-weight:950;color:${effort.color}">${effort.score}</div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:800;color:${effort.color}">${effort.label}</div>
+          <div style="height:6px;background:#F3F0FA;border-radius:999px;margin-top:6px;overflow:hidden">
+            <div style="height:100%;width:${effort.score}%;background:${effort.color};border-radius:999px"></div>
+          </div>
+        </div>
       </div>
     </div>
+
+    <!-- ═══ 5. ANALYSE LOCALISATION ═══ -->
+    <div class="p360-section" style="margin-bottom:14px">
+      <div class="p360-section-head"><div><div class="p360-section-title">📍 Analyse localisation</div>${locationFallback?'<div class="p360-section-sub">Estimation indisponible \u2014 vérifiez l\u2019adresse</div>':''}</div>
+        <span class="a360-badge ${locationScore>=75?'a360-badge-green':locationScore>=55?'a360-badge-orange':'a360-badge-red'}">${locationScore}/100</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div>
+          <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#059669;margin-bottom:8px">Forces</div>
+          ${locStrengths.map(s=>`<div style="display:flex;gap:6px;font-size:12px;color:#17122E;margin-bottom:5px;align-items:flex-start"><i class="ti ti-check" style="color:#059669;flex-shrink:0;margin-top:2px"></i><span>${escapeHtml(s)}</span></div>`).join('')}
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#D97706;margin-bottom:8px">Faiblesses</div>
+          ${locWeaknesses.map(s=>`<div style="display:flex;gap:6px;font-size:12px;color:#17122E;margin-bottom:5px;align-items:flex-start"><i class="ti ti-alert-triangle" style="color:#D97706;flex-shrink:0;margin-top:2px"></i><span>${escapeHtml(s)}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 6. ANALYSE PHOTOS ═══ -->
+    <div class="p360-section" style="margin-bottom:14px">
+      <div class="p360-section-head"><div><div class="p360-section-title">📸 Analyse photos</div><div class="p360-section-sub">${photos.note}</div></div>
+        ${photos.count?`<span class="a360-badge ${photos.score>=60?'a360-badge-green':photos.score>=30?'a360-badge-orange':'a360-badge-red'}">${photos.score}/100</span>`:''}
+      </div>
+      ${d.photos&&d.photos.length?`<div class="scn-v2-photo-grid" style="margin-bottom:10px">${d.photos.slice(0,8).map(p=>`<div class="scn-v2-photo-thumb" style="cursor:default"><img src="${p.dataUrl}"/></div>`).join('')}</div>`:''}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div>
+          <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#059669;margin-bottom:8px">Forces</div>
+          ${photos.strengths.map(s=>`<div style="display:flex;gap:6px;font-size:12px;color:#17122E;margin-bottom:5px;align-items:flex-start"><i class="ti ti-check" style="color:#059669;flex-shrink:0;margin-top:2px"></i><span>${escapeHtml(s)}</span></div>`).join('')}
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#D97706;margin-bottom:8px">Faiblesses</div>
+          ${photos.weaknesses.length?photos.weaknesses.map(s=>`<div style="display:flex;gap:6px;font-size:12px;color:#17122E;margin-bottom:5px;align-items:flex-start"><i class="ti ti-alert-triangle" style="color:#D97706;flex-shrink:0;margin-top:2px"></i><span>${escapeHtml(s)}</span></div>`).join(''):'<div style="font-size:12px;color:#B0A8C8">Aucune faiblesse majeure détectée</div>'}
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 7. PUBLIC CIBLE ═══ -->
+    <div class="p360-section" style="margin-bottom:14px">
+      <div class="p360-section-head"><div><div class="p360-section-title">🎯 Public cible</div><div class="p360-section-sub">Profils de voyageurs les plus adaptés à ce logement</div></div></div>
+      ${audience.map(a=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #F3F0FA">
+        <span style="font-size:18px;flex-shrink:0">${a.icon}</span>
+        <div style="flex:1;font-size:13px;font-weight:700;color:#17122E">${a.label}</div>
+        <div style="width:120px;height:6px;background:#F3F0FA;border-radius:999px;overflow:hidden;flex-shrink:0">
+          <div style="height:100%;width:${a.score}%;background:linear-gradient(90deg,#6D28D9,#EC4899);border-radius:999px"></div>
+        </div>
+        <div style="font-size:12px;font-weight:800;color:#7C3AED;width:32px;text-align:right;flex-shrink:0">${a.score}</div>
+      </div>`).join('')}
+    </div>
+
+    <!-- ═══ 8. DIFFICULTÉ OPÉRATIONNELLE ═══ -->
+    <div class="p360-section" style="margin-bottom:14px">
+      <div class="p360-section-head"><div><div class="p360-section-title">🧹 Difficulté opérationnelle</div></div></div>
+      <div class="p360-kpi-strip" style="margin-bottom:10px">
+        <div class="p360-kpi-card"><div class="p360-kpi-lbl">Difficulté ménage</div><div class="p360-kpi-val" style="color:${difficulty.menageColor}">${difficulty.menageDifficulty}</div><div class="p360-kpi-help">~${difficulty.menageMin} min estimées</div></div>
+        <div class="p360-kpi-card"><div class="p360-kpi-lbl">Fréquence interventions</div><div class="p360-kpi-val" style="font-size:14px">${difficulty.freqLabel}</div></div>
+        <div class="p360-kpi-card"><div class="p360-kpi-lbl">Difficulté de gestion</div><div class="p360-kpi-val" style="color:${difficulty.gestionColor}">${difficulty.gestionLevel}</div></div>
+        <div class="p360-kpi-card"><div class="p360-kpi-lbl">Risque opérationnel</div><div class="p360-kpi-val" style="color:${difficulty.riskColor}">${difficulty.riskLevel}</div></div>
+      </div>
+      ${difficulty.riskItems.length?`<div style="background:#FFFBEB;border-radius:10px;padding:10px 12px">
+        ${difficulty.riskItems.map(r=>`<div style="font-size:12px;color:#92400E;margin-bottom:3px;display:flex;gap:6px"><span>•</span><span>${escapeHtml(r)}</span></div>`).join('')}
+      </div>`:''}
+    </div>
+
+    <!-- ═══ 9. RECOMMANDATIONS EVA (synthèse finale) ═══ -->
     <div class="scn-reco-block">
       <div class="scn-reco-icon">🤖</div>
       <div class="scn-reco-text">
-        <strong>EVA estime</strong> que ce logement présente ${score>=80?'un fort potentiel':'un potentiel modéré'} pour une activité de location courte durée.
-        Le loyer représente ${Math.round(loyer*12/annual*100)} % du chiffre d'affaires potentiel.
-        ${netYield>=12?' La rentabilité nette estimée est attractive dans les conditions actuelles du marché.':' Une renégociation du loyer améliorerait significativement la rentabilité.'}
+        <strong>EVA recommande : ${verdict.label}.</strong>
+        Ce logement présente un score global de ${verdict.globalScore}/100, combinant emplacement (${locationScore}/100), effort/rentabilité (${effort.score}/100) et présentation (${photos.score}/100).
+        ${loyer?` Le loyer de ${loyer}€/mois représente ${Math.round(loyer*12/conciergerie.caAnnuel*100)}% du chiffre d\u2019affaires potentiel estimé.`:''}
+        ${verdict.level==='negotiate'?' Une négociation sur le loyer ou les conditions d\u2019entrée pourrait faire basculer ce bien en \u00ab à prendre \u00bb.':''}
+        ${verdict.level==='avoid'?' Sauf changement significatif des conditions (loyer, travaux, repositionnement), ce bien n\u2019est pas recommandé.':''}
       </div>
     </div>
+
     <div class="scn-report-actions">
       <button class="btn btn-purple" onclick="showToast('Fonctionnalité disponible en version finale.')">
-        <i class="ti ti-building-plus"></i> Ajouter ce bien à mon parc
+        <i class="ti ti-building-plus"></i> ${verdictBtnLabel}
       </button>
       <button class="btn" onclick="showToast('Export PDF disponible en version finale.')">
         <i class="ti ti-file-export"></i> Exporter le rapport EVA
@@ -2577,7 +3064,6 @@ function scannerShowReport(){
     </div>
   </div>`;
 }
-
 function renderEvaAuditPage(){
   // Plan d'action — 3 recommandations concrètes EVA
   const plan = document.getElementById('rq-eva-plan');
