@@ -235,6 +235,12 @@ async function loadApp(){
     checkPaymentReturn();
     await loadProprietaires();
     await loadCharges();await loadTransactions();await loadCatRules();await loadCleaners();await loadMissions();
+    renderCockpit();
+    var activeCleanyQPage=document.querySelector('.page.active');
+    if(activeCleanyQPage&&activeCleanyQPage.id==='page-cleanyq-today')renderCleanyQToday();
+    if(activeCleanyQPage&&activeCleanyQPage.id==='page-cleanyq-missions')renderCleanyQMissions();
+    if(activeCleanyQPage&&activeCleanyQPage.id==='page-cleanyq-squad')renderCleanyQSquad();
+    if(activeCleanyQPage&&activeCleanyQPage.id==='page-clean')renderCleanyQToday();
     applyModules();
     if(userModules.includes('concierge')){renderProprietaires();initRapportMois();renderRapports();renderCockpitConcierge();renderParcConcierge();}
      updateNavVisibility();
@@ -308,7 +314,7 @@ function renderCockpit(){
   var monthRev=monthRes.reduce(function(s,r){return s+(r.price_total||0);},0);
   var hotEvents=Object.values(eventsCache||{}).flat().filter(function(e){return e.hot;});
   var free=apts.filter(function(a){return !a.booked;});
-  var allM=cleaningMissions||[];
+  var allM=missionsData||[];
 
   // ─── COLONNE GAUCHE : À faire aujourd'hui (max 5) ───
   var todoItems=[];
@@ -379,7 +385,7 @@ function renderCockpit(){
   var occ14pct=apts.length?Math.round(occ14/(next14.length*Math.max(1,apts.length))*100):0;
   var avgNote=0;var notedApts=apts.filter(function(a){return a.note&&Number(a.note)>0;});
   if(notedApts.length)avgNote=Math.round(notedApts.reduce(function(s,a){return s+Number(a.note);},0)/notedApts.length*10)/10;
-  var menagesValides=allM.filter(function(m){return m.status==='termine'&&m.date>=month;}).length;
+  var menagesValides=allM.filter(function(m){return m.status==='terminee'&&m.date>=month;}).length;
   var checkinsSafe=reservations.filter(function(r){return r.date_from===todayIso;}).length-todoItems.filter(function(t){return t.type==='urgent';}).length;
   var upsellsTotal=monthRev>0?Math.round(monthRev*0.08):0; // estimation upsells
 
@@ -3662,11 +3668,23 @@ function renderCleanyQToday(){
   var checkinsToday=reservations.filter(function(r){return r.date_from===todayIso;});
   var checkoutsToday=reservations.filter(function(r){return r.date_to===todayIso;});
   // Missions du jour
-  var allMissions=cleaningMissions||[];
+  var allMissions=missionsData||[];
   var todayMissions=allMissions.filter(function(m){return m.date===todayIso;});
-  var done=todayMissions.filter(function(m){return m.status==='termine';});
+
+  // Fallback : si aucune mission exactement aujourd'hui, élargir J-1 → J+2
+  // (couvre le décalage entre la date de seed et la date réelle de consultation)
+  var usingFallback=false;
+  if(!todayMissions.length&&allMissions.length){
+    var d1=new Date(today);d1.setDate(d1.getDate()-1);var d1Iso=d1.toISOString().slice(0,10);
+    var d2=new Date(today);d2.setDate(d2.getDate()+1);var d2Iso=d2.toISOString().slice(0,10);
+    var d3=new Date(today);d3.setDate(d3.getDate()+2);var d3Iso=d3.toISOString().slice(0,10);
+    var nearbyMissions=allMissions.filter(function(m){return m.date===d1Iso||m.date===d2Iso||m.date===d3Iso;});
+    if(nearbyMissions.length){todayMissions=nearbyMissions;usingFallback=true;}
+  }
+
+  var done=todayMissions.filter(function(m){return m.status==='terminee';});
   var pending=todayMissions.filter(function(m){return m.status==='en_attente';});
-  var inProgress=todayMissions.filter(function(m){return m.status==='en_cours';});
+  var inProgress=todayMissions.filter(function(m){return m.status==='acceptee';});
   var risk=checkinsToday.filter(function(r){
     return !allMissions.some(function(m){return m.appartement_id===r.appartement_id&&m.date===todayIso;});
   });
@@ -3675,6 +3693,8 @@ function renderCleanyQToday(){
   var heroTitle=risk.length?risk.length+' check-in sans m\u00e9nage assign\u00e9 !':
     done.length===todayMissions.length&&todayMissions.length>0?'Tous les m\u00e9nages valid\u00e9s \u2714':
     'Op\u00e9rations du jour sous contr\u00f4le';
+  var heroKickerLabel=usingFallback?'CleanyQ \u00b7 Jours proches \u00b7 '+todayIso:'CleanyQ \u00b7 Aujourd\u2019hui \u00b7 '+todayIso;
+  var fallbackNote=usingFallback?'<div style="font-size:11px;color:rgba(255,255,255,.65);margin-top:2px">Aucune mission exactement aujourd\u2019hui \u2014 affichage \u00e9largi aux jours proches</div>':'';
 
   // KPI strip
   var kpiHtml='<div class="p360-kpi-strip" style="margin-bottom:14px">'+
@@ -3725,8 +3745,8 @@ function renderCleanyQToday(){
   if(todayMissions.length){
     missionsList=todayMissions.map(function(m){
       var apt=apparts.find(function(a){return a.id===m.appartement_id;})||{name:m.appartement_id,emoji:'\uD83C\uDFE0'};
-      var statusLabel=m.status==='termine'?'\u2705 Valid\u00e9':m.status==='en_cours'?'\uD83D\uDD04 En cours':'\u23F3 En attente';
-      var statusColor=m.status==='termine'?'#059669':m.status==='en_cours'?'#D97706':'#8A8A99';
+      var statusLabel=m.status==='terminee'?'\u2705 Valid\u00e9':m.status==='acceptee'?'\uD83D\uDD04 En cours':'\u23F3 En attente';
+      var statusColor=m.status==='terminee'?'#059669':m.status==='acceptee'?'#D97706':'#8A8A99';
       return '<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #F3F0FA">'+
         '<div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">'+(apt.emoji||'\uD83C\uDFE0')+'</div>'+
         '<div style="flex:1;min-width:0">'+
@@ -3742,8 +3762,9 @@ function renderCleanyQToday(){
 
   dash.innerHTML=
     '<div class="a360-hero" style="margin-bottom:16px;background:'+(risk.length?'linear-gradient(135deg,#7F1D1D,#DC2626)':'linear-gradient(135deg,#211051,#6D28D9,#EC4899)')+'">'+
-      '<div class="a360-hero-kicker">CleanyQ \u00b7 Aujourd\u2019hui \u00b7 '+todayIso+'</div>'+
+      '<div class="a360-hero-kicker">'+heroKickerLabel+'</div>'+
       '<div class="a360-hero-title">'+heroTitle+'</div>'+
+      fallbackNote+
       '<div class="a360-hero-sub">'+checkinsToday.length+' check-in \u00b7 '+checkoutsToday.length+' check-out \u00b7 '+todayMissions.length+' m\u00e9nage'+(todayMissions.length>1?'s':'')+' pr\u00e9vu'+(todayMissions.length>1?'s':'')+'</div>'+
       '<div class="a360-hero-chips">'+
         '<span class="a360-hero-chip accent">'+done.length+'/'+todayMissions.length+' valid\u00e9'+(done.length>1?'s':'')+'</span>'+
@@ -3765,7 +3786,7 @@ function renderCleanyQToday(){
 function renderCleanyQMissions(){
   var dash=document.getElementById('cleanyq-missions-dash');
   if(!dash)return;
-  var allM=cleaningMissions||[];
+  var allM=missionsData||[];
   var today=new Date().toISOString().slice(0,10);
 
   var upcoming=allM.filter(function(m){return m.date>=today;}).sort(function(a,b){return a.date.localeCompare(b.date);}).slice(0,20);
@@ -3773,8 +3794,8 @@ function renderCleanyQMissions(){
 
   function missionCard(m,showDate){
     var apt=apparts.find(function(a){return a.id===m.appartement_id;})||{name:'—',emoji:'\uD83C\uDFE0'};
-    var statusLabel=m.status==='termine'?'\u2705 Valid\u00e9':m.status==='en_cours'?'\uD83D\uDD04 En cours':'\u23F3 En attente';
-    var statusColor=m.status==='termine'?'#059669':m.status==='en_cours'?'#D97706':'#8A8A99';
+    var statusLabel=m.status==='terminee'?'\u2705 Valid\u00e9':m.status==='acceptee'?'\uD83D\uDD04 En cours':'\u23F3 En attente';
+    var statusColor=m.status==='terminee'?'#059669':m.status==='acceptee'?'#D97706':'#8A8A99';
     var urgBg=m.status==='en_attente'&&m.date===today?'#FEF2F2':'white';
     return '<div style="background:'+urgBg+';border:1px solid rgba(139,92,246,.1);border-radius:14px;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px">'+
       '<div style="width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">'+(apt.emoji||'\uD83C\uDFE0')+'</div>'+
@@ -3793,7 +3814,7 @@ function renderCleanyQMissions(){
     '<div class="a360-hero" style="margin-bottom:16px">'+
       '<div class="a360-hero-kicker">CleanyQ \u00b7 Missions</div>'+
       '<div class="a360-hero-title">'+allM.length+' mission'+(allM.length>1?'s':'')+' au total</div>'+
-      '<div class="a360-hero-sub">'+upcoming.length+' \u00e0 venir \u00b7 '+past.filter(function(m){return m.status==='termine';}).length+' termin\u00e9es</div>'+
+      '<div class="a360-hero-sub">'+upcoming.length+' \u00e0 venir \u00b7 '+past.filter(function(m){return m.status==='terminee';}).length+' termin\u00e9es</div>'+
       '<div class="a360-hero-chips">'+
         '<span class="a360-hero-chip accent">'+upcoming.length+' \u00e0 venir</span>'+
         '<span class="a360-hero-chip">'+allM.filter(function(m){return m.status==='en_attente';}).length+' en attente</span>'+
@@ -3815,9 +3836,9 @@ function renderCleanyQMissions(){
 function renderCleanyQSquad(){
   var dash=document.getElementById('cleanyq-squad-dash');
   if(!dash)return;
-  // Réutilise les données cleaners depuis cleaningMissions et squad
-  var squadData=typeof squad!=='undefined'?squad:[];
-  var allM=cleaningMissions||[];
+  // Réutilise les données cleaners depuis missionsData et cleanersData
+  var squadData=typeof cleanersData!=='undefined'?cleanersData:[];
+  var allM=missionsData||[];
 
   if(!squadData.length){
     dash.innerHTML=
@@ -3836,21 +3857,23 @@ function renderCleanyQSquad(){
   }
 
   var cards=squadData.map(function(s){
-    var nb=allM.filter(function(m){return m.status!=='termine';}).length;
-    var scoreColor=s.note>=4.5?'#059669':s.note>=4?'#D97706':'#DC2626';
+    var nbMissions=allM.filter(function(m){return m.cleaner_id===s.id&&m.status==='terminee';}).length;
+    var nbPending=allM.filter(function(m){return m.cleaner_id===s.id&&(m.status==='en_attente'||m.status==='acceptee');}).length;
+    var score=s.score||0;
+    var scoreColor=score>=4.5?'#059669':score>=4?'#D97706':'#DC2626';
     return '<div style="background:white;border:1px solid rgba(139,92,246,.12);border-radius:18px;padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:14px">'+
-      '<div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#6D28D9,#EC4899);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:white;flex-shrink:0">'+s.name.charAt(0)+'</div>'+
+      '<div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#6D28D9,#EC4899);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:white;flex-shrink:0">'+(s.name||'?').charAt(0)+'</div>'+
       '<div style="flex:1;min-width:0">'+
-        '<div style="font-size:14px;font-weight:800;color:#17122E">'+s.name+'</div>'+
-        '<div style="font-size:11px;color:#8A8A99;margin-top:2px">'+(s.role||'Cleaner')+' \u00b7 '+(s.zones||'Toutes zones')+'</div>'+
+        '<div style="font-size:14px;font-weight:800;color:#17122E">'+(s.name||'Cleaner')+'</div>'+
+        '<div style="font-size:11px;color:#8A8A99;margin-top:2px">'+(s.city||'Toutes zones')+(s.radius_km?' \u00b7 '+s.radius_km+' km':'')+'</div>'+
         '<div style="height:3px;background:#F3F0FA;border-radius:999px;margin-top:7px;overflow:hidden">'+
-          '<div style="height:100%;width:'+(s.note/5*100)+'%;background:'+scoreColor+';border-radius:999px"></div>'+
+          '<div style="height:100%;width:'+(score/5*100)+'%;background:'+scoreColor+';border-radius:999px"></div>'+
         '</div>'+
       '</div>'+
       '<div style="text-align:right;flex-shrink:0">'+
-        '<div style="font-size:18px;font-weight:900;color:'+scoreColor+'">'+s.note+'<span style="font-size:10px;color:#8A8A99">/5</span></div>'+
-        '<div style="font-size:10px;color:#8A8A99;margin-top:2px">'+s.missions+' missions</div>'+
-        '<span class="a360-badge a360-badge-green" style="margin-top:4px;display:inline-block">Actif</span>'+
+        '<div style="font-size:18px;font-weight:900;color:'+scoreColor+'">'+score+'<span style="font-size:10px;color:#8A8A99">/5</span></div>'+
+        '<div style="font-size:10px;color:#8A8A99;margin-top:2px">'+nbMissions+' termin\u00e9es \u00b7 '+nbPending+' en cours</div>'+
+        '<span class="a360-badge '+(s.status==='active'?'a360-badge-green':'a360-badge-gray')+'" style="margin-top:4px;display:inline-block">'+(s.status==='active'?'Actif':'Inactif')+'</span>'+
       '</div>'+
     '</div>';
   }).join('');
@@ -3859,7 +3882,7 @@ function renderCleanyQSquad(){
     '<div class="a360-hero" style="margin-bottom:16px">'+
       '<div class="a360-hero-kicker">CleanyQ \u00b7 Squad</div>'+
       '<div class="a360-hero-title">'+squadData.length+' cleaner'+(squadData.length>1?'s':'')+' dans la Squad</div>'+
-      '<div class="a360-hero-sub">Note moyenne : '+( squadData.length?Math.round(squadData.reduce(function(s,c){return s+(c.note||0);},0)/squadData.length*10)/10:0)+'/5</div>'+
+      '<div class="a360-hero-sub">Note moyenne : '+( squadData.length?Math.round(squadData.reduce(function(s,c){return s+(c.score||0);},0)/squadData.length*10)/10:0)+'/5</div>'+
       '<div class="a360-hero-chips">'+
         '<span class="a360-hero-chip accent">'+squadData.length+' cleaner'+(squadData.length>1?'s':'')+'</span>'+
         '<span class="a360-hero-chip">'+allM.filter(function(m){return m.status==='en_attente';}).length+' missions en attente</span>'+
