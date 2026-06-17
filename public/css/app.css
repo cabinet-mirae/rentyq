@@ -2001,3 +2001,80 @@ tr:hover td { background: #FAF6FF !important; }
   letter-spacing: .6px; color: #8A8A99; margin-bottom: 6px;
 }
 /* ===== end EVA Logic v2 ===== */
+
+/* ===== Scanner EVA V2 — décision avant tout ===== */
+
+/* Verdict hero — la décision en premier, style hero distinct */
+.scn-v2-verdict-hero {
+  display: flex; align-items: center; gap: 18px;
+  border-radius: 22px; padding: 22px 26px; margin-bottom: 18px;
+}
+.scn-v2-verdict-icon { font-size: 44px; flex-shrink: 0; line-height: 1; }
+.scn-v2-verdict-content { flex: 1; min-width: 0; }
+.scn-v2-verdict-kicker {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+  font-weight: 900; color: #8A8A99; margin-bottom: 4px;
+}
+.scn-v2-verdict-label {
+  font-family: Sora, sans-serif; font-size: 24px; font-weight: 950;
+  letter-spacing: -.3px; margin-bottom: 6px;
+}
+.scn-v2-verdict-summary { font-size: 13px; color: #4B4458; line-height: 1.5; max-width: 520px; }
+.scn-v2-verdict-score { text-align: center; flex-shrink: 0; padding-left: 14px; }
+.scn-v2-verdict-score-num { font-size: 34px; font-weight: 950; letter-spacing: -1px; line-height: 1; }
+.scn-v2-verdict-score-lbl {
+  font-size: 9px; text-transform: uppercase; letter-spacing: .6px;
+  color: #8A8A99; font-weight: 800; margin-top: 4px;
+}
+
+/* Upload photos */
+.scn-v2-photo-zone {
+  border: 2px dashed #D8CCF0; border-radius: 16px; padding: 28px 20px;
+  text-align: center; cursor: pointer; background: #FAF8FF;
+  transition: border-color .2s ease, background .2s ease;
+}
+.scn-v2-photo-zone:hover { border-color: #6D28D9; background: #F5F0FF; }
+.scn-v2-photo-zone-icon { font-size: 30px; color: #7C3AED; margin-bottom: 8px; }
+.scn-v2-photo-zone-title { font-size: 14px; font-weight: 800; color: #17122E; margin-bottom: 4px; }
+.scn-v2-photo-zone-sub { font-size: 12px; color: #8A8A99; }
+
+.scn-v2-photo-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 8px; margin-top: 14px;
+}
+.scn-v2-photo-thumb {
+  position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden;
+  background: #F3F0FA; cursor: pointer;
+}
+.scn-v2-photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.scn-v2-photo-remove {
+  position: absolute; top: 4px; right: 4px; width: 20px; height: 20px;
+  border-radius: 50%; border: none; background: rgba(17,17,30,.65); color: #fff;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  font-size: 11px; line-height: 1;
+}
+.scn-v2-photo-remove:hover { background: #DC2626; }
+
+/* Helpers génériques wizard V2 */
+.scn-v2-help { font-size: 12px; color: #8A8A99; margin-top: 10px; line-height: 1.5; }
+.scn-v2-btn-row { display: flex; align-items: center; gap: 14px; margin-top: 18px; flex-wrap: wrap; }
+.scn-v2-skip {
+  border: none; background: none; color: #8A8A99; font-size: 13px;
+  font-weight: 700; cursor: pointer; text-decoration: underline;
+  font-family: inherit; padding: 0;
+}
+.scn-v2-skip:hover { color: #6D28D9; }
+
+/* Formulaire infos commerciales (group) */
+.scn-v2-form-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+}
+.scn-v2-form-row { display: flex; flex-direction: column; gap: 6px; }
+.scn-v2-form-label { font-size: 12px; font-weight: 700; color: #4B4458; }
+
+@media (max-width: 640px) {
+  .scn-v2-verdict-hero { flex-direction: column; text-align: center; }
+  .scn-v2-verdict-score { padding-left: 0; padding-top: 10px; }
+  .scn-v2-form-grid { grid-template-columns: 1fr; }
+}
+/* ===== end Scanner EVA V2 ===== */
