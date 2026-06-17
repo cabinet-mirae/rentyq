@@ -819,7 +819,18 @@ function showApartDetail(id){
   const contextDetail=[aiRecDetail,fl?`Plancher : ${fl}€`:'',`Score EVA : ${score}/100`].filter(Boolean).join(' · ');
   const contextHtml=contextDetail?`<div style="font-size:11px;color:#8A8A99;margin-top:8px;line-height:1.5">📊 ${esc(contextDetail)}</div>`:'';
 
-  const actionsHtml=primaryHtml+watchHtml+contextHtml;
+  // Potentiel EVA du logement, scindé propriétaire / conciergerie
+  const aptPotentialDetail=rqAptEvaPotential(a,Math.max(4,Math.round(occ14/100*30)));
+  const potentialDetailHtml=aptPotentialDetail.total>0?`<div style="margin-top:10px;background:#F8F5FF;border-radius:10px;padding:10px 12px">
+    <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#8A8A99;margin-bottom:6px">Potentiel EVA du logement</div>
+    <div style="font-size:14px;font-weight:900;color:#17122E;margin-bottom:6px">+${aptPotentialDetail.total}€<span style="font-size:10px;color:#8A8A99;font-weight:600">/mois</span></div>
+    <div style="display:flex;gap:12px">
+      <span style="font-size:11px;color:#059669;font-weight:700">Propriétaire : +${aptPotentialDetail.proprietaire}€</span>
+      <span style="font-size:11px;color:#7C3AED;font-weight:700">Conciergerie : +${aptPotentialDetail.conciergerie}€</span>
+    </div>
+  </div>`:'';
+
+  const actionsHtml=primaryHtml+watchHtml+contextHtml+potentialDetailHtml;
 
   const timelineItems=[];
   timelineItems.push({date:'Aujourd\u2019hui',icon:freeTonight?'🔴':'🟢',title:freeTonight?'Nuit libre à remplir':'Bien réservé ce soir',desc:freeTonight?`Action prioritaire : passer à ${recoPrice}€.`:'Aucune urgence immédiate.'});
@@ -1157,6 +1168,24 @@ function renderParcFiches(){
         '<div class="eva-context-item"><div class="eva-context-val" style="color:'+scoreColor+'">'+sc+'</div><div class="eva-context-lbl">Score EVA</div></div>'+
       '</div>';
 
+    // ── Potentiel EVA du logement, scindé propriétaire / conciergerie ──
+    var aptPotential=rqAptEvaPotential(a,Math.max(4,Math.round(occ/100*30)));
+    var potentialHtml='';
+    if(aptPotential.total>0){
+      potentialHtml='<div class="eva-section-label" style="margin-top:10px">Potentiel EVA du logement</div>'+
+        '<div style="background:#F8F5FF;border-radius:12px;padding:12px 14px">'+
+          '<div style="font-size:15px;font-weight:900;color:#17122E;margin-bottom:8px">+'+aptPotential.total+'\u20AC<span style="font-size:11px;color:#8A8A99;font-weight:600">/mois</span></div>'+
+          '<div style="display:flex;gap:14px">'+
+            '<div style="flex:1"><div style="font-size:10px;color:#8A8A99;text-transform:uppercase;letter-spacing:.4px;font-weight:800">Propri\u00e9taire</div><div style="font-size:14px;font-weight:800;color:#059669">+'+aptPotential.proprietaire+'\u20AC</div></div>'+
+            '<div style="flex:1"><div style="font-size:10px;color:#8A8A99;text-transform:uppercase;letter-spacing:.4px;font-weight:800">Conciergerie</div><div style="font-size:14px;font-weight:800;color:#7C3AED">+'+aptPotential.conciergerie+'\u20AC</div></div>'+
+          '</div>'+
+          '<div style="display:flex;height:5px;border-radius:999px;overflow:hidden;margin-top:8px;background:#EDE4FF">'+
+            '<div style="height:100%;width:'+Math.round(aptPotential.proprietaire/aptPotential.total*100)+'%;background:#059669"></div>'+
+            '<div style="height:100%;width:'+Math.round(aptPotential.conciergerie/aptPotential.total*100)+'%;background:#7C3AED"></div>'+
+          '</div>'+
+        '</div>';
+    }
+
     var equipHtml='';
     if(a.equipements&&a.equipements.length){
       var equips=Array.isArray(a.equipements)?a.equipements:[a.equipements];
@@ -1186,7 +1215,7 @@ function renderParcFiches(){
           '<span style="font-size:12px;font-weight:700">'+prioLabel+'</span>'+
           (potential>0?'<span style="margin-left:auto;font-size:11px;font-weight:900;white-space:nowrap">+'+potential+'\u20AC/nuit</span>':'')+
         '</div>'+
-        evaActionHtml+missionsHtml+recoHtml+contextHtml+equipHtml+
+        evaActionHtml+missionsHtml+recoHtml+contextHtml+potentialHtml+equipHtml+
         '<div class="parc-fiche-footer">'+
           '<button class="parc-fiche-btn-primary" onclick="goTo(\'parc\',document.querySelector(\'[data-page=parc]\')); setTimeout(function(){showApartDetail(\''+a.id+'\')},150)">\uD83D\uDD0D Voir le d\u00e9tail complet</button>'+
           '<button class="parc-fiche-btn-secondary" onclick="openEdit(\''+a.id+'\')">Modifier</button>'+
@@ -3318,6 +3347,71 @@ function analyseEmpty(msg){
 }
 
 /* ── 1. VUE GLOBALE ── */
+/* ====================================================
+   MODÈLE FINANCIER CONCIERGERIE — helpers centraux
+   Principe : le loyer n'est jamais une charge d'exploitation
+   de la conciergerie. La commission conciergerie (18-22% selon
+   propriétaire) est une recette explicite, pas un solde résiduel.
+   ==================================================== */
+
+// Catégories de charges qui sont à la charge du PROPRIÉTAIRE (logement)
+var RQ_CHARGES_PROPRIETAIRE=['Électricité','Eau','Internet','Assurance','Consommables'];
+// Catégories de charges qui sont à la charge de la CONCIERGERIE (opérationnel + structure)
+var RQ_CHARGES_CONCIERGERIE=['Ménage','Linge','Maintenance','PMS','Comptabilité','Frais bancaires','Plateforme','Exceptionnel'];
+// "Loyer" n'appartient à aucune des deux listes : ce n'est pas une charge, c'est le bien du propriétaire.
+
+function rqGetCommissionRate(apt){
+  if(!apt||!apt.proprietaire_id)return 20;
+  var prop=(typeof proprietaires!=='undefined'?proprietaires:[]).find(function(p){return p.id===apt.proprietaire_id;});
+  return prop&&prop.commission?Number(prop.commission):20;
+}
+
+// Calcule le bilan financier correct pour un ensemble de réservations + un appartement
+function rqComputeFinancials(apt,aptReservations,aptCharges){
+  var caBrut=aptReservations.reduce(function(s,r){return s+(r.price_total||0);},0);
+  var commPct=rqGetCommissionRate(apt);
+  var commissionConciergerie=Math.round(caBrut*commPct/100);
+  var partProprietaire=caBrut-commissionConciergerie;
+
+  var chargesProp=aptCharges.filter(function(c){return RQ_CHARGES_PROPRIETAIRE.indexOf(c.category)>=0&&c.per==='mois'&&c.type==='fixe';}).reduce(function(s,c){return s+(c.amount||0);},0);
+  var chargesConc=aptCharges.filter(function(c){return RQ_CHARGES_CONCIERGERIE.indexOf(c.category)>=0;}).reduce(function(s,c){return s+(c.amount||0);},0);
+
+  var netProprietaire=partProprietaire-chargesProp;
+  var netConciergerie=commissionConciergerie-chargesConc;
+
+  return {
+    caBrut:caBrut,commPct:commPct,
+    commissionConciergerie:commissionConciergerie,
+    partProprietaire:partProprietaire,
+    chargesProp:chargesProp,chargesConc:chargesConc,
+    netProprietaire:netProprietaire,netConciergerie:netConciergerie,
+    netTotal:netProprietaire+netConciergerie
+  };
+}
+
+// Potentiel EVA scindé propriétaire/conciergerie pour UN logement
+// Le gain de pricing (ai_rec - price) bénéficie aux deux parties selon le taux de commission
+function rqAptEvaPotential(apt,nightsPerMonth){
+  nightsPerMonth=nightsPerMonth||8;
+  if(!apt.ai_rec||!apt.price||apt.ai_rec<=apt.price)return {total:0,proprietaire:0,conciergerie:0};
+  var gainNightly=apt.ai_rec-apt.price;
+  var total=Math.round(gainNightly*nightsPerMonth);
+  var commPct=rqGetCommissionRate(apt);
+  var conciergerie=Math.round(total*commPct/100);
+  var proprietaire=total-conciergerie;
+  return {total:total,proprietaire:proprietaire,conciergerie:conciergerie,commPct:commPct};
+}
+
+// Potentiel EVA total du portefeuille, scindé
+function rqPortfolioEvaPotential(apts,avgNightsPerMonth){
+  var totals={total:0,proprietaire:0,conciergerie:0};
+  apts.forEach(function(a){
+    var p=rqAptEvaPotential(a,avgNightsPerMonth);
+    totals.total+=p.total;totals.proprietaire+=p.proprietaire;totals.conciergerie+=p.conciergerie;
+  });
+  return totals;
+}
+
 function renderAnalyseGlobale(){
   var dash=document.getElementById('analyse-globale-dash');
   if(!dash)return;
@@ -3334,17 +3428,26 @@ function renderAnalyseGlobale(){
   var totalNights=monthRes.reduce(function(s,r){return s+(r.nights||0);},0);
   var adr=totalNights>0?Math.round(caTotal/totalNights):0;
   var avNights=apparts.length*daysElapsed;
-  var revpar=avNights>0?Math.round(caTotal/avNights):0;
   var occ=avNights>0?Math.min(100,Math.round(totalNights/avNights*100)):0;
 
-  // Charges mensuelles estimées (depuis charges fixes)
-  var chargesTotal=chargesData?chargesData.filter(function(c){return c.per==='mois'&&c.type==='fixe';}).reduce(function(s,c){return s+(c.amount||0);},0):0;
-  var resultatNet=caTotal-chargesTotal;
-  var marge=caTotal>0?Math.round(resultatNet/caTotal*100):0;
-  var margeColor=marge>=40?'#059669':marge>=25?'#D97706':'#DC2626';
+  // Bilan financier correct : commission conciergerie + charges scindées prop/conciergerie
+  var commissionTotal=0,chargesPropTotal=0,chargesConcTotal=0,netConciergerieTotal=0,netProprietaireTotal=0;
+  apparts.forEach(function(a){
+    var aptRes=monthRes.filter(function(r){return r.appartement_id===a.id;});
+    var aptCharges=(chargesData||[]).filter(function(c){return c.appartement_id===a.id;});
+    var fin=rqComputeFinancials(a,aptRes,aptCharges);
+    commissionTotal+=fin.commissionConciergerie;
+    chargesPropTotal+=fin.chargesProp;
+    chargesConcTotal+=fin.chargesConc;
+    netConciergerieTotal+=fin.netConciergerie;
+    netProprietaireTotal+=fin.netProprietaire;
+  });
+  var margeConciergerie=commissionTotal>0?Math.round(netConciergerieTotal/commissionTotal*100):0;
+  var margeColor=margeConciergerie>=15?'#059669':margeConciergerie>=5?'#D97706':'#DC2626';
 
-  // Potentiel EVA
-  var potentialTotal=apparts.reduce(function(s,a){return s+(a.ai_rec>a.price?(a.ai_rec-a.price)*Math.max(4,Math.round(totalNights/Math.max(1,apparts.length))):0);},0);
+  // Potentiel EVA scindé propriétaire / conciergerie
+  var avgNightsMonth=Math.max(4,Math.round(totalNights/Math.max(1,apparts.length)));
+  var potential=rqPortfolioEvaPotential(apparts,avgNightsMonth);
   var caAnnuel=Math.round(caTotal*12);
 
   // KPIs par mois (6 derniers mois pour sparkline)
@@ -3365,19 +3468,36 @@ function renderAnalyseGlobale(){
   }).join('');
 
   dash.innerHTML=
+    // Hero — mise en avant du potentiel EVA, pas du résultat net
     '<div class="a360-hero" style="margin-bottom:16px">'+
       '<div class="a360-hero-kicker">Analyse EVA \u00b7 Vue globale</div>'+
-      '<div class="a360-hero-title">'+caTotal.toLocaleString('fr-FR')+'\u20AC g\u00e9n\u00e9r\u00e9s ce mois \u2014 '+caAnnuel.toLocaleString('fr-FR')+'\u20AC estim\u00e9s / an</div>'+
-      '<div class="a360-hero-sub">Marge nette : '+marge+'% \u00b7 '+apparts.length+' logements \u00b7 Occupation : '+occ+'%</div>'+
+      '<div class="a360-hero-title">Potentiel EVA d\u00e9tect\u00e9 : +'+potential.total.toLocaleString('fr-FR')+'\u20AC/mois</div>'+
+      '<div class="a360-hero-sub">+'+potential.proprietaire.toLocaleString('fr-FR')+'\u20AC pour les propri\u00e9taires \u00b7 +'+potential.conciergerie.toLocaleString('fr-FR')+'\u20AC pour la conciergerie</div>'+
       '<div class="a360-hero-chips">'+
-        '<span class="a360-hero-chip accent">'+caTotal.toLocaleString('fr-FR')+'\u20AC CA brut</span>'+
-        '<span class="a360-hero-chip">'+resultatNet.toLocaleString('fr-FR')+'\u20AC net estim\u00e9</span>'+
-        '<span class="a360-hero-chip">'+marge+'% marge</span>'+
-        (potentialTotal>0?'<span class="a360-hero-chip">+'+Math.round(potentialTotal)+'\u20AC potentiel EVA</span>':'')+
+        '<span class="a360-hero-chip accent">'+caTotal.toLocaleString('fr-FR')+'\u20AC CA brut ce mois</span>'+
+        '<span class="a360-hero-chip">'+commissionTotal.toLocaleString('fr-FR')+'\u20AC commission conciergerie</span>'+
+        '<span class="a360-hero-chip">'+apparts.length+' logements</span>'+
       '</div>'+
     '</div>'+
 
-    // KPI strip
+    // Bloc répartition propriétaire / conciergerie (visuel clé)
+    '<div class="p360-section" style="margin-bottom:14px">'+
+      '<div class="p360-section-head"><div><div class="p360-section-title">\uD83E\uDD1D Quand EVA fait gagner les propri\u00e9taires, la conciergerie gagne aussi</div></div></div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">'+
+        '<div style="background:#F0FDF4;border:1px solid rgba(5,150,105,.18);border-radius:14px;padding:16px">'+
+          '<div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#047857;margin-bottom:6px">Propri\u00e9taires</div>'+
+          '<div style="font-size:24px;font-weight:950;color:#059669">+'+potential.proprietaire.toLocaleString('fr-FR')+'\u20AC<span style="font-size:13px;color:#6B9080">/mois</span></div>'+
+          '<div style="font-size:11px;color:#6B9080;margin-top:4px">Net revers\u00e9 ce mois : '+netProprietaireTotal.toLocaleString('fr-FR')+'\u20AC</div>'+
+        '</div>'+
+        '<div style="background:#F5F0FF;border:1px solid rgba(124,58,237,.18);border-radius:14px;padding:16px">'+
+          '<div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#7C3AED;margin-bottom:6px">Conciergerie</div>'+
+          '<div style="font-size:24px;font-weight:950;color:#7C3AED">+'+potential.conciergerie.toLocaleString('fr-FR')+'\u20AC<span style="font-size:13px;color:#9B8AC4">/mois</span></div>'+
+          '<div style="font-size:11px;color:#9B8AC4;margin-top:4px">Net ce mois : '+netConciergerieTotal.toLocaleString('fr-FR')+'\u20AC ('+margeConciergerie+'% de la commission)</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+
+    // KPI strip — résultat net redescend en KPI secondaire
     '<div class="p360-kpi-strip" style="margin-bottom:14px">'+
       '<div class="p360-kpi-card accent">'+
         '<div class="p360-kpi-lbl">CA brut / mois</div>'+
@@ -3385,24 +3505,24 @@ function renderAnalyseGlobale(){
         '<div class="p360-kpi-help">'+daysElapsed+'/'+daysInMonth+' jours</div>'+
       '</div>'+
       '<div class="p360-kpi-card">'+
-        '<div class="p360-kpi-lbl">Charges estim\u00e9es</div>'+
-        '<div class="p360-kpi-val" style="color:#DC2626">'+chargesTotal.toLocaleString('fr-FR')+'\u20AC</div>'+
-        '<div class="p360-kpi-help">charges fixes</div>'+
+        '<div class="p360-kpi-lbl">Commission conciergerie</div>'+
+        '<div class="p360-kpi-val" style="color:#7C3AED">'+commissionTotal.toLocaleString('fr-FR')+'\u20AC</div>'+
+        '<div class="p360-kpi-help">18-22% selon propri\u00e9taire</div>'+
       '</div>'+
       '<div class="p360-kpi-card">'+
-        '<div class="p360-kpi-lbl">R\u00e9sultat net</div>'+
-        '<div class="p360-kpi-val" style="color:'+margeColor+'">'+resultatNet.toLocaleString('fr-FR')+'\u20AC</div>'+
-        '<div class="p360-kpi-help">'+marge+'% de marge</div>'+
+        '<div class="p360-kpi-lbl">Charges conciergerie</div>'+
+        '<div class="p360-kpi-val" style="color:#DC2626">'+chargesConcTotal.toLocaleString('fr-FR')+'\u20AC</div>'+
+        '<div class="p360-kpi-help">m\u00e9nage, linge, PMS, compta\u2026</div>'+
+      '</div>'+
+      '<div class="p360-kpi-card">'+
+        '<div class="p360-kpi-lbl">R\u00e9sultat net conciergerie</div>'+
+        '<div class="p360-kpi-val" style="color:'+margeColor+'">'+netConciergerieTotal.toLocaleString('fr-FR')+'\u20AC</div>'+
+        '<div class="p360-kpi-help">'+margeConciergerie+'% de la commission</div>'+
       '</div>'+
       '<div class="p360-kpi-card">'+
         '<div class="p360-kpi-lbl">ADR</div>'+
         '<div class="p360-kpi-val">'+adr+'\u20AC</div>'+
         '<div class="p360-kpi-help">prix moyen / nuit</div>'+
-      '</div>'+
-      '<div class="p360-kpi-card">'+
-        '<div class="p360-kpi-lbl">Potentiel EVA</div>'+
-        '<div class="p360-kpi-val" style="color:#7C3AED">+'+(potentialTotal>0?Math.round(potentialTotal):'—')+( potentialTotal>0?'\u20AC':'')+' </div>'+
-        '<div class="p360-kpi-help">par mois</div>'+
       '</div>'+
     '</div>'+
 
@@ -3416,7 +3536,7 @@ function renderAnalyseGlobale(){
     '</div>'+
 
     // Navigation vers sous-sections
-    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:4px">'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:14px">'+
       ['analyse-rentabilite:\uD83C\uDFE0 Rentabilit\u00e9 par logement',
        'analyse-opportunites:\uD83D\uDE80 Opportunit\u00e9s EVA',
        'analyse-economies:\uD83D\uDCB0 \u00c9conomies EVA',
@@ -3439,67 +3559,71 @@ function renderAnalyseRentabilite(){
 
   var stats=apparts.map(function(a){
     var aptRes=reservations.filter(function(r){return r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(month);});
-    var ca=aptRes.reduce(function(s,r){return s+(r.price_total||0);},0);
+    var aptCharges=(chargesData||[]).filter(function(c){return c.appartement_id===a.id;});
+    var fin=rqComputeFinancials(a,aptRes,aptCharges);
     var nights=aptRes.reduce(function(s,r){return s+(r.nights||0);},0);
     var occ=daysElapsed>0?Math.min(100,Math.round(nights/daysElapsed*100)):0;
-    var adr=nights>0?Math.round(ca/nights):0;
-    // Charges fixes pour ce bien
-    var aptCharges=chargesData?chargesData.filter(function(c){return c.appartement_id===a.id&&c.per==='mois'&&c.type==='fixe';}).reduce(function(s,c){return s+(c.amount||0);},0):0;
-    // Charges fixes globales (sans appartement_id)
-    var net=ca-aptCharges;
-    var marge=ca>0?Math.round(net/ca*100):0;
-    var margeColor=marge>=40?'#059669':marge>=25?'#D97706':'#DC2626';
-    var margeBadge=marge>=40?'a360-badge-green':marge>=25?'a360-badge-orange':'a360-badge-red';
-    return {a:a,ca:ca,aptCharges:aptCharges,net:net,marge:marge,margeColor:margeColor,margeBadge:margeBadge,occ:occ,adr:adr};
-  }).sort(function(x,y){return y.net-x.net;});
+    var avgNightsMonth=Math.max(4,nights);
+    var potential=rqAptEvaPotential(a,avgNightsMonth);
+    var margeColor=fin.netConciergerie>=fin.commissionConciergerie*0.15?'#059669':fin.netConciergerie>=0?'#D97706':'#DC2626';
+    var margeBadge=fin.netConciergerie>=fin.commissionConciergerie*0.15?'a360-badge-green':fin.netConciergerie>=0?'a360-badge-orange':'a360-badge-red';
+    return {a:a,fin:fin,occ:occ,potential:potential,margeColor:margeColor,margeBadge:margeBadge};
+  }).sort(function(x,y){return y.potential.total-x.potential.total;});
 
-  var totalCA=stats.reduce(function(s,r){return s+r.ca;},0);
-  var totalCharges=stats.reduce(function(s,r){return s+r.aptCharges;},0);
-  var totalNet=totalCA-totalCharges;
-  var avgMarge=totalCA>0?Math.round(totalNet/totalCA*100):0;
-  var margeGlobalColor=avgMarge>=40?'#059669':avgMarge>=25?'#D97706':'#DC2626';
+  var totalCA=stats.reduce(function(s,r){return s+r.fin.caBrut;},0);
+  var totalCommission=stats.reduce(function(s,r){return s+r.fin.commissionConciergerie;},0);
+  var totalChargesConc=stats.reduce(function(s,r){return s+r.fin.chargesConc;},0);
+  var totalNetConc=stats.reduce(function(s,r){return s+r.fin.netConciergerie;},0);
+  var avgMargeConc=totalCommission>0?Math.round(totalNetConc/totalCommission*100):0;
+  var margeGlobalColor=avgMargeConc>=15?'#059669':avgMargeConc>=5?'#D97706':'#DC2626';
+  var totalPotential=stats.reduce(function(s,r){return s+r.potential.total;},0);
 
-  var rows=stats.map(function(s,i){
+  var rows=stats.map(function(s){
     var occColor=s.occ>=65?'#059669':s.occ>=45?'#D97706':'#DC2626';
     var occBar='<div style="height:4px;background:#F3F0FA;border-radius:999px;overflow:hidden;margin-top:4px">'+
       '<div style="height:100%;width:'+s.occ+'%;background:'+occColor+';border-radius:999px"></div></div>';
+    var potBar=s.potential.total>0?'<div style="display:flex;height:5px;border-radius:999px;overflow:hidden;margin-top:4px;background:#F3F0FA">'+
+      '<div style="height:100%;width:'+Math.round(s.potential.proprietaire/s.potential.total*100)+'%;background:#059669"></div>'+
+      '<div style="height:100%;width:'+Math.round(s.potential.conciergerie/s.potential.total*100)+'%;background:#7C3AED"></div>'+
+    '</div>':'';
     return '<tr>'+
       '<td><div style="display:flex;align-items:center;gap:8px">'+
         '<div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#F3E8FF,#EDE9FF);display:flex;align-items:center;justify-content:center;font-size:14px">'+(s.a.emoji||'\uD83C\uDFE0')+'</div>'+
         '<div><div style="font-size:13px;font-weight:700;color:#17122E">'+s.a.name+'</div><div style="font-size:10px;color:#8A8A99">'+s.a.city+'</div></div></div></td>'+
-      '<td style="font-weight:800;color:#17122E">'+s.ca.toLocaleString('fr-FR')+'\u20AC</td>'+
-      '<td style="color:#DC2626">'+s.aptCharges.toLocaleString('fr-FR')+'\u20AC</td>'+
-      '<td style="font-weight:800;color:'+s.margeColor+'">'+s.net.toLocaleString('fr-FR')+'\u20AC</td>'+
-      '<td><span class="a360-badge '+s.margeBadge+'">'+s.marge+'%</span></td>'+
+      '<td style="font-weight:800;color:#17122E">'+s.fin.caBrut.toLocaleString('fr-FR')+'\u20AC</td>'+
+      '<td style="color:#7C3AED;font-weight:700">'+s.fin.commissionConciergerie.toLocaleString('fr-FR')+'\u20AC<div style="font-size:9px;color:#B0A8C8">'+s.fin.commPct+'%</div></td>'+
+      '<td style="color:#DC2626">'+s.fin.chargesConc.toLocaleString('fr-FR')+'\u20AC</td>'+
+      '<td style="font-weight:800;color:'+s.margeColor+'">'+s.fin.netConciergerie.toLocaleString('fr-FR')+'\u20AC</td>'+
       '<td><div style="font-size:12px;color:'+occColor+';font-weight:700">'+s.occ+'%</div>'+occBar+'</td>'+
+      '<td>'+(s.potential.total>0?'<div style="font-size:12px;font-weight:800;color:#17122E">+'+s.potential.total+'\u20AC</div><div style="font-size:9px;color:#8A8A99">+'+s.potential.proprietaire+'\u20AC prop \u00b7 +'+s.potential.conciergerie+'\u20AC conc</div>'+potBar:'<span style="font-size:11px;color:#B0A8C8">—</span>')+'</td>'+
     '</tr>';
   }).join('');
 
   dash.innerHTML=
     '<div class="a360-hero" style="margin-bottom:16px">'+
       '<div class="a360-hero-kicker">Analyse EVA \u00b7 Rentabilit\u00e9</div>'+
-      '<div class="a360-hero-title">'+totalNet.toLocaleString('fr-FR')+'\u20AC de r\u00e9sultat net ce mois</div>'+
-      '<div class="a360-hero-sub">'+apparts.length+' logements \u00b7 Marge moyenne : '+avgMarge+'% \u00b7 Charges : '+totalCharges.toLocaleString('fr-FR')+'\u20AC</div>'+
+      '<div class="a360-hero-title">Potentiel EVA total : +'+totalPotential.toLocaleString('fr-FR')+'\u20AC/mois sur le portefeuille</div>'+
+      '<div class="a360-hero-sub">'+apparts.length+' logements \u00b7 Commission conciergerie : '+totalCommission.toLocaleString('fr-FR')+'\u20AC \u00b7 R\u00e9sultat net conciergerie : '+totalNetConc.toLocaleString('fr-FR')+'\u20AC ('+avgMargeConc+'%)</div>'+
       '<div class="a360-hero-chips">'+
         '<span class="a360-hero-chip accent">'+totalCA.toLocaleString('fr-FR')+'\u20AC CA</span>'+
-        '<span class="a360-hero-chip">'+totalCharges.toLocaleString('fr-FR')+'\u20AC charges</span>'+
-        '<span class="a360-hero-chip">'+avgMarge+'% marge</span>'+
+        '<span class="a360-hero-chip">'+totalCommission.toLocaleString('fr-FR')+'\u20AC commission</span>'+
+        '<span class="a360-hero-chip">'+avgMargeConc+'% marge conciergerie</span>'+
       '</div>'+
     '</div>'+
     '<div class="p360-kpi-strip" style="margin-bottom:14px">'+
       '<div class="p360-kpi-card accent"><div class="p360-kpi-lbl">CA brut</div><div class="p360-kpi-val">'+totalCA.toLocaleString('fr-FR')+'\u20AC</div></div>'+
-      '<div class="p360-kpi-card"><div class="p360-kpi-lbl">Charges fixes</div><div class="p360-kpi-val" style="color:#DC2626">'+totalCharges.toLocaleString('fr-FR')+'\u20AC</div></div>'+
-      '<div class="p360-kpi-card"><div class="p360-kpi-lbl">R\u00e9sultat net</div><div class="p360-kpi-val" style="color:'+margeGlobalColor+'">'+totalNet.toLocaleString('fr-FR')+'\u20AC</div></div>'+
-      '<div class="p360-kpi-card"><div class="p360-kpi-lbl">Marge moyenne</div><div class="p360-kpi-val" style="color:'+margeGlobalColor+'">'+avgMarge+'%</div></div>'+
+      '<div class="p360-kpi-card"><div class="p360-kpi-lbl">Commission conciergerie</div><div class="p360-kpi-val" style="color:#7C3AED">'+totalCommission.toLocaleString('fr-FR')+'\u20AC</div></div>'+
+      '<div class="p360-kpi-card"><div class="p360-kpi-lbl">Charges conciergerie</div><div class="p360-kpi-val" style="color:#DC2626">'+totalChargesConc.toLocaleString('fr-FR')+'\u20AC</div></div>'+
+      '<div class="p360-kpi-card"><div class="p360-kpi-lbl">R\u00e9sultat net conciergerie</div><div class="p360-kpi-val" style="color:'+margeGlobalColor+'">'+totalNetConc.toLocaleString('fr-FR')+'\u20AC</div></div>'+
     '</div>'+
     '<div class="p360-section">'+
       '<div class="p360-section-head">'+
-        '<div><div class="p360-section-title">\uD83C\uDFE0 Rentabilit\u00e9 par logement</div><div class="p360-section-sub">CA, charges, r\u00e9sultat net et marge ce mois</div></div>'+
+        '<div><div class="p360-section-title">\uD83C\uDFE0 Rentabilit\u00e9 par logement</div><div class="p360-section-sub">Commission, charges, r\u00e9sultat net et potentiel EVA ce mois</div></div>'+
         '<span class="a360-badge a360-badge-purple">'+apparts.length+' logements</span>'+
       '</div>'+
       '<div class="a360-table-wrap">'+
         '<table class="a360-table"><thead><tr>'+
-          '<th>Logement</th><th>CA</th><th>Charges</th><th>Net</th><th>Marge</th><th>Occupation</th>'+
+          '<th>Logement</th><th>CA</th><th>Commission</th><th>Charges</th><th>Net conciergerie</th><th>Occupation</th><th>Potentiel EVA</th>'+
         '</tr></thead><tbody>'+rows+'</tbody></table>'+
       '</div>'+
     '</div>';
