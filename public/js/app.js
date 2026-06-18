@@ -9062,7 +9062,4 @@ function renderProfit360Simulations(){
         'Voir la qualit\u00e9','audit-qualite'
       )+
     '</div>';
-
-
-
-
+}
