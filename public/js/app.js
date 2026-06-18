@@ -721,17 +721,15 @@ function showApartDetail(id){
   const potential=days14.filter(d=>!d.booked).reduce((s,d)=>s+d.rec,0);
   const eventPotential=days14.filter(d=>!d.booked&&d.evs.length).reduce((s,d)=>s+Math.max(0,d.rec-basePrice),0);
 
-  let score=55;
-  score+=Math.min(25,Math.round(occ14*.25));
-  if(net>0)score+=12;else if(net<0)score-=12;
-  if(note!=='—'&&+note>=4.5)score+=8;else if(note!=='—'&&+note<4)score-=10;
-  if(!freeTonight)score+=8;else score-=14;
-  if(pendingM.length)score+=5;else score-=5;
-  if(hotEvs.length)score+=4;
-  score=Math.max(8,Math.min(98,score));
-  const healthClass=score<50?'danger':score<75?'warn':'';
-  const healthLabel=score<50?'Action urgente':score<75?'À surveiller':'Bonne santé';
-  const healthText=score<50?'Ce bien peut récupérer du revenu rapidement.':score<75?'Quelques actions peuvent améliorer la performance.':'Le bien est correctement piloté.';
+  const health=rqEvaPropertyHealth(a);
+  const score=Math.round((health.scoreCommercial+health.scoreFinancier+health.scoreOperationnel)/3);
+  const healthClass=health.verdict==='rouge'?'danger':health.verdict==='orange'?'warn':'';
+  const healthLabel=health.verdict==='rouge'?'Bien problématique':health.verdict==='orange'?'Bien à optimiser':'Bien performant';
+  const healthText=health.why[0]||'';
+  const verdictBorder=health.verdict==='rouge'?'rgba(239,68,68,.28)':health.verdict==='orange'?'rgba(245,158,11,.30)':'rgba(16,185,129,.28)';
+  const verdictBg=health.verdict==='rouge'?'#FEF2F2':health.verdict==='orange'?'#FFFBEB':'#ECFDF5';
+  const verdictText=health.verdict==='rouge'?'#B91C1C':health.verdict==='orange'?'#B45309':'#047857';
+  const subScoreColor=(s)=>s>=70?'#059669':s>=45?'#D97706':'#DC2626';
 
   const recoReasons=[];
   let recoDirection='maintain';
@@ -858,13 +856,13 @@ function showApartDetail(id){
             <div style="margin-top:14px"><span class="rq-health-badge ${healthClass}"><span class="rq-health-dot"></span>${healthLabel}</span><span style="display:inline-block;margin-left:10px;color:rgba(255,255,255,.74);font-size:13px">${healthText}</span></div>
           </div>
           <div style="flex-shrink:0;text-align:center;min-width:120px">
-            <div style="width:110px;height:110px;border-radius:50%;background:conic-gradient(${score>=75?'#10B981':score>=50?'#F59E0B':'#EF4444'} ${score}%,rgba(255,255,255,.18) 0);display:flex;align-items:center;justify-content:center;padding:8px;margin:0 auto 6px">
+            <div style="width:110px;height:110px;border-radius:50%;background:conic-gradient(${health.verdict==='vert'?'#10B981':health.verdict==='orange'?'#F59E0B':'#EF4444'} ${score}%,rgba(255,255,255,.18) 0);display:flex;align-items:center;justify-content:center;padding:8px;margin:0 auto 6px">
               <div style="width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,rgba(36,16,92,.97),rgba(124,58,237,.74));display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.18)">
                 <div style="font-size:34px;font-weight:950;letter-spacing:-1px;color:#fff;line-height:1">${score}</div>
                 <div style="font-size:9px;text-transform:uppercase;letter-spacing:.8px;font-weight:900;color:rgba(255,255,255,.65);margin-top:4px">EVA Score</div>
               </div>
             </div>
-            <div style="font-size:10px;color:rgba(255,255,255,.55);font-weight:700">${score>=75?'Bien performant':score>=50?'À optimiser':'Action requise'}</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.55);font-weight:700">${healthLabel}</div>
             <div style="font-size:9px;color:rgba(255,255,255,.35);margin-top:2px">EVA Engine · temps réel</div>
           </div>
         </div>
@@ -884,6 +882,24 @@ function showApartDetail(id){
       </section>
 
       <div class="rq-property-tab-panel active" id="rq-tab-overview">
+      <section class="rq-card-v2" style="border:1px solid ${verdictBorder};background:${verdictBg};margin-bottom:16px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <div>
+            <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:#8A8A99;margin-bottom:6px">Verdict EVA</div>
+            <div style="font-size:20px;font-weight:950;color:${verdictText}">${health.verdictLabel}</div>
+          </div>
+          <div style="display:flex;gap:16px">
+            <div style="text-align:center"><div style="font-size:9px;color:#8A8A99;font-weight:800;text-transform:uppercase;letter-spacing:.4px">Commercial</div><div style="font-size:20px;font-weight:900;color:${subScoreColor(health.scoreCommercial)}">${health.scoreCommercial}</div></div>
+            <div style="text-align:center"><div style="font-size:9px;color:#8A8A99;font-weight:800;text-transform:uppercase;letter-spacing:.4px">Financier</div><div style="font-size:20px;font-weight:900;color:${subScoreColor(health.scoreFinancier)}">${health.scoreFinancier}</div></div>
+            <div style="text-align:center"><div style="font-size:9px;color:#8A8A99;font-weight:800;text-transform:uppercase;letter-spacing:.4px">Opérationnel</div><div style="font-size:20px;font-weight:900;color:${subScoreColor(health.scoreOperationnel)}">${health.scoreOperationnel}</div></div>
+          </div>
+        </div>
+        <div style="margin-top:12px;font-size:13px;color:#3F3B52;line-height:1.6">${health.why.map(w=>'• '+esc(w)).join('<br>')}</div>
+        <div style="margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:rgba(255,255,255,.65);border-radius:12px;padding:10px 12px">
+          <div style="font-size:13px;font-weight:700;color:#17122E">🎯 ${esc(health.priorityAction)}</div>
+          ${health.impactEstimate>0?`<span class="rq-impact-pill">+${health.impactEstimate}€/mois estimé</span>`:''}
+        </div>
+      </section>
       <section class="rq-reco-card ${recoClass}">
         <div class="rq-reco-main"><div><div class="rq-reco-kicker">🎯 EVA recommande</div><div class="rq-reco-title">${esc(recoTitle)}</div></div><div class="rq-reco-price">${recoPrice}€<br><span>prix conseillé</span></div></div>
         <div class="rq-reason-list">${recoReasons.slice(0,4).map(r=>`<div class="rq-reason-item"><b>${esc(r[0])}</b><br>${esc(r[1])}</div>`).join('')}</div>
@@ -3938,6 +3954,189 @@ function rqPortfolioEvaPotential(apts,avgNightsPerMonth){
     totals.total+=p.total;totals.proprietaire+=p.proprietaire;totals.conciergerie+=p.conciergerie;
   });
   return totals;
+}
+
+// ============================================================
+// EVA Engine — Couche 1 : sous-scores métier réutilisables (0-100)
+// Une seule source de vérité, consommée par les 3 fonctions contextualisées
+// (rqEvaPropertyHealth, rqEvaActionPriority, rqEvaPortfolioInsights).
+// Ne jamais dupliquer ces calculs ailleurs dans le fichier.
+// ============================================================
+
+// Commercial : occupation réalisée + positionnement prix réel vs prix marché EVA (ai_rec).
+// NB : ne tient volontairement pas compte des événements à venir — c'est un signal
+// d'opportunité court terme (cockpit), pas un indicateur structurel de santé (fiche logement).
+function rqAptCommercialScore(apt,occ,adr){
+  occ=occ||0;
+  var occScore=Math.max(0,Math.min(100,occ));
+  var marketRef=(apt&&apt.ai_rec)?apt.ai_rec:((apt&&apt.price)?apt.price:adr);
+  var priceScore=50;
+  if(marketRef>0&&adr>0){
+    priceScore=Math.round(adr/marketRef*100);
+    priceScore=Math.max(0,Math.min(100,priceScore));
+  }
+  return Math.round(occScore*0.7+priceScore*0.3);
+}
+
+// Financier : marge nette réelle (propriétaire + conciergerie) rapportée au CA généré.
+// C'est le vrai signe de rentabilité — pas l'occupation, pas le CA brut.
+function rqAptFinancialScore(apt,fin){
+  if(!fin)return 50;
+  if(!fin.caBrut){
+    // Pas de CA sur la période : si des charges courent malgré tout, c'est un déficit réel
+    // (signal négatif), pas une absence de données. Sinon, vraiment rien à évaluer → neutre.
+    if((fin.netProprietaire||0)<0||(fin.netConciergerie||0)<0)return 15;
+    return 50;
+  }
+  var margeProp=fin.netProprietaire/fin.caBrut;
+  var margeConc=fin.netConciergerie/fin.caBrut;
+  var margeGlobale=margeProp*0.7+margeConc*0.3;
+  var score;
+  if(margeGlobale>=0.30)score=100;
+  else if(margeGlobale>=0)score=50+Math.round(margeGlobale/0.30*50);
+  else score=50+Math.round(margeGlobale*150); // marge négative punie plus fort
+  return Math.max(0,Math.min(100,score));
+}
+
+// Opérationnel : qualité perçue (note voyageurs) + exécution terrain (ménages en retard/non planifiés).
+function rqAptOperationalScore(apt,missions,note){
+  var score=70; // neutre-bon par défaut
+  if(note!=null&&note!=='—'&&!isNaN(+note)){
+    var n=+note;
+    if(n>=4.7)score+=20;
+    else if(n>=4.3)score+=10;
+    else if(n>=4.0)score+=0;
+    else if(n>=3.5)score-=20;
+    else score-=35;
+  }
+  var todayIso=new Date().toISOString().slice(0,10);
+  var late=(missions||[]).filter(function(m){return m.date&&m.date<todayIso&&m.status!=='terminee'&&m.status!=='annulee';});
+  if(late.length)score-=Math.min(30,late.length*15);
+  var upcoming=(missions||[]).filter(function(m){return m.date&&m.date>=todayIso&&m.status!=='annulee';});
+  if(!upcoming.length)score-=5;
+  return Math.max(0,Math.min(100,score));
+}
+
+// ============================================================
+// rqEvaPropertyHealth() — Verdict santé d'UN logement (fiche logement)
+// Question : "Comment se porte ce logement ?"
+//
+// Règle métier validée (PAS un MIN mathématique, PAS une moyenne) :
+//   - Commercial et Opérationnel sont les axes VITAUX. Un seul critique (<45)
+//     suffit à déclencher 🔴.
+//   - Deux axes vitaux fragiles en même temps (45-69 chacun, sans être critiques
+//     individuellement) déclenchent aussi 🔴 : double signal faible = vrai risque.
+//   - Le Financier ne déclenche JAMAIS 🔴 seul. S'il est faible (<70), le verdict
+//     devient 🟠 ("optimisation possible"), avec un wording "urgence financière"
+//     si la marge est très faible ou négative — jamais une couleur différente.
+//
+// Échelle de temps : structurelle. Financier moyenné sur 3 mois (mois courant
+// inclus) pour capter une tendance et non un accident ponctuel. Commercial sur
+// les 30 derniers jours réels (occupation + ADR), pas une projection.
+// ============================================================
+function rqEvaPropertyHealth(apt){
+  if(!apt)return null;
+
+  var allRes=(typeof reservations!=='undefined'?reservations:[])||[];
+  var allCharges=(typeof chargesData!=='undefined'?chargesData:[])||[];
+  var allMissions=(typeof missionsData!=='undefined'?missionsData:[])||[];
+
+  var aptRes=allRes.filter(function(r){return String(r.appartement_id)===String(apt.id);});
+  var aptCharges=allCharges.filter(function(c){return String(c.appartement_id)===String(apt.id);});
+  var aptMissions=allMissions.filter(function(m){return String(m.appartement_id)===String(apt.id);});
+
+  // ── Financier : moyenné sur 3 mois pour capter une tendance, pas un instantané ──
+  var today=new Date();
+  var months3=[];
+  for(var i=2;i>=0;i--){
+    var d=new Date(today.getFullYear(),today.getMonth()-i,1);
+    months3.push(d.toISOString().slice(0,7));
+  }
+  var caBrut3=0,netProp3=0,netConc3=0;
+  months3.forEach(function(m){
+    var monthRes=aptRes.filter(function(r){return r.date_from&&r.date_from.startsWith(m);});
+    var f=rqComputeFinancials(apt,monthRes,aptCharges);
+    caBrut3+=f.caBrut;netProp3+=f.netProprietaire;netConc3+=f.netConciergerie;
+  });
+  var finAvg={caBrut:caBrut3,netProprietaire:netProp3,netConciergerie:netConc3};
+
+  // ── Commercial : occupation réelle 30 derniers jours + ADR réel vs ai_rec ──
+  function iso(dt){return dt.toISOString().slice(0,10);}
+  function dayAt(offset){var dt=new Date();dt.setDate(dt.getDate()+offset);return dt;}
+  function covers(r,date){return r&&r.date_from&&r.date_to&&r.date_from<=date&&r.date_to>date;}
+  var bookedDays=0;
+  for(var k=-30;k<0;k++){
+    var dte=iso(dayAt(k));
+    if(aptRes.some(function(r){return covers(r,dte);}))bookedDays++;
+  }
+  var occ=Math.round(bookedDays/30*100);
+  var last30Start=iso(dayAt(-30));
+  var last30Res=aptRes.filter(function(r){return r.date_from&&r.date_from>=last30Start;});
+  var nights30=last30Res.reduce(function(s,r){return s+(r.nights||0);},0);
+  var rev30=last30Res.reduce(function(s,r){return s+(r.price_total||0);},0);
+  var adr=nights30>0?Math.round(rev30/nights30):(apt.price||0);
+
+  // ── Sous-scores (Couche 1, jamais recalculés ailleurs) ──
+  var scoreCommercial=rqAptCommercialScore(apt,occ,adr);
+  var scoreFinancier=rqAptFinancialScore(apt,finAvg);
+  var scoreOperationnel=rqAptOperationalScore(apt,aptMissions,apt.note);
+
+  // ── Verdict métier ──
+  var CRIT=45,BON=70;
+  var commCritical=scoreCommercial<CRIT;
+  var opCritical=scoreOperationnel<CRIT;
+  var commFragile=scoreCommercial>=CRIT&&scoreCommercial<BON;
+  var opFragile=scoreOperationnel>=CRIT&&scoreOperationnel<BON;
+  var finWeak=scoreFinancier<BON;
+  var finUrgent=scoreFinancier<CRIT||finAvg.netProprietaire<0||finAvg.netConciergerie<0;
+
+  var verdict,verdictLabel;
+  if(commCritical||opCritical){
+    verdict='rouge';verdictLabel='🔴 Bien problématique';
+  }else if(commFragile&&opFragile){
+    verdict='rouge';verdictLabel='🔴 Bien problématique';
+  }else if(finWeak){
+    verdict='orange';
+    verdictLabel=finUrgent?'🟠 Bien à optimiser — urgence financière':'🟠 Bien à optimiser';
+  }else if(commFragile||opFragile){
+    verdict='orange';verdictLabel='🟠 Bien à optimiser';
+  }else{
+    verdict='vert';verdictLabel='🟢 Bien performant';
+  }
+
+  // ── Pourquoi (priorité aux axes vitaux dans l'explication) ──
+  var why=[];
+  if(commCritical)why.push('Commercial critique : occupation/positionnement prix très faible ('+scoreCommercial+'/100).');
+  if(opCritical)why.push('Opérationnel critique : qualité ou exécution terrain en difficulté ('+scoreOperationnel+'/100).');
+  if(!commCritical&&!opCritical&&commFragile&&opFragile){
+    why.push('Commercial et opérationnel sont tous les deux fragiles en même temps ('+scoreCommercial+'/100 et '+scoreOperationnel+'/100).');
+  }else{
+    if(!commCritical&&commFragile)why.push('Commercial perfectible : occupation ou positionnement prix sous le niveau attendu ('+scoreCommercial+'/100).');
+    if(!opCritical&&opFragile)why.push('Opérationnel perfectible : qualité ou exécution terrain à renforcer ('+scoreOperationnel+'/100).');
+  }
+  if(finUrgent)why.push('Marge nette quasi nulle ou négative sur la tendance récente, malgré l\u2019activité.');
+  else if(finWeak)why.push('Marge financière perfectible ('+scoreFinancier+'/100) : du revenu net non capté.');
+  if(!why.length)why.push('Commercial, financier et opérationnel sont tous au-dessus du seuil de vigilance.');
+
+  // ── Action prioritaire + impact estimé (axe vital faible traité avant le reste) ──
+  var potential=rqAptEvaPotential(apt,Math.max(4,Math.round(occ/100*30)));
+  var priorityAction;
+  if(opCritical||(opFragile&&scoreOperationnel<=scoreCommercial)){
+    priorityAction='Sécuriser l\u2019exécution opérationnelle (ménages, avis) avant tout ajustement tarifaire.';
+  }else if(commCritical||commFragile){
+    priorityAction='Revoir le positionnement tarifaire : occupation ou prix décalés du marché.';
+  }else if(finWeak){
+    priorityAction=finUrgent?'Traiter en priorité la marge : charges ou commission à revoir, urgence financière.':'Optimiser la marge nette : revoir les charges récurrentes ou la commission.';
+  }else{
+    priorityAction='Aucune action prioritaire — maintenir le pilotage actuel.';
+  }
+
+  return {
+    verdict:verdict,verdictLabel:verdictLabel,
+    scoreCommercial:scoreCommercial,scoreFinancier:scoreFinancier,scoreOperationnel:scoreOperationnel,
+    why:why,priorityAction:priorityAction,impactEstimate:potential.total,
+    finUrgent:finUrgent,occ:occ,adr:adr,fin:finAvg
+  };
 }
 
 function renderAnalyseGlobale(){
