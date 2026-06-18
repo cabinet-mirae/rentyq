@@ -532,45 +532,43 @@ function renderParcTable(){
 
   // Calculer l\u2019EVA Priority Score pour chaque bien
   const enriched=apparts.map(a=>{
+    const health=rqEvaPropertyHealth(a);
     const aptCharges=chargesData.filter(c=>c.appartement_id===a.id);
     const aptRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(mois));
     const finMois=rqComputeFinancials(a,aptRes,aptCharges);
     const rev=finMois.caBrut;
     const net=finMois.netProprietaire;
-    const occ=Math.min(Math.round((aptRes.length/8)*100),100)||0;
+    const occ=health.occ; // occupation réelle 30 derniers jours — même source que le Verdict EVA de la fiche
     const city=a.city||'';
     const cityEvs=eventsCache[city]||[];
     const hotEvs=cityEvs.filter(e=>e.hot);
     const freeTonight=!a.booked;
     const basePrice=Number(a.price||0);
 
-    // EVA Score simplifié vert/orange/rouge
-    let evaScore=55;
-    evaScore+=Math.min(25,Math.round(occ*.25));
-    if(net>0)evaScore+=12;else if(net<0)evaScore-=12;
-    if(!freeTonight)evaScore+=8;else evaScore-=14;
-    if(hotEvs.length)evaScore+=4;
-    evaScore=Math.max(8,Math.min(98,evaScore));
+    // EVA Score = même moteur que la fiche logement (rqEvaPropertyHealth), pour ne jamais
+    // afficher un chiffre différent entre la liste "Mes biens" et la fiche d'un même logement.
+    const evaScore=Math.round((health.scoreCommercial+health.scoreFinancier+health.scoreOperationnel)/3);
 
     // Gain potentiel estimé
     const eventGain=hotEvs.length?Math.round(hotEvs.reduce((s,e)=>s+(basePrice*(e.boost||10)/100),0)*3):0;
     const freeGain=freeTonight?Math.round(basePrice*.82):0;
     const totalPotential=eventGain+freeGain+(occ<50?Math.round(basePrice*0.12*8):0);
 
-    // Priorité EVA (pour le tri)
+    // Priorité EVA (pour le tri) — le verdict de santé prime sur les signaux du jour
     let evaPriority=0;
+    if(health.verdict==='rouge')evaPriority+=120;
     if(freeTonight)evaPriority+=100;
     if(hotEvs.length)evaPriority+=80;
     if(occ<50)evaPriority+=60;
     if(net<0)evaPriority+=40;
 
-    return{a,net,occ,hotEvs,freeTonight,evaScore,totalPotential,evaPriority,rev};
+    return{a,net,occ,hotEvs,freeTonight,evaScore,totalPotential,evaPriority,rev,health};
   });
 
   // Tri par priorité EVA décroissante
   enriched.sort((x,y)=>y.evaPriority-x.evaPriority);
 
-  cards.innerHTML=enriched.map(({a,net,occ,hotEvs,freeTonight,evaScore,totalPotential,rev})=>{
+  cards.innerHTML=enriched.map(({a,net,occ,hotEvs,freeTonight,evaScore,totalPotential,rev,health})=>{
 
     // ADR du mois
     const mois2=new Date().toISOString().slice(0,7);
@@ -581,6 +579,8 @@ function renderParcTable(){
     // Système de couleurs EVA — violet / orange / vert selon situation
     let evaBg,evaText,evaBorder,evaScoreBg,evaScoreColor,evaIcon,evaReco,evaImpact,evaImpactSuffix;
 
+    // Opportunités du jour (ne contredisent pas le verdict — ce sont des fenêtres d'action ponctuelles,
+    // compatibles avec un bien par ailleurs "bien à optimiser" ou "bien performant").
     if(freeTonight){
       evaBg='#EEEDFE';evaText='#26215C';evaBorder='1.5px solid #AFA9EC';
       evaScoreBg='#EEEDFE';evaScoreColor='#3C3489';
@@ -593,13 +593,30 @@ function renderParcTable(){
       evaIcon='🔥';evaReco=`Booster le tarif — ${hotEvs[0].name?.slice(0,22)||'événement'}`;
       evaImpact=totalPotential>0?`+${totalPotential} €`:`+${Math.round((+a.price||60)*.15*3)} €`;
       evaImpactSuffix='potentiels';
-    } else if(occ<50){
+    }
+    // Pas d'opportunité du jour : la bannière doit alors refléter le même verdict que la fiche —
+    // jamais "Logement bien optimisé" si un axe est sous 70 (priorité Opérationnel > Commercial > Financier,
+    // identique à l'ordre de priorité utilisé par rqEvaPropertyHealth).
+    else if(health.scoreOperationnel<70){
       evaBg='#FAEEDA';evaText='#412402';evaBorder='1.5px solid #EF9F27';
       evaScoreBg='#FAEEDA';evaScoreColor='#854F0B';
-      evaIcon='⚠️';evaReco='Activer une plateforme supplémentaire';
+      evaIcon='🧹';evaReco='Optimiser l\u2019opérationnel';
+      evaImpact=totalPotential>0?`+${totalPotential} €`:`+${Math.round((+a.price||60)*0.08*8)} €`;
+      evaImpactSuffix='potentiels';
+    } else if(health.scoreCommercial<70){
+      evaBg='#FAEEDA';evaText='#412402';evaBorder='1.5px solid #EF9F27';
+      evaScoreBg='#FAEEDA';evaScoreColor='#854F0B';
+      evaIcon='📈';evaReco='Renforcer la performance commerciale';
+      evaImpact=totalPotential>0?`+${totalPotential} €`:`+${Math.round((+a.price||60)*0.08*8)} €`;
+      evaImpactSuffix='potentiels';
+    } else if(health.scoreFinancier<70){
+      evaBg='#FAEEDA';evaText='#412402';evaBorder='1.5px solid #EF9F27';
+      evaScoreBg='#FAEEDA';evaScoreColor='#854F0B';
+      evaIcon='💰';evaReco='Sécuriser la rentabilité';
       evaImpact=totalPotential>0?`+${totalPotential} €`:`+${Math.round((+a.price||60)*0.08*8)} €`;
       evaImpactSuffix='potentiels';
     } else {
+      // Les 3 axes sont ≥70 : seul cas où la bannière peut légitimement dire que tout va bien.
       evaBg='#EAF3DE';evaText='#173404';evaBorder='0.5px solid #C0DD97';
       evaScoreBg='#EAF3DE';evaScoreColor='#3B6D11';
       evaIcon='✅';evaReco='Logement bien optimisé';
