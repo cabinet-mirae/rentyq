@@ -534,11 +534,9 @@ function renderParcTable(){
   const enriched=apparts.map(a=>{
     const aptCharges=chargesData.filter(c=>c.appartement_id===a.id);
     const aptRes=reservations.filter(r=>r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(mois));
-    const rev=aptRes.reduce((s,r)=>s+(r.price_total||0),0);
-    const totalFixes=aptCharges.filter(c=>c.type==='fixe').reduce((s,c)=>s+(c.amount||0),0);
-    const totalVars=aptCharges.filter(c=>c.type==='variable'&&c.category!=='commission_plateforme').reduce((s,c)=>s+(c.amount||0),0)*(aptRes.length||1);
-    const commPct=aptCharges.find(c=>c.category==='commission_plateforme')?.amount||0;
-    const net=rev-totalFixes-totalVars-Math.round(rev*commPct/100);
+    const finMois=rqComputeFinancials(a,aptRes,aptCharges);
+    const rev=finMois.caBrut;
+    const net=finMois.netProprietaire;
     const occ=Math.min(Math.round((aptRes.length/8)*100),100)||0;
     const city=a.city||'';
     const cityEvs=eventsCache[city]||[];
@@ -674,14 +672,14 @@ function showApartDetail(id){
   const hotEvs=cityEvs.filter(e=>e.hot).slice(0,5);
   const aptRes=reservations.filter(r=>String(r.appartement_id)===String(a.id));
   const monthRes=aptRes.filter(r=>r.date_from&&r.date_from.startsWith(mois));
-  const rev=monthRes.reduce((s,r)=>s+(+r.price_total||0),0);
   const aptCharges=chargesData.filter(c=>String(c.appartement_id)===String(a.id));
-  const totalFixes=aptCharges.filter(c=>c.type==='fixe').reduce((s,c)=>s+(+c.amount||0),0);
-  const totalVars=aptCharges.filter(c=>c.type==='variable'&&c.category!=='commission_plateforme').reduce((s,c)=>s+(+c.amount||0),0)*(monthRes.length||1);
-  const commPct=aptCharges.find(c=>c.category==='commission_plateforme')?.amount||0;
-  const commissions=Math.round(rev*(+commPct||0)/100);
-  const charges=totalFixes+totalVars+commissions;
-  const net=rev-charges;
+  // Source unique de vérité : même moteur que le Verdict EVA (exclut le Loyer qui n'est pas
+  // une charge d'exploitation, compte chaque charge ponctuelle une seule fois, et va chercher
+  // la vraie commission conciergerie sur proprietaires.commission).
+  const finMois=rqComputeFinancials(a,monthRes,aptCharges);
+  const rev=finMois.caBrut;
+  const charges=finMois.commissionsOta+finMois.commissionConciergerie+finMois.chargesLogement+finMois.reparationsProp;
+  const net=finMois.netProprietaire;
   const profitability=rev>0?Math.round(net/rev*100):0;
   const note=a.note||'—';
   const fl=floor(a);
@@ -4046,19 +4044,22 @@ function rqEvaPropertyHealth(apt){
   var aptMissions=allMissions.filter(function(m){return String(m.appartement_id)===String(apt.id);});
 
   // ── Financier : moyenné sur 3 mois pour capter une tendance, pas un instantané ──
+  // IMPORTANT : un seul appel à rqComputeFinancials, avec les réservations cumulées sur 3 mois
+  // et les charges récurrentes (fixe/mois) multipliées par 3. Les charges ponctuelles
+  // ('une_fois', ex. réparations exceptionnelles) ne sont comptées qu'UNE fois sur la fenêtre —
+  // sinon un appel répété par mois les compterait 3x au lieu d'1x.
   var today=new Date();
   var months3=[];
   for(var i=2;i>=0;i--){
     var d=new Date(today.getFullYear(),today.getMonth()-i,1);
     months3.push(d.toISOString().slice(0,7));
   }
-  var caBrut3=0,netProp3=0,netConc3=0;
-  months3.forEach(function(m){
-    var monthRes=aptRes.filter(function(r){return r.date_from&&r.date_from.startsWith(m);});
-    var f=rqComputeFinancials(apt,monthRes,aptCharges);
-    caBrut3+=f.caBrut;netProp3+=f.netProprietaire;netConc3+=f.netConciergerie;
+  var combinedRes3=aptRes.filter(function(r){return r.date_from&&months3.indexOf(r.date_from.slice(0,7))>=0;});
+  var scaledCharges3=aptCharges.map(function(c){
+    if(c.type==='fixe'&&c.per==='mois')return {appartement_id:c.appartement_id,category:c.category,type:c.type,per:c.per,amount:(c.amount||0)*3};
+    return c; // charges ponctuelles ('une_fois') : comptées une seule fois, pas multipliées
   });
-  var finAvg={caBrut:caBrut3,netProprietaire:netProp3,netConciergerie:netConc3};
+  var finAvg=rqComputeFinancials(apt,combinedRes3,scaledCharges3);
 
   // ── Commercial : occupation réelle 30 derniers jours + ADR réel vs ai_rec ──
   function iso(dt){return dt.toISOString().slice(0,10);}
@@ -7028,17 +7029,17 @@ function renderFinances(){
     const aptTx=transactionsData.filter(t=>t.appartement_id===a.id&&t.mois===mois);
     const nbRes=aptRes.length||aptTx.filter(t=>t.category==='revenu').length||0;
     const revTx=aptTx.filter(t=>t.amount>0||t.category==='revenu');
-    const rev=revTx.reduce((s,t)=>s+Math.abs(t.amount),0)||aptRes.reduce((s,r)=>s+(r.price_total||0),0);
-    const totalFixes=ac.filter(c=>c.type==='fixe').reduce((s,c)=>s+(c.amount||0),0);
-    const totalVarsUnit=ac.filter(c=>c.type==='variable'&&c.category!=='commission_plateforme').reduce((s,c)=>s+(c.amount||0),0);
-    const commPct=ac.find(c=>c.category==='commission_plateforme')?.amount||0;
-    const totalVars=totalVarsUnit*(nbRes||1);
-    const commAmount=Math.round(rev*commPct/100);
-    const charges=totalFixes+totalVars+commAmount;
-    const net=rev-charges;
+    const finMois=rqComputeFinancials(a,aptRes,ac);
+    // Le CA peut venir de transactions saisies manuellement si présentes, sinon des réservations (déjà dans finMois.caBrut)
+    const rev=revTx.reduce((s,t)=>s+Math.abs(t.amount),0)||finMois.caBrut;
+    const totalFixes=finMois.chargesLogement;
+    const totalVars=finMois.reparationsProp;
+    const commAmount=finMois.commissionsOta;
+    const charges=finMois.commissionsOta+finMois.commissionConciergerie+finMois.chargesLogement+finMois.reparationsProp;
+    const net=finMois.netProprietaire;
     const marge=rev>0?Math.round(net/rev*100):0;
     const proprio=isConcierge?proprietaires.find(p=>p.id===a.proprietaire_id):null;
-    const concComm=proprio?Math.round(rev*(proprio.commission||20)/100):0;
+    const concComm=finMois.netConciergerie;
 
     totalRev+=rev;totalCharges+=charges;totalNet+=isConcierge?concComm:net;
     aptData.push({a,rev,charges,totalFixes,totalVars,commAmount,net,marge,nbRes,concComm,proprio});
@@ -7144,7 +7145,7 @@ function renderFinances(){
           <span style="color:#E24B4A;font-weight:500">-${d.totalFixes}€/mois</span>
         </div>
         <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px solid #EEEEF5">
-          <span style="color:#8A8A99">Charges variables (${d.nbRes} résa${d.nbRes>1?'s':''})</span>
+          <span style="color:#8A8A99">Réparations / charges ponctuelles</span>
           <span style="color:#BA7517;font-weight:500">-${d.totalVars}€</span>
         </div>
         ${d.commAmount?`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px">
@@ -7243,8 +7244,8 @@ function renderPrevisionnel(){
   if(!apparts.length){el.innerHTML='<div class="card" style="text-align:center;padding:2rem;color:#8A8A99">Ajoutez des appartements.</div>';return;}
   const now=new Date();const moisActuel=now.toISOString().slice(0,7);const months=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
   let totalFixesMensuel=0,totalVarParRes=0,prixMoyenNuit=0,commPctMoy=0,nbApparts=apparts.length;
-  apparts.forEach(a=>{const ac=chargesData.filter(c=>c.appartement_id===a.id);totalFixesMensuel+=ac.filter(c=>c.type==='fixe').reduce((s,c)=>s+(c.amount||0),0);totalVarParRes+=ac.filter(c=>c.type==='variable'&&c.category!=='commission_plateforme').reduce((s,c)=>s+(c.amount||0),0);commPctMoy+=ac.find(c=>c.category==='commission_plateforme')?.amount||0;prixMoyenNuit+=a.price||0;});
-  prixMoyenNuit=nbApparts?Math.round(prixMoyenNuit/nbApparts):90;commPctMoy=nbApparts?Math.round(commPctMoy/nbApparts):3;
+  apparts.forEach(a=>{const ac=chargesData.filter(c=>c.appartement_id===a.id);totalFixesMensuel+=ac.filter(c=>c.type==='fixe'&&c.per==='mois'&&c.category!=='Loyer').reduce((s,c)=>s+(c.amount||0),0);totalVarParRes+=ac.filter(c=>c.type==='variable'&&c.category!=='commission_plateforme').reduce((s,c)=>s+(c.amount||0),0);commPctMoy+=rqGetCommissionRate(a);prixMoyenNuit+=a.price||0;});
+  prixMoyenNuit=nbApparts?Math.round(prixMoyenNuit/nbApparts):90;commPctMoy=nbApparts?Math.round(commPctMoy/nbApparts):20;
   const moisRes=reservations.filter(r=>r.date_from&&r.date_from.startsWith(moisActuel));const nuitsVendues=moisRes.reduce((s,r)=>s+(r.nights||0),0);const nuitsDispos=nbApparts*30;const occActuel=nuitsDispos>0?Math.round(nuitsVendues/nuitsDispos*100):50;
   const saisonCoeff=[0.7,0.7,0.8,0.85,0.9,1.0,1.1,1.1,0.95,0.85,0.75,0.8];
   const scenarios=[{name:'Pessimiste',emoji:'😰',occBase:Math.max(occActuel-15,20),color:'#E24B4A',bg:'#FCEBEB'},{name:'Réaliste',emoji:'📊',occBase:occActuel,color:'#6B3FA0',bg:'#F5F4FF'},{name:'Optimiste',emoji:'🚀',occBase:Math.min(occActuel+15,95),color:'#1D9E75',bg:'#E1F5EE'}];
