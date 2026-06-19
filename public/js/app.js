@@ -624,7 +624,7 @@ function renderParcTable(){
       evaImpactSuffix='à maintenir';
     }
 
-    return`<div onclick="showApartDetail('${a.id}')" style="background:white;border-radius:16px;border:${evaBorder};padding:14px;cursor:pointer;transition:transform .12s,box-shadow .12s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.08)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+    return`<div onclick="rqPreviousParcView='parc';showApartDetail('${a.id}')" style="background:white;border-radius:16px;border:${evaBorder};padding:14px;cursor:pointer;transition:transform .12s,box-shadow .12s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.08)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
 
       <!-- Header : nom + badge EVA score -->
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px">
@@ -666,7 +666,7 @@ function renderParcTable(){
           <div style="font-size:10px;color:#8A8A99;margin-bottom:2px">Impact ${evaImpactSuffix}</div>
           <div style="font-size:18px;font-weight:950;color:${evaScoreColor};letter-spacing:-.5px;line-height:1">${evaImpact}</div>
         </div>
-        <button onclick="event.stopPropagation();showApartDetail('${a.id}')" style="background:#534AB7;color:white;border:none;border-radius:8px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0">Voir le détail</button>
+        <button onclick="event.stopPropagation();rqPreviousParcView='parc';showApartDetail('${a.id}')" style="background:#534AB7;color:white;border:none;border-radius:8px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0">Voir le détail</button>
       </div>
 
     </div>`;
@@ -674,6 +674,10 @@ function renderParcTable(){
 
   const _ps2=document.getElementById('parc-sub');if(_ps2)_ps2.textContent=apparts.length+' appartement'+(apparts.length>1?'s':'');
 }
+
+// Mémorise la vue Parc active avant l'ouverture d'une fiche détail, pour que le bouton retour
+// restaure exactement le même template (Mes biens / Fiches logements / Comparaison), jamais un autre.
+let rqPreviousParcView='parc';
 
 function showApartDetail(id){
   const a=apparts.find(x=>String(x.id)===String(id));if(!a)return;
@@ -1152,7 +1156,7 @@ function renderParcFiches(){
         '<div style="flex:1;min-width:0">'+
           '<div class="eva-action-day-title">'+evaActionTitle+'</div>'+
           '<div class="eva-action-day-desc">'+evaActionDesc+'</div>'+
-          (evaActionBtn?'<button class="eva-action-day-btn" onclick="'+(evaActionRec?'goTo(\'parc\',document.querySelector(\'[data-page=parc]\')); setTimeout(function(){showApartDetail(\''+a.id+'\')},150)':'evaActionRec===null&&\''+evaActionBtn+'\'===\'Voir CleanyQ\'?\'goTo(\\\'clean\\\',document.querySelector(\\\'[data-page=clean]\\\'))\':\'\'')+'" onclick="goTo(\'parc\',document.querySelector(\'[data-page=parc]\')); setTimeout(function(){showApartDetail(\''+a.id+'\')},150)">'+evaActionBtn+'</button>':'')+
+          (evaActionBtn?'<button class="eva-action-day-btn" onclick="'+(evaActionRec?'rqPreviousParcView=\'parc-fiches\';goTo(\'parc\',document.querySelector(\'[data-page=parc]\')); setTimeout(function(){showApartDetail(\''+a.id+'\')},150)':'evaActionRec===null&&\''+evaActionBtn+'\'===\'Voir CleanyQ\'?\'goTo(\\\'clean\\\',document.querySelector(\\\'[data-page=clean]\\\'))\':\'\'')+'" onclick="rqPreviousParcView=\'parc-fiches\';goTo(\'parc\',document.querySelector(\'[data-page=parc]\')); setTimeout(function(){showApartDetail(\''+a.id+'\')},150)">'+evaActionBtn+'</button>':'')+
         '</div>'+
       '</div>';
 
@@ -1250,7 +1254,7 @@ function renderParcFiches(){
         '</div>'+
         evaActionHtml+missionsHtml+recoHtml+contextHtml+potentialHtml+equipHtml+
         '<div class="parc-fiche-footer">'+
-          '<button class="parc-fiche-btn-primary" onclick="goTo(\'parc\',document.querySelector(\'[data-page=parc]\')); setTimeout(function(){showApartDetail(\''+a.id+'\')},150)">\uD83D\uDD0D Voir le d\u00e9tail complet</button>'+
+          '<button class="parc-fiche-btn-primary" onclick="rqPreviousParcView=\'parc-fiches\';goTo(\'parc\',document.querySelector(\'[data-page=parc]\')); setTimeout(function(){showApartDetail(\''+a.id+'\')},150)">\uD83D\uDD0D Voir le d\u00e9tail complet</button>'+
           '<button class="parc-fiche-btn-secondary" onclick="openEdit(\''+a.id+'\')">Modifier</button>'+
         '</div>'+
       '</div>'+
@@ -1434,6 +1438,16 @@ function renderArchivesList(){
 
 function closeApartDetail(){
   document.getElementById('parc-detail-view').style.display='none';
+  const origin=rqPreviousParcView;
+  rqPreviousParcView='parc'; // reset par défaut pour ne pas laisser une valeur périmée pour le prochain clic
+  if(origin&&origin!=='parc'){
+    // Revenu depuis Fiches logements / Comparaison : on était passé par la page "parc" pour afficher
+    // le détail (seul endroit où vit le conteneur de détail) — il faut donc retourner sur la vraie page
+    // d'origine, ce qui relance automatiquement son rendu (renderParcFiches/renderParcComparaison) via goTo().
+    const navBtn=document.querySelector('[data-page="'+origin+'"]');
+    goTo(origin,navBtn);
+    return;
+  }
   document.getElementById('parc-list-view').style.display='block';
 }
 
