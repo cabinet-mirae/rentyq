@@ -1053,10 +1053,11 @@ function renderParcFiches(){
   try{ allMissions=generateEvaMissions(); }catch(e){}
 
   var cards=apparts.map(function(a){
+    var health=rqEvaPropertyHealth(a); // source unique de vérité — même moteur que Mes biens et la fiche détail
     var aptRes=reservations.filter(function(r){return r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(month);});
     var rev=aptRes.reduce(function(s,r){return s+(r.price_total||0);},0);
     var totalN=aptRes.reduce(function(s,r){try{if(!r.date_from||!r.date_to)return s+(r.nights||0);return s+Math.max(0,Math.round((new Date(r.date_to)-new Date(r.date_from))/(1000*60*60*24)));}catch(e){return s+(r.nights||0);}},0);
-    var occ=daysElapsed>0?Math.min(100,Math.round(totalN/daysElapsed*100)):0;
+    var occ=health.occ; // occupation réelle 30 derniers jours — même source que la fiche détail (ce KPI n'est pas labellisé "14J")
     var adr=totalN>0?Math.round(rev/totalN):0;
     var fl=floor(a);
     var price=a.price||0;
@@ -1066,8 +1067,9 @@ function renderParcFiches(){
     var hotEvs=(eventsCache[city]||[]).filter(function(e){return e.hot;});
     var freeTonight=!a.booked;
 
-    var sc=55;sc+=Math.min(25,Math.round(occ*.25));if(!freeTonight)sc+=8;else sc-=14;if(hotEvs.length)sc+=4;if(price>=fl&&fl>0)sc+=8;sc=Math.max(8,Math.min(98,sc));
-    var scoreColor=sc>=75?'#10B981':sc>=50?'#F59E0B':'#EF4444';
+    // Score EVA = moteur rqEvaPropertyHealth (identique à Mes biens et à la fiche détail logement)
+    var sc=Math.round((health.scoreCommercial+health.scoreFinancier+health.scoreOperationnel)/3);
+    var scoreColor=health.verdict==='vert'?'#10B981':health.verdict==='orange'?'#F59E0B':'#EF4444';
 
     var prioIcon,prioBg,prioText,prioLabel;
     if(freeTonight){prioIcon='\uD83D\uDD25';prioBg='#EEEDFE';prioText='#3C3489';prioLabel='Nuit libre \u2014 agir maintenant';}
@@ -9063,3 +9065,7 @@ function renderProfit360Simulations(){
       )+
     '</div>';
 }
+
+
+
+
