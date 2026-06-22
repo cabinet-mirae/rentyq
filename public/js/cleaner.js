@@ -64,6 +64,8 @@
     if (!res.ok) {
       var err = new Error((data && data.error) || 'request_failed');
       err.status = res.status;
+      err.detail = data && data.detail;
+      console.error('[CleanyQ Cleaner] requête échouée :', payload.action, '— status', res.status, '—', err.message, err.detail ? ('— ' + err.detail) : '');
       throw err;
     }
     return data;
