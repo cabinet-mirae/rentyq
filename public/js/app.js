@@ -234,12 +234,13 @@ async function loadApp(){
     renderTarifs();
     checkPaymentReturn();
     await loadProprietaires();
-    await loadCharges();await loadTransactions();await loadCatRules();await loadCleaners();await loadMissions();
+    await loadCharges();await loadTransactions();await loadCatRules();await loadCleaners();await loadMissions();await loadCleaningReports();
     renderCockpit();
     var activeCleanyQPage=document.querySelector('.page.active');
     if(activeCleanyQPage&&activeCleanyQPage.id==='page-cleanyq-today')renderCleanyQToday();
     if(activeCleanyQPage&&activeCleanyQPage.id==='page-cleanyq-missions')renderCleanyQMissions();
     if(activeCleanyQPage&&activeCleanyQPage.id==='page-cleanyq-squad')renderCleanyQSquad();
+    if(activeCleanyQPage&&activeCleanyQPage.id==='page-cleanyq-operations')renderCleanyQV2();
     if(activeCleanyQPage&&activeCleanyQPage.id==='page-clean')renderCleanyQToday();
     applyModules();
     if(userModules.includes('concierge')){renderProprietaires();initRapportMois();renderRapports();renderCockpitConcierge();renderParcConcierge();}
@@ -2298,6 +2299,7 @@ function goTo(page,btn){
   if(page==='parc'){try{renderParcTable();}catch(e){console.warn('renderParcTable',e);}}
   if(page==='parc-fiches')renderParcFiches();
   if(page==='parc-comparaison')renderParcComparaison();
+  if(page==='cleanyq-operations')renderCleanyQV2();
   if(page==='tarifs')renderTarifs();
   if(page==='events'&&apparts.length&&!Object.keys(eventsCache).length)loadEvents(false);
   // Page events supprimée V2 — rediriger vers pricing
@@ -4818,6 +4820,202 @@ function renderCleanyQSquad(){
     '</div>';
 }
 
+/* ====================================================
+   CLEANYQ V2 — Vue Opérations gestionnaire (Sprint 2)
+   Conteneur dédié #cleanyq-operations-v2, isolé des vues CleanyQ existantes
+   (page-clean, page-cleanyq-today, page-cleanyq-missions, page-cleanyq-squad).
+   Ne modifie ni le moteur EVA, ni les réservations/PMS, ni les fonctions de rendu existantes.
+   ==================================================== */
+
+// Utilitaire sécurisé : ne renvoie jamais NaN, même sur Safari/mobile avec des dates partielles.
+function calculateRealDuration(start,end){
+  if(!start||!end)return '—';
+  const diffMs=new Date(end)-new Date(start);
+  if(isNaN(diffMs)||diffMs<0)return '—';
+  const diffMins=Math.floor(diffMs/60000);
+  const hours=Math.floor(diffMins/60);
+  const mins=diffMins%60;
+  return hours>0?`${hours}h ${mins}min`:`${mins}min`;
+}
+
+const RQ_CLEANYQ_V2_STATUS_LABELS={en_attente:'À faire',acceptee:'Acceptée',en_cours:'En cours',terminee:'Terminée',annulee:'Annulée',probleme:'Problème'};
+const RQ_CLEANYQ_V2_STATUS_COLORS={en_attente:'#8A8A99',acceptee:'#0E7C66',en_cours:'#3C3489',terminee:'#059669',annulee:'#A32D2D',probleme:'#DC2626'};
+// Fallback toujours sûr — même si un statut futur inconnu apparaît, jamais de "undefined" affiché à l'écran.
+function rqV2StatusLabel(st){return RQ_CLEANYQ_V2_STATUS_LABELS[st]||st||'À faire';}
+function rqV2StatusColor(st){return RQ_CLEANYQ_V2_STATUS_COLORS[st]||'#8A8A99';}
+
+function rqV2Esc(v){try{return escapeHtml(String(v??''));}catch(e){return String(v??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}}
+
+function rqV2PhotosHtml(photos){
+  if(!Array.isArray(photos)||!photos.length)return '';
+  var thumbs=photos.slice(0,4).filter(function(u){return typeof u==='string'&&u;}).map(function(u){
+    return '<a href="'+rqV2Esc(u)+'" target="_blank" rel="noopener"><img src="'+rqV2Esc(u)+'" loading="lazy" style="width:34px;height:34px;border-radius:7px;object-fit:cover;border:1px solid #E8E8EE" alt="photo mission"></a>';
+  }).join('');
+  return '<div style="display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap">'+
+    '<span style="font-size:11px;font-weight:700;color:#6B3FA0">\uD83D\uDCF7 '+photos.length+' photo'+(photos.length>1?'s':'')+' re\u00e7ue'+(photos.length>1?'s':'')+'</span>'+
+    (thumbs?'<span style="display:flex;gap:4px">'+thumbs+'</span>':'')+
+  '</div>';
+}
+
+function renderCleanyQV2(){
+  var dash=document.getElementById('cleanyq-operations-v2');
+  if(!dash)return;
+
+  var todayIso=new Date().toISOString().slice(0,10);
+  var allMissions=missionsData||[];
+  var allReports=reportsData||[];
+
+  // ── SECTION 1 — KPI header ──
+  // NB : "Missions aujourd'hui" est explicitement filtré par date (cf. spec). Pour que "En cours" et
+  // "Terminées" restent des indicateurs utiles au quotidien (et non un compteur qui ne fait que croître
+  // depuis le début du compte), je les ai scopés aux missions du jour également. Si l'intention était bien
+  // un compteur global tous statuts/toutes dates confondues, c'est un calcul à une ligne à inverser — je le
+  // signale explicitement plutôt que de trancher silencieusement.
+  var todayMissions=allMissions.filter(function(m){return m.date===todayIso;});
+  var nbToday=todayMissions.length;
+  var nbEnCours=todayMissions.filter(function(m){return m.status==='en_cours';}).length;
+  var nbTerminees=todayMissions.filter(function(m){return m.status==='terminee';}).length;
+  var openReports=allReports.filter(function(r){return r.resolved===false&&r.report_type!=='ras';});
+  var nbAnomalies=openReports.length;
+
+  function kpiCard(label,val,color){
+    return '<div style="flex:0 0 auto;min-width:140px;background:white;border:0.5px solid #E8E8EE;border-radius:14px;padding:14px 16px;scroll-snap-align:start">'+
+      '<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#8A8A99;margin-bottom:6px">'+label+'</div>'+
+      '<div style="font-size:24px;font-weight:950;color:'+color+'">'+val+'</div>'+
+    '</div>';
+  }
+  var kpiHtml='<div style="display:flex;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;margin-bottom:16px;scroll-snap-type:x proximate">'+
+    kpiCard('Missions aujourd\u2019hui',nbToday,'#17122E')+
+    kpiCard('En cours',nbEnCours,'#3C3489')+
+    kpiCard('Termin\u00e9es',nbTerminees,'#059669')+
+    kpiCard('Anomalies ouvertes',nbAnomalies,nbAnomalies>0?'#DC2626':'#059669')+
+  '</div>';
+
+  // ── SECTION 2 — Missions du jour ──
+  function missionCardV2(m){
+    var apt=apparts.find(function(a){return String(a.id)===String(m.appartement_id);});
+    var aptName=apt?apt.name:'Logement supprim\u00e9 ou inconnu';
+    var aptEmoji=(apt&&apt.emoji)?apt.emoji:'\uD83C\uDFE0';
+    var cleaner=cleanersData.find(function(c){return String(c.id)===String(m.cleaner_id);});
+    var cleanerName=cleaner?cleaner.name:'Non assign\u00e9e';
+    var tarifDisplay=(m.tarif!=null&&m.tarif!=='')?(m.tarif+'\u20AC'):'\u2014';
+    var dureePrevue=(m.duree_min!=null&&m.duree_min!=='')?(m.duree_min+' min'):'\u2014';
+    var st=m.status||'en_attente';
+    var realDuration=calculateRealDuration(m.started_at,m.completed_at);
+    var timingHtml='';
+    if(m.started_at||m.completed_at){
+      timingHtml='<div style="font-size:11px;color:#8A8A99;margin-top:4px">'+
+        (m.started_at?'D\u00e9but '+new Date(m.started_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):'D\u00e9but \u2014')+
+        ' \u00b7 '+(m.completed_at?'Fin '+new Date(m.completed_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):'Fin \u2014')+
+        ' \u00b7 dur\u00e9e r\u00e9elle '+realDuration+
+      '</div>';
+    }
+    var problemBadge=m.problem_reported?'<div style="margin-top:6px"><span style="background:#FEF2F2;color:#DC2626;border-radius:7px;padding:3px 9px;font-size:11px;font-weight:800">\u26A0 Incident signal\u00e9</span></div>':'';
+    return '<div style="background:white;border:0.5px solid #E8E8EE;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:2px">'+
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">'+
+        '<div style="display:flex;align-items:center;gap:8px;min-width:0">'+
+          '<div style="font-size:18px;flex-shrink:0">'+aptEmoji+'</div>'+
+          '<div style="min-width:0">'+
+            '<div style="font-size:13px;font-weight:800;color:#17122E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+rqV2Esc(aptName)+'</div>'+
+            '<div style="font-size:11px;color:#8A8A99">'+rqV2Esc(cleanerName)+'</div>'+
+          '</div>'+
+        '</div>'+
+        '<span style="flex-shrink:0;font-size:10px;font-weight:800;padding:3px 9px;border-radius:999px;background:'+rqV2StatusColor(st)+'1A;color:'+rqV2StatusColor(st)+'">'+rqV2StatusLabel(st)+'</span>'+
+      '</div>'+
+      '<div style="font-size:11px;color:#8A8A99;margin-top:6px">'+rqV2Esc(m.date||'\u2014')+' \u00b7 '+rqV2Esc(m.heure||'\u2014')+' \u00b7 '+dureePrevue+' pr\u00e9vues \u00b7 '+tarifDisplay+'</div>'+
+      timingHtml+
+      problemBadge+
+      rqV2PhotosHtml(m.completion_photos)+
+    '</div>';
+  }
+  var missionsGridHtml='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:18px">'+
+    (todayMissions.length?todayMissions.map(missionCardV2).join(''):
+      '<div style="grid-column:1/-1;text-align:center;padding:1.5rem;color:#8A8A99;font-size:13px;background:white;border-radius:14px;border:0.5px dashed #E8E8EE">Aucune mission programm\u00e9e aujourd\u2019hui.</div>')+
+  '</div>';
+
+  // ── SECTION 3 — Anomalies à traiter (une seule requête déjà chargée, pas de N+1) ──
+  function reportRowV2(r){
+    var apt=apparts.find(function(a){return String(a.id)===String(r.appartement_id);});
+    var aptName=apt?apt.name:'Logement supprim\u00e9 ou inconnu';
+    var cleaner=cleanersData.find(function(c){return String(c.id)===String(r.cleaner_id);});
+    var cleanerName=cleaner?cleaner.name:'Non assign\u00e9e';
+    var typeLabel={casse:'Casse',degradation:'D\u00e9gradation',maintenance:'Maintenance',consommable_manquant:'Consommable manquant',logement_tres_sale:'Logement tr\u00e8s sale',odeur_tabac:'Odeur tabac',autre:'Autre'}[r.report_type]||r.report_type||'Autre';
+    var commentDisplay=r.comment?rqV2Esc(r.comment):'Aucun commentaire';
+    var dateSignalement=r.created_at?new Date(r.created_at).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'\u2014';
+    return '<div style="background:white;border:1px solid #FDE68A;border-left:3px solid #DC2626;border-radius:14px;padding:14px;margin-bottom:8px">'+
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">'+
+        '<div style="min-width:0">'+
+          '<div style="font-size:13px;font-weight:800;color:#17122E">'+rqV2Esc(aptName)+'</div>'+
+          '<div style="font-size:11px;color:#8A8A99;margin-top:1px">'+rqV2Esc(cleanerName)+' \u00b7 '+dateSignalement+'</div>'+
+        '</div>'+
+        '<span style="flex-shrink:0;font-size:10px;font-weight:800;padding:3px 9px;border-radius:999px;background:#FEF2F2;color:#DC2626">'+rqV2Esc(typeLabel)+'</span>'+
+      '</div>'+
+      '<div style="font-size:12px;color:#3F3B52;margin-top:8px;line-height:1.5">'+commentDisplay+'</div>'+
+      rqV2PhotosHtml(r.photos)+
+      '<div style="margin-top:10px">'+
+        '<button class="btn btn-sm" onclick="resolveCleaningReport(\''+r.id+'\')" style="font-size:11px;background:#E1F5EE;border-color:#5DCAA5;color:#085041">\u2705 Marquer r\u00e9solu</button>'+
+      '</div>'+
+    '</div>';
+  }
+  var anomaliesHtml='<div style="margin-bottom:18px">'+
+    '<div style="font-size:13px;font-weight:800;color:#17122E;margin-bottom:8px">\u26A0\uFE0F Anomalies \u00e0 traiter ('+openReports.length+')</div>'+
+    (openReports.length?openReports.map(reportRowV2).join(''):
+      '<div style="text-align:center;padding:1.25rem;color:#8A8A99;font-size:13px;background:white;border-radius:14px;border:0.5px dashed #E8E8EE">Aucune anomalie ouverte \u2014 tout est sous contr\u00f4le.</div>')+
+  '</div>';
+
+  // ── SECTION 4 — Historique récent ──
+  var recentMissions=allMissions.slice().sort(function(a,b){return (b.date||'').localeCompare(a.date||'');}).slice(0,20);
+  var historyRows=recentMissions.map(function(m){
+    var apt=apparts.find(function(a){return String(a.id)===String(m.appartement_id);});
+    var aptName=apt?apt.name:'Logement supprim\u00e9 ou inconnu';
+    var cleaner=cleanersData.find(function(c){return String(c.id)===String(m.cleaner_id);});
+    var cleanerName=cleaner?cleaner.name:'Non assign\u00e9e';
+    var st=m.status||'en_attente';
+    return '<tr>'+
+      '<td style="padding:8px 10px;font-size:12px;color:#8A8A99">'+rqV2Esc(m.date||'\u2014')+'</td>'+
+      '<td style="padding:8px 10px;font-size:12px;color:#17122E;font-weight:600">'+rqV2Esc(aptName)+'</td>'+
+      '<td style="padding:8px 10px;font-size:12px;color:#8A8A99">'+rqV2Esc(cleanerName)+'</td>'+
+      '<td style="padding:8px 10px;font-size:11px"><span style="font-weight:800;padding:2px 8px;border-radius:999px;background:'+rqV2StatusColor(st)+'1A;color:'+rqV2StatusColor(st)+'">'+rqV2StatusLabel(st)+'</span></td>'+
+      '<td style="padding:8px 10px;font-size:12px;color:#8A8A99">'+calculateRealDuration(m.started_at,m.completed_at)+'</td>'+
+    '</tr>';
+  }).join('');
+  var historyHtml='<div>'+
+    '<div style="font-size:13px;font-weight:800;color:#17122E;margin-bottom:8px">\uD83D\uDDC3\uFE0F Historique r\u00e9cent</div>'+
+    (recentMissions.length?
+      '<div style="background:white;border:0.5px solid #E8E8EE;border-radius:14px;overflow-x:auto">'+
+        '<table style="width:100%;border-collapse:collapse;min-width:520px">'+
+          '<thead><tr style="border-bottom:1px solid #F0F0F5">'+
+            '<th style="text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;color:#8A8A99;font-weight:800">Date</th>'+
+            '<th style="text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;color:#8A8A99;font-weight:800">Logement</th>'+
+            '<th style="text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;color:#8A8A99;font-weight:800">Cleaner</th>'+
+            '<th style="text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;color:#8A8A99;font-weight:800">Statut</th>'+
+            '<th style="text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;color:#8A8A99;font-weight:800">Dur\u00e9e r\u00e9elle</th>'+
+          '</tr></thead>'+
+          '<tbody>'+historyRows+'</tbody>'+
+        '</table>'+
+      '</div>':
+      '<div style="text-align:center;padding:1.25rem;color:#8A8A99;font-size:13px;background:white;border-radius:14px;border:0.5px dashed #E8E8EE">Aucune mission dans l\u2019historique.</div>')+
+  '</div>';
+
+  dash.innerHTML=kpiHtml+missionsGridHtml+anomaliesHtml+historyHtml;
+}
+
+// Action "Marquer résolu" — filtre obligatoire par user_id (RLS), refresh ciblé uniquement, pas de reload global.
+async function resolveCleaningReport(reportId){
+  try{
+    await sbFetch(`cleaning_reports?id=eq.${reportId}&user_id=eq.${currentUser.user.id}`,{
+      method:'PATCH',
+      body:JSON.stringify({resolved:true,resolved_at:new Date().toISOString()})
+    });
+    var r=reportsData.find(function(x){return String(x.id)===String(reportId);});
+    if(r){r.resolved=true;r.resolved_at=new Date().toISOString();}
+    renderCleanyQV2();
+    showToast('\u2713 Anomalie marqu\u00e9e r\u00e9solue');
+  }catch(e){
+    showToast('Erreur lors de la mise \u00e0 jour');
+  }
+}
+
 function openAddModal(){editId=null;['m-name','m-city','m-zone','m-rent','m-clean','m-price','m-comp','m-address','m-lat','m-lng'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('m-address-preview').style.display='none';document.getElementById('m-address-results').style.display='none';document.getElementById('m-degressif-toggle').className='toggle off';document.getElementById('m-degressif-config').style.display='none';document.getElementById('m-deg-start').value='14';document.getElementById('m-deg-step').value='5';document.getElementById('m-deg-min').value='';document.getElementById('m-emoji').value='🏠';document.getElementById('modal-error').style.display='none';document.getElementById('modal').classList.add('open');
   const az=document.getElementById('modal-archive-zone');if(az)az.style.display='none';
   const mt=document.getElementById('modal-title');if(mt)mt.textContent='Ajouter un appartement';
@@ -6214,6 +6412,7 @@ async function confirmVirtualMission(virtualId){
 
 let cleanersData=[];
 let missionsData=[];
+let reportsData=[]; // CleanyQ V2 — cleaning_reports, chargé une seule fois (pas de requête en boucle)
 let editCleanerId=null;
 
 async function loadCleaners(){
@@ -6228,6 +6427,13 @@ async function loadMissions(){
     const res=await sbFetch(`cleaning_missions?user_id=eq.${currentUser.user.id}&select=*&order=date.desc`);
     missionsData=await res.json()||[];
   }catch(e){missionsData=[];}
+}
+
+async function loadCleaningReports(){
+  try{
+    const res=await sbFetch(`cleaning_reports?user_id=eq.${currentUser.user.id}&select=*&order=created_at.desc`);
+    reportsData=await res.json()||[];
+  }catch(e){reportsData=[];}
 }
 
 function renderCleanyQ(){
