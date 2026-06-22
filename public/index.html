@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="css/responsive.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="js/auth.js" defer></script>
+<script src="js/cleaner.js" defer></script>
 <script src="js/app.js" defer></script>
 
 <style id="rq-sidebar-accordion-fix">
@@ -2523,6 +2524,38 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- ════════════════════════════════════════════════════════════════
+     PORTAIL CLEANER MOBILE — Sprint 3
+     Totalement isolé du conteneur #app propriétaire. Affiché uniquement
+     quand window.RQ_CLEANER_MODE est activé par js/cleaner.js (présence
+     d'un ?cleaner_token= valide). Voir js/cleaner.js pour toute la logique.
+     ════════════════════════════════════════════════════════════════ -->
+<style>
+  .cl-title { font-family: 'Sora', sans-serif; font-weight: 800; color: #0B0722; margin-bottom: 16px; }
+  .cl-section-title { font-size: 12px; font-weight: 900; text-transform: uppercase; color: #7C3AED; letter-spacing: 0.8px; margin: 24px 0 12px 0; }
+  .cl-card { background: #FFF; border-radius: 16px; padding: 16px; box-shadow: 0 4px 12px rgba(11,7,34,0.04); border: 1px solid #EEEEF5; margin-bottom: 12px; }
+  .cl-badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+  .cl-badge-todo { background: #FEF3C7; color: #D97706; }
+  .cl-badge-progress { background: #DBEAFE; color: #2563EB; }
+  .cl-badge-done { background: #D1FAE5; color: #059669; }
+  .cl-badge-problem { background: #FEE2E2; color: #DC2626; }
+  .cl-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'Sora', sans-serif; font-weight: 800; font-size: 16px; padding: 18px; border-radius: 14px; border: none; cursor: pointer; transition: transform 0.1s; margin-top: 12px; }
+  .cl-btn:active { transform: scale(0.98); }
+  .cl-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .cl-btn-primary { background: linear-gradient(135deg, #6D28D9, #9333EA); color: #FFF; box-shadow: 0 6px 20px rgba(109,40,217,0.25); }
+  .cl-btn-success { background: #10B981; color: #FFF; box-shadow: 0 6px 20px rgba(16,185,129,0.25); }
+  .cl-btn-danger { background: #EF4444; color: #FFF; box-shadow: 0 6px 20px rgba(239,68,68,0.25); }
+  .cl-btn-secondary { background: #E2E8F0; color: #475569; }
+  .cl-photo-placeholder { border: 2px dashed #CBD5E1; border-radius: 14px; padding: 24px; text-align: center; color: #64748B; font-weight: 600; cursor: pointer; position: relative; }
+  .cl-photo-placeholder input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+</style>
+<div id="cleaner-app" style="display:none;background:#F5F4FF;min-height:100vh;font-family:'Inter',sans-serif">
+  <header style="background:#0B0722;color:#FFF;padding:16px;display:flex;align-items:center;justify-content:space-between">
+    <div style="font-family:'Sora',sans-serif;font-weight:800;font-size:18px">RentyQ <span style="color:#EC4899;font-size:14px">CleanyQ</span></div>
+    <div id="cleaner-profile-name" style="font-size:12px;color:#8A8A99">Chargement&#8230;</div>
+  </header>
+  <div id="cleaner-main-container" style="padding:16px;max-width:500px;margin:0 auto"></div>
+</div>
 
 </body>
 </html>
