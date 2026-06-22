@@ -1926,6 +1926,9 @@
       <div class="page" id="page-cleanyq-operations">
         <div class="page-header">
           <div><div class="page-title">CleanyQ &#8212; Vue Op&#233;rations</div><div class="page-sub">Pilotage terrain : missions du jour, anomalies &#224; traiter, historique.</div></div>
+          <div class="actions">
+            <button class="btn btn-purple" onclick="openMissionModal('create')"><i class="ti ti-plus"></i> Nouvelle mission</button>
+          </div>
         </div>
         <div id="cleanyq-operations-v2"></div>
       </div>
@@ -2306,9 +2309,9 @@
 <!-- MODAL MISSION -->
 <div class="modal-overlay" id="modal-mission">
   <div class="modal" style="max-width:480px">
-    <div class="modal-head"><div class="modal-title">📋 Nouvelle mission de ménage</div><button class="modal-close" onclick="closeMissionModal()">✕</button></div>
-    <div class="form-group"><label>Appartement ★</label>
-      <select id="mi-appart" style="padding:8px 12px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit;width:100%"></select>
+    <div class="modal-head"><div class="modal-title" id="modal-mission-title">📋 Nouvelle mission de ménage</div><button class="modal-close" onclick="closeMissionModal()">✕</button></div>
+    <div class="form-group"><label>Logement ★</label>
+      <select id="mi-appart" onchange="rqMissionAutoTarif()" style="padding:8px 12px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit;width:100%"></select>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <div class="form-group"><label>Date ★</label><input type="date" id="mi-date"/></div>
@@ -2316,18 +2319,27 @@
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <div class="form-group"><label>Durée (min)</label><input type="number" id="mi-duree" value="120"/></div>
-      <div class="form-group"><label>Tarif (€)</label><input type="number" id="mi-tarif" value="35"/></div>
+      <div class="form-group"><label>Tarif (€)</label><input type="number" id="mi-tarif" placeholder="—"/></div>
     </div>
     <div class="form-group"><label>Assigner à (Squad)</label>
-      <select id="mi-cleaner" style="padding:8px 12px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit;width:100%">
-        <option value="">— Auto (envoyé à la Squad) —</option>
+      <select id="mi-cleaner" onchange="rqMissionAutoTarif()" style="padding:8px 12px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit;width:100%">
+        <option value="">— Non assignée —</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Type de mission</label>
+      <select id="mi-type" style="padding:8px 12px;border-radius:8px;border:1px solid #E8E8EE;font-size:13px;font-family:inherit;width:100%">
+        <option value="checkout">Check-out</option>
+        <option value="checkin">Check-in</option>
+        <option value="menage_exceptionnel">Ménage exceptionnel</option>
+        <option value="maintenance_legere">Maintenance légère</option>
+        <option value="controle_logement">Contrôle logement</option>
       </select>
     </div>
     <div class="form-group"><label>Checklist</label><input type="text" id="mi-checklist" placeholder="Draps, sdb, cuisine, aspirateur, poubelles"/></div>
     <div class="form-group"><label>Notes</label><input type="text" id="mi-notes" placeholder="Code porte : 4521B"/></div>
     <div style="display:flex;gap:8px;margin-top:1rem">
       <button class="btn" onclick="closeMissionModal()" style="flex:1">Annuler</button>
-      <button class="btn btn-purple" onclick="saveMission()" style="flex:2">📋 Créer la mission</button>
+      <button class="btn btn-purple" id="btn-mission-save" onclick="saveMission()" style="flex:2">📋 Créer la mission</button>
     </div>
   </div>
 </div>
