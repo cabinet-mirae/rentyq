@@ -4843,12 +4843,12 @@ async function generateCleanerLink(cleanerId){
   if(!token){
     token=rqGenerateToken();
     try{
-      await sbFetch(`cleaners?id=eq.${cleanerId}`,{method:'PATCH',body:JSON.stringify({token:token,token_created_at:new Date().toISOString()})});
+      await sbFetch(`cleaners?id=eq.${cleanerId}&user_id=eq.${currentUser.user.id}`,{method:'PATCH',body:JSON.stringify({token:token,token_created_at:new Date().toISOString()})});
       cleaner.token=token;
     }catch(e){showToast('Erreur lors de la génération du lien');return;}
   }
   await rqCopyCleanerLink(token,cleaner.name);
-  renderCleanyQSquad();
+  renderCleanyQSquad();renderCleanyQV2();
 }
 
 async function regenerateCleanerLink(cleanerId){
@@ -4857,10 +4857,10 @@ async function regenerateCleanerLink(cleanerId){
   if(!cleaner)return;
   var token=rqGenerateToken();
   try{
-    await sbFetch(`cleaners?id=eq.${cleanerId}`,{method:'PATCH',body:JSON.stringify({token:token,token_created_at:new Date().toISOString()})});
+    await sbFetch(`cleaners?id=eq.${cleanerId}&user_id=eq.${currentUser.user.id}`,{method:'PATCH',body:JSON.stringify({token:token,token_created_at:new Date().toISOString()})});
     cleaner.token=token;
     await rqCopyCleanerLink(token,cleaner.name,true);
-    renderCleanyQSquad();
+    renderCleanyQSquad();renderCleanyQV2();
   }catch(e){showToast('Erreur lors de la régénération du lien');}
 }
 
@@ -4992,6 +4992,11 @@ function renderCleanyQV2(){
       timingHtml+
       problemBadge+
       rqV2PhotosHtml(m.completion_photos)+
+      '<div style="display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid #F3F0FA;flex-wrap:wrap">'+
+        '<button class="btn btn-sm" onclick="rqEditMissionV2(\''+m.id+'\')" style="font-size:11px">\u270F\uFE0F Modifier</button>'+
+        (m.cleaner_id?'<button class="btn btn-sm" onclick="generateCleanerLink(\''+m.cleaner_id+'\')" style="font-size:11px">\uD83D\uDD17 Copier lien cleaner</button>':'')+
+        (st!=='annulee'&&st!=='terminee'?'<button class="btn btn-sm" onclick="cancelMission(\''+m.id+'\')" style="font-size:11px;color:#DC2626">\u2715 Annuler</button>':'')+
+      '</div>'+
     '</div>';
   }
   var missionsGridHtml='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:18px">'+
@@ -6480,6 +6485,7 @@ let cleanersData=[];
 let missionsData=[];
 let reportsData=[]; // CleanyQ V2 — cleaning_reports, chargé une seule fois (pas de requête en boucle)
 let editCleanerId=null;
+let editMissionId=null; // Sprint 4 : null = création, sinon id de la mission en cours de modification
 
 async function loadCleaners(){
   try{
@@ -6731,53 +6737,150 @@ async function deleteCleaner(id){
 }
 
 // MISSIONS
-function openMissionModal(){
+// Sprint 4 — un seul composant pour la création ET la modification d'une mission, comme demandé.
+// mode: 'create' (défaut) ou 'edit'. mission: objet mission existant requis si mode==='edit'.
+function openMissionModal(mode, mission){
+  mode = mode || 'create';
+  editMissionId = (mode === 'edit' && mission) ? mission.id : null;
+
+  document.getElementById('modal-mission-title').textContent = editMissionId ? '📋 Modifier la mission' : '📋 Nouvelle mission de ménage';
+  document.getElementById('btn-mission-save').textContent = editMissionId ? '✓ Enregistrer les modifications' : '📋 Créer la mission';
+
   const sel=document.getElementById('mi-appart');
   sel.innerHTML=apparts.map(a=>`<option value="${a.id}">${a.emoji||'🏠'} ${a.name}</option>`).join('');
   const clSel=document.getElementById('mi-cleaner');
-  clSel.innerHTML='<option value="">— Auto (envoyé à la Squad) —</option>'+cleanersData.map(c=>`<option value="${c.id}">${c.name} (${c.score}/100)</option>`).join('');
-  document.getElementById('mi-date').value=new Date().toISOString().split('T')[0];
-  document.getElementById('mi-heure').value='14:00';
-  document.getElementById('mi-duree').value='120';
-  document.getElementById('mi-tarif').value='35';
-  document.getElementById('mi-checklist').value='Draps, sdb, cuisine, aspirateur, poubelles';
-  document.getElementById('mi-notes').value='';
+  clSel.innerHTML='<option value="">— Non assignée —</option>'+cleanersData.map(c=>`<option value="${c.id}">${c.name} (${c.score||0}/100)</option>`).join('');
+
+  if(editMissionId && mission){
+    sel.value=mission.appartement_id||'';
+    clSel.value=mission.cleaner_id||'';
+    document.getElementById('mi-date').value=mission.date||new Date().toISOString().split('T')[0];
+    document.getElementById('mi-heure').value=mission.heure||'14:00';
+    document.getElementById('mi-duree').value=mission.duree_min||120;
+    document.getElementById('mi-tarif').value=(mission.tarif!=null)?mission.tarif:'';
+    document.getElementById('mi-checklist').value=mission.checklist||'';
+    document.getElementById('mi-notes').value=mission.notes||'';
+    document.getElementById('mi-type').value=mission.mission_type||'checkout';
+  }else{
+    sel.value='';
+    clSel.value='';
+    document.getElementById('mi-date').value=new Date().toISOString().split('T')[0];
+    document.getElementById('mi-heure').value='14:00';
+    document.getElementById('mi-duree').value='120';
+    document.getElementById('mi-tarif').value='';
+    document.getElementById('mi-checklist').value='Draps, sdb, cuisine, aspirateur, poubelles';
+    document.getElementById('mi-notes').value='';
+    document.getElementById('mi-type').value='checkout';
+  }
   document.getElementById('modal-mission').classList.add('open');
 }
 
-function closeMissionModal(){document.getElementById('modal-mission').classList.remove('open');}
+// Petit relais pour ouvrir le modal en édition depuis un onclick (qui ne peut passer qu'un id, pas
+// un objet) — réutilise exactement le même openMissionModal(), aucune logique dupliquée.
+function rqEditMissionV2(id){
+  const m=missionsData.find(x=>String(x.id)===String(id));
+  if(m)openMissionModal('edit',m);
+}
+
+function closeMissionModal(){document.getElementById('modal-mission').classList.remove('open');editMissionId=null;}
+
+// Workflow demandé : sélection logement + sélection cleaner → déterminer le type de logement →
+// proposer un tarif. Il n'existe AUCUN champ "type de logement" en base (vérifié : ni sur
+// appartements, ni ailleurs) — seul `bedrooms` (nombre de chambres) est exploitable comme proxy.
+// Mapping (aligné sur les 3 paliers déjà utilisés dans la fiche cleaner — Studio/T1, T2/T3, T4+) :
+//   ≤1 chambre → tarif_t1 · 2 chambres → tarif_t2 · ≥3 chambres → tarif_t3
+// Si bedrooms est inconnu ou si la cleaner n'a pas ce tarif défini : on laisse le champ vide
+// (fallback demandé), jamais une valeur inventée. Le tarif reste modifiable manuellement ensuite.
+function rqMissionAutoTarif(){
+  const aptId=document.getElementById('mi-appart').value;
+  const cleanerId=document.getElementById('mi-cleaner').value;
+  if(!aptId||!cleanerId)return;
+  const apt=apparts.find(a=>String(a.id)===String(aptId));
+  const cleaner=cleanersData.find(c=>String(c.id)===String(cleanerId));
+  if(!apt||!cleaner)return;
+
+  const bedrooms=apt.bedrooms;
+  let tarif=null;
+  if(bedrooms!=null){
+    if(bedrooms<=1)tarif=cleaner.tarif_t1;
+    else if(bedrooms===2)tarif=cleaner.tarif_t2;
+    else tarif=cleaner.tarif_t3;
+  }
+  if(tarif!=null&&tarif!=='') document.getElementById('mi-tarif').value=tarif;
+  // sinon : on laisse le champ tel quel, jamais de valeur devinée.
+}
 
 async function saveMission(){
   const aptId=document.getElementById('mi-appart').value;
   const date=document.getElementById('mi-date').value;
-  if(!aptId||!date){showToast('Appartement et date obligatoires');return;}
+  if(!aptId||!date){showToast('Logement et date obligatoires');return;}
   const cleanerId=document.getElementById('mi-cleaner').value||null;
-  const body={
-    user_id:currentUser.user.id,
+  const tarifVal=document.getElementById('mi-tarif').value;
+  const cleanerName=cleanerId?(cleanersData.find(c=>String(c.id)===String(cleanerId))||{}).name:null;
+
+  const fields={
     appartement_id:aptId,
     cleaner_id:cleanerId,
     date,
     heure:document.getElementById('mi-heure').value||'14:00',
     duree_min:+document.getElementById('mi-duree').value||120,
-    tarif:+document.getElementById('mi-tarif').value||35,
-    status:cleanerId?'acceptee':'en_attente',
+    tarif:tarifVal!==''?+tarifVal:null,
     checklist:document.getElementById('mi-checklist').value,
-    notes:document.getElementById('mi-notes').value
+    notes:document.getElementById('mi-notes').value,
+    mission_type:document.getElementById('mi-type').value||'checkout'
   };
+
   try{
-    const res=await sbFetch('cleaning_missions',{method:'POST',body:JSON.stringify(body)});
-    const m=await res.json();
-    missionsData.unshift(Array.isArray(m)&&m[0]?m[0]:{...body,id:Date.now().toString()});
-    closeMissionModal();renderCleanyQ();
-    showToast('✓ Mission créée'+(cleanerId?' et assignée':''));
-  }catch(e){showToast('Erreur');}
+    if(editMissionId){
+      // UPDATE — toujours filtré par user_id, jamais seulement par id.
+      const res=await sbFetch(`cleaning_missions?id=eq.${editMissionId}&user_id=eq.${currentUser.user.id}`,{method:'PATCH',body:JSON.stringify(fields)});
+      const updated=await res.json();
+      const row=Array.isArray(updated)&&updated[0]?updated[0]:null;
+      if(row){
+        const idx=missionsData.findIndex(m=>String(m.id)===String(editMissionId));
+        if(idx!==-1)missionsData[idx]=row; // mise à jour locale, pas de rechargement réseau
+      }
+      closeMissionModal();
+      renderCleanyQ();renderCleanyQV2();
+      showToast('✓ Mission modifiée'+(cleanerName?' — assignée à '+cleanerName:''));
+    }else{
+      const body=Object.assign({
+        user_id:currentUser.user.id,
+        status:'en_attente',
+        problem_reported:false,
+        completion_photos:[]
+      },fields);
+      const res=await sbFetch('cleaning_missions',{method:'POST',body:JSON.stringify(body)});
+      const created=await res.json();
+      const row=Array.isArray(created)&&created[0]?created[0]:body;
+      missionsData.unshift(row); // mise à jour locale, pas de rechargement réseau
+      closeMissionModal();
+      renderCleanyQ();renderCleanyQV2();
+      showToast('✓ Mission créée'+(cleanerName?' et assignée à '+cleanerName:''));
+    }
+  }catch(e){showToast('Erreur lors de l\u2019enregistrement');}
+}
+
+// Annulation = soft delete uniquement. Jamais de suppression physique.
+async function cancelMission(id){
+  if(!confirm('Annuler cette mission ? Elle restera visible avec le statut \u00ab Annul\u00e9e \u00bb.'))return;
+  try{
+    const res=await sbFetch(`cleaning_missions?id=eq.${id}&user_id=eq.${currentUser.user.id}`,{method:'PATCH',body:JSON.stringify({status:'annulee'})});
+    const updated=await res.json();
+    const row=Array.isArray(updated)&&updated[0]?updated[0]:null;
+    const idx=missionsData.findIndex(m=>String(m.id)===String(id));
+    if(idx!==-1)missionsData[idx]=row||Object.assign({},missionsData[idx],{status:'annulee'});
+    renderCleanyQ();renderCleanyQV2();
+    showToast('Mission annul\u00e9e');
+  }catch(e){showToast('Erreur lors de l\u2019annulation');}
 }
 
 async function updateMissionStatus(id,status){
-  await sbFetch(`cleaning_missions?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({status})});
+  // Filtre explicite par user_id en plus de la RLS, conformément à la consigne de sécurité.
+  await sbFetch(`cleaning_missions?id=eq.${id}&user_id=eq.${currentUser.user.id}`,{method:'PATCH',body:JSON.stringify({status})});
   const m=missionsData.find(x=>x.id===id);
   if(m)m.status=status;
-  renderCleanyQ();
+  renderCleanyQ();renderCleanyQV2();
   showToast(status==='terminee'?'✓ Mission terminée':status==='annulee'?'Mission annulée':'✓ Mission mise à jour');
 }
 
@@ -9360,7 +9463,6 @@ function renderProfit360Simulations(){
       )+
     '</div>';
 }
-
 
 
 
