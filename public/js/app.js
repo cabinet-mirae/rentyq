@@ -4786,19 +4786,25 @@ function renderCleanyQSquad(){
     var nbPending=allM.filter(function(m){return m.cleaner_id===s.id&&(m.status==='en_attente'||m.status==='acceptee');}).length;
     var score=s.score||0;
     var scoreColor=score>=4.5?'#059669':score>=4?'#D97706':'#DC2626';
-    return '<div style="background:white;border:1px solid rgba(139,92,246,.12);border-radius:18px;padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:14px">'+
-      '<div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#6D28D9,#EC4899);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:white;flex-shrink:0">'+(s.name||'?').charAt(0)+'</div>'+
-      '<div style="flex:1;min-width:0">'+
-        '<div style="font-size:14px;font-weight:800;color:#17122E">'+(s.name||'Cleaner')+'</div>'+
-        '<div style="font-size:11px;color:#8A8A99;margin-top:2px">'+(s.city||'Toutes zones')+(s.radius_km?' \u00b7 '+s.radius_km+' km':'')+'</div>'+
-        '<div style="height:3px;background:#F3F0FA;border-radius:999px;margin-top:7px;overflow:hidden">'+
-          '<div style="height:100%;width:'+(score/5*100)+'%;background:'+scoreColor+';border-radius:999px"></div>'+
+    return '<div style="background:white;border:1px solid rgba(139,92,246,.12);border-radius:18px;padding:16px;margin-bottom:10px">'+
+      '<div style="display:flex;align-items:center;gap:14px">'+
+        '<div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#6D28D9,#EC4899);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:white;flex-shrink:0">'+(s.name||'?').charAt(0)+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-size:14px;font-weight:800;color:#17122E">'+(s.name||'Cleaner')+'</div>'+
+          '<div style="font-size:11px;color:#8A8A99;margin-top:2px">'+(s.city||'Toutes zones')+(s.radius_km?' \u00b7 '+s.radius_km+' km':'')+'</div>'+
+          '<div style="height:3px;background:#F3F0FA;border-radius:999px;margin-top:7px;overflow:hidden">'+
+            '<div style="height:100%;width:'+(score/5*100)+'%;background:'+scoreColor+';border-radius:999px"></div>'+
+          '</div>'+
+        '</div>'+
+        '<div style="text-align:right;flex-shrink:0">'+
+          '<div style="font-size:18px;font-weight:900;color:'+scoreColor+'">'+score+'<span style="font-size:10px;color:#8A8A99">/5</span></div>'+
+          '<div style="font-size:10px;color:#8A8A99;margin-top:2px">'+nbMissions+' termin\u00e9es \u00b7 '+nbPending+' en cours</div>'+
+          '<span class="a360-badge '+(s.status==='active'?'a360-badge-green':'a360-badge-gray')+'" style="margin-top:4px;display:inline-block">'+(s.status==='active'?'Actif':'Inactif')+'</span>'+
         '</div>'+
       '</div>'+
-      '<div style="text-align:right;flex-shrink:0">'+
-        '<div style="font-size:18px;font-weight:900;color:'+scoreColor+'">'+score+'<span style="font-size:10px;color:#8A8A99">/5</span></div>'+
-        '<div style="font-size:10px;color:#8A8A99;margin-top:2px">'+nbMissions+' termin\u00e9es \u00b7 '+nbPending+' en cours</div>'+
-        '<span class="a360-badge '+(s.status==='active'?'a360-badge-green':'a360-badge-gray')+'" style="margin-top:4px;display:inline-block">'+(s.status==='active'?'Actif':'Inactif')+'</span>'+
+      '<div style="display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid #F3F0FA">'+
+        '<button class="btn btn-sm" onclick="generateCleanerLink(\''+s.id+'\')" style="font-size:11px">\uD83D\uDD17 '+(s.token?'Copier le lien d\u2019acc\u00e8s':'Cr\u00e9er un lien d\u2019acc\u00e8s')+'</button>'+
+        (s.token?'<button class="btn btn-sm" onclick="regenerateCleanerLink(\''+s.id+'\')" style="font-size:11px;color:#DC2626">\u21BB R\u00e9g\u00e9n\u00e9rer (r\u00e9voque l\u2019ancien)</button>':'')+
       '</div>'+
     '</div>';
   }).join('');
@@ -4818,6 +4824,54 @@ function renderCleanyQSquad(){
         '<button class="a360-action-btn" onclick="openCleanerModal()">\u002B Ajouter</button></div>'+
       cards+
     '</div>';
+}
+
+/* ====================================================
+   PORTAIL CLEANER — Génération du lien d'accès (Sprint 3)
+   Le token est généré côté navigateur (crypto.randomUUID, aléatoire fort) et stocké via le
+   chemin d'écriture habituel (sbFetch, RLS propriétaire normale — aucune politique modifiée).
+   Régénérer un token révoque immédiatement l'ancien lien (plus aucune ligne ne le matche).
+   ==================================================== */
+function rqGenerateToken(){
+  try{return crypto.randomUUID();}catch(e){return Date.now().toString(36)+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);}
+}
+
+async function generateCleanerLink(cleanerId){
+  var cleaner=cleanersData.find(function(c){return String(c.id)===String(cleanerId);});
+  if(!cleaner)return;
+  var token=cleaner.token;
+  if(!token){
+    token=rqGenerateToken();
+    try{
+      await sbFetch(`cleaners?id=eq.${cleanerId}`,{method:'PATCH',body:JSON.stringify({token:token,token_created_at:new Date().toISOString()})});
+      cleaner.token=token;
+    }catch(e){showToast('Erreur lors de la génération du lien');return;}
+  }
+  await rqCopyCleanerLink(token,cleaner.name);
+  renderCleanyQSquad();
+}
+
+async function regenerateCleanerLink(cleanerId){
+  if(!confirm('Régénérer le lien rendra l\u2019ancien lien inutilisable pour cette cleaner. Continuer ?'))return;
+  var cleaner=cleanersData.find(function(c){return String(c.id)===String(cleanerId);});
+  if(!cleaner)return;
+  var token=rqGenerateToken();
+  try{
+    await sbFetch(`cleaners?id=eq.${cleanerId}`,{method:'PATCH',body:JSON.stringify({token:token,token_created_at:new Date().toISOString()})});
+    cleaner.token=token;
+    await rqCopyCleanerLink(token,cleaner.name,true);
+    renderCleanyQSquad();
+  }catch(e){showToast('Erreur lors de la régénération du lien');}
+}
+
+async function rqCopyCleanerLink(token,cleanerName,isRegen){
+  var link=window.location.origin+'/?cleaner_token='+token;
+  try{
+    await navigator.clipboard.writeText(link);
+    showToast((isRegen?'\u2713 Nouveau lien copié — l\u2019ancien ne fonctionne plus':'\u2713 Lien copié')+' — partagez-le à '+(cleanerName||'la cleaner'));
+  }catch(e){
+    prompt('Copiez ce lien et partagez-le à '+(cleanerName||'la cleaner')+' :',link);
+  }
 }
 
 /* ====================================================
@@ -7820,6 +7874,13 @@ function checkPaymentReturn(){
 
 // Init
 (async function(){
+  // Sprint 3 — Portail cleaner (voir public/js/cleaner.js, chargé avant ce script).
+  // Le flag est posé de façon synchrone dès la détection d'un ?cleaner_token= valide ou stocké ;
+  // s'il est présent, on ne doit STRICTEMENT RIEN exécuter ici — aucun chargement propriétaire,
+  // aucun écran de login, aucun accès financier/réservations. C'est la toute première ligne
+  // exécutée par ce IIFE, avant même de toucher au DOM.
+  if(window.RQ_CLEANER_MODE)return;
+
   document.getElementById('loading').style.display='none';
   document.getElementById('auth-screen').style.display='flex';
   try{
