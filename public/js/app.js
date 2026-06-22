@@ -4862,8 +4862,20 @@ function renderCleanyQV2(){
   if(!dash)return;
 
   var todayIso=new Date().toISOString().slice(0,10);
-  var allMissions=missionsData||[];
-  var allReports=reportsData||[];
+  // Garde-fou : toujours un tableau, même si missionsData/reportsData est null/undefined,
+  // ou — cas plus sournois — un objet d'erreur renvoyé par Supabase au lieu d'un tableau.
+  var allMissions=Array.isArray(missionsData)?missionsData:[];
+  var allReports=Array.isArray(reportsData)?reportsData:[];
+
+  // État vide global : aucune mission n'a jamais été créée et aucune anomalie n'a jamais été signalée.
+  if(!allMissions.length&&!allReports.length){
+    dash.innerHTML='<div style="text-align:center;padding:3rem 1.5rem;background:white;border-radius:16px;border:0.5px dashed #E8E8EE">'+
+      '<div style="font-size:40px;margin-bottom:14px">\uD83E\uDDF9</div>'+
+      '<div style="font-size:15px;font-weight:800;color:#17122E;margin-bottom:6px">Aucune mission CleanyQ pour le moment</div>'+
+      '<div style="font-size:13px;color:#8A8A99;max-width:380px;margin:0 auto;line-height:1.6">Les futures missions de m\u00e9nage et anomalies terrain appara\u00eetront ici.</div>'+
+    '</div>';
+    return;
+  }
 
   // ── SECTION 1 — KPI header ──
   // NB : "Missions aujourd'hui" est explicitement filtré par date (cf. spec). Pour que "En cours" et
@@ -6425,14 +6437,16 @@ async function loadCleaners(){
 async function loadMissions(){
   try{
     const res=await sbFetch(`cleaning_missions?user_id=eq.${currentUser.user.id}&select=*&order=date.desc`);
-    missionsData=await res.json()||[];
+    const data=await res.json();
+    missionsData=Array.isArray(data)?data:[];
   }catch(e){missionsData=[];}
 }
 
 async function loadCleaningReports(){
   try{
     const res=await sbFetch(`cleaning_reports?user_id=eq.${currentUser.user.id}&select=*&order=created_at.desc`);
-    reportsData=await res.json()||[];
+    const data=await res.json();
+    reportsData=Array.isArray(data)?data:[];
   }catch(e){reportsData=[];}
 }
 
