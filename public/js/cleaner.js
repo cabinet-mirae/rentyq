@@ -107,8 +107,17 @@
         '<span style="font-size:48px">\u26A0\uFE0F</span>' +
         '<h2 class="cl-title" style="margin-top:20px">Lien non valide</h2>' +
         '<p style="color:#64748B;font-size:14px;line-height:1.6">Votre lien d\u2019acc\u00e8s n\u2019est plus valide ou a expir\u00e9. Veuillez contacter votre responsable d\u2019\u00e9quipe.</p>' +
+        '<button class="cl-btn cl-btn-secondary" style="margin-top:20px" onclick="RQCleaner.exitCleanerMode()">Je suis le gestionnaire \u2014 revenir \u00e0 RentyQ</button>' +
       '</div>'
     );
+  }
+
+  // Efface le token stocké et recharge la page : redonne l'accès normal au compte propriétaire
+  // sur ce navigateur. Sans ça, un token resté en localStorage bloque définitivement l'accès
+  // propriétaire sur cet appareil — c'est exactement ce qui s'est produit ici.
+  function exitCleanerMode() {
+    try { localStorage.removeItem('rq_cleaner_token'); } catch (e) {}
+    window.location.reload();
   }
 
   function statusBadge(status) {
@@ -364,6 +373,7 @@
     goToSubmitProblem: goToSubmitProblem,
     handlePhotoUpload: handlePhotoUpload,
     submitSuccess: submitSuccess,
-    submitProblem: submitProblem
+    submitProblem: submitProblem,
+    exitCleanerMode: exitCleanerMode
   };
 })();
