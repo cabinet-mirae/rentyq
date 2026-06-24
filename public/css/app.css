@@ -613,12 +613,19 @@
 
 
 /* ===== RentyQ V2 — sidebar stable + navigation contexte logement ===== */
-.rq-property-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 0;position:relative;z-index:2}
-.rq-property-tab{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.13);color:white;border-radius:999px;padding:9px 13px;font-size:12px;font-weight:900;cursor:pointer;font-family:inherit;transition:.15s}
-.rq-property-tab:hover{background:rgba(255,255,255,.20)}
-.rq-property-tab.active{background:white;color:#24105C;border-color:white;box-shadow:0 10px 26px rgba(0,0,0,.16)}
+.rq-property-tabs-intro{position:relative;z-index:2;margin:18px 0 10px}
+.rq-property-tabs-title{font-family:'Sora',sans-serif;font-size:13px;font-weight:800;color:#fff;letter-spacing:-.1px}
+.rq-property-tabs-sub{font-family:'Sora',sans-serif;font-size:12px;color:rgba(255,255,255,.62);margin-top:2px}
+.rq-property-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0;position:relative;z-index:2}
+.rq-property-tab{display:inline-flex;align-items:center;gap:7px;border:1.5px solid rgba(255,255,255,.32);background:rgba(255,255,255,.10);color:#fff;border-radius:999px;padding:10px 16px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:'Sora',sans-serif;transition:background .15s ease,border-color .15s ease,color .15s ease,box-shadow .15s ease,transform .15s ease}
+.rq-property-tab-icon{font-size:14px;line-height:1}
+.rq-property-tab-label{white-space:nowrap}
+.rq-property-tab:hover{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.5);transform:translateY(-1px)}
+.rq-property-tab.active{background:#ffffff;color:#6D28D9;border-color:#ffffff;box-shadow:0 6px 16px rgba(0,0,0,.14);font-weight:900}
+.rq-property-tab.active:hover{background:#ffffff;transform:none}
 .rq-property-tab-panel{display:none;animation:rqFade .18s ease-out}
 .rq-property-tab-panel.active{display:block}
+@media(max-width:640px){.rq-property-tabs{gap:6px}.rq-property-tab{padding:9px 12px;font-size:11.5px}.rq-property-tab-label{display:inline}}
 @keyframes rqFade{from{opacity:.35;transform:translateY(4px)}to{opacity:1;transform:none}}
 .rq-context-layout{display:grid;grid-template-columns:1.05fr .95fr;gap:16px;margin-top:16px}
 .rq-context-card{background:white;border:1px solid rgba(139,92,246,.14);border-radius:20px;box-shadow:0 14px 40px rgba(69,39,120,.06);padding:16px}
