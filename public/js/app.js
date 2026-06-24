@@ -940,12 +940,16 @@ function showApartDetail(id){
           <div class="rq-hero-kpi"><div class="rq-hero-kpi-label">Revenu à récupérer</div><div class="rq-hero-kpi-value">${potential}€</div><div class="rq-hero-kpi-sub">sur nuits libres proches</div></div>
           <div class="rq-hero-kpi"><div class="rq-hero-kpi-label">Action EVA</div><div class="rq-hero-kpi-value">${primaryAction.type==='urgent'?'🔴':primaryAction.type==='warn'?'🟡':'🟢'}</div><div class="rq-hero-kpi-sub">${esc(primaryAction.title.slice(0,28))}…</div></div>
         </div>
+        <div class="rq-property-tabs-intro">
+          <div class="rq-property-tabs-title">Explorer ce logement</div>
+          <div class="rq-property-tabs-sub">S\u00e9lectionnez une vue pour afficher les d\u00e9tails.</div>
+        </div>
         <div class="rq-property-tabs">
-          <button class="rq-property-tab active" onclick="switchPropertyTab('overview')">Vue d\u2019ensemble</button>
-          <button class="rq-property-tab" onclick="switchPropertyTab('audit')">Audit 360°</button>
-          <button class="rq-property-tab" onclick="switchPropertyTab('pricing')">Tarification IA</button>
-          <button class="rq-property-tab" onclick="switchPropertyTab('calendar')">Calendrier</button>
-          <button class="rq-property-tab" onclick="switchPropertyTab('charges')">Charges</button>
+          <button class="rq-property-tab active" onclick="switchPropertyTab('overview')"><span class="rq-property-tab-icon">\uD83C\uDFE0</span><span class="rq-property-tab-label">Vue d\u2019ensemble</span></button>
+          <button class="rq-property-tab" onclick="switchPropertyTab('audit')"><span class="rq-property-tab-icon">\uD83D\uDCCA</span><span class="rq-property-tab-label">Audit 360°</span></button>
+          <button class="rq-property-tab" onclick="switchPropertyTab('pricing')"><span class="rq-property-tab-icon">\uD83D\uDCB0</span><span class="rq-property-tab-label">Tarification IA</span></button>
+          <button class="rq-property-tab" onclick="switchPropertyTab('calendar')"><span class="rq-property-tab-icon">\uD83D\uDCC5</span><span class="rq-property-tab-label">Calendrier</span></button>
+          <button class="rq-property-tab" onclick="switchPropertyTab('charges')"><span class="rq-property-tab-icon">\uD83E\uDDFE</span><span class="rq-property-tab-label">Charges</span></button>
         </div>
       </section>
 
@@ -1205,7 +1209,7 @@ function renderParcFiches(){
         '<div style="flex:1;min-width:0">'+
           '<div class="eva-action-day-title">'+evaActionTitle+'</div>'+
           '<div class="eva-action-day-desc">'+evaActionDesc+'</div>'+
-          (evaActionBtn?'<button class="eva-action-day-btn" onclick="'+(evaActionBtn==='Voir CleanyQ'?'goTo(\'cleanyq-operations\',document.querySelector(\'[data-page=cleanyq-operations]\'))':(evaActionRec?'rqPreviousParcView=\'parc-fiches\';goTo(\'parc\',document.querySelector(\'[data-page=parc]\')); setTimeout(function(){showApartDetail(\''+a.id+'\')},150)':''))+'">'+evaActionBtn+'</button>':'')+
+          (evaActionBtn?'<button class="eva-action-day-btn" onclick="'+(evaActionRec?'rqPreviousParcView=\'parc-fiches\';goTo(\'parc\',document.querySelector(\'[data-page=parc]\')); setTimeout(function(){showApartDetail(\''+a.id+'\')},150)':'evaActionRec===null&&\''+evaActionBtn+'\'===\'Voir CleanyQ\'?\'goTo(\\\'clean\\\',document.querySelector(\\\'[data-page=clean]\\\'))\':\'\'')+'" onclick="rqPreviousParcView=\'parc-fiches\';goTo(\'parc\',document.querySelector(\'[data-page=parc]\')); setTimeout(function(){showApartDetail(\''+a.id+'\')},150)">'+evaActionBtn+'</button>':'')+
         '</div>'+
       '</div>';
 
