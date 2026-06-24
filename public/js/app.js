@@ -1209,8 +1209,8 @@ function renderParcFiches(){
         '<div style="flex:1;min-width:0">'+
           '<div class="eva-action-day-title">'+evaActionTitle+'</div>'+
           '<div class="eva-action-day-desc">'+evaActionDesc+'</div>'+
-          (evaActionBtn?'<button class="eva-action-day-btn" onclick="'+(evaActionRec?'rqPreviousParcView=\'parc-fiches\';goTo(\'parc\',document.querySelector(\'[data-page=parc]\')); setTimeout(function(){showApartDetail(\''+a.id+'\')},150)':'evaActionRec===null&&\''+evaActionBtn+'\'===\'Voir CleanyQ\'?\'goTo(\\\'clean\\\',document.querySelector(\\\'[data-page=clean]\\\'))\':\'\'')+'" onclick="rqPreviousParcView=\'parc-fiches\';goTo(\'parc\',document.querySelector(\'[data-page=parc]\')); setTimeout(function(){showApartDetail(\''+a.id+'\')},150)">'+evaActionBtn+'</button>':'')+
-        '</div>'+
+      (evaActionBtn?'<button class="eva-action-day-btn" onclick="'+(evaActionBtn==='Voir CleanyQ'?'goTo(\'cleanyq-operations\',document.querySelector(\'[data-page=cleanyq-operations]\'))':(evaActionRec?'rqPreviousParcView=\'parc-fiches\';goTo(\'parc\',document.querySelector(\'[data-page=parc]\')); setTimeout(function(){showApartDetail(\''+a.id+'\')},150)':''))+'">'+evaActionBtn+'</button>':'')+
+       '</div>'+
       '</div>';
 
     // ── Missions EVA à venir (signaux non retenus comme action principale) ──
