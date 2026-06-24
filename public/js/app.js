@@ -318,89 +318,10 @@ function renderCockpit(){
   // Fusion missions réelles + virtuelles (source de vérité = réservations)
   var mergedOps=getMergedCleaningMissions(14);
 
-  // ─── COLONNE GAUCHE : À faire aujourd'hui (max 5) ───
-  // Cascade : opérationnel toujours prioritaire sur le pricing.
-  var todoItems=[];
-
-  // Priorité 1 — Check-in imminent (aujourd'hui/demain) sans ménage sécurisé
   var tomorrow=new Date(today);tomorrow.setDate(tomorrow.getDate()+1);
   var tomorrowIso=tomorrow.toISOString().slice(0,10);
-  var checkinsImminents=reservations.filter(function(r){return r.date_from===todayIso||r.date_from===tomorrowIso;});
-  checkinsImminents.forEach(function(r){
-    var hasSecuredMission=mergedOps.some(function(m){
-      return m.appartement_id===r.appartement_id&&(m.date===todayIso||m.date===tomorrowIso)&&!m.virtual;
-    });
-    if(!hasSecuredMission&&todoItems.length<5){
-      todoItems.push({type:'urgent',icon:'\uD83D\uDEA8',title:'Check-in sans m\u00e9nage s\u00e9curis\u00e9 \u2014 '+r.apartment_name,desc:'Arriv\u00e9e '+(r.date_from===todayIso?'aujourd\u2019hui':'demain')+' pour '+r.guest_name+'. Aucune mission confirm\u00e9e.',btn:'S\u00e9curiser',action:"goTo('cleanyq-today',document.querySelector('[data-page=cleanyq-today]'))"});
-    }
-  });
 
-  // Priorité 2 — Mission critique non couverte (réelle en attente proche, ou virtuelle sans cleaner)
-  if(todoItems.length<5){
-    var criticalUncovered=mergedOps.filter(function(m){
-      var isImminentDate=(m.date===todayIso||m.date===tomorrowIso);
-      if(!isImminentDate)return false;
-      if(!m.virtual)return m.priority==='haute'&&m.status==='en_attente';
-      return m.priority==='haute'&&!m.cleaner_id;
-    });
-    if(criticalUncovered.length){
-      todoItems.push({type:'urgent',icon:'\u26A0\uFE0F',title:criticalUncovered.length+' mission'+(criticalUncovered.length>1?'s':'')+' critique'+(criticalUncovered.length>1?'s':'')+' non couverte'+(criticalUncovered.length>1?'s':''),desc:'Ménage proche sans cleaner disponible dans la zone \u2014 v\u00e9rifier la Squad.',btn:'Voir',action:"goTo('cleanyq-missions',document.querySelector('[data-page=cleanyq-missions]'))"});
-    }
-  }
-
-  // Priorité 3 — Nuit importante encore libre ce soir
-  if(free.length&&todoItems.length<5){
-    var lostRev=free.reduce(function(s,a){return s+Math.round(Number(a.price||0)*0.82);},0);
-    todoItems.push({type:'warn',icon:'\uD83C\uDF19',title:free.length+' nuit'+(free.length>1?'s':'')+' libre'+(free.length>1?'s':'')+' ce soir',desc:free.slice(0,2).map(function(a){return a.name;}).join(', ')+(free.length>2?' +'+( free.length-2)+' autre'+(free.length>3?'s':''):'')+' \u2014 '+lostRev+'\u20AC en jeu',btn:'Agir',action:"goTo('parc-fiches',document.querySelector('[data-page=parc-fiches]'))"});
-  }
-
-  // Priorité 4 — Événement local à exploiter
-  if(hotEvents.length&&todoItems.length<5){
-    var evApts=apts.filter(function(a){var c=a.city||'';return (eventsCache[c]||[]).some(function(e){return e.hot;})&&a.price>0&&(!a.ai_rec||a.price<a.ai_rec);});
-    if(evApts.length){
-      todoItems.push({type:'warn',icon:'\uD83C\uDF89',title:evApts.length+' bien'+(evApts.length>1?'s':'')+' avec \u00e9v\u00e9nement local non pric\u00e9',desc:hotEvents[0].name+(hotEvents.length>1?' et '+(hotEvents.length-1)+' autre'+(hotEvents.length>2?'s':''):'')+' \u2014 appliquer le boost EVA',btn:'Pricer',action:"goTo('parc-fiches',document.querySelector('[data-page=parc-fiches]'))"});
-    }
-  }
-
-  // Priorité 5 — Bien sous-tarifé
-  if(todoItems.length<5){
-    var undertarif=apts.filter(function(a){return a.ai_rec&&a.price&&(a.ai_rec-a.price)/a.price>0.12;});
-    if(undertarif.length){
-      var gain=undertarif.reduce(function(s,a){return s+(a.ai_rec-a.price);},0);
-      todoItems.push({type:'',icon:'\uD83D\uDCC8',title:undertarif.length+' bien'+(undertarif.length>1?'s':'')+' sous-tarif\u00e9'+(undertarif.length>1?'s':''),desc:'+'+Math.round(gain)+'\u20AC/nuit de potentiel non captur\u00e9 selon EVA',btn:'Ajuster',action:"goTo('parc-fiches',document.querySelector('[data-page=parc-fiches]'))"});
-    }
-  }
-
-  // Priorité 6 — Qualité voyageurs à risque
-  if(todoItems.length<5){
-    var qualityRisk=apts.filter(function(a){return a.note&&Number(a.note)>0&&Number(a.note)<4.4;});
-    if(qualityRisk.length){
-      todoItems.push({type:'warn',icon:'\u2B50',title:qualityRisk.length+' bien'+(qualityRisk.length>1?'s':'')+' avec note \u00e0 risque',desc:qualityRisk.slice(0,2).map(function(a){return a.name+' ('+a.note+'/5)';}).join(', ')+' \u2014 priorit\u00e9 qualit\u00e9 avant pricing',btn:'Voir',action:"goTo('analyse-qualite',document.querySelector('[data-page=analyse-qualite]'))"});
-    }
-  }
-
-  // Fallback : aucun signal urgent
-  if(!todoItems.length){
-    todoItems.push({type:'',icon:'\u2705',title:'Aucune action urgente aujourd\u2019hui',desc:'Consultez l\u2019Analyse EVA pour les optimisations long terme.',btn:'Voir',action:"goTo('analyse-globale',document.querySelector('[data-page=analyse-globale]'))"});
-  }
-
-  var todoHtml=todoItems.slice(0,5).map(function(t){
-    var bg=t.type==='urgent'?'#FEF2F2':t.type==='warn'?'#FFFBEB':'#F8F5FF';
-    var border=t.type==='urgent'?'rgba(220,38,38,.18)':t.type==='warn'?'rgba(217,119,6,.14)':'rgba(109,40,217,.12)';
-    var btnC=t.type==='urgent'?'#DC2626':t.type==='warn'?'#D97706':'#6D28D9';
-    return '<div style="display:flex;align-items:flex-start;gap:12px;background:'+bg+';border:1px solid '+border+';border-radius:14px;padding:13px 14px">'+
-      '<div style="font-size:20px;flex-shrink:0;margin-top:1px">'+t.icon+'</div>'+
-      '<div style="flex:1;min-width:0">'+
-        '<div style="font-size:13px;font-weight:700;color:#17122E;margin-bottom:2px">'+t.title+'</div>'+
-        '<div style="font-size:11px;color:#7B708F;line-height:1.4">'+t.desc+'</div>'+
-      '</div>'+
-      '<button onclick="'+t.action+'" style="border:none;border-radius:9px;padding:6px 12px;background:'+btnC+';color:white;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0">'+t.btn+'</button>'+
-    '</div>';
-  }).join('');
-
-  // ─── COLONNE DROITE : Ce qui va bien ───
-  var daysElapsed=Math.max(1,today.getDate());
-  var totalNights14=0;
+  // ─── Occupation 14 jours (réutilisé pour Carte 6) ───
   var next14=[];
   for(var di=0;di<14;di++){var dd=new Date(today);dd.setDate(dd.getDate()+di);next14.push(dd.toISOString().slice(0,10));}
   var occ14=0;
@@ -411,54 +332,156 @@ function renderCockpit(){
   var occ14pct=apts.length?Math.round(occ14/(next14.length*Math.max(1,apts.length))*100):0;
   var avgNote=0;var notedApts=apts.filter(function(a){return a.note&&Number(a.note)>0;});
   if(notedApts.length)avgNote=Math.round(notedApts.reduce(function(s,a){return s+Number(a.note);},0)/notedApts.length*10)/10;
-  var menagesValides=(missionsData||[]).filter(function(m){return m.status==='terminee'&&m.date>=month;}).length;
-  var checkinsSafe=reservations.filter(function(r){return r.date_from===todayIso;}).length-todoItems.filter(function(t){return t.type==='urgent';}).length;
-  var upsellsTotal=monthRev>0?Math.round(monthRev*0.08):0; // estimation upsells
 
-  var goodItems=[
-    {icon:'\uD83E\uDDF9',label:menagesValides+' m\u00e9nage'+(menagesValides>1?'s':'')+' valid\u00e9'+(menagesValides>1?'s':'')+' ce mois','ok':true},
-    {icon:'\uD83D\uDCC5',label:'Occupation 14j : '+occ14pct+'%','ok':occ14pct>=65},
-    {icon:'\u2B50',label:'Note moyenne : '+(avgNote||'—')+'/5','ok':avgNote>=4.5},
-    {icon:'\uD83D\uDCB0',label:monthRev.toLocaleString('fr-FR')+'\u20AC g\u00e9n\u00e9r\u00e9s ce mois','ok':monthRev>0},
-    {icon:'\uD83D\uDCE6',label:monthRes.length+' r\u00e9servation'+(monthRes.length>1?'s':'')+' confirm\u00e9e'+(monthRes.length>1?'s':''),'ok':monthRes.length>0}
+  /* ════════════════════════════════════════════════════════
+     CARTE 1 — 🚨 Opérations aujourd'hui
+     ════════════════════════════════════════════════════════ */
+  var checkinsToday=reservations.filter(function(r){return r.date_from===todayIso;});
+  var checkoutsToday=reservations.filter(function(r){return r.date_to===todayIso;});
+  var missionsNonCouvertes=mergedOps.filter(function(m){
+    var isImminent=(m.date===todayIso||m.date===tomorrowIso);
+    return isImminent&&!m.cleaner_id;
+  });
+  var missionsEnRetard=mergedOps.filter(function(m){
+    return m.date&&m.date<todayIso&&m.status!=='terminee'&&m.status!=='annulee';
+  });
+
+  var c1Rows=[
+    {label:'Check-in aujourd\u2019hui',value:checkinsToday.length,urgent:false},
+    {label:'Check-out aujourd\u2019hui',value:checkoutsToday.length,urgent:false},
+    {label:'Missions m\u00e9nage non couvertes',value:missionsNonCouvertes.length,urgent:missionsNonCouvertes.length>0},
+    {label:'Missions en retard',value:missionsEnRetard.length,urgent:missionsEnRetard.length>0}
   ];
-
-  var goodHtml=goodItems.map(function(g){
-    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F3F0FA">'+
-      '<div style="font-size:18px;flex-shrink:0">'+g.icon+'</div>'+
-      '<div style="flex:1;font-size:13px;font-weight:600;color:#17122E">'+g.label+'</div>'+
-      '<div style="font-size:14px">'+(g.ok?'\u2705':'\uD83D\uDFE1')+'</div>'+
+  var c1RowsHtml=c1Rows.map(function(r){
+    return '<div class="cockpit-row'+(r.urgent?' is-urgent':'')+'">'+
+      '<span class="cockpit-row-label">'+r.label+'</span>'+
+      '<span class="cockpit-row-value'+(r.urgent?' is-urgent':'')+'">'+r.value+'</span>'+
     '</div>';
   }).join('');
 
-  // ─── BAS : Opportunités EVA ───
-  var oppItems=[];
+  /* ════════════════════════════════════════════════════════
+     CARTE 2 — 📅 Réservations à surveiller
+     ════════════════════════════════════════════════════════ */
+  var nuitsLibres7=0;
+  var next7=[];
+  for(var d7=0;d7<7;d7++){var dd7=new Date(today);dd7.setDate(dd7.getDate()+d7);next7.push(dd7.toISOString().slice(0,10));}
+  next7.forEach(function(day){
+    var libres=apts.filter(function(a){return !reservations.some(function(r){return r.appartement_id===a.id&&r.date_from<=day&&r.date_to>day;});}).length;
+    nuitsLibres7+=libres;
+  });
+  var logementsSansResaProche=apts.filter(function(a){
+    return !reservations.some(function(r){return r.appartement_id===a.id&&r.date_from>=todayIso&&r.date_from<=next7[6];});
+  });
+  var trousReservation=apts.filter(function(a){
+    var aptRes=reservations.filter(function(r){return r.appartement_id===a.id&&r.date_to>=todayIso;}).sort(function(x,y){return (x.date_from||'').localeCompare(y.date_from||'');});
+    for(var i=0;i<aptRes.length-1;i++){
+      if(aptRes[i].date_to<aptRes[i+1].date_from)return true;
+    }
+    return false;
+  });
+  var hasResaAnomaly=(nuitsLibres7>0||logementsSansResaProche.length>0||trousReservation.length>0);
+
+  var c2Html=!hasResaAnomaly?
+    '<div class="cockpit-empty">\u2705 Aucun trou d\u00e9tect\u00e9.</div>' :
+    '<div class="cockpit-row"><span class="cockpit-row-label">Nuits libres (7 prochains jours)</span><span class="cockpit-row-value'+(nuitsLibres7>0?' is-urgent':'')+'">'+nuitsLibres7+'</span></div>'+
+    '<div class="cockpit-row"><span class="cockpit-row-label">Logements sans r\u00e9sa proche</span><span class="cockpit-row-value'+(logementsSansResaProche.length>0?' is-warn':'')+'">'+logementsSansResaProche.length+'</span></div>'+
+    '<div class="cockpit-row"><span class="cockpit-row-label">Trous de r\u00e9servation</span><span class="cockpit-row-value'+(trousReservation.length>0?' is-warn':'')+'">'+trousReservation.length+'</span></div>';
+
+  /* ════════════════════════════════════════════════════════
+     CARTE 3 — 📈 Opportunités EVA
+     ════════════════════════════════════════════════════════ */
+  var sousTarifes=apts.filter(function(a){return a.ai_rec&&a.price&&(a.ai_rec-a.price)/a.price>0.12;});
+  var evApts=apts.filter(function(a){var c=a.city||'';return (eventsCache[c]||[]).some(function(e){return e.hot;});});
+  var gainPotentiel=sousTarifes.reduce(function(s,a){return s+Math.round((a.ai_rec-a.price)*30);},0)+Math.round(hotEvents.length*150);
+
+  var c3Html=
+    '<div class="cockpit-row"><span class="cockpit-row-label">Biens sous-tarif\u00e9s</span><span class="cockpit-row-value'+(sousTarifes.length>0?' is-opp':'')+'">'+sousTarifes.length+'</span></div>'+
+    '<div class="cockpit-row"><span class="cockpit-row-label">\u00c9v\u00e9nements locaux exploitables</span><span class="cockpit-row-value'+(evApts.length>0?' is-opp':'')+'">'+evApts.length+'</span></div>'+
+    '<div class="cockpit-highlight">Gain potentiel estim\u00e9 <strong>+'+gainPotentiel.toLocaleString('fr-FR')+'\u20AC/mois</strong></div>';
+
+  /* ════════════════════════════════════════════════════════
+     CARTE 4 — ⚠ Surveillance EVA (max 5 alertes)
+     ════════════════════════════════════════════════════════ */
+  var surveillanceAlerts=[];
   apts.forEach(function(a){
-    if(a.ai_rec&&a.price&&a.ai_rec>a.price){
-      oppItems.push({icon:'\uD83D\uDCC8',title:'Hausse tarifaire \u2014 '+a.name,gain:'+'+Math.round((a.ai_rec-a.price)*10)+'\u20AC/mois',action:"goTo('parc-fiches',document.querySelector('[data-page=parc-fiches]'))"});
+    if(a.note&&Number(a.note)>0&&Number(a.note)<4.4){
+      surveillanceAlerts.push({icon:'\u2B50',text:a.name+' \u2014 note '+a.note+'/5'});
     }
   });
-  if(hotEvents.length){
-    oppItems.push({icon:'\uD83C\uDF89',title:hotEvents.length+' \u00e9v\u00e9nement'+(hotEvents.length>1?'s':'')+' local \u2014 boost possible',gain:'+'+Math.round(hotEvents.length*150)+'\u20AC estim\u00e9s',action:"goTo('analyse-opportunites',document.querySelector('[data-page=analyse-opportunites]'))"});
-  }
-  oppItems.push({icon:'\u2B50',title:'Upsells activ\u00e9s ce mois',gain:'+'+upsellsTotal.toLocaleString('fr-FR')+'\u20AC estim\u00e9s',action:"goTo('analyse-opportunites',document.querySelector('[data-page=analyse-opportunites]'))"});
+  var occByApt=apts.map(function(a){
+    var aptMonthRes=reservations.filter(function(r){return r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(month);});
+    var nights=aptMonthRes.reduce(function(s,r){try{return s+Math.max(0,Math.round((new Date(r.date_to)-new Date(r.date_from))/86400000));}catch(e){return s;}},0);
+    var occPct=Math.round(nights/Math.max(1,today.getDate())*100);
+    return {a:a,occPct:occPct};
+  });
+  occByApt.forEach(function(o){
+    if(o.occPct<40)surveillanceAlerts.push({icon:'\uD83D\uDCC9',text:o.a.name+' \u2014 occupation '+o.occPct+'% ce mois'});
+  });
+  var aptsWithMarge=apts.map(function(a){
+    var aptCharges=(typeof chargesData!=='undefined'?chargesData:[]).filter(function(c){return c.appartement_id===a.id;});
+    var chargesMois=aptCharges.filter(function(c){return c.type==='fixe'||c.per==='mois';}).reduce(function(s,c){return s+(c.amount||0);},0);
+    var revAptMois=reservations.filter(function(r){return r.appartement_id===a.id&&r.date_from&&r.date_from.startsWith(month);}).reduce(function(s,r){return s+(r.price_total||0);},0);
+    var marge=revAptMois>0?Math.round((revAptMois-chargesMois)/revAptMois*100):null;
+    return {a:a,marge:marge,chargesMois:chargesMois,aptCharges:aptCharges};
+  });
+  aptsWithMarge.forEach(function(o){
+    if(o.marge!==null&&o.marge<15)surveillanceAlerts.push({icon:'\uD83D\uDCB8',text:o.a.name+' \u2014 marge '+o.marge+'%'});
+  });
+  aptsWithMarge.forEach(function(o){
+    var avgCharge=o.aptCharges.length?o.aptCharges.reduce(function(s,c){return s+(c.amount||0);},0)/o.aptCharges.length:0;
+    var unusual=o.aptCharges.filter(function(c){return avgCharge>0&&(c.amount||0)>avgCharge*1.8;});
+    if(unusual.length)surveillanceAlerts.push({icon:'\u26A0\uFE0F',text:o.a.name+' \u2014 charge inhabituelle d\u00e9tect\u00e9e'});
+  });
 
-  var oppHtml=oppItems.slice(0,4).map(function(o){
-    return '<div style="background:white;border:1px solid rgba(139,92,246,.1);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px">'+
-      '<div style="font-size:22px;flex-shrink:0">'+o.icon+'</div>'+
-      '<div style="flex:1;min-width:0">'+
-        '<div style="font-size:13px;font-weight:700;color:#17122E">'+o.title+'</div>'+
-      '</div>'+
-      '<div style="text-align:right;flex-shrink:0">'+
-        '<div style="font-size:15px;font-weight:900;color:#059669">'+o.gain+'</div>'+
-        '<button onclick="'+o.action+'" style="border:none;border-radius:8px;padding:4px 10px;background:linear-gradient(135deg,#6D28D9,#EC4899);color:white;font-size:10px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:4px">Voir \u2192</button>'+
-      '</div>'+
+  var c4Html=!surveillanceAlerts.length?
+    '<div class="cockpit-empty">\u2705 Aucune anomalie d\u00e9tect\u00e9e.</div>' :
+    surveillanceAlerts.slice(0,5).map(function(s){
+      return '<div class="cockpit-alert-row"><span class="cockpit-alert-icon">'+s.icon+'</span><span class="cockpit-alert-text">'+s.text+'</span></div>';
+    }).join('');
+
+  /* ════════════════════════════════════════════════════════
+     CARTE 5 — 🧹 Terrain & CleanyQ
+     ════════════════════════════════════════════════════════ */
+  var missionsAujourdhui=mergedOps.filter(function(m){return m.date===todayIso;});
+  var anomaliesOuvertes=mergedOps.filter(function(m){
+    var isImminent=(m.date===todayIso||m.date===tomorrowIso||m.date<todayIso);
+    return isImminent&&!m.cleaner_id;
+  }).length;
+  var cleanersActifs=(typeof cleanersData!=='undefined'?cleanersData:[]).filter(function(c){return c.status==='active';}).length;
+  var missionsTermineesAvecDuree=(missionsData||[]).filter(function(m){return m.status==='terminee'&&m.duree_min;});
+  var tempsMoyenMenage=missionsTermineesAvecDuree.length?Math.round(missionsTermineesAvecDuree.reduce(function(s,m){return s+(m.duree_min||0);},0)/missionsTermineesAvecDuree.length):0;
+
+  var c5Html=
+    '<div class="cockpit-row"><span class="cockpit-row-label">Missions aujourd\u2019hui</span><span class="cockpit-row-value">'+missionsAujourdhui.length+'</span></div>'+
+    '<div class="cockpit-row"><span class="cockpit-row-label">Anomalies ouvertes</span><span class="cockpit-row-value'+(anomaliesOuvertes>0?' is-urgent':'')+'">'+anomaliesOuvertes+'</span></div>'+
+    '<div class="cockpit-row"><span class="cockpit-row-label">Cleaners actifs</span><span class="cockpit-row-value">'+cleanersActifs+'</span></div>'+
+    '<div class="cockpit-row"><span class="cockpit-row-label">Temps moyen m\u00e9nage</span><span class="cockpit-row-value">'+(tempsMoyenMenage?tempsMoyenMenage+' min':'\u2014')+'</span></div>';
+
+  /* ════════════════════════════════════════════════════════
+     CARTE 6 — 💰 Performance portefeuille (mini KPI)
+     ════════════════════════════════════════════════════════ */
+  var totalNightsMonth=monthRes.reduce(function(s,r){try{if(!r.date_from||!r.date_to)return s+(r.nights||0);return s+Math.max(0,Math.round((new Date(r.date_to)-new Date(r.date_from))/86400000));}catch(e){return s+(r.nights||0);}},0);
+  var adrMoyen=totalNightsMonth>0?Math.round(monthRev/totalNightsMonth):0;
+  var scoreComponents=[];
+  if(occ14pct)scoreComponents.push(Math.min(100,occ14pct));
+  if(avgNote)scoreComponents.push(Math.min(100,Math.round(avgNote/5*100)));
+  var sousTarifPenalty=apts.length?Math.max(0,100-Math.round(sousTarifes.length/apts.length*100)):100;
+  scoreComponents.push(sousTarifPenalty);
+  var scoreEvaMoyen=scoreComponents.length?Math.round(scoreComponents.reduce(function(s,v){return s+v;},0)/scoreComponents.length):0;
+
+  var c6Html=
+    '<div class="cockpit-mini-kpi-grid">'+
+      '<div class="cockpit-mini-kpi"><div class="cockpit-mini-kpi-value">'+monthRev.toLocaleString('fr-FR')+'\u20AC</div><div class="cockpit-mini-kpi-label">CA mois</div></div>'+
+      '<div class="cockpit-mini-kpi"><div class="cockpit-mini-kpi-value">'+occ14pct+'%</div><div class="cockpit-mini-kpi-label">Occupation 14j</div></div>'+
+      '<div class="cockpit-mini-kpi"><div class="cockpit-mini-kpi-value">'+(adrMoyen?adrMoyen+'\u20AC':'\u2014')+'</div><div class="cockpit-mini-kpi-label">ADR moyen</div></div>'+
+      '<div class="cockpit-mini-kpi"><div class="cockpit-mini-kpi-value">'+(scoreEvaMoyen||'\u2014')+'</div><div class="cockpit-mini-kpi-label">Score EVA moyen</div></div>'+
     '</div>';
-  }).join('');
 
-  // ─── ASSEMBLAGE HTML ───
+  /* ════════════════════════════════════════════════════════
+     ASSEMBLAGE HTML — Hero conservé + grille 6 cartes
+     ════════════════════════════════════════════════════════ */
   dash.innerHTML=
-    // Hero
+    // Hero (conservé à l'identique)
     '<div style="background:linear-gradient(135deg,#211051 0%,#7C3AED 46%,#EC4899 100%);border-radius:22px;padding:24px 28px;margin-bottom:16px;color:#fff;position:relative;overflow:hidden">'+
       '<div style="position:absolute;right:-60px;top:-70px;width:260px;height:260px;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 62%);pointer-events:none"></div>'+
       '<div style="position:relative;z-index:1">'+
@@ -473,43 +496,68 @@ function renderCockpit(){
       '</div>'+
     '</div>'+
 
-    // 2 colonnes
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">'+
+    // Grille KPI — 6 cartes thématiques
+    '<div class="cockpit-grid">'+
 
-      // Colonne gauche : À faire
-      '<div style="background:white;border:1px solid rgba(139,92,246,.12);border-radius:20px;padding:18px;box-shadow:0 6px 20px rgba(69,39,120,.06)">'+
-        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'+
-          '<div>'+
-            '<div style="font-family:Sora,sans-serif;font-size:15px;font-weight:800;color:#17122E">\uD83C\uDFAF \u00c0 faire aujourd\u2019hui</div>'+
-            '<div style="font-size:11px;color:#8A8A99;margin-top:2px">Priorit\u00e9s EVA du jour</div>'+
-          '</div>'+
-          '<span style="font-size:11px;font-weight:900;background:#F3E8FF;color:#7C3AED;border-radius:999px;padding:3px 9px">'+todoItems.slice(0,5).length+' action'+(todoItems.slice(0,5).length>1?'s':'')+'</span>'+
+      // CARTE 1 — Opérations aujourd'hui
+      '<div class="cockpit-card">'+
+        '<div class="cockpit-card-head">'+
+          '<div class="cockpit-card-title">\uD83D\uDEA8 Op\u00e9rations aujourd\u2019hui</div>'+
+          '<div class="cockpit-card-sub">Suivi op\u00e9rationnel du jour</div>'+
         '</div>'+
-        '<div style="display:flex;flex-direction:column;gap:8px">'+todoHtml+'</div>'+
+        '<div class="cockpit-card-body">'+c1RowsHtml+'</div>'+
+        '<button class="cockpit-card-btn" onclick="goTo(\'cleanyq-operations\',document.querySelector(\'[data-page=cleanyq-operations]\'))">Voir les op\u00e9rations \u2192</button>'+
       '</div>'+
 
-      // Colonne droite : Ce qui va bien
-      '<div style="background:white;border:1px solid rgba(5,150,105,.14);border-radius:20px;padding:18px;box-shadow:0 6px 20px rgba(5,150,105,.05)">'+
-        '<div style="margin-bottom:14px">'+
-          '<div style="font-family:Sora,sans-serif;font-size:15px;font-weight:800;color:#17122E">\u2728 Ce qui va bien</div>'+
-          '<div style="font-size:11px;color:#8A8A99;margin-top:2px">Situation op\u00e9rationnelle</div>'+
+      // CARTE 2 — Réservations à surveiller
+      '<div class="cockpit-card">'+
+        '<div class="cockpit-card-head">'+
+          '<div class="cockpit-card-title">\uD83D\uDCC5 R\u00e9servations \u00e0 surveiller</div>'+
+          '<div class="cockpit-card-sub">Anomalies de calendrier</div>'+
         '</div>'+
-        '<div>'+goodHtml+'</div>'+
-        '<div style="margin-top:14px;padding-top:12px;border-top:1px solid #F3F0FA;font-size:12px;color:#059669;font-weight:700">\uD83D\uDCA1 Votre activit\u00e9 est sous contr\u00f4le.</div>'+
+        '<div class="cockpit-card-body">'+c2Html+'</div>'+
+        '<button class="cockpit-card-btn" onclick="goTo(\'reservations\',document.querySelector(\'[data-page=reservations]\'))">Voir calendrier \u2192</button>'+
       '</div>'+
 
-    '</div>'+
-
-    // Opportunités EVA (bas)
-    '<div style="background:linear-gradient(135deg,#F5F0FF,#FFF0F9);border:1px solid rgba(168,85,247,.16);border-radius:20px;padding:18px">'+
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'+
-        '<div>'+
-          '<div style="font-family:Sora,sans-serif;font-size:15px;font-weight:800;color:#17122E">\uD83D\uDE80 Opportunit\u00e9s EVA</div>'+
-          '<div style="font-size:11px;color:#8A8A99;margin-top:2px">Gains potentiels identifi\u00e9s par EVA</div>'+
+      // CARTE 3 — Opportunités EVA
+      '<div class="cockpit-card">'+
+        '<div class="cockpit-card-head">'+
+          '<div class="cockpit-card-title">\uD83D\uDCC8 Opportunit\u00e9s EVA</div>'+
+          '<div class="cockpit-card-sub">Gains identifi\u00e9s par EVA</div>'+
         '</div>'+
-        '<button onclick="goTo(\'analyse-opportunites\',document.querySelector(\'[data-page=analyse-opportunites]\'))" style="border:none;border-radius:10px;padding:7px 14px;background:linear-gradient(135deg,#6D28D9,#EC4899);color:white;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit">Voir tout \u2192</button>'+
+        '<div class="cockpit-card-body">'+c3Html+'</div>'+
+        '<button class="cockpit-card-btn" onclick="goTo(\'profit-global\',document.querySelector(\'[data-page=profit-global]\'))">Voir Profit 360 \u2192</button>'+
       '</div>'+
-      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px">'+oppHtml+'</div>'+
+
+      // CARTE 4 — Surveillance EVA
+      '<div class="cockpit-card">'+
+        '<div class="cockpit-card-head">'+
+          '<div class="cockpit-card-title">\u26A0\uFE0F Surveillance EVA</div>'+
+          '<div class="cockpit-card-sub">Signaux \u00e0 risque</div>'+
+        '</div>'+
+        '<div class="cockpit-card-body">'+c4Html+'</div>'+
+        '<button class="cockpit-card-btn" onclick="goTo(\'audit-global\',document.querySelector(\'[data-page=audit-global]\'))">Audit 360 \u2192</button>'+
+      '</div>'+
+
+      // CARTE 5 — Terrain & CleanyQ
+      '<div class="cockpit-card">'+
+        '<div class="cockpit-card-head">'+
+          '<div class="cockpit-card-title">\uD83E\uDDF9 Terrain &amp; CleanyQ</div>'+
+          '<div class="cockpit-card-sub">\u00c9quipe et missions en cours</div>'+
+        '</div>'+
+        '<div class="cockpit-card-body">'+c5Html+'</div>'+
+        '<button class="cockpit-card-btn" onclick="goTo(\'cleanyq-operations\',document.querySelector(\'[data-page=cleanyq-operations]\'))">Ouvrir CleanyQ \u2192</button>'+
+      '</div>'+
+
+      // CARTE 6 — Performance portefeuille
+      '<div class="cockpit-card">'+
+        '<div class="cockpit-card-head">'+
+          '<div class="cockpit-card-title">\uD83D\uDCB0 Performance portefeuille</div>'+
+          '<div class="cockpit-card-sub">Vue d\u2019ensemble du mois</div>'+
+        '</div>'+
+        '<div class="cockpit-card-body">'+c6Html+'</div>'+
+      '</div>'+
+
     '</div>';
 }
 
