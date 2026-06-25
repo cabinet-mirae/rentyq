@@ -888,7 +888,128 @@ async function handleSyncAll(context, body) {
     return json(summary, 500);
   }
 }
+async function getSyncContext(context, body) {
+  const userId = await resolveUserId(context);
+  if (!userId) throw new Error('unauthorized');
 
+  const conn = await getConnection(context, userId, body && body.connection_id);
+
+  const baseUrl = conn.base_url || context.env.EASY_CONCIERGE_BASE_URL;
+  if (!baseUrl) throw new Error('missing_base_url');
+
+  const config = {
+    baseUrl,
+    apiKey: conn.api_key,
+    tenant: conn.tenant
+  };
+
+  return { userId, conn, config };
+}
+
+async function handleSyncPropertiesOnly(context, body) {
+  try {
+    const { userId, conn, config } = await getSyncContext(context, body);
+
+    const propRes = await syncProperties(context, userId, config);
+
+    await sb(context, `pms_connections?id=eq.${conn.id}`, {
+      method: 'PATCH',
+      prefer: 'return=minimal',
+      body: JSON.stringify({
+        status: 'connected',
+        last_sync_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+    }).catch(() => {});
+
+    return json({
+      success: true,
+      propertiesInserted: propRes.inserted,
+      propertiesUpdated: propRes.updated,
+      inserted: propRes.inserted,
+      updated: propRes.updated,
+      errors: propRes.errors || []
+    });
+  } catch (e) {
+    return json({
+      success: false,
+      propertiesInserted: 0,
+      propertiesUpdated: 0,
+      errors: [{ scope: 'properties', message: e.message }]
+    }, e.message === 'unauthorized' ? 401 : 500);
+  }
+}
+
+async function handleSyncBookingsOnly(context, body) {
+  try {
+    const { userId, config } = await getSyncContext(context, body);
+
+    const properties = await fetchAllProperties(config);
+    const aptMap = await getAppartementsMap(context, userId);
+
+    const bookingsRes = await syncBookings(context, userId, config, aptMap, properties);
+
+    return json({
+      success: true,
+      bookingsInserted: bookingsRes.inserted,
+      bookingsUpdated: bookingsRes.updated,
+      errors: bookingsRes.errors || []
+    });
+  } catch (e) {
+    return json({
+      success: false,
+      bookingsInserted: 0,
+      bookingsUpdated: 0,
+      errors: [{ scope: 'bookings', message: e.message }]
+    }, e.message === 'unauthorized' ? 401 : 500);
+  }
+}
+
+async function handleSyncReviewsOnly(context, body) {
+  try {
+    const { userId, config } = await getSyncContext(context, body);
+
+    const aptMap = await getAppartementsMap(context, userId);
+    const reviewsRes = await syncReviews(context, userId, config, aptMap);
+
+    return json({
+      success: true,
+      reviewsInserted: reviewsRes.inserted,
+      reviewsUpdated: reviewsRes.updated,
+      errors: reviewsRes.errors || []
+    });
+  } catch (e) {
+    return json({
+      success: false,
+      reviewsInserted: 0,
+      reviewsUpdated: 0,
+      errors: [{ scope: 'reviews', message: e.message }]
+    }, e.message === 'unauthorized' ? 401 : 500);
+  }
+}
+
+async function handleSyncPricingOnly(context, body) {
+  try {
+    const { userId, config } = await getSyncContext(context, body);
+
+    const properties = await fetchAllProperties(config);
+    const aptMap = await getAppartementsMap(context, userId);
+
+    const pricingRes = await syncPricing(context, config, aptMap, properties);
+
+    return json({
+      success: true,
+      pricingUpdated: pricingRes.pricingUpdated,
+      errors: pricingRes.errors || []
+    });
+  } catch (e) {
+    return json({
+      success: false,
+      pricingUpdated: 0,
+      errors: [{ scope: 'pricing', message: e.message }]
+    }, e.message === 'unauthorized' ? 401 : 500);
+  }
+}
 export async function onRequestPost(context) {
   try {
     const body = await context.request.json().catch(() => ({}));
