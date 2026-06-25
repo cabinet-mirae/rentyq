@@ -1,39 +1,37 @@
 // Cloudflare Pages Function — /api/easy-concierge
 //
-// Sprint 0 — Étape 2 : proxy GET-only entre RentyQ et l'API Easy Concierge.
+// Sprint 0.2 — Parcours utilisateur Easy Concierge. Remplace entièrement la version
+// Sprint 0 / Étape 2 (qui lisait 3 variables d'environnement globales). Cette version
+// résout l'utilisateur appelant à partir de son JWT Supabase (déjà envoyé par
+// secureHeaders() sur tout appel via functionCall()), et lit ses identifiants Easy
+// Concierge dans la table pms_connections — jamais un compte global, jamais un user_id
+// fourni par le client.
 //
-// Rôle UNIQUE de ce fichier : relayer une lecture vers Easy Concierge en gardant la clé
-// API côté serveur. Il ne transforme pas la donnée, n'écrit rien dans Supabase et ne
-// touche à aucun autre fichier du projet. Le sync (syncEasyConcierge()) qui consommera
-// ce proxy pour peupler appartements/reservations/reviews/reservation_financials est une
-// étape ultérieure, volontairement hors scope ici.
+// Actions supportées (POST, body JSON {action, ...}) :
+//   { action: 'test', tenant, apiKey }                 — teste des identifiants AVANT
+//                                                          enregistrement. N'écrit rien.
+//   { action: 'sync-properties', connection_id }       — lit la connexion pms_connections
+//                                                          de l'utilisateur connecté, importe
+//                                                          ses logements dans appartements.
 //
-// Usage :
-//   GET /api/easy-concierge?resource=properties
-//   GET /api/easy-concierge?resource=bookings&updated_since=2026-06-01&page=2
+// Variables d'environnement Cloudflare Pages requises :
+//   SUPABASE_SERVICE_ROLE_KEY  — déjà utilisée par cleaner-portal.js / weekly-recap.js.
+//   EASY_CONCIERGE_BASE_URL    — fallback global si pms_connections.base_url est vide
+//                                (URL d'infra, pas un secret par utilisateur).
 //
-// Variables d'environnement requises (Cloudflare Pages > Settings > Environment variables,
-// JAMAIS dans le code) :
-//   EASY_CONCIERGE_API_KEY    — clé API Easy Concierge. Ne transite JAMAIS vers le front :
-//                               elle est lue ici, côté serveur, et n'apparaît dans aucune
-//                               réponse renvoyée au navigateur.
-//   EASY_CONCIERGE_TENANT     — identifiant du tenant Easy Concierge.
-//   EASY_CONCIERGE_BASE_URL   — URL de base de l'API Easy Concierge.
-//
-// ⚠️ Point à vérifier auprès du support Easy Concierge avant le premier vrai sync : je n'ai
-// pas le contrat exact de leur API publique (pagination, forme de "tenant" dans la requête,
-// noms exacts des paramètres). EASY_CONCIERGE_TENANT est transmis ici en query param
-// `tenant=` par défaut — c'est une hypothèse raisonnable, pas une certitude. À corriger en
-// une ligne (voir plus bas) si leur doc dit "header" ou "segment d'URL" à la place.
+// ⚠️ Comme pour la version précédente : le contrat exact de pagination de l'API publique
+// Easy Concierge n'est pas confirmé. extractItems()/fetchAllProperties() restent défensifs.
 
-const ALLOWED_RESOURCES = ['properties', 'bookings', 'reviews', 'pricing', 'pricing-history', 'pricing-changes'];
-const ALLOWED_PARAMS = ['from', 'to', 'updated_since', 'property_id', 'page', 'per_page'];
+const SB_URL = 'https://gtffekgqglpxjjligffi.supabase.co';
+// Clé anonyme Supabase (publique par nature — déjà présente dans app.js et weekly-recap.js,
+// jamais un secret). Utilisée uniquement pour vérifier le JWT de l'appelant via /auth/v1/user.
+const SB_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0ZmZla2dxZ2xweGpqbGlnZmZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyNjUxODMsImV4cCI6MjA5NTg0MTE4M30.8SHvalTRdUD4dXjcKP8s13yXhtg3NDrjQCBXDlu-jyE';
 
 function corsHeaders() {
   return {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Content-Type': 'application/json'
   };
 }
@@ -42,113 +40,243 @@ export async function onRequestOptions() {
   return new Response(null, { headers: corsHeaders() });
 }
 
-// GET uniquement — par design, ce proxy ne fait jamais d'écriture côté Easy Concierge.
-export async function onRequestGet(context) {
-  const headers = corsHeaders();
+function json(body, status) {
+  return new Response(JSON.stringify(body), { status: status || 200, headers: corsHeaders() });
+}
+
+// ── Résout l'utilisateur appelant à partir de son JWT Supabase. Ne fait JAMAIS confiance
+// à un user_id envoyé dans le corps de la requête. ──
+async function resolveUserId(context) {
+  const authHeader = context.request.headers.get('Authorization') || '';
+  const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+  if (!token) return null;
+  try {
+    const res = await fetch(`${SB_URL}/auth/v1/user`, {
+      headers: { apikey: SB_ANON_KEY, Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) return null;
+    const user = await res.json();
+    return user && user.id ? user.id : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// ── Wrapper PostgREST avec la clé de service — même logique privilégiée que
+// cleaner-portal.js / weekly-recap.js, jamais exposée au navigateur. ──
+async function sb(context, path, opts = {}) {
+  const serviceKey = context.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY manquante côté serveur.');
+  return fetch(`${SB_URL}/rest/v1/${path}`, {
+    method: opts.method || 'GET',
+    headers: {
+      apikey: serviceKey,
+      Authorization: `Bearer ${serviceKey}`,
+      'Content-Type': 'application/json',
+      Prefer: opts.prefer || 'return=representation',
+      ...(opts.headers || {})
+    },
+    body: opts.body
+  });
+}
+
+// ── Extraction défensive de la liste de logements depuis la réponse Easy Concierge —
+// plusieurs formes courantes essayées plutôt que de supposer une seule structure. ──
+function extractItems(body) {
+  if (Array.isArray(body)) return body;
+  if (!body || typeof body !== 'object') return [];
+  if (Array.isArray(body.data)) return body.data;
+  if (Array.isArray(body.properties)) return body.properties;
+  if (Array.isArray(body.items)) return body.items;
+  if (Array.isArray(body.results)) return body.results;
+  return [];
+}
+
+// ── Un seul appel resource=properties avec des identifiants donnés en paramètres
+// (jamais lus depuis l'environnement directement — toujours passés explicitement, pour
+// que 'test' et 'sync-properties' utilisent strictement le même chemin de code). ──
+async function fetchPropertiesPage({ baseUrl, apiKey, tenant, page, perPage }) {
+  const url = new URL(baseUrl);
+  url.searchParams.set('resource', 'properties');
+  url.searchParams.set('page', String(page));
+  url.searchParams.set('per_page', String(perPage));
+  // ⚠️ Hypothèse à confirmer : tenant transmis en query param (voir note Sprint 0 Étape 2).
+  if (tenant) url.searchParams.set('tenant', tenant);
+
+  const res = await fetch(url.toString(), {
+    headers: { Authorization: `Bearer ${apiKey}`, Accept: 'application/json' }
+  });
+  const rawBody = await res.text();
+  let parsedBody = null;
+  try { parsedBody = rawBody ? JSON.parse(rawBody) : null; } catch (e) { /* non-JSON géré ci-dessous */ }
+
+  if (!res.ok) {
+    const detail = parsedBody ? JSON.stringify(parsedBody).slice(0, 300) : rawBody.slice(0, 300);
+    throw new Error(`Easy Concierge a répondu ${res.status} : ${detail}`);
+  }
+  if (parsedBody === null) {
+    throw new Error('Réponse Easy Concierge non-JSON.');
+  }
+  return extractItems(parsedBody);
+}
+
+// ── Récupère toutes les pages, avec un garde-fou dur à 50 pages. ──
+async function fetchAllProperties({ baseUrl, apiKey, tenant }) {
+  const perPage = 100;
+  let page = 1;
+  let all = [];
+  while (page <= 50) {
+    const items = await fetchPropertiesPage({ baseUrl, apiKey, tenant, page, perPage });
+    all = all.concat(items);
+    if (items.length < perPage) break;
+    page++;
+  }
+  return all;
+}
+
+// ── action=test : identifiants reçus directement du front, jamais lus en base, rien
+// n'est écrit. Protégé par JWT uniquement pour éviter qu'un tiers utilise ce endpoint
+// comme oracle de test de clés API volées — pas pour une logique d'appartenance. ──
+async function handleTest(context, body) {
+  const userId = await resolveUserId(context);
+  if (!userId) return json({ success: false, error: 'unauthorized' }, 401);
+
+  const { tenant, apiKey, baseUrl } = body || {};
+  if (!tenant || !apiKey) {
+    return json({ success: false, error: 'missing_tenant_or_api_key' }, 400);
+  }
+  const effectiveBaseUrl = baseUrl || context.env.EASY_CONCIERGE_BASE_URL;
+  if (!effectiveBaseUrl) return json({ success: false, error: 'missing_base_url' }, 500);
 
   try {
-    const { EASY_CONCIERGE_API_KEY, EASY_CONCIERGE_TENANT, EASY_CONCIERGE_BASE_URL } = context.env || {};
+    const items = await fetchPropertiesPage({ baseUrl: effectiveBaseUrl, apiKey, tenant, page: 1, perPage: 5 });
+    return json({ success: true, sample_count: items.length });
+  } catch (e) {
+    return json({ success: false, error: e.message });
+  }
+}
 
-    if (!EASY_CONCIERGE_API_KEY) {
-      return new Response(JSON.stringify({
-        error: 'missing_api_key',
-        message: 'EASY_CONCIERGE_API_KEY est absente des variables d\u2019environnement Cloudflare Pages.'
-      }), { status: 500, headers });
+// ── action=sync-properties : connection_id reçu du front, mais la connexion est
+// systématiquement revérifiée contre le user_id résolu depuis le JWT — jamais l'inverse. ──
+async function handleSyncProperties(context, body) {
+  const userId = await resolveUserId(context);
+  if (!userId) return json({ inserted: 0, updated: 0, errors: [{ message: 'unauthorized' }] }, 401);
+
+  const { connection_id } = body || {};
+  if (!connection_id) {
+    return json({ inserted: 0, updated: 0, errors: [{ message: 'connection_id manquant' }] }, 400);
+  }
+
+  const connRes = await sb(context, `pms_connections?id=eq.${encodeURIComponent(connection_id)}&select=*`);
+  if (!connRes.ok) {
+    return json({ inserted: 0, updated: 0, errors: [{ message: 'lecture pms_connections en erreur' }] }, 500);
+  }
+  const connRows = await connRes.json();
+  const conn = Array.isArray(connRows) && connRows[0] ? connRows[0] : null;
+  if (!conn) return json({ inserted: 0, updated: 0, errors: [{ message: 'connexion introuvable' }] }, 404);
+  if (conn.user_id !== userId) {
+    // Ne jamais révéler si l'id existe pour un autre user — message générique volontaire.
+    return json({ inserted: 0, updated: 0, errors: [{ message: 'connexion introuvable' }] }, 404);
+  }
+  if (conn.provider !== 'easy_concierge') {
+    return json({ inserted: 0, updated: 0, errors: [{ message: 'provider incorrect pour ce endpoint' }] }, 400);
+  }
+
+  const effectiveBaseUrl = conn.base_url || context.env.EASY_CONCIERGE_BASE_URL;
+  if (!effectiveBaseUrl) {
+    return json({ inserted: 0, updated: 0, errors: [{ message: 'missing_base_url' }] }, 500);
+  }
+
+  let properties;
+  try {
+    properties = await fetchAllProperties({ baseUrl: effectiveBaseUrl, apiKey: conn.api_key, tenant: conn.tenant });
+  } catch (e) {
+    await sb(context, `pms_connections?id=eq.${conn.id}`, {
+      method: 'PATCH', prefer: 'return=minimal',
+      body: JSON.stringify({ status: 'error', updated_at: new Date().toISOString() })
+    }).catch(() => {});
+    return json({ inserted: 0, updated: 0, errors: [{ message: 'easy_concierge_unreachable: ' + e.message }] }, 502);
+  }
+
+  let inserted = 0, updated = 0;
+  const errors = [];
+
+  for (const p of properties) {
+    const propertyId = p && p.property_id != null ? String(p.property_id) : null;
+    if (!propertyId) {
+      errors.push({ property_id: null, message: 'property_id manquant — logement ignoré.' });
+      continue;
     }
-    if (!EASY_CONCIERGE_BASE_URL) {
-      return new Response(JSON.stringify({
-        error: 'missing_base_url',
-        message: 'EASY_CONCIERGE_BASE_URL est absente des variables d\u2019environnement Cloudflare Pages.'
-      }), { status: 500, headers });
-    }
 
-    const incomingUrl = new URL(context.request.url);
-    const resource = incomingUrl.searchParams.get('resource');
+    try {
+      const mainPhotoUrl = Array.isArray(p.photos) && p.photos[0] && p.photos[0].url ? p.photos[0].url : null;
+      const amenitiesJson = Array.isArray(p.amenities) ? p.amenities : null;
 
-    if (!resource) {
-      return new Response(JSON.stringify({
-        error: 'missing_resource',
-        message: 'Param\u00e8tre "resource" manquant.',
-        allowed_resources: ALLOWED_RESOURCES
-      }), { status: 400, headers });
-    }
+      // Seulement les clés qu'on a réellement — jamais d'écrasement par null sur une
+      // valeur déjà renseignée manuellement (et "name" est NOT NULL côté Supabase).
+      const fields = {};
+      if (p.name != null && p.name !== '') fields.name = p.name;
+      if (p.city != null) fields.city = p.city;
+      if (p.bedrooms != null) fields.bedrooms = p.bedrooms;
+      if (p.bathrooms != null) fields.bathrooms = p.bathrooms;
+      if (p.max_guests != null) fields.max_guests = p.max_guests;
+      if (mainPhotoUrl !== null) fields.main_photo_url = mainPhotoUrl;
+      if (amenitiesJson !== null) fields.amenities_json = amenitiesJson;
 
-    if (!ALLOWED_RESOURCES.includes(resource)) {
-      return new Response(JSON.stringify({
-        error: 'resource_not_allowed',
-        message: `Ressource "${resource}" non autoris\u00e9e.`,
-        allowed_resources: ALLOWED_RESOURCES
-      }), { status: 400, headers });
-    }
-
-    // Construction de l'URL Easy Concierge — uniquement les paramètres whitelistés sont
-    // transmis. "resource" est un paramètre de routage de CE proxy ; on le retransmet tel
-    // quel à Easy Concierge car leur doc l'utilise aussi pour sélectionner la ressource
-    // (à ajuster si leur API attend plutôt un chemin du type /properties).
-    const upstreamUrl = new URL(EASY_CONCIERGE_BASE_URL);
-    upstreamUrl.searchParams.set('resource', resource);
-    for (const param of ALLOWED_PARAMS) {
-      const value = incomingUrl.searchParams.get(param);
-      if (value !== null && value !== '') {
-        upstreamUrl.searchParams.set(param, value);
+      // Anti-doublon : scopé explicitement à CE user_id — jamais juste source+external_id.
+      const findRes = await sb(context, `appartements?user_id=eq.${userId}&source=eq.easy_concierge&external_id=eq.${encodeURIComponent(propertyId)}&select=id`);
+      if (!findRes.ok) {
+        errors.push({ property_id: propertyId, message: 'lecture appartements en erreur' });
+        continue;
       }
-    }
-    // ⚠️ Hypothèse à confirmer (voir note en tête de fichier) : tenant transmis en query param.
-    if (EASY_CONCIERGE_TENANT) {
-      upstreamUrl.searchParams.set('tenant', EASY_CONCIERGE_TENANT);
-    }
+      const existingRows = await findRes.json();
+      const existing = Array.isArray(existingRows) && existingRows[0] ? existingRows[0] : null;
 
-    let upstreamRes;
-    try {
-      upstreamRes = await fetch(upstreamUrl.toString(), {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${EASY_CONCIERGE_API_KEY}`,
-          'Accept': 'application/json'
-        }
-      });
-    } catch (fetchErr) {
-      return new Response(JSON.stringify({
-        error: 'easy_concierge_unreachable',
-        message: 'Impossible de contacter Easy Concierge : ' + fetchErr.message
-      }), { status: 502, headers });
+      if (existing) {
+        const patchRes = await sb(context, `appartements?id=eq.${existing.id}`, {
+          method: 'PATCH', prefer: 'return=minimal', body: JSON.stringify(fields)
+        });
+        if (!patchRes.ok) { errors.push({ property_id: propertyId, message: 'mise à jour en erreur' }); continue; }
+        updated++;
+      } else {
+        const createBody = {
+          ...fields,
+          name: fields.name || `Logement Easy Concierge ${propertyId}`,
+          user_id: userId,
+          source: 'easy_concierge',
+          external_id: propertyId
+        };
+        const postRes = await sb(context, 'appartements', {
+          method: 'POST', prefer: 'return=minimal', body: JSON.stringify(createBody)
+        });
+        if (!postRes.ok) { errors.push({ property_id: propertyId, message: 'création en erreur' }); continue; }
+        inserted++;
+      }
+    } catch (itemErr) {
+      errors.push({ property_id: propertyId, message: itemErr.message });
     }
+  }
 
-    if (upstreamRes.status === 429) {
-      return new Response(JSON.stringify({
-        error: 'rate_limited',
-        message: 'Easy Concierge a r\u00e9pondu 429 (limite de requ\u00eates atteinte).',
-        retry_after: upstreamRes.headers.get('Retry-After') || null
-      }), { status: 429, headers });
-    }
+  // La connexion fonctionne dès qu'on a pu lire Easy Concierge — même si certains items
+  // individuels ont échoué (déjà tracés dans errors).
+  await sb(context, `pms_connections?id=eq.${conn.id}`, {
+    method: 'PATCH', prefer: 'return=minimal',
+    body: JSON.stringify({ status: 'connected', last_sync_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+  }).catch(() => {});
 
-    const rawBody = await upstreamRes.text();
-    let parsedBody = null;
-    try {
-      parsedBody = rawBody ? JSON.parse(rawBody) : null;
-    } catch (parseErr) {
-      // Réponse non-JSON (page d'erreur HTML, maintenance, etc.) — on ne la transmet pas
-      // telle quelle au front, on la signale proprement avec un extrait pour debug.
-      return new Response(JSON.stringify({
-        error: 'easy_concierge_invalid_response',
-        message: 'R\u00e9ponse Easy Concierge non-JSON.',
-        upstream_status: upstreamRes.status,
-        raw_excerpt: rawBody.slice(0, 500)
-      }), { status: 502, headers });
-    }
+  return json({ inserted, updated, errors });
+}
 
-    if (!upstreamRes.ok) {
-      return new Response(JSON.stringify({
-        error: 'easy_concierge_error',
-        upstream_status: upstreamRes.status,
-        detail: parsedBody
-      }), { status: upstreamRes.status, headers });
-    }
+export async function onRequestPost(context) {
+  try {
+    const body = await context.request.json().catch(() => ({}));
+    const action = body && body.action;
 
-    // Succès : le JSON Easy Concierge est renvoyé tel quel, sans transformation ni écriture.
-    return new Response(JSON.stringify(parsedBody), { headers });
+    if (action === 'test') return await handleTest(context, body);
+    if (action === 'sync-properties') return await handleSyncProperties(context, body);
 
+    return json({ error: 'unknown_action', allowed_actions: ['test', 'sync-properties'] }, 400);
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'server_error', detail: err.message }), { status: 500, headers });
+    return json({ error: 'server_error', detail: err.message }, 500);
   }
 }
