@@ -14,7 +14,12 @@ const SMOOBU_FN=`${FUNCTIONS_URL}/smoobu-proxy`;
 const EVENTS_FN=`${FUNCTIONS_URL}/events-proxy`;
 const STRIPE_FN='/api/stripe';
 const EVA_FN=`${FUNCTIONS_URL}/eva-analysis`;
-let currentUser=null,currentProfile=null,apparts=[],archivedApparts=[],reservations=[],editId=null,smoobuConnected=false,eventsCache={};
+// Sprint 0.2 : suit le pattern de STRIPE_FN (chemin relatif Cloudflare Pages Functions),
+// PAS celui de SMOOBU_FN/EVENTS_FN/EVA_FN qui pointent vers l'ancienne URL Supabase Edge
+// Functions — un héritage probablement jamais migré, et qui explique vraisemblablement
+// pourquoi smoobuCall('status')/('saveKey') ne correspondent à aucune action de smoobu.js.
+const EASY_CONCIERGE_FN='/api/easy-concierge';
+let currentUser=null,currentProfile=null,apparts=[],archivedApparts=[],reservations=[],editId=null,smoobuConnected=false,eventsCache={},ecConnection=null;
 
 const secureHeaders=()=>({
   'Content-Type':'application/json',
@@ -230,6 +235,7 @@ async function loadApp(){
     document.getElementById('set-email').textContent=currentProfile.email||'';
     document.getElementById('set-plan').textContent='Plan '+(currentProfile.plan||'Starter');
     try{const smStatus=await smoobuCall('status');smoobuConnected=!!smStatus.connected;updateSmoobuUI(smoobuConnected);}catch(e){smoobuConnected=false;updateSmoobuUI(false);}
+    await loadEasyConciergeConnection();
     if(apparts.length)loadEvents(false);
     renderTarifs();
     checkPaymentReturn();
@@ -2154,6 +2160,112 @@ function renderSmoobuApts(apts){
   if(!apts||!apts.length){t.innerHTML='<tr><td style="padding:1rem;color:#8A8A99">Aucun appartement</td></tr>';return}
   t.innerHTML=`<thead><tr><th>Nom</th><th>Ville</th><th>Prix base</th></tr></thead><tbody>`+
   apts.map(a=>`<tr><td><div class="apt-name"><div class="apt-emoji">🏠</div>${a.name||'—'}</div></td><td>${a.city||'—'}</td><td>${a.price||'—'}€</td></tr>`).join('')+`</tbody>`;
+}
+
+// ============================================================
+// EASY CONCIERGE — Sprint 0.2 : parcours utilisateur PMS
+// Une connexion par utilisateur, jamais de compte global. La clé API n'est jamais
+// renvoyée par le serveur ni stockée dans une variable globale ici — ecConnection ne
+// contient jamais que id/tenant/base_url/status/last_sync_at.
+// ============================================================
+
+// Charge (ou recharge) l'état de la connexion Easy Concierge de l'utilisateur connecté.
+// Lecture directe Supabase (RLS auth.uid()=user_id) — select explicite SANS api_key.
+async function loadEasyConciergeConnection(){
+  try{
+    const res=await sbFetch(`pms_connections?user_id=eq.${currentUser.user.id}&provider=eq.easy_concierge&select=id,tenant,base_url,status,last_sync_at,created_at,updated_at`);
+    const rows=await res.json();
+    ecConnection=Array.isArray(rows)&&rows[0]?rows[0]:null;
+  }catch(e){ecConnection=null;}
+  updateEasyConciergeUI();
+}
+
+function updateEasyConciergeUI(){
+  const dot=document.getElementById('ec-status-dot');
+  if(!dot)return; // la carte n'est pas encore dans le DOM (page pas chargée) — rien à faire
+  const label=document.getElementById('ec-status-label');
+  const lastSync=document.getElementById('ec-last-sync');
+  const syncedCount=document.getElementById('ec-synced-count');
+  const syncBtn=document.getElementById('btn-sync-ec');
+  const tenantInput=document.getElementById('ec-tenant');
+  const keyInput=document.getElementById('ec-api-key');
+
+  const connected=ecConnection&&ecConnection.status==='connected';
+  dot.className='status-dot '+(connected?'connected':'disconnected');
+  label.textContent=connected?'Connecté':(ecConnection?'Non connecté':'Non configuré');
+
+  if(lastSync){
+    const has=ecConnection&&ecConnection.last_sync_at;
+    lastSync.textContent=has?new Date(ecConnection.last_sync_at).toLocaleString('fr-FR'):'—';
+    lastSync.style.color=has?'#17122E':'#B0A8C8';
+  }
+  if(syncedCount){
+    const ecCount=apparts.filter(a=>a.source==='easy_concierge').length;
+    syncedCount.textContent=ecCount;
+    syncedCount.style.color=ecCount>0?'#059669':'#B0A8C8';
+  }
+  if(syncBtn)syncBtn.style.display=ecConnection?'block':'none';
+  if(tenantInput&&ecConnection)tenantInput.value=ecConnection.tenant||'';
+  // Jamais réafficher la clé : on vide le champ et on indique juste qu'une clé existe déjà.
+  if(keyInput){
+    keyInput.value='';
+    keyInput.placeholder=ecConnection?'Clé enregistrée — laissez vide pour la conserver':'Collez votre clé API ici…';
+  }
+}
+
+async function testEasyConcierge(){
+  const tenant=document.getElementById('ec-tenant').value.trim();
+  const apiKey=document.getElementById('ec-api-key').value.trim();
+  if(!tenant||!apiKey){showErr('ec-error','Renseignez le tenant et la clé API avant de tester.');return;}
+  const btn=document.getElementById('btn-test-ec');btn.disabled=true;btn.textContent='Test…';
+  try{
+    const data=await functionCall(EASY_CONCIERGE_FN,{action:'test',tenant,apiKey});
+    if(data.success)showOk('ec-success','Connexion Easy Concierge OK ('+(data.sample_count||0)+' logement(s) détecté(s)). Cliquez sur «\u00a0Enregistrer\u00a0» pour sauvegarder.');
+    else showErr('ec-error','Connexion refusée : '+(data.error||'tenant ou clé API invalide.'));
+  }catch(e){showErr('ec-error','Erreur de connexion à Easy Concierge.');}
+  btn.disabled=false;btn.textContent='🔌 Tester la connexion';
+}
+
+async function saveEasyConcierge(){
+  const tenant=document.getElementById('ec-tenant').value.trim();
+  const apiKeyInput=document.getElementById('ec-api-key');
+  const apiKey=apiKeyInput.value.trim();
+  if(!tenant){showErr('ec-error','Le tenant est obligatoire.');return;}
+  if(!apiKey&&!ecConnection){showErr('ec-error','La clé API est obligatoire pour une première connexion.');return;}
+  const btn=document.getElementById('btn-save-ec');btn.disabled=true;btn.textContent='…';
+  try{
+    const body={user_id:currentUser.user.id,provider:'easy_concierge',tenant,updated_at:new Date().toISOString()};
+    if(apiKey)body.api_key=apiKey; // champ laissé vide = clé existante conservée, jamais écrasée par du vide
+    if(ecConnection){
+      await sbFetch(`pms_connections?id=eq.${ecConnection.id}`,{method:'PATCH',body:JSON.stringify(body)});
+    }else{
+      body.status='pending';
+      await sbFetch('pms_connections',{method:'POST',body:JSON.stringify(body)});
+    }
+    apiKeyInput.value='';
+    showToast('✓ Connexion Easy Concierge enregistrée');
+    await loadEasyConciergeConnection();
+  }catch(e){showErr('ec-error','Erreur lors de l\u2019enregistrement.');}
+  btn.disabled=false;btn.textContent='💾 Enregistrer';
+}
+
+async function syncEasyConcierge(){
+  if(!ecConnection){showErr('ec-error','Enregistrez d\u2019abord une connexion avant de synchroniser.');return;}
+  const btn=document.getElementById('btn-sync-ec');btn.disabled=true;btn.textContent='Synchronisation…';
+  showToast('🔄 Synchronisation Easy Concierge…');
+  try{
+    const result=await functionCall(EASY_CONCIERGE_FN,{action:'sync-properties',connection_id:ecConnection.id});
+    const errCount=(result.errors||[]).length;
+    showToast(`✓ ${result.inserted} logement(s) créé(s), ${result.updated} mis à jour`+(errCount?` — ${errCount} erreur(s)`:''));
+    // Recharge apparts depuis Supabase (même requête que loadApp) pour que Parc EVA voie les nouveaux logements
+    const aRes=await sbFetch(`appartements?user_id=eq.${currentUser.user.id}&select=*&order=created_at.asc`);
+    const allAppartsRaw=await aRes.json();
+    const allApparts=Array.isArray(allAppartsRaw)?allAppartsRaw:[];
+    apparts=allApparts.filter(a=>!a.archived);archivedApparts=allApparts.filter(a=>a.archived);
+    await loadEasyConciergeConnection();
+    renderAll();
+  }catch(e){showToast('⚠️ Erreur de synchronisation Easy Concierge');}
+  btn.disabled=false;btn.textContent='🔄 Synchroniser maintenant';
 }
 
 function toggleSidebar(){
@@ -4230,6 +4342,292 @@ function rqEvaPropertyHealth(apt){
     scoreCommercial:scoreCommercial,scoreFinancier:scoreFinancier,scoreOperationnel:scoreOperationnel,
     why:why,priorityAction:priorityAction,impactEstimate:potential.total,
     finUrgent:finUrgent,occ:occ,adr:adr,fin:finAvg
+  };
+}
+
+// === Parc EVA V1 — couche d'arbitrage au-dessus de rqEvaPropertyHealth ===
+//
+// Règle absolue : l'ancien moteur EVA (rqComputeFinancials, rqAptFinancialScore,
+// rqAptOperationalScore, rqAptCommercialScore, rqEvaPropertyHealth) reste intact et reste
+// l'UNIQUE source de vérité pour les signaux qu'il traite déjà. Cette couche ne le recalcule
+// jamais et ne pénalise jamais une seconde fois un signal déjà traité par lui.
+//
+// Ancien EVA = signaux bruts (santé d'UN logement, fiche logement).
+// Parc EVA   = arbitrage de mandat (le logement mérite-t-il d'être développé, surveillé ou
+// renégocié ?), avec 3 piliers pondérés : Financier 40% / Opérationnel 30% / Relationnel 30%.
+//
+// Les seuls ajustements que cette couche s'autorise sont ceux que l'ancien moteur ne traite
+// PAS encore :
+//   - financier      → temps consommé par la conciergerie (rqComputeFinancials ne déduit
+//                       aucun coût horaire de la marge)
+//   - opérationnel    → récurrence d'incidents par catégorie (rqAptOperationalScore ne connaît
+//                       que les ménages en retard, jamais cleaning_reports)
+//   - relationnel     → pilier autonome (note OTA par paliers + exigence propriétaire), séparé
+//                       du score opérationnel — cf. point validé du cadrage
+//
+// Si une donnée Parc EVA n'est pas encore renseignée (aucun branchement UI/DB à ce stade —
+// ce sous-sprint crée uniquement la couche de calcul), l'ajustement correspondant vaut 0 et
+// est documenté dans details.missingData. Jamais de score inventé, jamais de crash.
+
+// ── Lecture d'un champ interne Parc EVA, avec fallback neutre si absent ──
+// Cherche d'abord apt.rentyq_internal_data.<champ> (forme du modèle de données officiel),
+// puis apt.<champ> à plat (au cas où un futur formulaire le poserait directement sur l'appart).
+// Renvoie null si la donnée n'existe nulle part — jamais une valeur inventée.
+function rqParcInternal(apt,field){
+  if(!apt)return null;
+  if(apt.rentyq_internal_data&&apt.rentyq_internal_data[field]!=null)return apt.rentyq_internal_data[field];
+  if(apt[field]!=null)return apt[field];
+  return null;
+}
+
+// ── Malus "exigence propriétaire" — barème produit (Normal/Élevé/Très élevé) ──
+// Accepte un niveau numérique (1/2/3) ou une chaîne, pour rester tolérant à la forme exacte
+// que prendra le futur champ owner_exigency_level. Renvoie null si le niveau n'est pas
+// reconnu : on ne devine pas un malus sur une donnée ambiguë.
+function rqParcExigencyMalus(level){
+  if(level==null)return null;
+  var map={1:10,'1':10,normal:10,2:20,'2':20,eleve:20,'élevé':20,3:35,'3':35,tres_eleve:35,'très_élevé':35};
+  var key=(typeof level==='string')?level.toLowerCase():level;
+  return map[key]!=null?map[key]:null;
+}
+
+// ── Récurrence d'incidents par catégorie, à partir de cleaning_reports (signal réel déjà en
+// base, jamais regardé par rqAptOperationalScore qui ne connaît que les missions en retard) ──
+// Fenêtre : 90 derniers jours, pour rester un signal de tendance récente et non un historique
+// figé qui pénaliserait indéfiniment un incident ancien et résolu.
+function rqParcIncidentRecurrence(apt){
+  var allReports=(typeof reportsData!=='undefined'?reportsData:[])||[];
+  var since=new Date();since.setDate(since.getDate()-90);
+  var sinceIso=since.toISOString().slice(0,10);
+  var aptReports=allReports.filter(function(r){
+    return r&&String(r.appartement_id)===String(apt.id)&&r.report_type&&r.report_type!=='ras'&&
+      (!r.created_at||r.created_at.slice(0,10)>=sinceIso);
+  });
+  var counts={};
+  aptReports.forEach(function(r){counts[r.report_type]=(counts[r.report_type]||0)+1;});
+  var recurringCategories=Object.keys(counts).filter(function(cat){return counts[cat]>=3;});
+  return {total:aptReports.length,byCategory:counts,recurringCategories:recurringCategories};
+}
+
+// === buildParcEvaProperty(a) ===
+// Construit le contexte d'arbitrage d'un logement : signal brut de l'ancien moteur (jamais
+// recalculé) + signaux internes Parc EVA (avec fallback neutre documenté si absents).
+function buildParcEvaProperty(a){
+  if(!a)return null;
+
+  var sourceHealth=rqEvaPropertyHealth(a); // ancien moteur, inchangé — unique source des signaux déjà traités
+  var missing=[];
+
+  var ownerExigencyLevel=rqParcInternal(a,'owner_exigency_level');
+  if(ownerExigencyLevel==null)missing.push('owner_exigency_level');
+
+  var agencyHourlyCost=rqParcInternal(a,'agency_hourly_cost');
+
+  var hoursOps=rqParcInternal(a,'hours_spent_ops_30_days');
+  var hoursSupport=rqParcInternal(a,'hours_spent_support_30_days');
+  var totalHoursDirect=rqParcInternal(a,'total_hours_spent_30_days');
+  var totalHoursSpent30Days=totalHoursDirect!=null?Number(totalHoursDirect):
+    ((hoursOps!=null||hoursSupport!=null)?(Number(hoursOps)||0)+(Number(hoursSupport)||0):null);
+  if(totalHoursSpent30Days==null)missing.push('total_hours_spent_30_days');
+
+  var incidentRecurrence=rqParcIncidentRecurrence(a);
+
+  return {
+    apt:a,
+    sourceHealth:sourceHealth,
+    internal:{
+      ownerExigencyLevel:ownerExigencyLevel,
+      agencyHourlyCost:agencyHourlyCost,
+      totalHoursSpent30Days:totalHoursSpent30Days,
+      incidentRecurrence:incidentRecurrence
+    },
+    missing:missing
+  };
+}
+
+// === calculateFinancialScore(ctx) ===
+// Base = scoreFinancier de rqEvaPropertyHealth (marge nette réelle, déjà moyennée 3 mois —
+// signal brut, jamais recalculé ici). Seul ajustement Parc EVA : le temps consommé, que
+// rqComputeFinancials ne déduit jamais de la marge. Pénalité fixe -15 pts au-delà de 20h/mois
+// consommées, conforme au barème produit — jamais cumulée avec une pénalité existante puisque
+// l'ancien moteur ne traite pas ce signal.
+function calculateFinancialScore(ctx){
+  var base=ctx&&ctx.sourceHealth?ctx.sourceHealth.scoreFinancier:50;
+  var score=base;
+  var adjustments=[];
+
+  var hours=ctx&&ctx.internal?ctx.internal.totalHoursSpent30Days:null;
+  if(hours!=null){
+    if(hours>20){
+      score-=15;
+      adjustments.push({signal:'temps_consomme',detail:hours+'h/mois consommees, au-dessus du seuil de 20h',delta:-15});
+    }else{
+      adjustments.push({signal:'temps_consomme',detail:hours+'h/mois consommees, sous le seuil de 20h',delta:0});
+    }
+  }else{
+    adjustments.push({signal:'temps_consomme',detail:'donnee absente (total_hours_spent_30_days)',delta:0});
+  }
+
+  return {score:Math.max(0,Math.min(100,Math.round(score))),base:base,adjustments:adjustments};
+}
+
+// === calculateOperationalScore(ctx) ===
+// Base = scoreOperationnel de rqEvaPropertyHealth (qualite voyageurs + menages en retard ou
+// absents — signal brut, jamais recalcule ici). Seul ajustement Parc EVA : la recurrence
+// d'incidents par categorie (>=3 occurrences sur 90 jours), signal que l'ancien moteur ne
+// regarde jamais (il ne connait que les missions en retard, pas cleaning_reports).
+function calculateOperationalScore(ctx){
+  var base=ctx&&ctx.sourceHealth?ctx.sourceHealth.scoreOperationnel:70;
+  var score=base;
+  var adjustments=[];
+
+  var rec=ctx&&ctx.internal?ctx.internal.incidentRecurrence:null;
+  if(rec&&rec.recurringCategories.length){
+    var malus=rec.recurringCategories.length*15;
+    score-=malus;
+    adjustments.push({
+      signal:'recurrence_incidents',
+      detail:rec.recurringCategories.length+' categorie(s) recurrente(s) sur 90j (>=3 occurrences) : '+rec.recurringCategories.join(', '),
+      delta:-malus
+    });
+  }else{
+    adjustments.push({signal:'recurrence_incidents',detail:'aucune recurrence detectee sur 90j',delta:0});
+  }
+
+  return {score:Math.max(0,Math.min(100,Math.round(score))),base:base,adjustments:adjustments};
+}
+
+// === calculateRelationalScore(ctx) ===
+// Pilier autonome (point validé du cadrage) : recalculé séparément avec le barème OTA par
+// paliers — PAS dérivé du scoreOperationnel de l'ancien moteur, qui mélange déjà note et
+// exécution terrain. Ajoute le relationnel propriétaire (exigence), que l'ancien moteur ne
+// traite jamais : ce signal n'existe nulle part ailleurs, donc aucun risque de double pénalité.
+function calculateRelationalScore(ctx){
+  var apt=ctx?ctx.apt:null;
+  var adjustments=[];
+
+  var note=(apt&&apt.note!=null&&apt.note!=='—'&&!isNaN(+apt.note))?+apt.note:null;
+  var otaScore;
+  if(note==null){
+    otaScore=50; // neutre : pas de note exploitable, on ne fabrique pas de signal
+    adjustments.push({signal:'note_ota',detail:'donnee absente — neutre',delta:0});
+  }else{
+    if(note>=4.8)otaScore=100;
+    else if(note>=4.6)otaScore=85;
+    else if(note>=4.4)otaScore=70;
+    else if(note>=4.2)otaScore=50;
+    else if(note>=4.0)otaScore=30;
+    else otaScore=0;
+    adjustments.push({signal:'note_ota',detail:'note '+note+'/5 -> '+otaScore+' pts (bareme par paliers)',delta:otaScore-50});
+  }
+
+  var score=otaScore;
+  var exigencyLevel=ctx&&ctx.internal?ctx.internal.ownerExigencyLevel:null;
+  if(exigencyLevel!=null){
+    var malus=rqParcExigencyMalus(exigencyLevel);
+    if(malus!=null){
+      score-=malus;
+      adjustments.push({signal:'exigence_proprietaire',detail:'niveau '+exigencyLevel+' -> -'+malus+' pts',delta:-malus});
+    }else{
+      adjustments.push({signal:'exigence_proprietaire',detail:'niveau '+exigencyLevel+' non reconnu — aucun malus applique',delta:0});
+    }
+  }else{
+    adjustments.push({signal:'exigence_proprietaire',detail:'donnee absente (owner_exigency_level)',delta:0});
+  }
+
+  return {score:Math.max(0,Math.min(100,Math.round(score))),base:otaScore,adjustments:adjustments};
+}
+
+// === calculateGlobalScore(scores) ===
+// Global Score = 40% Financier + 30% Operationnel + 30% Relationnel (bareme produit fige).
+function calculateGlobalScore(scores){
+  var f=scores&&scores.financialScore!=null?scores.financialScore:50;
+  var o=scores&&scores.operationalScore!=null?scores.operationalScore:50;
+  var r=scores&&scores.relationalScore!=null?scores.relationalScore:50;
+  return Math.max(0,Math.min(100,Math.round(f*0.40+o*0.30+r*0.30)));
+}
+
+// === generateEvaDiagnostic(ctx, scores) ===
+// Segmente le mandat (Pepites / A surveiller / Sous-performants / A arbitrer) et explique
+// le pilier le plus fragile. Reutilise le "why" deja produit par rqEvaPropertyHealth (jamais
+// reformule ni recalcule) puis ajoute, si actifs, les signaux propres a Parc EVA.
+function generateEvaDiagnostic(ctx,scores){
+  var g=scores?scores.globalScore:0;
+  var segment,segmentLabel;
+  if(g>=80){segment='pepite';segmentLabel='🟢 Pépite';}
+  else if(g>=60){segment='a_surveiller';segmentLabel='🟡 À surveiller';}
+  else if(g>=40){segment='sous_performant';segmentLabel='🟠 Sous-performant';}
+  else{segment='a_arbitrer';segmentLabel='🔴 À arbitrer';}
+
+  var piliers=[
+    {key:'financialScore',label:'Financier',value:scores?scores.financialScore:0},
+    {key:'operationalScore',label:'Opérationnel',value:scores?scores.operationalScore:0},
+    {key:'relationalScore',label:'Relationnel',value:scores?scores.relationalScore:0}
+  ];
+  piliers.sort(function(a,b){return a.value-b.value;});
+  var weakest=piliers[0];
+
+  var lines=[];
+  lines.push(segmentLabel+' (score mandat '+g+'/100).');
+  lines.push('Pilier le plus fragile : '+weakest.label+' ('+weakest.value+'/100).');
+
+  if(ctx&&ctx.sourceHealth&&ctx.sourceHealth.why&&ctx.sourceHealth.why.length){
+    lines.push(ctx.sourceHealth.why[0]);
+  }
+
+  var rec=ctx&&ctx.internal?ctx.internal.incidentRecurrence:null;
+  if(rec&&rec.recurringCategories.length){
+    lines.push('Récurrence d\'incidents détectée : '+rec.recurringCategories.join(', ')+'.');
+  }
+  if(ctx&&ctx.internal&&ctx.internal.ownerExigencyLevel!=null){
+    lines.push('Exigence propriétaire renseignée (niveau '+ctx.internal.ownerExigencyLevel+').');
+  }
+  if(ctx&&ctx.internal&&ctx.internal.totalHoursSpent30Days!=null&&ctx.internal.totalHoursSpent30Days>20){
+    lines.push('Temps consommé élevé : '+ctx.internal.totalHoursSpent30Days+'h/mois.');
+  }
+
+  return {segment:segment,segmentLabel:segmentLabel,weakestPillar:weakest.key,summary:lines.join(' ')};
+}
+
+// === calculatePropertyEva(a) ===
+// Orchestrateur Parc EVA V1 : assemble les 3 piliers + le score global + le diagnostic, sans
+// jamais recalculer ni modifier l'ancien moteur. C'est la seule fonction a appeler depuis
+// l'exterieur de cette section pour obtenir l'arbitrage complet d'un logement.
+function calculatePropertyEva(a){
+  var ctx=buildParcEvaProperty(a);
+  if(!ctx)return null;
+
+  var fin=calculateFinancialScore(ctx);
+  var ops=calculateOperationalScore(ctx);
+  var rel=calculateRelationalScore(ctx);
+
+  var scores={financialScore:fin.score,operationalScore:ops.score,relationalScore:rel.score};
+  scores.globalScore=calculateGlobalScore(scores);
+
+  var diagnostic=generateEvaDiagnostic(ctx,scores);
+
+  return {
+    financialScore:scores.financialScore,
+    operationalScore:scores.operationalScore,
+    relationalScore:scores.relationalScore,
+    globalScore:scores.globalScore,
+    diagnostic:diagnostic,
+    details:{
+      fromSourceHealth:{
+        scoreFinancier:ctx.sourceHealth?ctx.sourceHealth.scoreFinancier:null,
+        scoreOperationnel:ctx.sourceHealth?ctx.sourceHealth.scoreOperationnel:null,
+        scoreCommercial:ctx.sourceHealth?ctx.sourceHealth.scoreCommercial:null,
+        verdict:ctx.sourceHealth?ctx.sourceHealth.verdict:null,
+        verdictLabel:ctx.sourceHealth?ctx.sourceHealth.verdictLabel:null
+      },
+      parcEvaAdjustments:{
+        financial:fin.adjustments,
+        operational:ops.adjustments,
+        relational:rel.adjustments
+      },
+      missingData:ctx.missing
+    },
+    sourceHealth:ctx.sourceHealth
   };
 }
 
