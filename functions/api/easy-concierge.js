@@ -588,12 +588,11 @@ async function syncReviews(context, userId, config, aptMap) {
     };
   }
 
+  const payload = [];
   const aggregates = new Map();
 
   for (const r of reviews) {
-    const propertyId =
-      r && r.property_id != null ? String(r.property_id) : null;
-
+    const propertyId = r && r.property_id != null ? String(r.property_id) : null;
     const apt = propertyId ? aptMap.get(propertyId) : null;
 
     if (!propertyId || !apt) {
@@ -608,102 +607,127 @@ async function syncReviews(context, userId, config, aptMap) {
     const extId = `${propertyId}_${r.received_at || ''}_${r.channel || ''}`;
     const rating5 = normalizeOverallScore(r.overall_score);
 
-    try {
-      const detailedBody = {
-        user_id: userId,
-        appartement_id: apt.id,
-        source: 'easy_concierge',
-        external_review_id: extId,
-        platform: r.channel || null,
-        overall_score: r.overall_score == null ? null : toNum(r.overall_score, null),
-        rating: rating5,
-        cleanliness_score:
-          r.scores && r.scores.cleanliness != null ? toNum(r.scores.cleanliness, null) : null,
-        communication_score:
-          r.scores && r.scores.communication != null ? toNum(r.scores.communication, null) : null,
-        location_score:
-          r.scores && r.scores.location != null ? toNum(r.scores.location, null) : null,
-        value_score:
-          r.scores && r.scores.value != null ? toNum(r.scores.value, null) : null,
-        checkin_score:
-          r.scores && r.scores.checkin != null ? toNum(r.scores.checkin, null) : null,
-        review_text: r.content || null,
-        comment: r.content || null,
-        review_date: r.received_at || null,
-        created_at: r.received_at || new Date().toISOString()
-      };
+    payload.push({
+      user_id: userId,
+      appartement_id: apt.id,
+      source: 'easy_concierge',
+      external_review_id: extId,
 
-      const findRes = await sb(
-        context,
-        `reviews?user_id=eq.${userId}&source=eq.easy_concierge&external_review_id=eq.${encodeURIComponent(extId)}&select=id`
-      );
+      platform: r.channel || null,
 
-      if (!findRes.ok) throw new Error('lecture review en erreur');
+      overall_score: r.overall_score == null ? null : toNum(r.overall_score, null),
+      rating: rating5,
 
-      const existing = (await findRes.json())[0];
+      cleanliness_score:
+        r.scores && r.scores.cleanliness != null ? toNum(r.scores.cleanliness, null) : null,
 
-      if (existing) {
-        const patchRes = await sb(context, `reviews?id=eq.${existing.id}`, {
-          method: 'PATCH',
-          prefer: 'return=minimal',
-          body: JSON.stringify(detailedBody)
-        });
+      communication_score:
+        r.scores && r.scores.communication != null ? toNum(r.scores.communication, null) : null,
 
-        if (!patchRes.ok) throw new Error('mise à jour review en erreur');
+      location_score:
+        r.scores && r.scores.location != null ? toNum(r.scores.location, null) : null,
 
-        updated++;
-      } else {
-        const postRes = await sb(context, 'reviews', {
-          method: 'POST',
-          prefer: 'return=minimal',
-          body: JSON.stringify(detailedBody)
-        });
+      value_score:
+        r.scores && r.scores.value != null ? toNum(r.scores.value, null) : null,
 
-        if (!postRes.ok) throw new Error('création review en erreur');
+      checkin_score:
+        r.scores && r.scores.checkin != null ? toNum(r.scores.checkin, null) : null,
 
-        inserted++;
-      }
+      review_text: r.content || null,
+      comment: r.content || null,
 
-      if (rating5 != null) {
-        const a = aggregates.get(apt.id) || { sum: 0, count: 0 };
-        a.sum += rating5;
-        a.count++;
-        aggregates.set(apt.id, a);
-      }
-    } catch (e) {
-      errors.push({
-        scope: 'reviews',
-        property_id: propertyId,
-        external_review_id: extId,
-        message: e.message
-      });
+      review_date: r.received_at || null,
+      created_at: r.received_at || new Date().toISOString()
+    });
+
+    if (rating5 != null) {
+      const a = aggregates.get(apt.id) || { sum: 0, count: 0 };
+      a.sum += rating5;
+      a.count++;
+      aggregates.set(apt.id, a);
     }
   }
+
+  if (!payload.length) {
+    return {
+      inserted,
+      updated,
+      errors: errors.concat([{ scope: 'reviews', message: 'aucun avis exploitable à synchroniser' }])
+    };
+  }
+
+  try {
+    const upsertRes = await sb(context, 'reviews?on_conflict=source,external_review_id', {
+      method: 'POST',
+      prefer: 'resolution=merge-duplicates,return=representation',
+      headers: {
+        Prefer: 'resolution=merge-duplicates,return=representation'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!upsertRes.ok) {
+      const detail = await upsertRes.text().catch(() => '');
+      errors.push({
+        scope: 'reviews',
+        message: 'upsert batch reviews impossible : ' + detail.slice(0, 500)
+      });
+    } else {
+      const rows = await upsertRes.json().catch(() => []);
+      updated = Array.isArray(rows) ? rows.length : payload.length;
+    }
+  } catch (e) {
+    errors.push({
+      scope: 'reviews',
+      message: 'upsert batch reviews erreur : ' + e.message
+    });
+  }
+
+  const aggregatePayload = [];
 
   for (const [aptId, agg] of aggregates.entries()) {
     const note = agg.count ? Math.round((agg.sum / agg.count) * 100) / 100 : null;
 
     if (note != null) {
-      const patchRes = await sb(context, `appartements?id=eq.${aptId}`, {
-        method: 'PATCH',
-        prefer: 'return=minimal',
-        body: JSON.stringify({
-          note,
-          nb_avis: agg.count
-        })
+      aggregatePayload.push({
+        id: aptId,
+        note,
+        nb_avis: agg.count
       });
-
-      if (!patchRes.ok) {
-        errors.push({
-          scope: 'reviews_aggregate',
-          appartement_id: aptId,
-          message: 'mise à jour note/nb_avis impossible'
-        });
-      }
     }
   }
 
-  return { inserted, updated, errors };
+  if (aggregatePayload.length) {
+    try {
+      const aggRes = await sb(context, 'appartements?on_conflict=id', {
+        method: 'POST',
+        prefer: 'resolution=merge-duplicates,return=minimal',
+        headers: {
+          Prefer: 'resolution=merge-duplicates,return=minimal'
+        },
+        body: JSON.stringify(aggregatePayload)
+      });
+
+      if (!aggRes.ok) {
+        const detail = await aggRes.text().catch(() => '');
+        errors.push({
+          scope: 'reviews_aggregate',
+          message: 'upsert batch appartements note/nb_avis impossible : ' + detail.slice(0, 500)
+        });
+      }
+    } catch (e) {
+      errors.push({
+        scope: 'reviews_aggregate',
+        message: 'upsert batch appartements erreur : ' + e.message
+      });
+    }
+  }
+
+  return {
+    inserted,
+    updated,
+    errors
+  };
 }
 
 function extractPrice(item) {
