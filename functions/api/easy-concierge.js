@@ -1039,8 +1039,7 @@ if (action === 'sync-pricing') {
 
     return json({
       error: 'unknown_action',
-      allowed_actions: ['test', 'sync-all', 'sync-properties']
-    }, 400);
+allowed_actions: ['test', 'sync-all', 'sync-properties', 'sync-bookings', 'sync-reviews', 'sync-pricing']    }, 400);
   } catch (err) {
     return json({
       error: 'server_error',
