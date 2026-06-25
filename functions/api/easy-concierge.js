@@ -429,7 +429,16 @@ async function syncOneBooking(context, userId, aptId, booking) {
     guest_name: booking.guest_ref || 'Voyageur pseudonymisé',
     platform: booking.channel || 'other',
     status: normalizeBookingStatus(booking.status),
-    price_total: toNum(booking.revenue, 0)
+    price_total: toNum(
+  booking.revenue ??
+  booking.total_amount ??
+  booking.gross_amount ??
+  booking.amount ??
+  booking.net_amount ??
+  booking.price ??
+  0,
+  0
+)
   };
 
   const findRes = await sb(
