@@ -2259,25 +2259,53 @@ async function syncEasyConcierge(){
 
   if(btn){
     btn.disabled=true;
-    btn.textContent='Synchronisation complète…';
+    btn.textContent='Synchronisation…';
   }
 
-  showToast('🔄 Synchronisation Easy Concierge complète…');
+  showToast('🔄 Synchronisation Easy Concierge en plusieurs étapes…');
 
-  try{
-    const result=await functionCall(EASY_CONCIERGE_FN,{
-      action:'sync-all',
+  const total={
+    propertiesInserted:0,
+    propertiesUpdated:0,
+    bookingsInserted:0,
+    bookingsUpdated:0,
+    reviewsInserted:0,
+    reviewsUpdated:0,
+    pricingUpdated:0,
+    errors:[]
+  };
+
+  async function runStep(label, action){
+    showToast('🔄 '+label+'…');
+
+    const res=await functionCall(EASY_CONCIERGE_FN,{
+      action,
       connection_id:ecConnection.id
     });
 
-    const errCount=(result.errors||[]).length;
+    total.propertiesInserted+=(res.propertiesInserted||res.inserted||0);
+    total.propertiesUpdated+=(res.propertiesUpdated||res.updated||0);
+    total.bookingsInserted+=(res.bookingsInserted||0);
+    total.bookingsUpdated+=(res.bookingsUpdated||0);
+    total.reviewsInserted+=(res.reviewsInserted||0);
+    total.reviewsUpdated+=(res.reviewsUpdated||0);
+    total.pricingUpdated+=(res.pricingUpdated||0);
+
+    if(Array.isArray(res.errors)) total.errors=total.errors.concat(res.errors);
+  }
+
+  try{
+    await runStep('Synchronisation des logements','sync-properties');
+    await runStep('Synchronisation des réservations','sync-bookings');
+    await runStep('Synchronisation des avis','sync-reviews');
+    await runStep('Synchronisation des prix','sync-pricing');
 
     const msg='Easy Concierge synchronisé : '+
-      ((result.propertiesInserted||0)+(result.propertiesUpdated||0))+' logement(s), '+
-      ((result.bookingsInserted||0)+(result.bookingsUpdated||0))+' réservation(s), '+
-      ((result.reviewsInserted||0)+(result.reviewsUpdated||0))+' avis, '+
-      (result.pricingUpdated||0)+' prix PMS mis à jour'+
-      (errCount?' — '+errCount+' alerte(s)':'');
+      (total.propertiesInserted+total.propertiesUpdated)+' logement(s), '+
+      (total.bookingsInserted+total.bookingsUpdated)+' réservation(s), '+
+      (total.reviewsInserted+total.reviewsUpdated)+' avis, '+
+      total.pricingUpdated+' prix PMS mis à jour'+
+      (total.errors.length?' — '+total.errors.length+' alerte(s)':'');
 
     showToast('✓ '+msg);
     showOk('ec-success',msg);
@@ -2301,9 +2329,7 @@ async function syncEasyConcierge(){
 
     renderAll();
 
-    try{
-      renderCockpit();
-    }catch(e){}
+    try{renderCockpit();}catch(e){}
 
   }catch(e){
     console.error('syncEasyConcierge',e);
