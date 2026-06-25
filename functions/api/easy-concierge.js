@@ -1017,9 +1017,25 @@ export async function onRequestPost(context) {
 
     if (action === 'test') return await handleTest(context, body);
 
-    if (action === 'sync-all' || action === 'sync-properties') {
-      return await handleSyncAll(context, body);
-    }
+    if (action === 'sync-all') {
+  return await handleSyncAll(context, body);
+}
+
+if (action === 'sync-properties') {
+  return await handleSyncPropertiesOnly(context, body);
+}
+
+if (action === 'sync-bookings') {
+  return await handleSyncBookingsOnly(context, body);
+}
+
+if (action === 'sync-reviews') {
+  return await handleSyncReviewsOnly(context, body);
+}
+
+if (action === 'sync-pricing') {
+  return await handleSyncPricingOnly(context, body);
+}
 
     return json({
       error: 'unknown_action',
