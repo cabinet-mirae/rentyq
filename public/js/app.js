@@ -2250,22 +2250,70 @@ async function saveEasyConcierge(){
 }
 
 async function syncEasyConcierge(){
-  if(!ecConnection){showErr('ec-error','Enregistrez d\u2019abord une connexion avant de synchroniser.');return;}
-  const btn=document.getElementById('btn-sync-ec');btn.disabled=true;btn.textContent='Synchronisation…';
-  showToast('🔄 Synchronisation Easy Concierge…');
+  if(!ecConnection){
+    showErr('ec-error','Enregistrez d’abord une connexion avant de synchroniser.');
+    return;
+  }
+
+  const btn=document.getElementById('btn-sync-ec');
+
+  if(btn){
+    btn.disabled=true;
+    btn.textContent='Synchronisation complète…';
+  }
+
+  showToast('🔄 Synchronisation Easy Concierge complète…');
+
   try{
-    const result=await functionCall(EASY_CONCIERGE_FN,{action:'sync-properties',connection_id:ecConnection.id});
+    const result=await functionCall(EASY_CONCIERGE_FN,{
+      action:'sync-all',
+      connection_id:ecConnection.id
+    });
+
     const errCount=(result.errors||[]).length;
-    showToast(`✓ ${result.inserted} logement(s) créé(s), ${result.updated} mis à jour`+(errCount?` — ${errCount} erreur(s)`:''));
-    // Recharge apparts depuis Supabase (même requête que loadApp) pour que Parc EVA voie les nouveaux logements
+
+    const msg='Easy Concierge synchronisé : '+
+      ((result.propertiesInserted||0)+(result.propertiesUpdated||0))+' logement(s), '+
+      ((result.bookingsInserted||0)+(result.bookingsUpdated||0))+' réservation(s), '+
+      ((result.reviewsInserted||0)+(result.reviewsUpdated||0))+' avis, '+
+      (result.pricingUpdated||0)+' prix PMS mis à jour'+
+      (errCount?' — '+errCount+' alerte(s)':'');
+
+    showToast('✓ '+msg);
+    showOk('ec-success',msg);
+
     const aRes=await sbFetch(`appartements?user_id=eq.${currentUser.user.id}&select=*&order=created_at.asc`);
     const allAppartsRaw=await aRes.json();
     const allApparts=Array.isArray(allAppartsRaw)?allAppartsRaw:[];
-    apparts=allApparts.filter(a=>!a.archived);archivedApparts=allApparts.filter(a=>a.archived);
+
+    apparts=allApparts.filter(a=>!a.archived);
+    archivedApparts=allApparts.filter(a=>a.archived);
+
+    try{
+      const rRes=await sbFetch(`reservations?user_id=eq.${currentUser.user.id}&select=*&order=date_from.desc`);
+      const resRaw=await rRes.json();
+      reservations=Array.isArray(resRaw)?resRaw:[];
+    }catch(e){
+      console.warn('reload reservations after EC sync',e);
+    }
+
     await loadEasyConciergeConnection();
+
     renderAll();
-  }catch(e){showToast('⚠️ Erreur de synchronisation Easy Concierge');}
-  btn.disabled=false;btn.textContent='🔄 Synchroniser maintenant';
+
+    try{
+      renderCockpit();
+    }catch(e){}
+
+  }catch(e){
+    console.error('syncEasyConcierge',e);
+    showErr('ec-error','Erreur de synchronisation Easy Concierge : '+(e.message||'erreur inconnue'));
+  }
+
+  if(btn){
+    btn.disabled=false;
+    btn.textContent='🔄 Synchroniser maintenant';
+  }
 }
 
 function toggleSidebar(){
