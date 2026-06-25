@@ -1049,7 +1049,24 @@ export async function onRequestPost(context) {
     const action = body && body.action;
 
     if (action === 'test') return await handleTest(context, body);
+    if (action === 'debug-bookings') {
+  try {
+    const { config } = await getSyncContext(context, body);
 
+    const bookings = await fetchAllBookings(config);
+
+    return json({
+      success: true,
+      count: bookings.length,
+      sample: bookings.slice(0, 5)
+    });
+  } catch (e) {
+    return json({
+      success: false,
+      error: e.message
+    }, 500);
+  }
+}
     if (action === 'sync-all') {
   return await handleSyncAll(context, body);
 }
