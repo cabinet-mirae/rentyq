@@ -1172,46 +1172,45 @@
             </div>
           </div>
 
-          <!-- ── EASY CONCIERGE ── -->
-          <div class="integration-card" style="margin-bottom:14px">
+          <!-- ── EASY CONCIERGE (Sprint 0.2 — parcours utilisateur réel) ── -->
+          <div class="integration-card" id="int-card-easy-concierge" style="margin-bottom:14px">
             <div class="integration-card-head">
               <div class="integration-logo">&#x1F3E2;</div>
               <div style="flex:1;min-width:0">
                 <div class="integration-name">Easy Concierge</div>
                 <div class="integration-desc">PMS fran&#231;ais &#8212; logements, r&#233;servations, m&#233;nages</div>
               </div>
-              <span class="integration-status available">Disponible</span>
-            </div>
-            <div class="integration-stat-row">
-              <span class="integration-stat-label">Statut</span>
-              <span class="integration-stat-val" style="color:#DC2626">Non connect&#233;</span>
+              <div class="integration-status soon" id="ec-status-badge" style="display:flex;align-items:center;gap:5px">
+                <div class="status-dot disconnected" id="ec-status-dot"></div>
+                <span id="ec-status-label">Non configur&#233;</span>
+              </div>
             </div>
             <div class="integration-stat-row">
               <span class="integration-stat-label">Derni&#232;re synchronisation</span>
-              <span class="integration-stat-val" style="color:#B0A8C8">—</span>
+              <span class="integration-stat-val" id="ec-last-sync" style="color:#B0A8C8">—</span>
             </div>
             <div class="integration-stat-row">
               <span class="integration-stat-label">Logements synchronis&#233;s</span>
-              <span class="integration-stat-val" style="color:#B0A8C8">0</span>
+              <span class="integration-stat-val" id="ec-synced-count" style="color:#B0A8C8">0</span>
             </div>
             <div class="integration-config">
               <div class="integration-inputs">
                 <div class="integration-input-row">
-                  <div class="integration-input-label">Cl&#233; API Easy Concierge</div>
-                  <input type="text" class="integration-input-field" placeholder="Votre cl&#233; API Easy Concierge&#8230;"/>
+                  <div class="integration-input-label">Tenant Easy Concierge</div>
+                  <input type="text" id="ec-tenant" class="integration-input-field" placeholder="Identifiant de votre compte Easy Concierge&#8230;"/>
                 </div>
                 <div class="integration-input-row">
-                  <div class="integration-input-label">URL Easy Concierge</div>
-                  <input type="text" class="integration-input-field" placeholder="https://votrecompte.easy-concierge.com"/>
+                  <div class="integration-input-label">Cl&#233; API Easy Concierge</div>
+                  <input type="password" id="ec-api-key" class="integration-input-field" placeholder="Collez votre cl&#233; API ici&#8230;" autocomplete="off"/>
                 </div>
               </div>
               <div class="integration-actions">
-                <button class="integration-btn secondary" style="flex:1" onclick="alert('Test Easy Concierge \u2014 disponible dans la prochaine mise \u00e0 jour EVA.')">Tester la connexion</button>
-                <button class="integration-btn primary" style="flex:1" onclick="alert('Connexion Easy Concierge \u2014 disponible dans la prochaine mise \u00e0 jour EVA.')">Enregistrer</button>
+                <button class="integration-btn secondary" onclick="testEasyConcierge()" id="btn-test-ec" style="flex:1">&#x1F50C; Tester la connexion</button>
+                <button class="integration-btn primary" onclick="saveEasyConcierge()" id="btn-save-ec" style="flex:1">&#x1F4BE; Enregistrer</button>
               </div>
-              <div class="integration-info-box">
-                &#x2139;&#xFE0F; La connexion Easy Concierge sera active dans la prochaine mise &#224; jour EVA. Vous pouvez renseigner vos identifiants d&#232;s maintenant.
-              </div>
+              <button class="integration-btn secondary" onclick="syncEasyConcierge()" id="btn-sync-ec" style="width:100%;margin-top:10px;display:none">&#x1F504; Synchroniser maintenant</button>
+              <div class="auth-error" id="ec-error"></div>
+              <div class="auth-success" id="ec-success"></div>
             </div>
           </div>
 
