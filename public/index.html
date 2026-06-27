@@ -613,13 +613,28 @@
             <div class="page-sub" id="parc-sub">Vos logements et recommandations EVA</div>
           </div>
           <div class="actions">
+            <div class="parc-view-toggle" id="parc-view-toggle">
+              <button type="button" class="parc-view-toggle-btn" id="btn-parc-view-cards" onclick="rqShowParcView('cards')">📋 Cartes</button>
+              <button type="button" class="parc-view-toggle-btn active" id="btn-parc-view-arb" onclick="rqShowParcView('arbitrage')">⚖️ Arbitrage</button>
+            </div>
             <button class="btn" onclick="showParcMap()" id="btn-parc-map"><i class="ti ti-map-pin"></i> Carte</button>
             <button class="btn btn-purple" onclick="openAddModal()"><i class="ti ti-plus"></i> Ajouter un bien</button>
           </div>
         </div>
 
+        <!-- Vue Arbitrage EVA (Sprint 1.2) — vue par défaut -->
+        <div id="parc-arbitrage-view">
+          <div class="parc-arb-tabs" id="parc-arb-tabs"></div>
+          <div class="parc-arb-cards" id="parc-arb-cards"></div>
+          <div id="parc-arb-empty" style="display:none;text-align:center;padding:3rem;background:white;border-radius:16px;border:1px dashed rgba(139,92,246,.28)">
+            <div style="font-size:42px;margin-bottom:14px">⚖️</div>
+            <div style="font-size:18px;font-weight:800;color:#0B0722;font-family:Sora,sans-serif;margin-bottom:8px">Aucun logement dans ce segment</div>
+            <div style="font-size:13px;color:#8A8A99">Choisissez un autre onglet ci-dessus.</div>
+          </div>
+        </div>
+
         <!-- Vue liste (cartes EVA) -->
-        <div id="parc-list-view">
+        <div id="parc-list-view" style="display:none">
           <div id="parc-empty" style="display:none;text-align:center;padding:3rem;background:white;border-radius:16px;border:1px dashed rgba(139,92,246,.28)">
             <div style="font-size:42px;margin-bottom:14px">🏠</div>
             <div style="font-size:18px;font-weight:800;color:#0B0722;font-family:Sora,sans-serif;margin-bottom:8px">Ajoutez votre premier logement</div>
