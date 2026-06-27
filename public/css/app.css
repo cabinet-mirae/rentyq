@@ -2402,3 +2402,61 @@ tr:hover td { background: #FAF6FF !important; }
   .parc-arb-card-name{max-width:55vw}
   .parc-arb-footline{flex-direction:column;align-items:flex-start;gap:3px}
 }
+
+/* ============================================================
+   EVA MARKET INTELLIGENCE — onglet "Market Intelligence" de la fiche logement
+   ============================================================ */
+
+.rq-mi-loading,.rq-mi-empty{
+  text-align:center;padding:3rem 1.5rem;color:#8A8A99;font-size:13px;
+}
+.rq-mi-empty-icon{font-size:38px;margin-bottom:10px}
+.rq-mi-empty-title{font-size:16px;font-weight:800;color:#17122E;font-family:Sora,sans-serif;margin-bottom:6px}
+.rq-mi-empty-sub{font-size:13px;color:#8A8A99;max-width:380px;margin:0 auto 16px;line-height:1.55}
+
+.rq-mi-header{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:14px;
+  background:#fff;border:1px solid #EEEEF5;border-radius:16px;padding:18px 20px;margin-bottom:14px;
+}
+.rq-mi-title{font-size:16px;font-weight:800;color:#17122E;font-family:Sora,sans-serif}
+.rq-mi-sub{font-size:12.5px;color:#8A8A99;margin-top:3px}
+.rq-mi-score-badge{
+  flex-shrink:0;width:64px;height:64px;border-radius:50%;
+  display:flex;align-items:baseline;justify-content:center;gap:1px;
+  font-size:22px;font-weight:900;color:#fff;background:var(--rq-grad);
+}
+.rq-mi-score-badge span{font-size:10px;font-weight:700;opacity:.85}
+.rq-mi-score-badge.pepites{background:linear-gradient(135deg,#10B981,#059669)}
+.rq-mi-score-badge.surveiller{background:linear-gradient(135deg,#FBBF24,#F59E0B)}
+.rq-mi-score-badge.sous_perf{background:linear-gradient(135deg,#FB923C,#F97316)}
+.rq-mi-score-badge.arbitrer{background:linear-gradient(135deg,#F87171,#EF4444)}
+
+.rq-mi-columns{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.rq-mi-col{background:#fff;border:1px solid #EEEEF5;border-radius:14px;padding:14px 16px}
+.rq-mi-col-title{font-size:12px;font-weight:800;color:#4B4566;text-transform:uppercase;letter-spacing:.3px;margin-bottom:10px}
+.rq-mi-point{font-size:13px;line-height:1.5;color:#17122E;padding:6px 0 6px 18px;position:relative;border-bottom:1px solid #FAFAFE}
+.rq-mi-point:last-child{border-bottom:0}
+.rq-mi-point::before{content:'';position:absolute;left:0;top:13px;width:7px;height:7px;border-radius:50%}
+.rq-mi-point.good::before{background:#10B981}
+.rq-mi-point.bad::before{background:#EF4444}
+.rq-mi-point-empty{font-size:12.5px;color:#B0A8C8;font-style:italic}
+
+.rq-mi-impact{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  background:linear-gradient(135deg,#F3E8FF,#FCE7F3);border:1px solid #E9D5FF;
+  border-radius:14px;padding:16px 20px;margin-bottom:14px;
+}
+.rq-mi-impact-label{font-size:11px;font-weight:800;color:#7C3AED;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.rq-mi-impact-value{font-size:19px;font-weight:900;color:#3B1768;font-family:Sora,sans-serif}
+.rq-mi-impact-detail{font-size:12px;color:#6D28D9}
+
+.rq-mi-reco{
+  background:#F5F4FF;border-left:3px solid #9333EA;border-radius:10px;
+  padding:12px 14px;font-size:13px;line-height:1.5;color:#3B1768;margin-bottom:10px;
+}
+.rq-mi-footnote{font-size:10.5px;color:#B0A8C8;text-align:center;line-height:1.5}
+
+@media(max-width:768px){
+  .rq-mi-columns{grid-template-columns:1fr}
+  .rq-mi-header{flex-direction:column;align-items:flex-start}
+}
