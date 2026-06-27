@@ -293,10 +293,11 @@
 
         <!-- ── Parc ── -->
         <div class="nav-group" id="grp-parc">
-          <button class="nav-group-header" onclick="toggleGroup('grp-parc')">
+          <button class="nav-group-header" onclick="toggleGroup('grp-parc');goTo('parc',document.querySelector('[data-page=&quot;parc&quot;]'))">
             <span class="nav-emoji"><i class="ti ti-building" aria-hidden="true"></i></span>Parc<span class="nav-chevron">&#9658;</span>
           </button>
           <div class="nav-sub-items">
+            <button class="nav-sub-item" data-page="parc" onclick="goTo('parc',this)">⚖️ Vue Arbitrage</button>
             <button class="nav-sub-item" data-page="parc-fiches" onclick="goTo('parc-fiches',this)">Fiches logements <span class="nav-badge" id="parc-badge" style="font-size:9px;padding:1px 5px">0</span></button>
             <button class="nav-sub-item" data-page="parc-comparaison" onclick="goTo('parc-comparaison',this)">Comparaison</button>
           </div>
@@ -609,20 +610,16 @@
       <div class="page" id="page-parc">
         <div class="page-header">
           <div>
-            <div class="page-title">Mes biens</div>
-            <div class="page-sub" id="parc-sub">Vos logements et recommandations EVA</div>
+            <div class="page-title">Vue Arbitrage</div>
+            <div class="page-sub" id="parc-sub">La santé de votre parc, en un coup d'œil</div>
           </div>
           <div class="actions">
-            <div class="parc-view-toggle" id="parc-view-toggle">
-              <button type="button" class="parc-view-toggle-btn" id="btn-parc-view-cards" onclick="rqShowParcView('cards')">📋 Cartes</button>
-              <button type="button" class="parc-view-toggle-btn active" id="btn-parc-view-arb" onclick="rqShowParcView('arbitrage')">⚖️ Arbitrage</button>
-            </div>
             <button class="btn" onclick="showParcMap()" id="btn-parc-map"><i class="ti ti-map-pin"></i> Carte</button>
             <button class="btn btn-purple" onclick="openAddModal()"><i class="ti ti-plus"></i> Ajouter un bien</button>
           </div>
         </div>
 
-        <!-- Vue Arbitrage EVA (Sprint 1.2) — vue par défaut -->
+        <!-- Vue Arbitrage EVA — unique contenu du module Parc -->
         <div id="parc-arbitrage-view">
           <div class="parc-arb-tabs" id="parc-arb-tabs"></div>
           <div class="parc-arb-cards" id="parc-arb-cards"></div>
@@ -631,17 +628,6 @@
             <div style="font-size:18px;font-weight:800;color:#0B0722;font-family:Sora,sans-serif;margin-bottom:8px">Aucun logement dans ce segment</div>
             <div style="font-size:13px;color:#8A8A99">Choisissez un autre onglet ci-dessus.</div>
           </div>
-        </div>
-
-        <!-- Vue liste (cartes EVA) -->
-        <div id="parc-list-view" style="display:none">
-          <div id="parc-empty" style="display:none;text-align:center;padding:3rem;background:white;border-radius:16px;border:1px dashed rgba(139,92,246,.28)">
-            <div style="font-size:42px;margin-bottom:14px">🏠</div>
-            <div style="font-size:18px;font-weight:800;color:#0B0722;font-family:Sora,sans-serif;margin-bottom:8px">Ajoutez votre premier logement</div>
-            <div style="font-size:13px;color:#8A8A99;line-height:1.65;margin-bottom:20px">EVA analysera chaque bien et vous guidera vers les meilleures décisions.</div>
-            <button class="btn btn-purple" onclick="openAddModal()"><i class="ti ti-plus"></i> Ajouter un bien</button>
-          </div>
-          <div id="parc-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px"></div>
         </div>
 
         <!-- Vue carte -->
