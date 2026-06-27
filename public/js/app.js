@@ -274,6 +274,7 @@ function renderAll(){
   try{renderKPIs();}catch(e){console.warn('renderKPIs',e);}
   try{renderCockpitTable();}catch(e){console.warn('renderCockpitTable',e);}
   try{renderParcTable();}catch(e){console.warn('renderParcTable',e);}
+  try{renderParcArbitrage();}catch(e){console.warn('renderParcArbitrage',e);}
   try{renderResTable();}catch(e){console.warn('renderResTable',e);}
   try{renderPricingTable();}catch(e){console.warn('renderPricingTable',e);}
   const _pb=document.getElementById('parc-badge');if(_pb)_pb.textContent=apparts.length;
@@ -4646,6 +4647,200 @@ function calculatePropertyEva(a){
     sourceHealth:ctx.sourceHealth
   };
 }
+
+// ============================================================
+// PARC EVA — VUE ARBITRAGE (Sprint 1.2)
+// Lecture seule : utilise calculatePropertyEva(a) si disponible (Sprint 1.1), sinon
+// rqEvaPropertyHealth(a) seul en fallback. Ni l'un ni l'autre n'est jamais modifié ni
+// recalculé différemment ici — cette section ne fait QUE lire leurs résultats et les
+// classer visuellement. Le Cockpit, Easy Concierge et Supabase ne sont pas concernés.
+// ============================================================
+
+let rqArbActiveTab=null;
+let rqArbTabInitialized=false;
+
+const RQ_ARB_TAB_DEFS=[
+  {key:'tous',label:'Tous',emoji:''},
+  {key:'pepites',label:'Pépites',emoji:'🟢'},
+  {key:'surveiller',label:'À surveiller',emoji:'🟡'},
+  {key:'sous_perf',label:'Sous-performants',emoji:'🟠'},
+  {key:'arbitrer',label:'À arbitrer',emoji:'🔴'}
+];
+
+const RQ_ARB_ACTIONS={
+  pepites:{label:'📊 Générer rapport propriétaire'},
+  surveiller:{label:'🔍 Ouvrir diagnostic qualité'},
+  sous_perf:{label:'💬 Simuler hausse commission'},
+  arbitrer:{label:'⚠️ Préparer décision mandat'}
+};
+
+// Échappement HTML auto-suffisant — volontairement indépendant de toute fonction locale
+// définie ailleurs dans le fichier, pour ne dépendre de rien qui pourrait ne pas être
+// accessible depuis cette nouvelle section.
+function rqArbEsc(v){
+  return String(v??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+}
+
+// CA des 30 derniers jours — même fenêtre exacte que celle calculée à l'intérieur de
+// rqEvaPropertyHealth (occ/adr), mais ce dernier ne renvoie pas rev30 dans son objet de
+// retour. On la recalcule donc ici à l'identique plutôt que de modifier la fonction
+// protégée pour l'exposer.
+function rqArbCa30(a){
+  const allRes=(typeof reservations!=='undefined'?reservations:[])||[];
+  const aptRes=allRes.filter(r=>String(r.appartement_id)===String(a.id));
+  const last30Start=new Date(Date.now()-30*86400000).toISOString().slice(0,10);
+  return aptRes.filter(r=>r.date_from&&r.date_from>=last30Start).reduce((s,r)=>s+(Number(r.price_total)||0),0);
+}
+
+function rqArbSegmentForScore(g){
+  if(g>=80)return{key:'pepites',label:'🟢 Pépites'};
+  if(g>=60)return{key:'surveiller',label:'🟡 À surveiller'};
+  if(g>=40)return{key:'sous_perf',label:'🟠 Sous-performants'};
+  return{key:'arbitrer',label:'🔴 À arbitrer'};
+}
+
+// Score EVA d'un logement pour cette vue : calculatePropertyEva(a) en priorité, fallback
+// rqEvaPropertyHealth(a) seul si la couche Parc EVA n'est pas disponible ou échoue. Zéro
+// invention de score : si tout échoue, on retombe sur 0 partout avec un diagnostic explicite.
+function rqArbScoreFor(a){
+  if(typeof calculatePropertyEva==='function'){
+    try{
+      const r=calculatePropertyEva(a);
+      if(r&&r.globalScore!=null){
+        return{
+          financialScore:r.financialScore,operationalScore:r.operationalScore,relationalScore:r.relationalScore,
+          globalScore:r.globalScore,
+          diagnosticText:(r.diagnostic&&r.diagnostic.summary)||'',
+          occ:r.sourceHealth?r.sourceHealth.occ:null,
+          adr:r.sourceHealth?r.sourceHealth.adr:null
+        };
+      }
+    }catch(e){/* on retombe sur rqEvaPropertyHealth seul ci-dessous */}
+  }
+  try{
+    const h=rqEvaPropertyHealth(a);
+    if(!h)throw new Error('rqEvaPropertyHealth a renvoyé null');
+    const f=h.scoreFinancier||0,o=h.scoreOperationnel||0,c=h.scoreCommercial||0;
+    const g=Math.max(0,Math.min(100,Math.round(f*0.40+o*0.30+c*0.30)));
+    return{
+      financialScore:f,operationalScore:o,relationalScore:c,
+      globalScore:g,
+      diagnosticText:(h.why&&h.why[0])||h.priorityAction||'',
+      occ:h.occ,adr:h.adr
+    };
+  }catch(e){
+    return{financialScore:0,operationalScore:0,relationalScore:0,globalScore:0,
+      diagnosticText:'Données insuffisantes pour calculer un score EVA sur ce logement.',occ:null,adr:null};
+  }
+}
+
+// === renderParcArbitrage() ===
+function renderParcArbitrage(){
+  const tabsEl=document.getElementById('parc-arb-tabs');
+  const cardsEl=document.getElementById('parc-arb-cards');
+  const emptyEl=document.getElementById('parc-arb-empty');
+  if(!tabsEl||!cardsEl)return;
+
+  const rows=(apparts||[]).map(a=>{
+    const score=rqArbScoreFor(a);
+    const seg=rqArbSegmentForScore(score.globalScore);
+    return{a,score,seg};
+  });
+
+  const groups={tous:rows,pepites:[],surveiller:[],sous_perf:[],arbitrer:[]};
+  rows.forEach(r=>groups[r.seg.key].push(r));
+
+  // L'onglet par défaut ne se fixe qu'une seule fois (au premier rendu avec des données) —
+  // les renders suivants (édition, sync, etc.) ne doivent jamais faire sauter l'utilisateur
+  // hors de l'onglet qu'il regarde.
+  if(!rqArbTabInitialized&&rows.length){
+    rqArbActiveTab=groups.surveiller.length>0?'surveiller':'tous';
+    rqArbTabInitialized=true;
+  }
+  if(!rqArbActiveTab)rqArbActiveTab='tous';
+
+  tabsEl.innerHTML=RQ_ARB_TAB_DEFS.map(t=>{
+    const count=groups[t.key].length;
+    const active=rqArbActiveTab===t.key;
+    return`<button type="button" class="parc-arb-tab ${t.key}${active?' active':''}" onclick="rqArbSelectTab('${t.key}')">${t.emoji?t.emoji+' ':''}${t.label} <span class="parc-arb-tab-count">${count}</span></button>`;
+  }).join('');
+
+  const activeRows=groups[rqArbActiveTab]||[];
+
+  if(!activeRows.length){
+    cardsEl.innerHTML='';
+    if(emptyEl)emptyEl.style.display='block';
+    return;
+  }
+  if(emptyEl)emptyEl.style.display='none';
+
+  cardsEl.innerHTML=activeRows.map(({a,score,seg})=>{
+    const ca30=rqArbCa30(a);
+    const occ=score.occ!=null?score.occ:null;
+    const adr=score.adr!=null?score.adr:null;
+    const note=a.note!=null&&a.note!==''?Number(a.note):null;
+    const actionDef=RQ_ARB_ACTIONS[seg.key]||RQ_ARB_ACTIONS.surveiller;
+
+    return`<div class="parc-arb-card ${seg.key}">
+      <div class="parc-arb-card-head">
+        <div class="parc-arb-card-id">
+          <div class="parc-arb-card-name">${a.emoji||'🏠'} ${rqArbEsc(a.name||'Logement sans nom')}</div>
+          <div class="parc-arb-card-city">${rqArbEsc(a.city||'—')}</div>
+        </div>
+        <div class="parc-arb-global-badge ${seg.key}">${score.globalScore}</div>
+      </div>
+
+      <div class="parc-arb-subscores">
+        <div class="parc-arb-subscore"><span>Financier</span><b>${score.financialScore}</b></div>
+        <div class="parc-arb-subscore"><span>Opérationnel</span><b>${score.operationalScore}</b></div>
+        <div class="parc-arb-subscore"><span>Relationnel</span><b>${score.relationalScore}</b></div>
+      </div>
+
+      <div class="parc-arb-kpis">
+        <div class="parc-arb-kpi"><span>CA 30j</span><b>${ca30}€</b></div>
+        <div class="parc-arb-kpi"><span>Occupation</span><b>${occ!=null?occ+'%':'—'}</b></div>
+        <div class="parc-arb-kpi"><span>ADR</span><b>${adr!=null?adr+'€':'—'}</b></div>
+        <div class="parc-arb-kpi"><span>Note</span><b>${note!=null?note+'/5':'—'}</b></div>
+      </div>
+
+      <div class="parc-arb-diagnostic">${rqArbEsc(score.diagnosticText||'Diagnostic non disponible pour ce logement.')}</div>
+
+      <button type="button" class="parc-arb-action-btn ${seg.key}" onclick="showApartDetail('${a.id}')">${actionDef.label}</button>
+    </div>`;
+  }).join('');
+}
+
+function rqArbSelectTab(key){
+  rqArbActiveTab=key;
+  renderParcArbitrage();
+}
+
+// === Bascule Cartes / Arbitrage dans Parc EVA ===
+// Volontairement indépendant de switchParcView()/showParcMap() existants, qui ne sont
+// reliés à aucun bouton réel dans la page actuelle (vérifié avant d'écrire ce code) — pas
+// question de bâtir une nouvelle fonctionnalité sur un mécanisme déjà mort.
+function rqShowParcView(view){
+  const listView=document.getElementById('parc-list-view');
+  const arbView=document.getElementById('parc-arbitrage-view');
+  const mapView=document.getElementById('parc-map-view');
+  const btnCards=document.getElementById('btn-parc-view-cards');
+  const btnArb=document.getElementById('btn-parc-view-arb');
+  if(mapView)mapView.style.display='none';
+
+  if(view==='cards'){
+    if(listView)listView.style.display='block';
+    if(arbView)arbView.style.display='none';
+    if(btnCards)btnCards.classList.add('active');
+    if(btnArb)btnArb.classList.remove('active');
+  }else{
+    if(listView)listView.style.display='none';
+    if(arbView)arbView.style.display='block';
+    if(btnCards)btnCards.classList.remove('active');
+    if(btnArb)btnArb.classList.add('active');
+    renderParcArbitrage();
+  }
+}
+
 
 function renderAnalyseGlobale(){
   var dash=document.getElementById('analyse-globale-dash');
