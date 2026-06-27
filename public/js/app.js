@@ -737,7 +737,7 @@ let rqPreviousParcView='parc';
 
 function showApartDetail(id){
   const a=apparts.find(x=>String(x.id)===String(id));if(!a)return;
-  document.getElementById('parc-list-view').style.display='none';
+  const arbView=document.getElementById('parc-arbitrage-view');if(arbView)arbView.style.display='none';
   document.getElementById('parc-map-view').style.display='none';
   document.getElementById('parc-detail-view').style.display='block';
 
@@ -1463,7 +1463,7 @@ async function deleteArchivedAppart(id){
   }catch(e){showToast('Erreur lors de la suppression');}
 }
 function openArchivesView(){
-  document.getElementById('parc-list-view').style.display='none';
+  const arbView=document.getElementById('parc-arbitrage-view');if(arbView)arbView.style.display='none';
   document.getElementById('parc-map-view').style.display='none';
   document.getElementById('parc-detail-view').style.display='none';
   document.getElementById('parc-archives-view').style.display='block';
@@ -1471,7 +1471,8 @@ function openArchivesView(){
 }
 function closeArchivesView(){
   document.getElementById('parc-archives-view').style.display='none';
-  document.getElementById('parc-list-view').style.display='block';
+  const arbView=document.getElementById('parc-arbitrage-view');
+  if(arbView){arbView.style.display='block';renderParcArbitrage();}
 }
 function renderArchivesList(){
   const list=document.getElementById('parc-archives-list');if(!list)return;
@@ -1514,7 +1515,9 @@ function closeApartDetail(){
     goTo(origin,navBtn);
     return;
   }
-  document.getElementById('parc-list-view').style.display='block';
+  // Retour par défaut : Vue Arbitrage, désormais seul et unique contenu de la page Parc.
+  const arbView=document.getElementById('parc-arbitrage-view');
+  if(arbView){arbView.style.display='block';renderParcArbitrage();}
 }
 
 
@@ -2483,7 +2486,7 @@ function goTo(page,btn){
   if(page==='missions-all')renderMissionsEva('all');
   if(page==='missions-todo')renderMissionsEva('todo');
   if(page==='missions-done')renderMissionsEva('done');
-  if(page==='parc'){try{renderParcTable();}catch(e){console.warn('renderParcTable',e);}}
+  if(page==='parc'){try{renderParcArbitrage();}catch(e){console.warn('renderParcArbitrage',e);}}
   if(page==='parc-fiches')renderParcFiches();
   if(page==='parc-comparaison')renderParcComparaison();
   if(page==='cleanyq-operations')renderCleanyQV2();
@@ -4667,13 +4670,6 @@ const RQ_ARB_TAB_DEFS=[
   {key:'arbitrer',label:'À arbitrer',emoji:'🔴'}
 ];
 
-const RQ_ARB_ACTIONS={
-  pepites:{label:'📊 Générer rapport propriétaire'},
-  surveiller:{label:'🔍 Ouvrir diagnostic qualité'},
-  sous_perf:{label:'💬 Simuler hausse commission'},
-  arbitrer:{label:'⚠️ Préparer décision mandat'}
-};
-
 // Échappement HTML auto-suffisant — volontairement indépendant de toute fonction locale
 // définie ailleurs dans le fichier, pour ne dépendre de rien qui pourrait ne pas être
 // accessible depuis cette nouvelle section.
@@ -4699,6 +4695,18 @@ function rqArbSegmentForScore(g){
   return{key:'arbitrer',label:'🔴 À arbitrer'};
 }
 
+const RQ_ARB_PILLAR_LABELS={financialScore:'💰 Financier',operationalScore:'🛠️ Opérationnel',relationalScore:'🤝 Relationnel'};
+
+function rqArbWeakestPillar(financialScore,operationalScore,relationalScore){
+  const arr=[
+    {key:'financialScore',val:financialScore},
+    {key:'operationalScore',val:operationalScore},
+    {key:'relationalScore',val:relationalScore}
+  ];
+  arr.sort((x,y)=>x.val-y.val);
+  return{key:arr[0].key,label:RQ_ARB_PILLAR_LABELS[arr[0].key],score:arr[0].val};
+}
+
 // Score EVA d'un logement pour cette vue : calculatePropertyEva(a) en priorité, fallback
 // rqEvaPropertyHealth(a) seul si la couche Parc EVA n'est pas disponible ou échoue. Zéro
 // invention de score : si tout échoue, on retombe sur 0 partout avec un diagnostic explicite.
@@ -4707,12 +4715,14 @@ function rqArbScoreFor(a){
     try{
       const r=calculatePropertyEva(a);
       if(r&&r.globalScore!=null){
+        const weakest=rqArbWeakestPillar(r.financialScore,r.operationalScore,r.relationalScore);
         return{
           financialScore:r.financialScore,operationalScore:r.operationalScore,relationalScore:r.relationalScore,
           globalScore:r.globalScore,
-          diagnosticText:(r.diagnostic&&r.diagnostic.summary)||'',
+          weakest,
           occ:r.sourceHealth?r.sourceHealth.occ:null,
-          adr:r.sourceHealth?r.sourceHealth.adr:null
+          adr:r.sourceHealth?r.sourceHealth.adr:null,
+          impactEstimate:r.sourceHealth?r.sourceHealth.impactEstimate:null
         };
       }
     }catch(e){/* on retombe sur rqEvaPropertyHealth seul ci-dessous */}
@@ -4722,16 +4732,33 @@ function rqArbScoreFor(a){
     if(!h)throw new Error('rqEvaPropertyHealth a renvoyé null');
     const f=h.scoreFinancier||0,o=h.scoreOperationnel||0,c=h.scoreCommercial||0;
     const g=Math.max(0,Math.min(100,Math.round(f*0.40+o*0.30+c*0.30)));
+    const weakest=rqArbWeakestPillar(f,o,c);
     return{
       financialScore:f,operationalScore:o,relationalScore:c,
       globalScore:g,
-      diagnosticText:(h.why&&h.why[0])||h.priorityAction||'',
-      occ:h.occ,adr:h.adr
+      weakest,
+      occ:h.occ,adr:h.adr,
+      impactEstimate:h.impactEstimate
     };
   }catch(e){
     return{financialScore:0,operationalScore:0,relationalScore:0,globalScore:0,
-      diagnosticText:'Données insuffisantes pour calculer un score EVA sur ce logement.',occ:null,adr:null};
+      weakest:{key:'financialScore',label:RQ_ARB_PILLAR_LABELS.financialScore,score:0},
+      occ:null,adr:null,impactEstimate:null};
   }
+}
+
+// "Potentiel EVA" — réutilise des formules déjà validées ailleurs dans le produit plutôt
+// que d'inventer un nouveau calcul :
+//  - écart prix actuel vs ai_rec (même formule que Fiches logements / Comparaison) → €/nuit
+//  - sinon, impactEstimate de rqEvaPropertyHealth (nuits vides à 14j) extrapolé à 30j → €/mois
+function rqArbPotentialLabel(a,score){
+  const aiRec=Number(a.ai_rec)||0,price=Number(a.price)||0;
+  if(aiRec>price)return`+${Math.round(aiRec-price)}€/nuit potentiel`;
+  if(score.impactEstimate!=null&&score.impactEstimate>0){
+    const monthly=Math.round(score.impactEstimate*30/14);
+    if(monthly>0)return`+${monthly}€/mois potentiel`;
+  }
+  return null;
 }
 
 // === renderParcArbitrage() ===
@@ -4774,14 +4801,17 @@ function renderParcArbitrage(){
   }
   if(emptyEl)emptyEl.style.display='none';
 
+  // Cartes compactes (dashboard exécutif) : header + 3 sous-scores en mini-barres + 4 hard
+  // KPIs + 1 ligne pilier fragile + 1 ligne potentiel. Aucun paragraphe, aucun bouton —
+  // toute la carte est cliquable et ouvre directement la fiche logement détaillée.
   cardsEl.innerHTML=activeRows.map(({a,score,seg})=>{
     const ca30=rqArbCa30(a);
     const occ=score.occ!=null?score.occ:null;
     const adr=score.adr!=null?score.adr:null;
     const note=a.note!=null&&a.note!==''?Number(a.note):null;
-    const actionDef=RQ_ARB_ACTIONS[seg.key]||RQ_ARB_ACTIONS.surveiller;
+    const potentialLabel=rqArbPotentialLabel(a,score);
 
-    return`<div class="parc-arb-card ${seg.key}">
+    return`<div class="parc-arb-card ${seg.key}" onclick="rqPreviousParcView='parc';showApartDetail('${a.id}')">
       <div class="parc-arb-card-head">
         <div class="parc-arb-card-id">
           <div class="parc-arb-card-name">${a.emoji||'🏠'} ${rqArbEsc(a.name||'Logement sans nom')}</div>
@@ -4791,21 +4821,22 @@ function renderParcArbitrage(){
       </div>
 
       <div class="parc-arb-subscores">
-        <div class="parc-arb-subscore"><span>Financier</span><b>${score.financialScore}</b></div>
-        <div class="parc-arb-subscore"><span>Opérationnel</span><b>${score.operationalScore}</b></div>
-        <div class="parc-arb-subscore"><span>Relationnel</span><b>${score.relationalScore}</b></div>
+        <div class="parc-arb-subscore"><span>Fin.</span><b>${score.financialScore}</b></div>
+        <div class="parc-arb-subscore"><span>Opér.</span><b>${score.operationalScore}</b></div>
+        <div class="parc-arb-subscore"><span>Rel.</span><b>${score.relationalScore}</b></div>
       </div>
 
       <div class="parc-arb-kpis">
         <div class="parc-arb-kpi"><span>CA 30j</span><b>${ca30}€</b></div>
-        <div class="parc-arb-kpi"><span>Occupation</span><b>${occ!=null?occ+'%':'—'}</b></div>
+        <div class="parc-arb-kpi"><span>Occ.</span><b>${occ!=null?occ+'%':'—'}</b></div>
         <div class="parc-arb-kpi"><span>ADR</span><b>${adr!=null?adr+'€':'—'}</b></div>
         <div class="parc-arb-kpi"><span>Note</span><b>${note!=null?note+'/5':'—'}</b></div>
       </div>
 
-      <div class="parc-arb-diagnostic">${rqArbEsc(score.diagnosticText||'Diagnostic non disponible pour ce logement.')}</div>
-
-      <button type="button" class="parc-arb-action-btn ${seg.key}" onclick="showApartDetail('${a.id}')">${actionDef.label}</button>
+      <div class="parc-arb-footline">
+        <span class="parc-arb-weak">Pilier fragile : ${score.weakest.label} (${score.weakest.score}/100)</span>
+        ${potentialLabel?`<span class="parc-arb-potential">${potentialLabel}</span>`:''}
+      </div>
     </div>`;
   }).join('');
 }
@@ -4815,31 +4846,10 @@ function rqArbSelectTab(key){
   renderParcArbitrage();
 }
 
-// === Bascule Cartes / Arbitrage dans Parc EVA ===
-// Volontairement indépendant de switchParcView()/showParcMap() existants, qui ne sont
-// reliés à aucun bouton réel dans la page actuelle (vérifié avant d'écrire ce code) — pas
-// question de bâtir une nouvelle fonctionnalité sur un mécanisme déjà mort.
-function rqShowParcView(view){
-  const listView=document.getElementById('parc-list-view');
-  const arbView=document.getElementById('parc-arbitrage-view');
-  const mapView=document.getElementById('parc-map-view');
-  const btnCards=document.getElementById('btn-parc-view-cards');
-  const btnArb=document.getElementById('btn-parc-view-arb');
-  if(mapView)mapView.style.display='none';
+// (Bascule Cartes / Arbitrage supprimée — Vue Arbitrage est désormais l'unique contenu
+// de la page Parc, conformément à l'architecture définitive : une seule vue, jamais deux
+// systèmes qui coexistent.)
 
-  if(view==='cards'){
-    if(listView)listView.style.display='block';
-    if(arbView)arbView.style.display='none';
-    if(btnCards)btnCards.classList.add('active');
-    if(btnArb)btnArb.classList.remove('active');
-  }else{
-    if(listView)listView.style.display='none';
-    if(arbView)arbView.style.display='block';
-    if(btnCards)btnCards.classList.remove('active');
-    if(btnArb)btnArb.classList.add('active');
-    renderParcArbitrage();
-  }
-}
 
 
 function renderAnalyseGlobale(){
