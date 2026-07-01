@@ -2264,15 +2264,55 @@ async function syncEasyConcierge(){
   if(!ecConnection){showErr('ec-error','Enregistrez d\u2019abord une connexion avant de synchroniser.');return;}
   const btn=document.getElementById('btn-sync-ec');btn.disabled=true;btn.textContent='Synchronisation…';
   showToast('🔄 Synchronisation Easy Concierge…');
+
+  // sync-all en un seul appel Worker déclenche "Too many subrequests by single Worker invocation"
+  // côté Cloudflare (properties + bookings + reviews + pricing cumulés dépassent la limite de
+  // sous-requêtes par invocation). On découpe donc en 4 appels séquentiels distincts — chacun est
+  // sa propre invocation Worker, donc sa propre limite de sous-requêtes — et on fusionne les
+  // résumés ici, côté front.
+  const steps=[
+    {action:'sync-properties',label:'logements'},
+    {action:'sync-bookings',label:'réservations'},
+    {action:'sync-reviews',label:'avis'},
+    {action:'sync-pricing',label:'tarifs'}
+  ];
+
+  const summary={
+    propertiesInserted:0,propertiesUpdated:0,
+    bookingsInserted:0,bookingsUpdated:0,bookingsOrphaned:0,
+    reviewsInserted:0,reviewsUpdated:0,
+    pricingUpdated:0,
+    errors:[]
+  };
+
+  for(const step of steps){
+    btn.textContent=`Synchronisation ${step.label}…`;
+    try{
+      const result=await functionCall(EASY_CONCIERGE_FN,{action:step.action,connection_id:ecConnection.id});
+      summary.propertiesInserted+=result.propertiesInserted||0;
+      summary.propertiesUpdated+=result.propertiesUpdated||0;
+      summary.bookingsInserted+=result.bookingsInserted||0;
+      summary.bookingsUpdated+=result.bookingsUpdated||0;
+      summary.bookingsOrphaned+=result.bookingsOrphaned||0;
+      summary.reviewsInserted+=result.reviewsInserted||0;
+      summary.reviewsUpdated+=result.reviewsUpdated||0;
+      summary.pricingUpdated+=result.pricingUpdated||0;
+      if(Array.isArray(result.errors)&&result.errors.length)summary.errors.push(...result.errors);
+    }catch(e){
+      // Un step en échec (ex: timeout réseau) ne doit pas empêcher les suivants de tourner —
+      // sinon une panne sur "reviews" bloquerait aussi bookings/pricing pour rien.
+      summary.errors.push({scope:step.action,message:e.message||'appel réseau échoué'});
+    }
+  }
+
   try{
-    const result=await functionCall(EASY_CONCIERGE_FN,{action:'sync-properties',connection_id:ecConnection.id});
-    const errCount=(result.errors||[]).length;
-    const propertiesTotal=(result.propertiesInserted||0)+(result.propertiesUpdated||0);
-    const bookingsTotal=(result.bookingsInserted||0)+(result.bookingsUpdated||0);
-    const reviewsTotal=(result.reviewsInserted||0)+(result.reviewsUpdated||0);
+    const errCount=summary.errors.length;
+    const propertiesTotal=summary.propertiesInserted+summary.propertiesUpdated;
+    const bookingsTotal=summary.bookingsInserted+summary.bookingsUpdated;
+    const reviewsTotal=summary.reviewsInserted+summary.reviewsUpdated;
     // Résumé complet — jamais juste "Connecté" : on synchronise 4 ressources, l'utilisateur
     // doit voir les 4, sinon il ne peut pas savoir si EVA a vraiment de quoi travailler.
-    showToast(`✓ Easy Concierge synchronisé : ${propertiesTotal} logement(s), ${bookingsTotal} réservation(s), ${reviewsTotal} avis, ${result.pricingUpdated||0} prix mis à jour`+(errCount?` — ${errCount} erreur(s)`:''));
+    showToast(`✓ Easy Concierge synchronisé : ${propertiesTotal} logement(s), ${bookingsTotal} réservation(s)`+(summary.bookingsOrphaned?` dont ${summary.bookingsOrphaned} non rattachée(s)`:'')+`, ${reviewsTotal} avis, ${summary.pricingUpdated} prix mis à jour`+(errCount?` — ${errCount} erreur(s)`:''));
 
     // Sync réussie -> on quitte le mode démo s'il était actif, et on recharge les vraies
     // données (stopDemoMode() s'en occupe déjà ; on complète avec les réservations ici
