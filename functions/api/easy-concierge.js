@@ -323,6 +323,9 @@ async function syncProperties(context, userId, config) {
 
       if (p.name != null && p.name !== '') fields.name = p.name;
       if (p.city != null) fields.city = p.city;
+      if (p.address != null) fields.address = p.address;
+      if (p.latitude != null) fields.latitude = toNum(p.latitude, null);
+      if (p.longitude != null) fields.longitude = toNum(p.longitude, null);
       if (p.bedrooms != null) fields.bedrooms = p.bedrooms;
       if (p.bathrooms != null) fields.bathrooms = p.bathrooms;
       if (p.max_guests != null) fields.max_guests = p.max_guests;
@@ -406,7 +409,7 @@ function normalizeBookingStatus(status) {
     : 'confirmed';
 }
 
-async function syncOneBooking(context, userId, aptId, booking) {
+async function syncOneBooking(context, userId, aptMap, booking) {
   const bookingId =
     booking && booking.booking_id != null ? String(booking.booking_id) : null;
 
@@ -417,10 +420,35 @@ async function syncOneBooking(context, userId, aptId, booking) {
     };
   }
 
+  // Résolution stricte : property_id (brut Easy Concierge) → appartements.external_id → appartements.id.
+  // property_id n'est JAMAIS utilisé directement comme FK, seul aptId (uuid interne) l'est.
+  const propertyId =
+    booking && booking.property_id != null ? String(booking.property_id) : null;
+
+  const apt = propertyId ? aptMap.get(propertyId) : null;
+
+  if (!apt) {
+    return {
+      skipped: true,
+      orphan: true,
+      property_id: propertyId,
+      message: 'property_id introuvable dans appartements.external_id — appartement_id non résolu'
+    };
+  }
+
+  // Fiabilité du revenu : source de vérité = revenue_available renvoyé par Easy Concierge.
+  const revenueAvailable = booking.revenue_available === true;
+
+  // source_type stocké tel quel, aucune transformation (channex_api | ical_import).
+  const sourceType = booking.source_type != null ? String(booking.source_type) : null;
+
   const fields = {
     user_id: userId,
-    appartement_id: aptId,
+    appartement_id: apt.id,
+    property_id: propertyId,
     source: 'easy_concierge',
+    source_type: sourceType,
+    revenue_available: revenueAvailable,
     external_booking_id: bookingId,
     date_from: booking.check_in || null,
     date_to: booking.check_out || null,
@@ -429,6 +457,8 @@ async function syncOneBooking(context, userId, aptId, booking) {
     guest_name: booking.guest_ref || 'Voyageur pseudonymisé',
     platform: booking.channel || 'other',
     status: normalizeBookingStatus(booking.status),
+    // Logique existante inchangée : le revenu peut rester à 0 si aucun champ prix n'est fourni
+    // (cas iCal typique). revenue_available est ce qui indique au front si ce chiffre est fiable.
     price_total: toNum(
   booking.revenue ??
   booking.total_amount ??
@@ -478,7 +508,7 @@ async function syncOneBooking(context, userId, aptId, booking) {
     reservationId = created && created[0] ? created[0].id : null;
   }
 
-  if (reservationId && booking.cleaning_fee != null) {
+  if (reservationId && revenueAvailable && booking.cleaning_fee != null) {
     const finBody = {
       reservation_id: reservationId,
       user_id: userId,
@@ -504,6 +534,7 @@ async function syncOneBooking(context, userId, aptId, booking) {
 async function syncBookings(context, userId, config, aptMap, properties) {
   let inserted = 0;
   let updated = 0;
+  let orphaned = 0;
   const errors = [];
   let bookingsTouched = 0;
 
@@ -539,9 +570,23 @@ async function syncBookings(context, userId, config, aptMap, properties) {
 
     for (const b of bookings) {
       try {
-        if (b.property_id != null && String(b.property_id) !== propertyId) continue;
+        // Résolution toujours faite dans syncOneBooking via aptMap (property_id -> external_id),
+        // jamais via l'apt du property_id de la requête de liste — au cas où l'API renverrait
+        // un booking rattaché à un autre logement.
+        const res = await syncOneBooking(context, userId, aptMap, b);
 
-        const res = await syncOneBooking(context, userId, apt.id, b);
+        if (res.orphan) {
+          orphaned++;
+          errors.push({
+            scope: 'bookings',
+            property_id: res.property_id,
+            booking_id: b && b.booking_id,
+            message: res.message
+          });
+          continue;
+        }
+
+        if (res.skipped) continue;
 
         if (res.action === 'inserted') inserted++;
         if (res.action === 'updated') updated++;
@@ -566,7 +611,7 @@ async function syncBookings(context, userId, config, aptMap, properties) {
     });
   }
 
-  return { inserted, updated, errors };
+  return { inserted, updated, orphaned, errors };
 }
 
 function normalizeOverallScore(raw) {
@@ -855,6 +900,7 @@ async function handleSyncAll(context, body) {
 
     bookingsInserted: 0,
     bookingsUpdated: 0,
+    bookingsOrphaned: 0,
 
     reviewsInserted: 0,
     reviewsUpdated: 0,
@@ -877,6 +923,7 @@ async function handleSyncAll(context, body) {
 
     summary.bookingsInserted = bookingsRes.inserted;
     summary.bookingsUpdated = bookingsRes.updated;
+    summary.bookingsOrphaned = bookingsRes.orphaned;
     errors.push(...bookingsRes.errors);
 
     const reviewsRes = await syncReviews(context, userId, config, aptMap);
@@ -986,6 +1033,7 @@ async function handleSyncBookingsOnly(context, body) {
       success: true,
       bookingsInserted: bookingsRes.inserted,
       bookingsUpdated: bookingsRes.updated,
+      bookingsOrphaned: bookingsRes.orphaned,
       errors: bookingsRes.errors || []
     });
   } catch (e) {
