@@ -409,22 +409,26 @@ function normalizeBookingStatus(status) {
     : 'confirmed';
 }
 
-async function syncOneBooking(context, userId, aptMap, booking) {
-  const bookingId =
-    booking && booking.booking_id != null ? String(booking.booking_id) : null;
+const BOOKING_BATCH_SIZE = 150;
+
+function chunkArray(arr, size) {
+  const out = [];
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
+}
+
+// Construit la ligne "reservations" (+ éventuel financials) EN MÉMOIRE, sans aucun appel réseau.
+// Résolution stricte : property_id (brut Easy Concierge) → appartements.external_id →
+// appartements.id via aptMap (chargée une seule fois avant la boucle). property_id n'est jamais
+// utilisé comme FK directe.
+function buildBookingRow(userId, aptMap, booking) {
+  const bookingId = booking && booking.booking_id != null ? String(booking.booking_id) : null;
 
   if (!bookingId) {
-    return {
-      skipped: true,
-      message: 'booking_id manquant'
-    };
+    return { skipped: true, message: 'booking_id manquant' };
   }
 
-  // Résolution stricte : property_id (brut Easy Concierge) → appartements.external_id → appartements.id.
-  // property_id n'est JAMAIS utilisé directement comme FK, seul aptId (uuid interne) l'est.
-  const propertyId =
-    booking && booking.property_id != null ? String(booking.property_id) : null;
-
+  const propertyId = booking && booking.property_id != null ? String(booking.property_id) : null;
   const apt = propertyId ? aptMap.get(propertyId) : null;
 
   if (!apt) {
@@ -432,17 +436,15 @@ async function syncOneBooking(context, userId, aptMap, booking) {
       skipped: true,
       orphan: true,
       property_id: propertyId,
+      booking_id: bookingId,
       message: 'property_id introuvable dans appartements.external_id — appartement_id non résolu'
     };
   }
 
-  // Fiabilité du revenu : source de vérité = revenue_available renvoyé par Easy Concierge.
   const revenueAvailable = booking.revenue_available === true;
-
-  // source_type stocké tel quel, aucune transformation (channex_api | ical_import).
   const sourceType = booking.source_type != null ? String(booking.source_type) : null;
 
-  const fields = {
+  const row = {
     user_id: userId,
     appartement_id: apt.id,
     property_id: propertyId,
@@ -460,90 +462,103 @@ async function syncOneBooking(context, userId, aptMap, booking) {
     // Logique existante inchangée : le revenu peut rester à 0 si aucun champ prix n'est fourni
     // (cas iCal typique). revenue_available est ce qui indique au front si ce chiffre est fiable.
     price_total: toNum(
-  booking.revenue ??
-  booking.total_amount ??
-  booking.gross_amount ??
-  booking.amount ??
-  booking.net_amount ??
-  booking.price ??
-  0,
-  0
-)
+      booking.revenue ??
+      booking.total_amount ??
+      booking.gross_amount ??
+      booking.amount ??
+      booking.net_amount ??
+      booking.price ??
+      0,
+      0
+    )
   };
 
-  const findRes = await sb(
+  // Jamais de reservation_financials pour un revenu non fiable.
+  const financials = (revenueAvailable && booking.cleaning_fee != null)
+    ? {
+        external_booking_id: bookingId, // clé de correspondance temporaire, retirée avant l'upsert
+        user_id: userId,
+        source: 'easy_concierge',
+        gross_amount: toNum(booking.revenue, 0),
+        cleaning_fee: toNum(booking.cleaning_fee, 0),
+        net_profit: null
+      }
+    : null;
+
+  return { row, financials };
+}
+
+// UNE seule requête pour tous les external_booking_id déjà en base pour cet utilisateur —
+// remplace le SELECT par réservation, sert uniquement à classer inserted/updated.
+async function getExistingBookingIndex(context, userId) {
+  const res = await sb(
     context,
-    `reservations?user_id=eq.${userId}&source=eq.easy_concierge&external_booking_id=eq.${encodeURIComponent(bookingId)}&select=id`
+    `reservations?user_id=eq.${userId}&source=eq.easy_concierge&select=id,external_booking_id`
   );
 
-  if (!findRes.ok) throw new Error('lecture réservation en erreur');
+  if (!res.ok) throw new Error('lecture réservations existantes en erreur');
 
-  const existing = (await findRes.json())[0];
+  const rows = await res.json();
+  const map = new Map();
 
-  let action = 'inserted';
-  let reservationId = null;
+  (Array.isArray(rows) ? rows : []).forEach(r => {
+    if (r.external_booking_id != null) map.set(String(r.external_booking_id), r.id);
+  });
 
-  if (existing) {
-    reservationId = existing.id;
+  return map;
+}
 
-    const patchRes = await sb(context, `reservations?id=eq.${existing.id}`, {
-      method: 'PATCH',
-      prefer: 'return=minimal',
-      body: JSON.stringify(fields)
-    });
+// UN SEUL upsert par lot (100-200 lignes) via on_conflict=source,external_booking_id — la
+// contrainte unique reservations_source_external_booking_id_key existe déjà en base. Aucune
+// requête Supabase individuelle par réservation.
+async function upsertReservationsBatch(context, rows) {
+  const res = await sb(context, 'reservations?on_conflict=source,external_booking_id', {
+    method: 'POST',
+    prefer: 'resolution=merge-duplicates,return=representation',
+    headers: { Prefer: 'resolution=merge-duplicates,return=representation' },
+    body: JSON.stringify(rows)
+  });
 
-    if (!patchRes.ok) throw new Error('mise à jour réservation en erreur');
-
-    action = 'updated';
-  } else {
-    const postRes = await sb(context, 'reservations', {
-      method: 'POST',
-      prefer: 'return=representation',
-      body: JSON.stringify(fields)
-    });
-
-    if (!postRes.ok) throw new Error('création réservation en erreur');
-
-    const created = await postRes.json().catch(() => []);
-    reservationId = created && created[0] ? created[0].id : null;
+  if (!res.ok) {
+    const detail = await res.text().catch(() => '');
+    throw new Error('upsert batch réservations en erreur : ' + detail.slice(0, 500));
   }
 
-  if (reservationId && revenueAvailable && booking.cleaning_fee != null) {
-    const finBody = {
-      reservation_id: reservationId,
-      user_id: userId,
-      source: 'easy_concierge',
-      gross_amount: toNum(booking.revenue, 0),
-      cleaning_fee: toNum(booking.cleaning_fee, 0),
-      net_profit: null
-    };
+  return await res.json().catch(() => []);
+}
 
-    await sb(context, 'reservation_financials', {
-      method: 'POST',
-      prefer: 'resolution=merge-duplicates,return=minimal',
-      headers: {
-        Prefer: 'resolution=merge-duplicates,return=minimal'
-      },
-      body: JSON.stringify(finBody)
-    }).catch(() => {});
+// Idem pour reservation_financials — contrainte unique déjà existante sur reservation_id.
+async function upsertFinancialsBatch(context, rows) {
+  const res = await sb(context, 'reservation_financials?on_conflict=reservation_id', {
+    method: 'POST',
+    prefer: 'resolution=merge-duplicates,return=minimal',
+    headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+    body: JSON.stringify(rows)
+  });
+
+  if (!res.ok) {
+    const detail = await res.text().catch(() => '');
+    throw new Error('upsert batch reservation_financials en erreur : ' + detail.slice(0, 500));
   }
 
-  return { action };
+  return true;
 }
 
 async function syncBookings(context, userId, config, aptMap, properties) {
-  let inserted = 0;
-  let updated = 0;
-  let orphaned = 0;
   const errors = [];
-  let bookingsTouched = 0;
+  let supabaseCalls = 0;
+
+  // ── 1. Collecte de TOUTES les réservations brutes Easy Concierge en mémoire. La boucle
+  //    "par logement" reste nécessaire car l'API Easy Concierge ne filtre les bookings que par
+  //    property_id — mais AUCUNE requête Supabase ne s'exécute ici, uniquement des fetch()
+  //    vers l'API Easy Concierge elle-même.
+  const rawBookings = [];
 
   for (const p of properties) {
     const propertyId = p && p.property_id != null ? String(p.property_id) : null;
     if (!propertyId) continue;
 
     const apt = aptMap.get(propertyId);
-
     if (!apt) {
       errors.push({
         scope: 'bookings',
@@ -553,65 +568,150 @@ async function syncBookings(context, userId, config, aptMap, properties) {
       continue;
     }
 
-    let bookings = [];
-
     try {
-      bookings = await fetchAllBookings(config, {
-        property_id: propertyId
-      });
+      const bookings = await fetchAllBookings(config, { property_id: propertyId });
+      rawBookings.push(...bookings);
     } catch (e) {
-      errors.push({
-        scope: 'bookings',
-        property_id: propertyId,
-        message: e.message
-      });
-      continue;
-    }
-
-    for (const b of bookings) {
-      try {
-        // Résolution toujours faite dans syncOneBooking via aptMap (property_id -> external_id),
-        // jamais via l'apt du property_id de la requête de liste — au cas où l'API renverrait
-        // un booking rattaché à un autre logement.
-        const res = await syncOneBooking(context, userId, aptMap, b);
-
-        if (res.orphan) {
-          orphaned++;
-          errors.push({
-            scope: 'bookings',
-            property_id: res.property_id,
-            booking_id: b && b.booking_id,
-            message: res.message
-          });
-          continue;
-        }
-
-        if (res.skipped) continue;
-
-        if (res.action === 'inserted') inserted++;
-        if (res.action === 'updated') updated++;
-
-        bookingsTouched++;
-      } catch (e) {
-        errors.push({
-          scope: 'bookings',
-          property_id: propertyId,
-          booking_id: b && b.booking_id,
-          message: e.message
-        });
-      }
+      errors.push({ scope: 'bookings', property_id: propertyId, message: e.message });
     }
   }
 
-  if (bookingsTouched === 0) {
+  if (!rawBookings.length) {
     errors.push({
       scope: 'bookings',
-      message:
-        'Aucune réservation importée. Vérifier que resource=bookings&property_id=<id> renvoie bien les réservations du logement.'
+      message: 'Aucune réservation importée. Vérifier que resource=bookings&property_id=<id> renvoie bien les réservations du logement.'
+    });
+    return { inserted: 0, updated: 0, orphaned: 0, errors, supabaseCalls };
+  }
+
+  // ── 2. Construction de toutes les lignes EN MÉMOIRE, zéro appel réseau dans cette boucle.
+  const validRows = [];
+  const financialRows = [];
+  const orphans = [];
+
+  for (const b of rawBookings) {
+    const built = buildBookingRow(userId, aptMap, b);
+
+    if (built.orphan) {
+      orphans.push({ property_id: built.property_id, booking_id: built.booking_id });
+      continue;
+    }
+    if (built.skipped) continue;
+
+    validRows.push(built.row);
+    if (built.financials) financialRows.push(built.financials);
+  }
+
+  if (!validRows.length) {
+    errors.push({
+      scope: 'bookings',
+      message: 'Aucune réservation exploitable : toutes les réservations reçues sont orphelines ou sans booking_id.'
     });
   }
 
-  return { inserted, updated, orphaned, errors };
+  // ── 3. Diagnostic précis des orphelins (aucun masquage) : croise chaque property_id orphelin
+  //    avec la liste `properties` renvoyée par Easy Concierge pour CE sync, afin de distinguer :
+  //    a) le logement existe côté Easy Concierge mais n'a jamais (ou pas encore) été synchronisé
+  //       dans appartements (sync-properties manquant ou en échec pour lui) ;
+  //    b) le logement n'existe pas du tout côté Easy Concierge pour ce tenant lors de ce sync
+  //       (id périmé/supprimé, ou mauvais tenant) ;
+  //    c) un problème de format (type/casse/espaces) entre property_id et external_id — ne
+  //       devrait normalement jamais se produire vu que les deux sont castés en String().
+  if (orphans.length) {
+    const ecPropertyIds = new Set(
+      properties.map(p => (p && p.property_id != null ? String(p.property_id) : null)).filter(Boolean)
+    );
+    const aptExternalIds = new Set(aptMap.keys());
+    const uniqueOrphanPropertyIds = [...new Set(orphans.map(o => o.property_id).filter(Boolean))];
+
+    for (const pid of uniqueOrphanPropertyIds) {
+      const inEcList = ecPropertyIds.has(pid);
+      const inAptMap = aptExternalIds.has(pid);
+      const count = orphans.filter(o => o.property_id === pid).length;
+
+      let diagnosis;
+      if (inAptMap) {
+        diagnosis = 'incohérence interne : présent dans aptMap mais non résolu — écart de casse/espaces suspecté entre property_id et external_id (signaler ce cas, ne devrait pas arriver)';
+      } else if (inEcList) {
+        diagnosis = 'le logement existe dans Easy Concierge (présent dans properties pour ce sync) mais n\'a jamais été synchronisé dans appartements, ou sa dernière sync-properties a échoué — relancer sync-properties';
+      } else {
+        diagnosis = 'le logement n\'apparaît pas dans la liste properties renvoyée par Easy Concierge pour ce tenant lors de ce sync — vérifier qu\'il n\'a pas été supprimé/archivé côté Easy Concierge, ou qu\'il appartient bien à ce tenant/API key';
+      }
+
+      errors.push({
+        scope: 'bookings_orphan_diagnosis',
+        property_id: pid,
+        bookings_count: count,
+        in_easy_concierge_properties_list: inEcList,
+        in_appartements_external_id: inAptMap,
+        message: diagnosis
+      });
+    }
+  }
+
+  // ── 4. UNE seule requête pour connaître les external_booking_id déjà en base (classement
+  //    inserted/updated), au lieu d'un SELECT par réservation.
+  let existingIndex = new Map();
+  try {
+    existingIndex = await getExistingBookingIndex(context, userId);
+    supabaseCalls++;
+  } catch (e) {
+    errors.push({ scope: 'bookings', message: e.message });
+  }
+
+  let inserted = 0;
+  let updated = 0;
+
+  validRows.forEach(r => {
+    if (existingIndex.has(r.external_booking_id)) updated++;
+    else inserted++;
+  });
+
+  // ── 5. Upsert en lots de BOOKING_BATCH_SIZE lignes, UN SEUL appel Supabase par lot.
+  const idByExternalBookingId = new Map(existingIndex);
+
+  for (const batch of chunkArray(validRows, BOOKING_BATCH_SIZE)) {
+    try {
+      const returned = await upsertReservationsBatch(context, batch);
+      supabaseCalls++;
+
+      (Array.isArray(returned) ? returned : []).forEach(r => {
+        if (r && r.external_booking_id != null && r.id) {
+          idByExternalBookingId.set(String(r.external_booking_id), r.id);
+        }
+      });
+    } catch (e) {
+      errors.push({ scope: 'bookings', message: e.message, batch_size: batch.length });
+    }
+  }
+
+  // ── 6. reservation_financials également en lots — jamais pour revenue_available=false
+  //    (déjà filtré dans buildBookingRow).
+  const financialRowsWithId = financialRows
+    .map(f => {
+      const reservationId = idByExternalBookingId.get(f.external_booking_id);
+      if (!reservationId) return null;
+      const { external_booking_id, ...rest } = f;
+      return { ...rest, reservation_id: reservationId };
+    })
+    .filter(Boolean);
+
+  for (const batch of chunkArray(financialRowsWithId, BOOKING_BATCH_SIZE)) {
+    try {
+      await upsertFinancialsBatch(context, batch);
+      supabaseCalls++;
+    } catch (e) {
+      errors.push({ scope: 'bookings_financials', message: e.message, batch_size: batch.length });
+    }
+  }
+
+  return {
+    inserted,
+    updated,
+    orphaned: orphans.length,
+    errors,
+    supabaseCalls
+  };
 }
 
 function normalizeOverallScore(raw) {
@@ -924,6 +1024,7 @@ async function handleSyncAll(context, body) {
     summary.bookingsInserted = bookingsRes.inserted;
     summary.bookingsUpdated = bookingsRes.updated;
     summary.bookingsOrphaned = bookingsRes.orphaned;
+    summary.bookingsSupabaseCalls = bookingsRes.supabaseCalls;
     errors.push(...bookingsRes.errors);
 
     const reviewsRes = await syncReviews(context, userId, config, aptMap);
@@ -1034,6 +1135,7 @@ async function handleSyncBookingsOnly(context, body) {
       bookingsInserted: bookingsRes.inserted,
       bookingsUpdated: bookingsRes.updated,
       bookingsOrphaned: bookingsRes.orphaned,
+      bookingsSupabaseCalls: bookingsRes.supabaseCalls,
       errors: bookingsRes.errors || []
     });
   } catch (e) {
