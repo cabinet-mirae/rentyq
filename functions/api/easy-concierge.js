@@ -149,9 +149,10 @@ async function fetchResourcePage({ baseUrl, apiKey, tenant, resource, page = 1, 
   };
 }
 
-async function fetchAllResource({ baseUrl, apiKey, tenant, resource, params = {}, perPage = 100, maxPages = 50 }) {
+async function fetchAllResource({ baseUrl, apiKey, tenant, resource, params = {}, perPage = 100, maxPages = 50, diag = null }) {
   let page = 1;
   let all = [];
+  let previousSignature = null;
 
   while (page <= maxPages) {
     const { items, totalPages } = await fetchResourcePage({
@@ -163,6 +164,20 @@ async function fetchAllResource({ baseUrl, apiKey, tenant, resource, params = {}
       perPage,
       params
     });
+
+    if (diag) diag.pagesFetched = page;
+
+    // Garde-fou anti-boucle infinie : si l'API renvoie EXACTEMENT la même page qu'à l'itération
+    // précédente (ex : elle ignore le paramètre `page`, ou le filtre `property_id` pour cette
+    // ressource, et retombe sur le même jeu de résultats), on arrête immédiatement au lieu de
+    // consommer jusqu'à `maxPages` sous-requêtes pour rien. C'est ce mécanisme qui manquait et
+    // qui expliquait le déclenchement de "Too many subrequests" concentré sur un seul property_id.
+    const signature = items.map(it => it && (it.booking_id ?? it.property_id ?? it.id ?? '')).join('|');
+    if (previousSignature !== null && signature === previousSignature) {
+      if (diag) diag.stuckPagination = true;
+      break;
+    }
+    previousSignature = signature;
 
     all = all.concat(items);
 
@@ -183,13 +198,18 @@ async function fetchAllProperties(config) {
   });
 }
 
-async function fetchAllBookings(config, params = {}) {
+async function fetchAllBookings(config, params = {}, diag = null) {
   return fetchAllResource({
     ...config,
     resource: 'bookings',
     params,
     perPage: 100,
-    maxPages: 100
+    // Ramené de 100 à 20 : 20 pages × 100 = 2000 réservations par logement, largement
+    // suffisant en pratique. La vraie protection est la détection de pagination bloquée
+    // ci-dessus, mais on garde ce plafond bien plus bas en filet de sécurité — 100 pages
+    // pour UN SEUL logement était la cause directe du dépassement de sous-requêtes Cloudflare.
+    maxPages: 20,
+    diag
   });
 }
 
@@ -568,9 +588,30 @@ async function syncBookings(context, userId, config, aptMap, properties) {
       continue;
     }
 
+    const diag = { pagesFetched: 0, stuckPagination: false };
+
     try {
-      const bookings = await fetchAllBookings(config, { property_id: propertyId });
-      rawBookings.push(...bookings);
+      const bookings = await fetchAllBookings(config, { property_id: propertyId }, diag);
+      rawBookings.push(...bookings.map(b => ({ ...b, __diag_property_id: propertyId })));
+
+      // DIAGNOSTIC TEMPORAIRE — à retirer une fois l'origine des "Too many subrequests"
+      // confirmée. Visible dans les logs Cloudflare Pages (Functions > Logs, ou
+      // `wrangler pages deployment tail`).
+      console.log(JSON.stringify({
+        diag: 'sync-bookings/fetch',
+        property_id: propertyId,
+        pages_fetched: diag.pagesFetched,
+        stuck_pagination: diag.stuckPagination,
+        bookings_fetched: bookings.length
+      }));
+
+      if (diag.stuckPagination) {
+        errors.push({
+          scope: 'bookings',
+          property_id: propertyId,
+          message: `pagination bloquée détectée après ${diag.pagesFetched} page(s) — l'API Easy Concierge a renvoyé deux pages identiques pour ce property_id, probablement un filtre property_id non respecté côté Easy Concierge`
+        });
+      }
     } catch (e) {
       errors.push({ scope: 'bookings', property_id: propertyId, message: e.message });
     }
@@ -588,6 +629,7 @@ async function syncBookings(context, userId, config, aptMap, properties) {
   const validRows = [];
   const financialRows = [];
   const orphans = [];
+  const processedCountByProperty = new Map(); // diagnostic temporaire
 
   for (const b of rawBookings) {
     const built = buildBookingRow(userId, aptMap, b);
@@ -600,6 +642,19 @@ async function syncBookings(context, userId, config, aptMap, properties) {
 
     validRows.push(built.row);
     if (built.financials) financialRows.push(built.financials);
+
+    const diagPid = b.__diag_property_id;
+    processedCountByProperty.set(diagPid, (processedCountByProperty.get(diagPid) || 0) + 1);
+  }
+
+  // DIAGNOSTIC TEMPORAIRE — nombre de bookings effectivement traités (construits en mémoire,
+  // hors orphelins/skipped) par property_id, à mettre en regard de bookings_fetched ci-dessus.
+  for (const [pid, count] of processedCountByProperty.entries()) {
+    console.log(JSON.stringify({
+      diag: 'sync-bookings/build',
+      property_id: pid,
+      bookings_processed: count
+    }));
   }
 
   if (!validRows.length) {
@@ -669,11 +724,13 @@ async function syncBookings(context, userId, config, aptMap, properties) {
 
   // ── 5. Upsert en lots de BOOKING_BATCH_SIZE lignes, UN SEUL appel Supabase par lot.
   const idByExternalBookingId = new Map(existingIndex);
+  let upsertBatchCount = 0;
 
   for (const batch of chunkArray(validRows, BOOKING_BATCH_SIZE)) {
     try {
       const returned = await upsertReservationsBatch(context, batch);
       supabaseCalls++;
+      upsertBatchCount++;
 
       (Array.isArray(returned) ? returned : []).forEach(r => {
         if (r && r.external_booking_id != null && r.id) {
@@ -684,6 +741,15 @@ async function syncBookings(context, userId, config, aptMap, properties) {
       errors.push({ scope: 'bookings', message: e.message, batch_size: batch.length });
     }
   }
+
+  // DIAGNOSTIC TEMPORAIRE — nombre d'upserts (appels Supabase batch) réellement exécutés pour
+  // les réservations, à comparer avec le nombre de sous-requêtes Cloudflare consommées.
+  console.log(JSON.stringify({
+    diag: 'sync-bookings/upsert',
+    valid_rows: validRows.length,
+    batch_size: BOOKING_BATCH_SIZE,
+    upsert_batches_executed: upsertBatchCount
+  }));
 
   // ── 6. reservation_financials également en lots — jamais pour revenue_available=false
   //    (déjà filtré dans buildBookingRow).
